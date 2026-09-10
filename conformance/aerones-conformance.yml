@@ -1,0 +1,132 @@
+generated: '2026-09-10'
+method: searched
+source: openapi/aerones-operations-hub-openapi.json
+docs: https://aerones.com/certification/
+note: >-
+  Two kinds of conformance are recorded here and they should not be confused. The
+  cross-cutting API standards are derived from the machine-readable contract. The
+  certifications are the operational (QHSE) accreditations Aerones publishes on its own
+  certification page - they are real, third-party audited management-system
+  certifications, but none of them is an information-security or data-handling
+  certification: there is no SOC 2, no ISO 27001, no PCI DSS and no FedRAMP.
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: 'openapi: 3.1.0 served at https://operations.aerones.com/api/openapi.json'
+- id: graphql
+  conforms: true
+  evidence: >-
+    Full SDL served as text/plain at https://operations.aerones.com/api/graphql-schema;
+    anonymous introspection answers at https://operations.aerones.com/graphql
+- id: oauth2
+  conforms: true
+  evidence: >-
+    Keycloak authorization server at https://sso.aerones.com/realms/aerones - RFC 6749
+    authorization_code, client_credentials, refresh_token, password flows
+- id: oidc
+  conforms: true
+  evidence: OIDC discovery document served at /realms/aerones/.well-known/openid-configuration
+- id: rfc7636-pkce
+  conforms: true
+  evidence: 'code_challenge_methods_supported: [plain, S256]'
+- id: rfc8628-device-authorization
+  conforms: true
+  evidence: device_authorization_endpoint present in the OIDC discovery document
+- id: openid-ciba
+  conforms: true
+  evidence: backchannel_authentication_endpoint present in the OIDC discovery document
+- id: rfc8705-mtls-client-auth
+  conforms: true
+  evidence: 'token_endpoint_auth_methods_supported includes tls_client_auth'
+- id: rfc7523-private-key-jwt
+  conforms: true
+  evidence: 'token_endpoint_auth_methods_supported includes private_key_jwt'
+- id: rfc7662-token-introspection
+  conforms: true
+  evidence: introspection_endpoint present in the OIDC discovery document
+- id: rfc7009-token-revocation
+  conforms: true
+  evidence: revocation_endpoint present in the OIDC discovery document
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  evidence: registration_endpoint present in the OIDC discovery document
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    Errors use a bespoke {code, message} envelope; application/problem+json appears
+    nowhere in the contract
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on every Aerones host
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: >-
+    33 operations are flagged deprecated in the OpenAPI, but no Sunset or Deprecation
+    response header is declared
+- id: rfc9728-oauth-protected-resource
+  conforms: false
+  evidence: /.well-known/oauth-protected-resource returns 404 on sso.aerones.com and 404
+    or an SPA shell elsewhere
+- id: asyncapi
+  conforms: false
+  evidence: No AsyncAPI document published; the event surface is GraphQL subscriptions
+- id: json-api
+  conforms: false
+  evidence: Responses are plain JSON objects, not JSON:API documents
+- id: odata
+  conforms: false
+- id: scim2
+  conforms: false
+- id: a2a-agent-card
+  conforms: false
+  evidence: /.well-known/agent-card.json and /.well-known/agent.json 404 or return an SPA
+    shell on all seven probed hosts
+- id: mcp
+  conforms: false
+  evidence: No MCP server published; see mcp/aerones-mcp.yml
+domain_standards:
+  note: >-
+    Aerones' market is wind-turbine operations and maintenance. The domain data standards
+    that exist in this sector - IEC 61400-25 (SCADA communications for wind power plants),
+    IEC 61400-5 (blades), and the IEA Wind Task 43 WRA Data Model / Wind Energy Ontology -
+    are for SCADA telemetry and resource assessment, not for the blade-service work-order
+    and anomaly domain this API actually covers. Nothing in the contract declares any of
+    them, and no vocabulary, ontology URI or standard identifier appears in the 1,377
+    schemas. Recorded as absent, not as a failing: the reward-only rule applies.
+  declared: []
+  probed_for:
+  - id: iec-61400-25
+    found: false
+  - id: iea-wind-task-43-wra-data-model
+    found: false
+  - id: ogc-api
+    found: false
+    note: >-
+      Geospatial concepts exist (customer locations, coordinates, point clouds) but no
+      OGC conformance class, GetCapabilities surface or /conformance endpoint is served.
+certifications:
+  source: https://aerones.com/certification/
+  http_status: 200
+  fetched: '2026-09-10'
+  published:
+  - id: iso-9001
+    name: ISO 9001 Quality Management
+    kind: management-system
+  - id: iso-14001
+    name: ISO 14001 Environmental Management
+    kind: management-system
+  - id: iso-45001
+    name: ISO 45001 Occupational Health and Safety Management
+    kind: management-system
+  - id: gwo
+    name: Global Wind Organisation training standards
+    kind: industry-training
+  bodies:
+  - KIWA
+  - TUV NORD
+  - Global Wind Organisation
+  information_security_certifications: []
+  note: >-
+    No SOC 2, ISO 27001, ISO 27017/27018, PCI DSS, HIPAA, FedRAMP, CSA STAR or GDPR
+    attestation is published, and no trust center exists (trust.aerones.com and
+    security.aerones.com do not resolve).

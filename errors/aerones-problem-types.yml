@@ -1,0 +1,72 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/aerones-operations-hub-openapi.json
+format: bespoke
+rfc9457: false
+note: >-
+  Aerones publishes no error reference page, so this is derived entirely from the
+  OpenAPI 4xx/5xx responses and the Error/ErrorCode component schemas. The envelope is
+  a two-field object, not application/problem+json - there is no type URI, no instance,
+  no detail, and no per-error documentation URL. 351 of 1,114 operations declare a 400
+  and 7 declare a 404; no operation declares 401, 403, 409, 422, 429 or any 5xx, even
+  though 1,089 operations require authentication, so the authentication and
+  authorization failure shapes are undocumented.
+envelope:
+  content_type: application/json
+  schema: '#/components/schemas/Error'
+  required:
+  - code
+  - message
+  fields:
+    code: ErrorCode enum
+    message: human-readable string
+error_codes:
+- code: validation
+  meaning: Request failed schema or business validation.
+  http_status: 400
+- code: auth
+  meaning: Authentication or authorization failure.
+  http_status: not declared on any operation
+- code: external
+  meaning: A downstream integration failed (NetSuite, Wrike, Pipedrive, BambooHR, MaintainX, TalentLMS, Confluence).
+  http_status: not declared on any operation
+- code: server
+  meaning: Unhandled server-side failure.
+  http_status: not declared on any operation
+- code: generic
+  meaning: Catch-all application error.
+  http_status: not declared on any operation
+- code: unknown
+  meaning: Unclassified error.
+  http_status: not declared on any operation
+problems:
+- status: 400
+  title: Bad Request
+  schema: '#/components/schemas/Error'
+  declared_on_operations: 351
+  example_source_operation: openapi/aerones-operations-hub-openapi.json#create_turbine
+- status: 404
+  title: Not Found
+  schema: '#/components/schemas/Error'
+  declared_on_operations: 7
+  example_source_operation: openapi/aerones-operations-hub-openapi.json#get_turbine
+- status: 404
+  title: Unmatched API path
+  probed: true
+  shape:
+    code: integer (404)
+    message: 'API path ''/api/...'' does not exist'
+    request_id: string
+  note: >-
+    The router's own not-found body, observed live on an unrouted /api/ path. It uses a
+    different envelope from the Error schema above - an integer code and a request_id -
+    so the contract has two error shapes and documents only one.
+  evidence:
+    url: https://operations.aerones.com/api/v1/
+    http_status: 404
+    fetched: '2026-09-10'
+gaps:
+- No 401 or 403 response declared on any of the 1,089 authenticated operations.
+- No 429 declared; see rate-limits/aerones-rate-limits.yml.
+- No 5xx declared anywhere in the contract.
+- No remediation text, error documentation URL, or retryability signal per error.

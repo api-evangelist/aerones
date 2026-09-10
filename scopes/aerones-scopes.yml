@@ -1,0 +1,62 @@
+generated: '2026-09-10'
+method: probed
+source: https://sso.aerones.com/realms/aerones/.well-known/openid-configuration
+note: >-
+  The Operations Hub OpenAPI declares no oauth2 securityScheme, so there is nothing to
+  derive from the spec - derive-oauth-scopes.py reported zero oauth2 schemes. The scopes
+  below are the scopes_supported list read verbatim off the Keycloak realm's OIDC
+  discovery document, which is served anonymously. They are Keycloak's standard OIDC and
+  built-in client scopes, not an Aerones-authored permission model: no per-resource scope
+  (read:turbines and the like) is published anywhere. Field-level authorization on the
+  GraphQL surface is expressed instead with a @hasPerm(permissions: [PermDefinition!]!)
+  directive carried in the published SDL; the permission strings themselves are not
+  enumerated in the schema.
+schemes:
+- name: KeycloakOIDC
+  realm: aerones
+  source: https://sso.aerones.com/realms/aerones/.well-known/openid-configuration
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://sso.aerones.com/realms/aerones/protocol/openid-connect/auth
+    tokenUrl: https://sso.aerones.com/realms/aerones/protocol/openid-connect/token
+  - flow: clientCredentials
+    tokenUrl: https://sso.aerones.com/realms/aerones/protocol/openid-connect/token
+  - flow: deviceCode
+    deviceAuthorizationUrl: https://sso.aerones.com/realms/aerones/protocol/openid-connect/auth/device
+scopes:
+- scope: openid
+  description: OIDC authentication request marker.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: profile
+  description: Standard OIDC profile claims (name, given_name, family_name, preferred_username).
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: email
+  description: Standard OIDC email claim.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: address
+  description: Standard OIDC address claim.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: phone
+  description: Standard OIDC phone claim.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: roles
+  description: Keycloak realm and client role mappings in the token.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: offline_access
+  description: Requests an offline refresh token.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: acr
+  description: Authentication context class reference.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: basic
+  description: Keycloak built-in scope carrying sub and auth_time.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: web-origins
+  description: Keycloak built-in scope adding allowed CORS origins to the token.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: organization
+  description: Keycloak organization membership claim.
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]
+- scope: microprofile-jwt
+  description: Keycloak built-in MicroProfile JWT scope (upn, groups).
+  sources: [well-known/aerones-sso-aerones-openid-configuration.json]

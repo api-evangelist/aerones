@@ -1,0 +1,50 @@
+generated: '2026-09-10'
+method: derived
+source:
+- graphql/aerones-operations-hub.graphql
+- openapi/aerones-operations-hub-openapi.json
+spec_type: none
+asyncapi_published: false
+note: >-
+  Aerones publishes no AsyncAPI document. It does have a real push surface, but it is
+  GraphQL subscriptions, not webhooks - four subscription fields in the published SDL.
+  Separately, the OpenAPI declares seven webhook endpoints; those are INBOUND receivers
+  that Aerones' own vendor systems POST into, not an outbound event catalog a customer
+  can subscribe to. THAT DISTINCTION IS WHY NO Webhooks POINTER IS WIRED FOR THIS
+  PROVIDER: a buyer cannot register a callback URL with Aerones, so crediting a webhook
+  surface here would credit a capability they do not offer. Recorded for accuracy, not
+  for score.
+subscriptions:
+  transport: graphql-ws over https://operations.aerones.com/graphql
+  count: 4
+  channels:
+  - name: workorderChanged
+    kind: graphql-subscription
+  - name: projectWorkorderChanged
+    kind: graphql-subscription
+  - name: myPendingScopeCommitmentsChanged
+    kind: graphql-subscription
+  - name: notificationReceived
+    kind: graphql-subscription
+inbound_webhook_receivers:
+  direction: inbound
+  consumer_subscribable: false
+  count: 7
+  endpoints:
+  - path: /api/webhooks/wms/coverage-published
+    partner: WMS (workforce management)
+    operation_note: >-
+      The handler is documented as idempotent because WMS republishes every project_code
+      in the layer's date range rather than diffing against the prior snapshot.
+  - path: /api/webhooks/travel/task-updated
+    partner: travel booking system
+  - path: /api/webhooks/pipedrive-sync
+    partner: Pipedrive CRM
+  - path: /api/webhooks/wrike/dates-changed
+    partner: Wrike
+  - path: /api/webhooks/wrike/task-created
+    partner: Wrike
+  - path: /api/webhooks/wrike/custom-field
+    partner: Wrike
+  - path: /api/webhooks/wrike/sync-task
+    partner: Wrike

@@ -1,0 +1,178 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/aerones-operations-hub-openapi.json
+note: >-
+  Derived from the published OpenAPI 3.1.0 contract and the Keycloak OIDC discovery
+  document. Aerones publishes no prose developer documentation, so nothing here is a
+  provider statement - every field is read out of the machine-readable contract, and
+  where the contract is silent the value is recorded as unknown rather than guessed.
+authentication:
+  style: bearer token or session cookie
+  header: 'Authorization: Bearer <token>'
+  cookie: opshub_prod_sessionid
+  issuer: https://sso.aerones.com/realms/aerones
+  see: authentication/aerones-authentication.yml
+pagination:
+  style: page-number
+  opt_in: true
+  params:
+  - name: page
+    in: query
+    operations: 156
+  - name: page_size
+    in: query
+    operations: 156
+  - name: paginate
+    in: query
+    operations: 135
+    note: Boolean switch - pagination is opt-in per request on most list endpoints.
+  response_fields: unknown
+  note: >-
+    No cursor, offset-only, or Link-header pagination anywhere in the contract. 27
+    operations carry an offset parameter and 32 a limit, in bespoke listing endpoints
+    rather than as a shared convention.
+filtering_and_sorting:
+  search:
+    param: search
+    operations: 131
+  sort:
+    param: sort
+    operations: 125
+  common_filters:
+  - status
+  - start_date
+  - end_date
+  - type
+  - customer_id
+  - project_id
+field_expansion:
+  supported: false
+  note: No expand/include/fields parameter in the REST contract. Selective field
+    retrieval is what the companion GraphQL surface is for.
+metadata:
+  supported: false
+  note: No generic metadata/custom-field bag on REST resources. Customer-specific
+    anomaly fields are modelled explicitly (core.customers.anomaly-client-fields).
+request_tracing:
+  request_id: true
+  mechanism: >-
+    Error bodies from the routing layer carry a request_id field (observed on 404
+    responses from unmatched /api/ paths). No request-id request header is documented,
+    and no correlation header is declared in the contract.
+versioning:
+  scheme: uri-path
+  current: v1
+  note: >-
+    Newer namespaces are versioned in the path (/api/core/v1/, /api/dispatch/v1/,
+    /api/vis/v1/, /api/resource-mobilization/v1/). Older namespaces are unversioned
+    (/api/projects/, /api/technician/, /api/customers) and 33 of those operations are
+    marked deprecated, which is how the v1 migration is visible in the contract.
+    info.version is 0.1.1 - a build version, not an API version.
+  see: lifecycle/aerones-lifecycle.yml
+error_envelope:
+  format: bespoke
+  rfc9457: false
+  shape:
+    code: enum - validation | server | auth | unknown | external | generic
+    message: string
+  content_type: application/json
+  see: errors/aerones-problem-types.yml
+rate_limit_signaling:
+  documented: false
+  headers: []
+  note: >-
+    No X-RateLimit-*, RateLimit-*, or Retry-After header appears anywhere in the
+    contract, and no 429 response is declared on any of the 1,114 operations.
+  see: rate-limits/aerones-rate-limits.yml
+idempotency:
+  supported: partial
+  coverage: partial
+  mechanism: per-operation semantics
+  header: null
+  note: >-
+    There is no Idempotency-Key header and no replay-protection mechanism of any kind.
+    Instead, seven individual write operations state in their own description that they
+    are idempotent - a merge that skips existing rows, a cancel that is a no-op when
+    already terminal, a draft-create that returns the existing draft. Everything else on
+    the write surface (roughly 480 POST/PUT/PATCH/DELETE operations) has no replay
+    protection, so a retried request creates a duplicate. This is scope-limited
+    idempotency in the sense of roadmap#243, not a Stripe-shaped contract.
+  scope:
+  - init_turbine_receptors_from_preset
+  - create_project_offer_draft
+  - projects_api_team_request_cancel_team_request
+  - projects_api_set_request_create_set_request_item
+  - projects_api_set_request_cancel_set_request
+  - accounting_api_sync_delay_charges
+  - planning_endpoints_service_order_anomalies_link_anomalies
+dry_run_mode:
+  supported: false
+  note: >-
+    No dry-run, preview, simulate or validate-only flag on the write surface. The one
+    validate operation (core_endpoints_projects_validate_project) validates stored
+    project state, not a proposed request.
+reversibility:
+  grade: documented
+  note: >-
+    Reversal paths exist and are named in the contract - cancel, unfinalize, restore and
+    soft delete - but Aerones publishes no documentation stating a window for any of
+    them, so this grades as documented rather than verified. The only window the contract
+    itself expresses is a state precondition ("any non-terminal -> CANCELLED"), which
+    bounds reversal by lifecycle state and not by elapsed time. NO TIME WINDOW IS
+    ASSERTED HERE because none is published.
+  write_surface_operations: 480
+  reversal_paths:
+  - operation: dispatch_api_workorders_cancel_workorder
+    path: /api/dispatch/v1/workorders/{workorder_id}/cancel
+    reverses: dispatch_api_workorders_create_workorder
+    window: not stated
+  - operation: dispatch_api_workorders_delete_workorder
+    path: /api/dispatch/v1/workorders/{workorder_id}
+    reverses: dispatch_api_workorders_create_workorder
+    window: not stated
+  - operation: projects_api_team_request_cancel_team_request
+    path: /api/projects/{project_id}/team-requests/{team_request_id}/cancel
+    reverses: team request creation
+    window: 'state precondition only: any non-terminal state -> CANCELLED; idempotent'
+  - operation: projects_api_set_request_cancel_set_request
+    path: /api/projects/{project_id}/set-requests/{set_request_id}/cancel
+    reverses: set request creation
+    window: 'state precondition only: any non-terminal state -> CANCELLED; idempotent'
+  - operation: projects_api_set_demob_cancel_set_demob
+    path: /api/projects/{project_id}/set-demobs/{demob_id}/cancel
+    reverses: set demob creation
+    window: not stated
+  - operation: cancel_scope_commitment_v1
+    path: /api/dispatch/v1/projects/{project_id}/dispatch/scope-commitments/{commitment_id}
+    reverses: scope commitment creation
+    window: not stated
+  - operation: resource_mobilization_endpoints_vehicle_fleet_assignments_cancel_assignment
+    path: /api/resource-mobilization/v1/vehicle-fleet-assignments/{id}/cancel
+    reverses: vehicle fleet assignment
+    window: not stated
+  - operation: technician_api_service_results_unfinalize_service_order_line
+    path: /api/technician/service-order-lines/{sol_id}/unfinalize
+    reverses: service order line finalization
+    window: not stated
+  - operation: projects_api_reporting_requirements_cru_restore_requirement
+    path: /api/reporting-requirements/{requirement_id}/restore
+    reverses: reporting requirement deletion
+    window: not stated
+    note: An explicit restore-after-delete path - the strongest reversal signal in the contract.
+  - operation: reject_project_offer
+    path: /api/core/v1/projects/{project_id}/offers/{offer_id}/reject
+    reverses: send_project_offer_for_approval
+    window: 'state precondition only: offer must be pending'
+  unreversed_high_consequence:
+  - accounting_api_sync_delay_charges
+  - core_endpoints_robot_sets_sync_robot_set_to_netsuite
+  - approve_project_offer
+  note_unreversed: >-
+    Writes that push into NetSuite and the offer-approval transition have no reversal
+    operation in this contract; undoing them is presumably a NetSuite-side action.
+cross_links:
+  errors: errors/aerones-problem-types.yml
+  lifecycle: lifecycle/aerones-lifecycle.yml
+  authentication: authentication/aerones-authentication.yml
+  rate_limits: rate-limits/aerones-rate-limits.yml
+  data_model: data-model/aerones-data-model.yml

@@ -1,0 +1,740 @@
+generated: '2026-09-10'
+method: derived
+source: openapi/aerones-operations-hub-openapi.json
+note: 'Entity-relationship graph derived mechanically from the 1,377 component schemas: *_id / *_ids reference
+  fields become belongs_to / has_many edges and $ref links become has_one / has_many edges. Aerones publishes
+  no object reference, so no id prefixes, domains or prose descriptions could be added - nothing here
+  is authored. 1,619 distinct id-reference edges were found across the schema set; the entities below
+  are the wind-service core.'
+totals:
+  schemas: 1377
+  id_reference_edges: 1619
+  entities_profiled: 26
+domains:
+- name: asset
+  entities:
+  - Turbine
+  - TurbineModel
+  - TurbineComponent
+  - Manufacturer
+  note: 'The physical asset: customer turbines, their model, and the blades/components on them.'
+- name: condition
+  entities:
+  - Anomaly
+  - Inspection
+  note: What the robots and drones found - anomalies typed by component, root cause, material and recommendation,
+    plus inspection media (point clouds, rosbags, video, root photos).
+- name: commercial
+  entities:
+  - Customer
+  - Project
+  - ProjectOffer
+  - Service
+  - PurchaseOrder
+  - SalesOrder
+  note: Customer, project, priced offer versions, service catalog and the NetSuite-facing order/invoice
+    chain.
+- name: execution
+  entities:
+  - Workorder
+  - WorkorderActivity
+  - WorkPackage
+  - ServiceOrderLine
+  - Campaign
+  - Delay
+  note: Dispatch and work management - what is scheduled, who is on it, what got done, and what delayed
+    it.
+- name: resource
+  entities:
+  - RobotSet
+  - Resource
+  - Certificate
+  - Vendor
+  note: Robot sets, crews and vehicles, and the certificates a technician must hold to be assigned.
+entities:
+- entity: Turbine
+  schema: TurbineResponse
+  field_count: 21
+  relationships:
+  - to: Blade
+    kind: has_many
+    via: blades
+  - to: LocationObject
+    kind: has_one
+    via: location
+  - to: ManufacturerObject
+    kind: has_one
+    via: manufacturer
+  - to: TurbineComponentInput
+    kind: has_many
+    via: components
+  - to: TurbineCustomerInput
+    kind: has_many
+    via: customers
+  - to: TurbineModelObject
+    kind: has_one
+    via: model
+  - to: location
+    kind: belongs_to
+    via: location_id
+  - to: manufacturer
+    kind: belongs_to
+    via: manufacturer_id
+  - to: manufacturer_turbine_model
+    kind: belongs_to
+    via: manufacturer_turbine_model_id
+- entity: TurbineModel
+  schema: TurbineModelResponse
+  field_count: 10
+  relationships:
+  - to: ManufacturerObject
+    kind: has_one
+    via: manufacturer
+  - to: manufacturer
+    kind: belongs_to
+    via: manufacturer_id
+- entity: TurbineComponent
+  schema: TurbineComponentResponse
+  field_count: 15
+  relationships:
+  - to: ComponentTypeObject
+    kind: has_one
+    via: component_type
+  - to: ManufacturerComponentModelObject
+    kind: has_one
+    via: model
+  - to: ManufacturerObject
+    kind: has_one
+    via: manufacturer
+  - to: PositionEnum
+    kind: has_one
+    via: position
+  - to: TurbineObject
+    kind: has_one
+    via: turbine
+  - to: component_type
+    kind: belongs_to
+    via: component_type_id
+  - to: manufacturer
+    kind: belongs_to
+    via: manufacturer_id
+  - to: model
+    kind: belongs_to
+    via: model_id
+  - to: parent_turbine_component
+    kind: belongs_to
+    via: parent_turbine_component_id
+  - to: turbine
+    kind: belongs_to
+    via: turbine_id
+- entity: Blade
+  schema: BladeSchema
+  field_count: 8
+  relationships:
+  - to: BladePhoto
+    kind: has_many
+    via: ch2_photos
+  - to: BladePhoto
+    kind: has_many
+    via: root_chamber_photos
+- entity: Anomaly
+  schema: AnomalyResponse
+  field_count: 74
+  relationships:
+  - to: AnomalyAIStatus
+    kind: has_one
+    via: ai_status
+  - to: AnomalyCustomValueInput
+    kind: has_many
+    via: custom_values
+  - to: AnomalyCustomValueOutput
+    kind: has_many
+    via: custom_values
+  - to: AnomalyFile
+    kind: has_many
+    via: files
+  - to: AnomalyRegisteredByType
+    kind: has_one
+    via: registered_by
+  - to: ai_anomaly
+    kind: belongs_to
+    via: ai_anomaly_id
+  - to: anomaly_component
+    kind: belongs_to
+    via: anomaly_component_id
+  - to: anomaly_major_component
+    kind: belongs_to
+    via: anomaly_major_component_id
+  - to: anomaly_material
+    kind: belongs_to
+    via: anomaly_material_id
+  - to: anomaly_sub_component
+    kind: belongs_to
+    via: anomaly_sub_component_id
+  - to: anomaly_sub_type
+    kind: belongs_to
+    via: anomaly_sub_type_id
+  - to: anomaly_type
+    kind: belongs_to
+    via: anomaly_type_id
+  - to: blade
+    kind: belongs_to
+    via: blade_id
+  - to: cross_file
+    kind: has_many
+    via: cross_file_ids
+- entity: Customer
+  schema: CustomerResponse
+  field_count: 19
+  relationships:
+  - to: CountryObject
+    kind: has_one
+    via: country
+  - to: CurrencyObject
+    kind: has_one
+    via: currency
+  - to: CustomerType
+    kind: has_one
+    via: type
+  - to: ParentCustomerObject
+    kind: has_one
+    via: parent_customer
+  - to: alt
+    kind: belongs_to
+    via: alt_id
+  - to: business
+    kind: belongs_to
+    via: business_id
+  - to: country
+    kind: belongs_to
+    via: country_id
+  - to: currency
+    kind: belongs_to
+    via: currency_id
+  - to: logo_file
+    kind: belongs_to
+    via: logo_file_id
+  - to: netsuite_customer
+    kind: belongs_to
+    via: netsuite_customer_id
+  - to: netsuite_subsidiary
+    kind: belongs_to
+    via: netsuite_subsidiary_id
+  - to: parent_customer
+    kind: belongs_to
+    via: parent_customer_id
+  - to: pipedrive_org
+    kind: belongs_to
+    via: pipedrive_org_id
+- entity: CustomerLocation
+  schema: CustomerLocationResponse
+  field_count: 5
+  relationships:
+  - to: CustomerLocationCreateMode
+    kind: has_one
+    via: mode
+  - to: LocationCertificateInput
+    kind: has_many
+    via: certificates
+  - to: LocationObjectWithType
+    kind: has_one
+    via: location
+  - to: LocationType
+    kind: has_one
+    via: type
+  - to: RelationshipTypeObject
+    kind: has_one
+    via: relationship
+  - to: children_relationship
+    kind: belongs_to
+    via: children_relationship_id
+  - to: country
+    kind: belongs_to
+    via: country_id
+  - to: customer
+    kind: belongs_to
+    via: customer_id
+  - to: global_wind_park_db
+    kind: belongs_to
+    via: global_wind_park_db_id
+  - to: location
+    kind: belongs_to
+    via: location_id
+  - to: relationship
+    kind: belongs_to
+    via: relationship_id
+  - to: timezone
+    kind: belongs_to
+    via: timezone_id
+- entity: Project
+  schema: ProjectResponse
+  field_count: 31
+  relationships:
+  - to: Client
+    kind: has_one
+    via: client
+  - to: Country
+    kind: has_one
+    via: country
+  - to: CountryWithRegionObject
+    kind: has_one
+    via: country
+  - to: CustomerObject
+    kind: has_one
+    via: billing_customer
+  - to: CustomerObject
+    kind: has_one
+    via: requesting_customer
+  - to: ProjectLocationSummary
+    kind: has_one
+    via: location_summary
+  - to: ProjectOfferStatus
+    kind: has_one
+    via: offer_status
+  - to: ProjectSiteSimple
+    kind: has_many
+    via: sites
+  - to: ProjectStatusObject
+    kind: has_one
+    via: status
+  - to: StandardObject
+    kind: has_one
+    via: lps_standard
+  - to: TimezoneObject
+    kind: has_one
+    via: timezone
+  - to: UserObject
+    kind: has_one
+    via: project_manager
+  - to: UserObject
+    kind: has_one
+    via: salesperson
+  - to: UserStatus
+    kind: has_one
+    via: user_status
+- entity: ProjectOffer
+  schema: ProjectOfferResponse
+  field_count: 18
+  relationships:
+  - to: CurrencyObject
+    kind: has_one
+    via: currency
+  - to: Offer
+    kind: has_one
+    via: offer
+  - to: currency
+    kind: belongs_to
+    via: currency_id
+  - to: project
+    kind: belongs_to
+    via: project_id
+  - to: reviewer
+    kind: belongs_to
+    via: reviewer_id
+- entity: Service
+  schema: ServiceResponse
+  field_count: 12
+  relationships:
+  - to: CodeWithName
+    kind: has_many
+    via: addons
+  - to: CodeWithName
+    kind: has_many
+    via: materials
+  - to: CodeWithName
+    kind: has_one
+    via: category
+  - to: ComponentTypeObject
+    kind: has_many
+    via: component_types
+  - to: PricingUnitNested
+    kind: has_many
+    via: pricing_unit_types
+  - to: ServiceCategoryNested
+    kind: has_one
+    via: category
+  - to: ServiceCondition
+    kind: has_many
+    via: conditions
+  - to: ServiceFamilyNested
+    kind: has_one
+    via: service_family
+  - to: ServiceGroupNested
+    kind: has_one
+    via: service_group
+- entity: ServiceOrderLine
+  schema: ServiceOrderLineResponse
+  field_count: 13
+  relationships:
+  - to: ComponentTypeInfo
+    kind: has_one
+    via: component_type
+  - to: ProjectInfo
+    kind: has_one
+    via: project
+  - to: TurbineComponentInfo
+    kind: has_one
+    via: turbine_component
+  - to: TurbineInfo
+    kind: has_one
+    via: turbine
+  - to: component_type
+    kind: belongs_to
+    via: component_type_id
+  - to: customer
+    kind: belongs_to
+    via: customer_id
+  - to: original_sol
+    kind: belongs_to
+    via: original_sol_id
+  - to: project
+    kind: belongs_to
+    via: project_id
+  - to: project_scope_item
+    kind: belongs_to
+    via: project_scope_item_id
+  - to: sales_order_line
+    kind: belongs_to
+    via: sales_order_line_id
+  - to: turbine
+    kind: belongs_to
+    via: turbine_id
+  - to: turbine_component
+    kind: belongs_to
+    via: turbine_component_id
+- entity: Workorder
+  schema: WorkorderResponse
+  field_count: 14
+  relationships:
+  - to: WorkorderComponentTypeInfo
+    kind: has_one
+    via: component_type
+  - to: WorkorderProjectInfo
+    kind: has_one
+    via: project
+  - to: WorkorderTurbineComponentInfo
+    kind: has_one
+    via: turbine_component
+  - to: WorkorderTurbineInfo
+    kind: has_one
+    via: turbine
+  - to: assignee_user
+    kind: belongs_to
+    via: assignee_user_id
+  - to: customer
+    kind: belongs_to
+    via: customer_id
+  - to: location
+    kind: belongs_to
+    via: location_id
+  - to: project
+    kind: belongs_to
+    via: project_id
+  - to: service_order_line
+    kind: belongs_to
+    via: service_order_line_id
+  - to: turbine
+    kind: belongs_to
+    via: turbine_id
+  - to: turbine_component
+    kind: belongs_to
+    via: turbine_component_id
+  - to: windpark
+    kind: belongs_to
+    via: windpark_id
+- entity: WorkorderActivity
+  schema: WorkorderActivity
+  field_count: 24
+  relationships:
+  - to: anomaly
+    kind: belongs_to
+    via: anomaly_id
+  - to: component_type
+    kind: belongs_to
+    via: component_type_id
+  - to: location
+    kind: belongs_to
+    via: location_id
+  - to: portal_service_activity
+    kind: belongs_to
+    via: portal_service_activity_id
+  - to: robot_set
+    kind: belongs_to
+    via: robot_set_id
+  - to: service_item_activity
+    kind: belongs_to
+    via: service_item_activity_id
+  - to: team_lead_resource
+    kind: has_many
+    via: team_lead_resource_ids
+  - to: turbine
+    kind: belongs_to
+    via: turbine_id
+  - to: turbine_component
+    kind: belongs_to
+    via: turbine_component_id
+- entity: WorkPackage
+  schema: WorkPackageResponse
+  field_count: 23
+  relationships:
+  - to: Attachment
+    kind: has_many
+    via: attachments
+  - to: Comment
+    kind: has_many
+    via: comments
+  - to: NestedCampaign
+    kind: has_one
+    via: campaign
+  - to: NestedSite
+    kind: has_one
+    via: site
+  - to: NestedTurbine
+    kind: has_one
+    via: turbine
+  - to: NestedTurbineComponent
+    kind: has_one
+    via: turbine_component
+  - to: NestedVendor
+    kind: has_one
+    via: vendor
+  - to: campaign
+    kind: belongs_to
+    via: campaign_id
+  - to: site
+    kind: belongs_to
+    via: site_id
+  - to: turbine
+    kind: belongs_to
+    via: turbine_id
+  - to: turbine_component
+    kind: belongs_to
+    via: turbine_component_id
+  - to: vendor
+    kind: belongs_to
+    via: vendor_id
+- entity: RobotSet
+  schema: RobotSetResponse
+  field_count: 9
+  relationships:
+  - to: RobotSetServiceNested
+    kind: has_many
+    via: services
+  - to: maintainx_asset
+    kind: belongs_to
+    via: maintainx_asset_id
+  - to: netsuite
+    kind: belongs_to
+    via: netsuite_id
+  - to: service
+    kind: has_many
+    via: service_ids
+- entity: Resource
+  schema: ResourceResponse
+  field_count: 12
+  relationships:
+  - to: ResourceCertificateInput
+    kind: has_many
+    via: certificates
+  - to: ResourceCertificateOutput
+    kind: has_many
+    via: certificates
+  - to: bamboohr_employee
+    kind: belongs_to
+    via: bamboohr_employee_id
+  - to: robot_set
+    kind: belongs_to
+    via: robot_set_id
+  - to: talentlms_user
+    kind: belongs_to
+    via: talentlms_user_id
+  - to: user
+    kind: belongs_to
+    via: user_id
+- entity: Certificate
+  schema: CertificateResponse
+  field_count: 10
+  relationships:
+  - to: category
+    kind: belongs_to
+    via: category_id
+  - to: country
+    kind: belongs_to
+    via: country_id
+- entity: Manufacturer
+  schema: ManufacturerResponse
+  field_count: 3
+  relationships: []
+- entity: Inspection
+  schema: InspectionSchema
+  field_count: 3
+  relationships:
+  - to: Component
+    kind: has_many
+    via: components
+  - to: service_order_line
+    kind: belongs_to
+    via: service_order_line_id
+- entity: Vendor
+  schema: VendorResponse
+  field_count: 14
+  relationships:
+  - to: CountryObject
+    kind: has_one
+    via: country
+  - to: CurrencyObject
+    kind: has_one
+    via: currency
+  - to: ParentVendorObject
+    kind: has_one
+    via: parent_vendor
+  - to: country
+    kind: belongs_to
+    via: country_id
+  - to: currency
+    kind: belongs_to
+    via: currency_id
+  - to: netsuite_vendor
+    kind: belongs_to
+    via: netsuite_vendor_id
+  - to: parent_vendor
+    kind: belongs_to
+    via: parent_vendor_id
+- entity: PurchaseOrder
+  schema: PurchaseOrderResponse
+  field_count: 6
+  relationships:
+  - to: CurrencyObject
+    kind: has_one
+    via: currency
+  - to: PurchaseOrderCustomerRef
+    kind: has_one
+    via: customer
+  - to: PurchaseOrderVersionObject
+    kind: has_one
+    via: current_version
+  - to: currency
+    kind: belongs_to
+    via: currency_id
+  - to: customer
+    kind: belongs_to
+    via: customer_id
+  - to: file
+    kind: belongs_to
+    via: file_id
+  - to: project
+    kind: has_many
+    via: project_ids
+- entity: SalesOrder
+  schema: SalesOrder
+  field_count: 11
+  relationships:
+  - to: SalesOrderSourceSystem
+    kind: has_one
+    via: source_system
+  - to: currency
+    kind: belongs_to
+    via: currency_id
+  - to: customer
+    kind: belongs_to
+    via: customer_id
+  - to: netsuite_customer
+    kind: belongs_to
+    via: netsuite_customer_id
+  - to: netsuite_sales_order
+    kind: belongs_to
+    via: netsuite_sales_order_id
+  - to: ns_project
+    kind: belongs_to
+    via: ns_project_id
+  - to: project
+    kind: belongs_to
+    via: project_id
+- entity: Delay
+  schema: DelayResponse
+  field_count: 18
+  relationships:
+  - to: DelayTypeObject
+    kind: has_one
+    via: delay_type
+  - to: LocationObject
+    kind: has_one
+    via: location
+  - to: ResourceObject
+    kind: has_one
+    via: resource
+  - to: RobotSetObject
+    kind: has_one
+    via: robot_set
+  - to: delay_type
+    kind: belongs_to
+    via: delay_type_id
+  - to: location
+    kind: belongs_to
+    via: location_id
+  - to: project
+    kind: belongs_to
+    via: project_id
+  - to: resource
+    kind: belongs_to
+    via: resource_id
+  - to: robot_set
+    kind: belongs_to
+    via: robot_set_id
+  - to: service_order
+    kind: belongs_to
+    via: service_order_id
+  - to: team_preset
+    kind: belongs_to
+    via: team_preset_id
+  - to: team_robot_set
+    kind: belongs_to
+    via: team_robot_set_id
+  - to: workorder
+    kind: belongs_to
+    via: workorder_id
+  - to: workorder_activity
+    kind: belongs_to
+    via: workorder_activity_id
+- entity: Campaign
+  schema: CampaignResponse
+  field_count: 12
+  relationships:
+  - to: Attachment
+    kind: has_many
+    via: attachments
+  - to: Comment
+    kind: has_many
+    via: comments
+- entity: File
+  schema: FileResponse
+  field_count: 5
+  relationships: []
+- entity: User
+  schema: User
+  field_count: 14
+  relationships:
+  - to: PermissionCodename
+    kind: has_many
+    via: permissions
+  - to: UserCustomer
+    kind: has_many
+    via: customers
+  - to: UserCustomerObject
+    kind: has_many
+    via: customers
+  - to: UserType
+    kind: has_one
+    via: user_type
+  - to: customer
+    kind: belongs_to
+    via: customer_id
+  - to: customer
+    kind: has_many
+    via: customer_ids
+  - to: group
+    kind: has_many
+    via: group_ids
+  - to: impersonate
+    kind: belongs_to
+    via: impersonate_id

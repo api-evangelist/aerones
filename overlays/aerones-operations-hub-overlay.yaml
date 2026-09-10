@@ -1,0 +1,58 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Aerones Operations Hub API
+  version: 1.0.0
+extends: openapi/aerones-operations-hub-openapi.json
+x-generated: '2026-09-10'
+x-method: generated
+x-source: >-
+  Derived from this repository's own artifacts. Captures API Evangelist annotations
+  without mutating the harvested spec, which is stored verbatim as fetched from
+  https://operations.aerones.com/api/openapi.json on 2026-09-10.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-profile: https://apis.io/provider/aerones/
+    x-apievangelist-harvested-from: https://operations.aerones.com/api/openapi.json
+    x-apievangelist-harvested-on: '2026-09-10'
+    x-apievangelist-note: >-
+      The description is served anonymously; the data surface is not. 1,089 of 1,114
+      operations require a bearer token issued by the Keycloak realm at
+      https://sso.aerones.com/realms/aerones or the opshub_prod_sessionid cookie.
+    x-companion-graphql: https://operations.aerones.com/api/graphql-schema
+- target: $
+  update:
+    servers:
+    - url: https://operations.aerones.com
+      description: >-
+        Production. Added by overlay - the harvested document ships an empty servers[]
+        array, so a generated client has no host. Every path in the document already
+        carries the /api prefix, so the server is the bare origin.
+- target: $.info
+  update:
+    x-apievangelist-gaps:
+      error_semantics: >-
+        No 401, 403, 409, 422, 429 or 5xx response is declared on any operation, though
+        1,089 operations are authenticated. Only 400 (351 ops) and 404 (7 ops) appear.
+      idempotency: >-
+        No Idempotency-Key header. Seven write operations declare idempotent semantics
+        in prose; the other ~480 writes have no replay protection.
+      deprecation: >-
+        33 operations carry deprecated:true with no Sunset header, no removal date and
+        no migration note.
+      examples: No request or response examples are present in the document.
+      rate_limits: No rate-limit headers or 429 responses anywhere in the contract.
+- target: $.components.securitySchemes.APIKeyAuth
+  update:
+    description: >-
+      Bearer token issued by the Aerones Keycloak realm. Annotated by overlay - the
+      harvested scheme carries no description, so a consumer cannot tell from the spec
+      alone where the token comes from.
+    x-token-issuer: https://sso.aerones.com/realms/aerones
+    x-openid-configuration: https://sso.aerones.com/realms/aerones/.well-known/openid-configuration
+    x-observed-client-id: operations-hub
+- target: $.components.securitySchemes.CookieAuth
+  update:
+    description: >-
+      Django session cookie used by the browser client at portal.aerones.com. Annotated
+      by overlay.

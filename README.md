@@ -64,5 +64,40 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Aerones is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://equityzen.com/company/aerones
+Aerones is a Latvian robotics company that inspects, cleans, coats and repairs wind
+turbine blades with cable-suspended robots and autonomous drones, onshore and offshore,
+for owners and OEMs including NextEra, GE, Vestas, Enel and Siemens Gamesa.
+
+## What was found
+
+The software side of Aerones is the **Operations Hub**, the Django Ninja backend behind
+`portal.aerones.com`. It publishes a machine-readable contract anonymously:
+
+| Surface | Where | Size |
+|---|---|---|
+| OpenAPI 3.1.0 | `https://operations.aerones.com/api/openapi.json` | 760 paths, 1,114 operations, 1,377 schemas |
+| Swagger UI | `https://operations.aerones.com/api/docs` | renders the above |
+| GraphQL SDL | `https://operations.aerones.com/api/graphql-schema` | 1,524 types, 339 queries, 325 mutations, 4 subscriptions |
+| GraphQL endpoint | `https://operations.aerones.com/graphql` | introspection answers anonymously |
+| OIDC discovery | `https://sso.aerones.com/realms/aerones/.well-known/openid-configuration` | Keycloak, client `operations-hub` |
+
+The **descriptions** are public. The **data** is not — 1,089 of the 1,114 operations
+require a bearer token from the Keycloak realm above or the `opshub_prod_sessionid`
+session cookie, and no data endpoint was called in building this profile.
+
+## What is absent
+
+No developer programme, no SDKs in any registry, no GitHub organization, no MCP server,
+no agent card, no `security.txt`, no status page, no changelog, no published rate limits,
+no API pricing, and no deprecation policy — though 33 operations are flagged
+`deprecated` in the contract itself. Errors use a bespoke `{code, message}` envelope
+rather than RFC 9457, and the write surface has no `Idempotency-Key`: seven operations
+declare idempotent semantics in prose and roughly 480 others have no replay protection.
+
+Certifications published: ISO 9001, ISO 14001, ISO 45001 and GWO training standards
+(via KIWA and TÜV NORD). No information-security certification (SOC 2, ISO 27001) is
+published and no trust center exists.
+
+- https://aerones.com/
+- https://operations.aerones.com/api/docs
+- https://portal.aerones.com/

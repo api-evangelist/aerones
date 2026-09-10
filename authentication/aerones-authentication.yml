@@ -1,0 +1,87 @@
+generated: '2026-09-10'
+method: searched
+source: openapi/aerones-operations-hub-openapi.json
+docs: https://sso.aerones.com/realms/aerones/.well-known/openid-configuration
+note: >-
+  Derived from the published OpenAPI securitySchemes, then upgraded with the Keycloak
+  OIDC discovery document probed on sso.aerones.com. 1,089 of 1,114 operations declare
+  security; the 25 that do not are the auth endpoints themselves plus the schema and
+  the inbound webhook receivers. The OpenAPI declares no oauth2 scheme - the bearer
+  token it accepts is issued by the Keycloak realm below, so the OIDC layer is not
+  visible in the spec and has to be read off the discovery document.
+summary:
+  types:
+  - apiKey
+  - http
+  - openIdConnect
+  api_key_in:
+  - cookie
+  oauth2_flows:
+  - authorizationCode
+  - clientCredentials
+  - deviceCode
+  - ciba
+  - refreshToken
+schemes:
+- name: APIKeyAuth
+  type: http
+  scheme: bearer
+  applied_to_operations: 1086
+  sources:
+  - openapi/aerones-operations-hub-openapi.json
+- name: AuthBearer
+  type: http
+  scheme: bearer
+  applied_to_operations: 3
+  note: A second bearer scheme, identical in shape to APIKeyAuth, applied to three operations.
+  sources:
+  - openapi/aerones-operations-hub-openapi.json
+- name: CookieAuth
+  type: apiKey
+  in: cookie
+  parameter: opshub_prod_sessionid
+  applied_to_operations: 1086
+  note: Django session cookie - the browser path used by portal.aerones.com.
+  sources:
+  - openapi/aerones-operations-hub-openapi.json
+- name: KeycloakOIDC
+  type: openIdConnect
+  openIdConnectUrl: https://sso.aerones.com/realms/aerones/.well-known/openid-configuration
+  issuer: https://sso.aerones.com/realms/aerones
+  authorization_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/auth
+  token_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/token
+  userinfo_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/userinfo
+  jwks_uri: https://sso.aerones.com/realms/aerones/protocol/openid-connect/certs
+  introspection_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/token/introspect
+  revocation_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/revoke
+  end_session_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/logout
+  device_authorization_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/auth/device
+  registration_endpoint: https://sso.aerones.com/realms/aerones/clients-registrations/openid-connect
+  backchannel_authentication_endpoint: https://sso.aerones.com/realms/aerones/protocol/openid-connect/ext/ciba/auth
+  client_id_observed: operations-hub
+  pkce_methods:
+  - plain
+  - S256
+  token_endpoint_auth_methods:
+  - private_key_jwt
+  - client_secret_basic
+  - client_secret_post
+  - tls_client_auth
+  - client_secret_jwt
+  grant_types:
+  - authorization_code
+  - implicit
+  - refresh_token
+  - password
+  - client_credentials
+  - urn:openid:params:grant-type:ciba
+  - urn:ietf:params:oauth:grant-type:device_code
+  sources:
+  - well-known/aerones-sso-aerones-openid-configuration.json
+x-evidence:
+- url: https://operations.aerones.com/api/openapi.json
+  http_status: 200
+  fetched: '2026-09-10'
+- url: https://sso.aerones.com/realms/aerones/.well-known/openid-configuration
+  http_status: 200
+  fetched: '2026-09-10'
