@@ -1,0 +1,340 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.service Order Lines.lps Results API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.service-order-lines.lps-results
+paths:
+  /api/core/v1/service-order-lines/{sol_id}/lps-results:
+    get:
+      operationId: get_lps_results_context
+      summary: Per-blade LPS Service Results capture context
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LpsResultsContextResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.service-order-lines.lps-results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: upsert_lps_results
+      summary: Upsert per-receptor LPS measurements for a SOL
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LpsResultsUpsertResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.service-order-lines.lps-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LpsResultsUpsertBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    LpsResultsContextResponse:
+      additionalProperties: false
+      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/LpsResultsTurbineObject'
+        blades:
+          items:
+            $ref: '#/components/schemas/LpsResultBlade'
+          title: Blades
+          type: array
+      required:
+      - service_order_line_id
+      - turbine
+      title: LpsResultsContextResponse
+      type: object
+    LpsResultCell:
+      additionalProperties: false
+      description: One side (SS or PS) of one receptor's measurement.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Existing WorkorderResult.id; null when no row exists yet.
+          title: Id
+        reading:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Numeric reading. Null when no_reading=True (open-circuit / no measurement).
+          title: Reading
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Result unit — one of mOhm, Ohm, MOhm.
+          title: Unit
+        no_reading:
+          default: false
+          description: True when the receptor was open-circuit / no reading was taken.
+          title: No Reading
+          type: boolean
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      title: LpsResultCell
+      type: object
+    LpsResultReceptor:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        radius_from_hub_m:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Radius From Hub M
+        is_blade_tip:
+          default: false
+          title: Is Blade Tip
+          type: boolean
+        component_type_id:
+          title: Component Type Id
+          type: integer
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          title: Pair Index
+        cells:
+          additionalProperties:
+            anyOf:
+            - $ref: '#/components/schemas/LpsResultCell'
+            - type: 'null'
+          description: Keyed by 'ss' / 'ps'. A null value means no measurement yet for that side.
+          title: Cells
+          type: object
+      required:
+      - id
+      - name
+      - component_type_id
+      title: LpsResultReceptor
+      type: object
+    LpsResultBladeDataplate:
+      additionalProperties: false
+      description: Latest BLADE_DATAPLATE image attached to a blade TurbineComponent.
+      properties:
+        file_id:
+          title: File Id
+          type: integer
+        file_name:
+          title: File Name
+          type: string
+      required:
+      - file_id
+      - file_name
+      title: LpsResultBladeDataplate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    LpsResultsUpsertBody:
+      additionalProperties: false
+      properties:
+        cells:
+          description: Flat list of cell updates.
+          items:
+            $ref: '#/components/schemas/LpsResultsUpsertCell'
+          title: Cells
+          type: array
+      required:
+      - cells
+      title: LpsResultsUpsertBody
+      type: object
+    LpsResultsUpsertResponse:
+      additionalProperties: false
+      description: PUT response = the upsert count + the refreshed capture context.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/LpsResultsTurbineObject'
+        blades:
+          items:
+            $ref: '#/components/schemas/LpsResultBlade'
+          title: Blades
+          type: array
+        upserted:
+          description: How many cells were written (created or updated).
+          title: Upserted
+          type: integer
+      required:
+      - service_order_line_id
+      - turbine
+      - upserted
+      title: LpsResultsUpsertResponse
+      type: object
+    LpsResultBlade:
+      additionalProperties: false
+      properties:
+        blade:
+          additionalProperties:
+            anyOf:
+            - {}
+            - type: 'null'
+          description: 'Blade summary: {id, serial_number, position}.'
+          title: Blade
+          type: object
+        receptors:
+          items:
+            $ref: '#/components/schemas/LpsResultReceptor'
+          title: Receptors
+          type: array
+        dataplate_image:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultBladeDataplate'
+          - type: 'null'
+          description: Most-recent BLADE_DATAPLATE FileEntityLink for this blade, when one exists. The FE composes a download URL via the standard core file helpers.
+      required:
+      - blade
+      title: LpsResultBlade
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    LpsResultsTurbineObject:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Manufacturer Turbine Model Id
+      required:
+      - id
+      title: LpsResultsTurbineObject
+      type: object
+    LpsResultsUpsertCell:
+      additionalProperties: false
+      description: One row of the upsert payload.
+      properties:
+        receptor_id:
+          description: TurbineComponent.id of the receptor (NOT the blade).
+          title: Receptor Id
+          type: integer
+        side:
+          description: SUCTION_SIDE or PRESSURE_SIDE.
+          title: Side
+          type: string
+        reading:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Reading
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        no_reading:
+          default: false
+          title: No Reading
+          type: boolean
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional operator comment. When the key is omitted entirely, any stored comment is preserved (the OpsHub UI no longer sends it).
+          title: Comment
+      required:
+      - receptor_id
+      - side
+      title: LpsResultsUpsertCell
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

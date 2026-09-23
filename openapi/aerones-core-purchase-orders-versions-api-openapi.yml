@@ -1,0 +1,445 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.purchase Orders.versions API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.purchase-orders.versions
+paths:
+  /api/core/v1/purchase-orders/{id}/versions:
+    get:
+      operationId: core_endpoints_purchase_orders_list_versions
+      summary: List versions for a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by order_number
+          title: Search
+        required: false
+        description: Search by order_number
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PurchaseOrderVersionResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.purchase-orders.versions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_purchase_orders_add_version
+      summary: Add a new version (amendment) to a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderVersionResponse'
+      tags:
+      - core.purchase-orders.versions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderVersionCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/purchase-orders/{id}/versions/{version_id}:
+    get:
+      operationId: core_endpoints_purchase_orders_get_version
+      summary: Get a version
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: version_id
+        schema:
+          title: Version Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderVersionResponse'
+      tags:
+      - core.purchase-orders.versions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: core_endpoints_purchase_orders_update_version
+      summary: Update a version (scalar fields only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: version_id
+        schema:
+          title: Version Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderVersionResponse'
+      tags:
+      - core.purchase-orders.versions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderVersionUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_purchase_orders_delete_version
+      summary: Soft-delete a version
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: version_id
+        schema:
+          title: Version Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - core.purchase-orders.versions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/purchase-orders/{id}/versions/{version_id}/file:
+    post:
+      operationId: core_endpoints_purchase_orders_replace_version_file
+      summary: Set or replace the file attached to a version
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: version_id
+        schema:
+          title: Version Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - core.purchase-orders.versions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderVersionFileReplaceRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_purchase_orders_remove_version_file
+      summary: Detach the file from a version (no-op if none)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: version_id
+        schema:
+          title: Version Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - core.purchase-orders.versions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PurchaseOrderVersionResponse:
+      additionalProperties: false
+      description: PurchaseOrderVersion response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        purchase_order_id:
+          title: Purchase Order Id
+          type: integer
+        version_number:
+          title: Version Number
+          type: integer
+        order_number:
+          title: Order Number
+          type: string
+        issue_date:
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+      required:
+      - updated_at
+      - id
+      - purchase_order_id
+      - version_number
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderVersionResponse
+      type: object
+    PurchaseOrderVersionUpdate:
+      additionalProperties: false
+      description: 'Partial update of a version''s scalar fields.
+
+
+        Does not change `version_number` or swap the attached file. To replace
+
+        the file, use POST /purchase-order-versions/{id}/file.'
+      properties:
+        order_number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          title: Order Number
+        issue_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Issue Date
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Amount
+      title: PurchaseOrderVersionUpdate
+      type: object
+    PurchaseOrderVersionCreate:
+      additionalProperties: false
+      description: Add a new version (amendment) to an existing PO. File is optional.
+      properties:
+        order_number:
+          minLength: 1
+          title: Order Number
+          type: string
+        issue_date:
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional File id to attach to this version
+          title: File Id
+      required:
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderVersionCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PurchaseOrderVersionFileReplaceRequest:
+      additionalProperties: false
+      description: Replace the active file linked to a version.
+      properties:
+        file_id:
+          title: File Id
+          type: integer
+      required:
+      - file_id
+      title: PurchaseOrderVersionFileReplaceRequest
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

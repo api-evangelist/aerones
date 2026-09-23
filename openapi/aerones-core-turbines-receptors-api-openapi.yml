@@ -1,0 +1,271 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.turbines.receptors API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.turbines.receptors
+paths:
+  /api/core/v1/turbines/{turbine_id}/receptors:
+    get:
+      operationId: list_turbine_receptors
+      summary: List receptors for all blades on a turbine (one round-trip)
+      parameters:
+      - in: path
+        name: turbine_id
+        schema:
+          title: Turbine Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineReceptorsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.turbines.receptors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbines/{turbine_id}/receptors/init-from-preset:
+    post:
+      operationId: init_turbine_receptors_from_preset
+      summary: Initialize receptors on every blade from the chosen preset
+      parameters:
+      - in: path
+        name: turbine_id
+        schema:
+          title: Turbine Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitTurbineFromPresetResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Bulk-create receptor TurbineComponents on each blade from the chosen
+
+        preset. Idempotent merge: only adds receptors whose name is missing on the
+
+        blade. Returns a summary (created count, skipped existing, blade count,
+
+        template count) so the UI can render a meaningful toast.'
+      tags:
+      - core.turbines.receptors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitTurbineFromPresetBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    BladeWithReceptorsObject:
+      additionalProperties: false
+      description: 'One blade plus its receptor children — building block for the turbine
+
+        convenience GET that returns all blades + receptors in one round-trip.'
+      properties:
+        blade:
+          $ref: '#/components/schemas/_ReceptorBladeSummary'
+        receptors:
+          items:
+            $ref: '#/components/schemas/ReceptorObject'
+          title: Receptors
+          type: array
+      required:
+      - blade
+      title: BladeWithReceptorsObject
+      type: object
+    InitTurbineFromPresetResponse:
+      additionalProperties: false
+      description: 'POST ``/turbines/{id}/receptors/init-from-preset`` — summary + the
+
+        refreshed per-turbine blade/receptor tree so the UI can re-render without
+
+        a follow-up GET.'
+      properties:
+        preset_id:
+          title: Preset Id
+          type: integer
+        preset_name:
+          title: Preset Name
+          type: string
+        blade_count:
+          description: How many blades the turbine has (and therefore got the bulk-create applied).
+          title: Blade Count
+          type: integer
+        receptor_template_count:
+          description: How many receptor entries the chosen preset contains. Zero means the preset is empty — no rows were created on any blade.
+          title: Receptor Template Count
+          type: integer
+        created:
+          description: Total new TurbineComponent rows created across all blades.
+          title: Created
+          type: integer
+        skipped_existing:
+          description: Total receptor templates skipped because a same-named receptor already existed on the blade (idempotent merge, never clobbers).
+          title: Skipped Existing
+          type: integer
+        blades:
+          items:
+            $ref: '#/components/schemas/BladeWithReceptorsObject'
+          title: Blades
+          type: array
+      required:
+      - preset_id
+      - preset_name
+      - blade_count
+      - receptor_template_count
+      - created
+      - skipped_existing
+      title: InitTurbineFromPresetResponse
+      type: object
+    ReceptorObject:
+      additionalProperties: false
+      description: Single receptor row in a GET response (includes ``updated_at``).
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Receptor TurbineComponent id
+          title: Id
+          type: integer
+        name:
+          description: Receptor label (serial_number)
+          title: Name
+          type: string
+        radius_from_hub_m:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Distance from hub in meters
+          title: Radius From Hub M
+        is_blade_tip:
+          description: True for the tip-of-blade receptor
+          title: Is Blade Tip
+          type: boolean
+        component_type_id:
+          description: ComponentType id — Receptor or HV Receptor
+          title: Component Type Id
+          type: integer
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors (turbine model has double_receptors / hv_double_receptors set); NULL for non-paired. Echo back on PUT to round-trip paired rows.
+          title: Pair Index
+      required:
+      - updated_at
+      - id
+      - name
+      - is_blade_tip
+      - component_type_id
+      title: ReceptorObject
+      type: object
+    _ReceptorBladeSummary:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          title: Serial Number
+          type: string
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+      required:
+      - id
+      - serial_number
+      title: _ReceptorBladeSummary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    InitTurbineFromPresetBody:
+      additionalProperties: false
+      description: 'POST body for ``/turbines/{id}/receptors/init-from-preset`` — picks
+
+        which named preset to seed the turbine from.'
+      properties:
+        preset_id:
+          description: Receptor preset to copy from. Must belong to the same turbine model as the turbine being initialized.
+          title: Preset Id
+          type: integer
+      required:
+      - preset_id
+      title: InitTurbineFromPresetBody
+      type: object
+    TurbineReceptorsResponse:
+      additionalProperties: false
+      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
+      properties:
+        blades:
+          items:
+            $ref: '#/components/schemas/BladeWithReceptorsObject'
+          title: Blades
+          type: array
+      title: TurbineReceptorsResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

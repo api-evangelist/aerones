@@ -1,0 +1,254 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.project Question Configs API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.project-question-configs
+paths:
+  /api/core/v1/project-question-configs:
+    get:
+      operationId: list_project_question_configs
+      summary: List Project Question Configs
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by title
+          title: Search
+        required: false
+        description: Search by title
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: section
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by section
+          title: Section
+        required: false
+        description: Filter by section
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by service ID
+          title: Service Id
+        required: false
+        description: Filter by service ID
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service code (e.g. IIN-ONS)
+          title: Service Code
+        required: false
+        description: Filter by service code (e.g. IIN-ONS)
+      - in: query
+        name: enabled
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by enabled status
+          title: Enabled
+        required: false
+        description: Filter by enabled status
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectQuestionConfigResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - core.project-question-configs
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectQuestionConfigResponse:
+      additionalProperties: false
+      description: Schema for ProjectQuestionConfig response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        section:
+          title: Section
+          type: string
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+        priority:
+          title: Priority
+          type: integer
+        key:
+          title: Key
+          type: string
+        title:
+          title: Title
+          type: string
+        type:
+          title: Type
+          type: string
+        required:
+          title: Required
+          type: boolean
+        choices:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Choices
+        tooltip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tooltip
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        enabled:
+          title: Enabled
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - section
+      - priority
+      - key
+      - title
+      - type
+      - required
+      - enabled
+      title: ProjectQuestionConfigResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

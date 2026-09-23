@@ -1,0 +1,710 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.resource Sets API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.resource-sets
+paths:
+  /api/core/v1/projects/{project_id}/resource-sets:
+    get:
+      operationId: list_project_resource_sets
+      summary: List Resource Sets for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: project_location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project location ID
+          title: Project Location Id
+        required: false
+        description: Filter by project location ID
+      - in: query
+        name: active_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Start of the activity window (inclusive). Together with active_to, returns only sets that performed at least one workorder activity whose SOL-local day falls inside [active_from, active_to]. Attribution goes through dispatch.workorder_resource_set links including soft-deleted ones, so reassigned workorders still credit the team that worked them.
+          title: Active From
+        required: false
+        description: Start of the activity window (inclusive). Together with active_to, returns only sets that performed at least one workorder activity whose SOL-local day falls inside [active_from, active_to]. Attribution goes through dispatch.workorder_resource_set links including soft-deleted ones, so reassigned workorders still credit the team that worked them.
+      - in: query
+        name: active_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: End of the activity window (inclusive). Paired with active_from.
+          title: Active To
+        required: false
+        description: End of the activity window (inclusive). Paired with active_from.
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectResourceSetResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.projects.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_resource_set
+      summary: Create Resource Set
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResourceSetResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.projects.resource-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectResourceSetCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/resource-sets/{resource_set_id}:
+    get:
+      operationId: get_project_resource_set
+      summary: Get Resource Set
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: resource_set_id
+        schema:
+          title: Resource Set Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResourceSetResponse'
+      description: Get a single child item.
+      tags:
+      - core.projects.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project_resource_set
+      summary: Update Resource Set
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: resource_set_id
+        schema:
+          title: Resource Set Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResourceSetResponse'
+      description: Update a child item.
+      tags:
+      - core.projects.resource-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectResourceSetUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_resource_set
+      summary: Delete Resource Set
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: resource_set_id
+        schema:
+          title: Resource Set Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.projects.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/materialize-planned-resource-set:
+    post:
+      operationId: materialize_planned_resource_set
+      summary: Promote a planned resource set into an editable roster set
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResourceSetResponse'
+      description: 'Promote a planned project resource set into a roster set.
+
+
+        This is the only way a roster set is created, because the planned link is
+
+        what carries the set''s planned start and end dates. ``resource_ids`` is the
+
+        crew the user ticked; robots always come along. The same planned set can be
+
+        promoted repeatedly, each time producing its own roster set.'
+      tags:
+      - core.projects.resource-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterializePlannedInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/resource-set-activity-days:
+    get:
+      operationId: list_project_resource_set_activity_days
+      summary: Per-set workorder-activity days for a project window
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: active_from
+        schema:
+          format: date
+          title: Active From
+          type: string
+        required: true
+      - in: query
+        name: active_to
+        schema:
+          format: date
+          title: Active To
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectResourceSetActivityDaysResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Exact activity-day attribution per resource set for the team grid.
+      tags:
+      - core.projects.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectResourceSetActivityDay:
+      additionalProperties: false
+      description: One worked day of a project resource set within the queried window.
+      properties:
+        day:
+          description: SOL-local calendar day
+          format: date
+          title: Day
+          type: string
+        service_order_line_ids:
+          description: SOLs the set ran activities on during this day
+          items:
+            type: integer
+          title: Service Order Line Ids
+          type: array
+        has_activity:
+          default: false
+          description: The set ran at least one workorder activity this day
+          title: Has Activity
+          type: boolean
+        has_delay:
+          default: false
+          description: The set logged at least one delay/idle this day
+          title: Has Delay
+          type: boolean
+      required:
+      - day
+      title: ProjectResourceSetActivityDay
+      type: object
+    NestedIdOnly:
+      additionalProperties: false
+      description: Generic nested object with just id (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: NestedIdOnly
+      type: object
+    ProjectObject:
+      additionalProperties: false
+      description: Nested project object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: ProjectObject
+      type: object
+    ProjectResourceSetCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectResourceSet.
+      properties:
+        name:
+          description: Set name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items to create with the set
+          title: Set Items
+      required:
+      - name
+      title: ProjectResourceSetCreate
+      type: object
+    ProjectResourceSetItemInput:
+      additionalProperties: false
+      description: Input schema for project resource set item in create/update requests.
+      properties:
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+      required:
+      - resource_id
+      - resource_type
+      title: ProjectResourceSetItemInput
+      type: object
+    MaterializePlannedInput:
+      additionalProperties: false
+      description: Body for promoting a planned resource set into a roster set.
+      properties:
+        planned_resource_set_id:
+          title: Planned Resource Set Id
+          type: integer
+        resource_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Resource Ids
+      required:
+      - planned_resource_set_id
+      title: MaterializePlannedInput
+      type: object
+    ProjectResourceSetResponse:
+      additionalProperties: false
+      description: Schema for ProjectResourceSet response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project resource set ID
+          title: Id
+          type: integer
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectObject'
+          - type: 'null'
+          description: Project information
+        project_location:
+          anyOf:
+          - $ref: '#/components/schemas/NestedIdOnly'
+          - type: 'null'
+          description: Project location information
+        name:
+          description: Set name
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_planned_resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Planned resource set this roster set was promoted from. Null only for sets predating the promote flow and for the dispatching board's robot-set sync.
+          title: Project Planned Resource Set Id
+        project_planned_resource_set_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Status of that planned set. Drives the delete guard: a roster set can only be deleted while its planned set is SUGGESTED or APPROVED. Null when there is no planned set to check.'
+          title: Project Planned Resource Set Status
+        project_planned_resource_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of that planned set, so the UI can say WHICH one this roster came from. One planned set can back several roster sets, and a roster can be renamed away from the name it was promoted with.
+          title: Project Planned Resource Set Name
+        set_items:
+          description: Resource set items
+          items:
+            $ref: '#/components/schemas/ProjectResourceSetItemOutput'
+          title: Set Items
+          type: array
+      required:
+      - updated_at
+      - id
+      - name
+      title: ProjectResourceSetResponse
+      type: object
+    ProjectResourceSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectResourceSet.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Set name
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
+          title: Set Items
+      title: ProjectResourceSetUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectResourceSetItemOutput:
+      additionalProperties: false
+      description: Output schema for project resource set item in responses.
+      properties:
+        id:
+          description: ProjectResourceSetItem ID
+          title: Id
+          type: integer
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource email
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      - resource_type
+      title: ProjectResourceSetItemOutput
+      type: object
+    ProjectResourceSetActivityDaysResponse:
+      additionalProperties: false
+      description: Per-set workorder-activity days for the execution overview team grid.
+      properties:
+        project_resource_set_id:
+          description: Project resource set ID
+          title: Project Resource Set Id
+          type: integer
+        days:
+          description: Activity days inside [active_from, active_to], ascending
+          items:
+            $ref: '#/components/schemas/ProjectResourceSetActivityDay'
+          title: Days
+          type: array
+      required:
+      - project_resource_set_id
+      title: ProjectResourceSetActivityDaysResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

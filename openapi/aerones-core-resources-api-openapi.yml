@@ -1,0 +1,656 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.resources API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.resources
+paths:
+  /api/core/v1/resources/summary:
+    get:
+      operationId: get_resource_summary
+      summary: Get Resource Summary
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSummary'
+      description: Get a summary of resources (total count, technicians, teams).
+      tags:
+      - core.resources
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/resources:
+    get:
+      operationId: list_resources
+      summary: List Resources
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by full_name, user name or email (case-insensitive)
+          title: Search
+        required: false
+        description: Search by full_name, user name or email (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: resource_type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by resource type
+          title: Resource Type
+        required: false
+        description: Filter by resource type
+      - in: query
+        name: user_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by linked user ID
+          title: User Id
+        required: false
+        description: Filter by linked user ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResourceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.resources
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_resource
+      summary: Create Resource
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+      description: Create a new item.
+      tags:
+      - core.resources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/resources/{id}:
+    get:
+      operationId: get_resource
+      summary: Get Resource
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.resources
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_resource
+      summary: Update Resource
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+      description: Update an item.
+      tags:
+      - core.resources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_resource
+      summary: Delete Resource
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.resources
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResourceCertificateInput:
+      additionalProperties: false
+      description: 'Input schema for a resource''s certificate (used in Resource create/update).
+
+
+        Mirrors the writable non-audit fields of ResourceCertificate so the write
+
+        surface matches the enriched ``ResourceCertificateOutput`` read surface.
+
+
+        Semantics are upsert (never replace-all): supply ``id`` to update that
+
+        existing issuance row, or omit ``id`` (and supply ``certificate_id``) to
+
+        add a new issuance. Rows not listed are left untouched; delete a row via
+
+        DELETE /resources/{id}/certificates/{id}.'
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Existing ResourceCertificate row id to update; omit to add a new issuance.
+          title: Id
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Certificate ID (required when adding a new issuance)
+          title: Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from (e.g. "bamboohr")
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      title: ResourceCertificateInput
+      type: object
+    ResourceResponse:
+      additionalProperties: false
+      description: Schema for Resource response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Resource ID
+          title: Id
+          type: integer
+        full_name:
+          description: Resource full name
+          title: Full Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        employment_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment contract details
+          title: Employment Contract
+        qualifications:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Qualifications as JSON list
+          title: Qualifications
+        user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: User ID
+          title: User Id
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID
+          title: Robot Set Id
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: BambooHR employee ID
+          title: Bamboohr Employee Id
+        talentlms_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: TalentLMS user ID
+          title: Talentlms User Id
+        certificates:
+          description: Certificates assigned to this resource
+          items:
+            $ref: '#/components/schemas/ResourceCertificateOutput'
+          title: Certificates
+          type: array
+      required:
+      - updated_at
+      - id
+      - full_name
+      title: ResourceResponse
+      type: object
+    ResourceCertificateOutput:
+      additionalProperties: false
+      description: 'Output schema for a resource''s certificate (embedded in ResourceResponse).
+
+
+        Exposes every non-audit ResourceCertificate field. ``certificate_id`` /
+
+        ``certificate_name`` / ``expiry_date`` are retained for backward
+
+        compatibility; the remaining fields mirror the standalone
+
+        ``/resources/{id}/certificates`` endpoint (``ResourceCertificateResponse``).'
+      properties:
+        id:
+          description: ResourceCertificate row ID
+          title: Id
+          type: integer
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        certificate_name:
+          description: Certificate name
+          title: Certificate Name
+          type: string
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      required:
+      - id
+      - certificate_id
+      - certificate_name
+      title: ResourceCertificateOutput
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ResourceUpdate:
+      additionalProperties: false
+      description: 'Schema for updating a Resource.
+
+
+        Employment contract, qualifications, certificates, and the BambooHR /
+
+        TalentLMS links can be updated. `bamboohr_employee_id` and
+
+        `talentlms_user_id` are three-state: omit the key to leave the link
+
+        untouched, pass `null` to unlink, or pass a string to create/replace
+
+        the link.'
+      properties:
+        employment_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment contract details
+          title: Employment Contract
+        qualifications:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Qualifications as JSON list
+          title: Qualifications
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceCertificateInput'
+            type: array
+          - type: 'null'
+          description: Certificates to assign to this resource
+          title: Certificates
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External BambooHR employee ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
+          title: Bamboohr Employee Id
+        talentlms_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External TalentLMS user ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
+          title: Talentlms User Id
+      title: ResourceUpdate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ResourceCreate:
+      additionalProperties: false
+      description: 'Schema for creating a Resource.
+
+
+        Either robot_set_id or user_id must be provided (but not both).
+
+        The full_name and email fields are auto-populated from the referenced entity;
+
+        they can be provided but will be overwritten. resource_type is only defaulted
+
+        when omitted, so an explicit user-backed type (OFFICE) is honoured.'
+      properties:
+        qualifications:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Qualifications as JSON list
+          title: Qualifications
+        employment_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment contract details
+          title: Employment Contract
+        user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: User ID (for technicians and office staff)
+          title: User Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID (for robots)
+          title: Robot Set Id
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceCertificateInput'
+            type: array
+          - type: 'null'
+          description: Certificates to assign to this resource
+          title: Certificates
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External BambooHR employee ID to link on creation
+          title: Bamboohr Employee Id
+        talentlms_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External TalentLMS user ID to link on creation
+          title: Talentlms User Id
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Auto-populated from user/robot_set
+          title: Full Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Auto-populated from user
+          title: Email
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Defaults to ROBOT for robot_set_id and TECHNICIAN for user_id. Supply OFFICE explicitly (with user_id) for office staff.
+          title: Resource Type
+      title: ResourceCreate
+      type: object
+    ResourceSummary:
+      additionalProperties: false
+      description: Summary of dispatch resources.
+      properties:
+        total:
+          description: Total number of resources
+          title: Total
+          type: integer
+        technicians:
+          description: Number of technician resources
+          title: Technicians
+          type: integer
+        teams:
+          description: Number of resource teams
+          title: Teams
+          type: integer
+      required:
+      - total
+      - technicians
+      - teams
+      title: ResourceSummary
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

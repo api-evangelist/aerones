@@ -1,0 +1,172 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Work Management.anomaly Work Orders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: work-management.anomaly-work-orders
+paths:
+  /api/work-management/work-orders:
+    post:
+      operationId: client_work_management_endpoints_anomaly_client_work_orders_create_anomaly_work_orders
+      summary: Create Work Orders for Anomalies
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyWorkOrdersResponse'
+      tags:
+      - work-management.anomaly-work-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyWorkOrdersCreatePayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/anomalies/{anomaly_id}/work-orders:
+    get:
+      operationId: client_work_management_endpoints_anomaly_client_work_orders_get_anomaly_work_orders
+      summary: Get Work Orders for Anomaly
+      parameters:
+      - in: path
+        name: anomaly_id
+        schema:
+          title: Anomaly Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyWorkOrdersResponse'
+      tags:
+      - work-management.anomaly-work-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    AnomalyWorkOrdersCreatePayload:
+      additionalProperties: false
+      properties:
+        anomalies:
+          items:
+            type: integer
+          title: Anomalies
+          type: array
+        task_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Type
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        work_package_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Package Id
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: draft
+          title: Status
+        work_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Order Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - anomalies
+      title: AnomalyWorkOrdersCreatePayload
+      type: object
+    AnomalyWorkOrdersResponse:
+      additionalProperties: false
+      properties:
+        work_orders:
+          items:
+            $ref: '#/components/schemas/AnomalyWorkOrderSummary'
+          title: Work Orders
+          type: array
+      required:
+      - work_orders
+      title: AnomalyWorkOrdersResponse
+      type: object
+    AnomalyWorkOrderSummary:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        task_type:
+          title: Task Type
+          type: string
+        status:
+          title: Status
+          type: string
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        anomalyIds:
+          default: []
+          items:
+            type: integer
+          title: Anomalyids
+          type: array
+      required:
+      - id
+      - task_type
+      - status
+      title: AnomalyWorkOrderSummary
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

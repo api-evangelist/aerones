@@ -1,0 +1,504 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.contacts API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.contacts
+paths:
+  /api/core/v1/projects/{project_id}/contacts:
+    get:
+      operationId: list_project_contacts
+      summary: List Contacts for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectContactResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.projects.contacts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_contact
+      summary: Create Contact
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectContactResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.projects.contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectContactCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/contacts/{contact_id}:
+    get:
+      operationId: get_project_contact
+      summary: Get Contact
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: contact_id
+        schema:
+          title: Contact Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectContactResponse'
+      description: Get a single child item.
+      tags:
+      - core.projects.contacts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project_contact
+      summary: Update Contact
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: contact_id
+        schema:
+          title: Contact Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectContactResponse'
+      description: Update a child item.
+      tags:
+      - core.projects.contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectContactUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_contact
+      summary: Delete Contact
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: contact_id
+        schema:
+          title: Contact Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.projects.contacts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectContactUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectContact.
+      properties:
+        customer_contact_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer contact ID
+          title: Customer Contact Id
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactMutableRole'
+          - type: 'null'
+          description: Role in project
+        customer_type:
+          anyOf:
+          - enum:
+            - billing
+            - requesting
+            type: string
+          - type: 'null'
+          description: 'Customer type: ''billing'' or ''requesting'''
+          title: Customer Type
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
+      title: ProjectContactUpdate
+      type: object
+    ProjectContactResponse:
+      additionalProperties: false
+      description: Schema for ProjectContact response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project contact ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        customer_contact:
+          $ref: '#/components/schemas/CustomerContactObject'
+          description: Customer contact information
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactRole'
+          - type: 'null'
+          description: Role in project
+        customer_type:
+          description: 'Customer type: ''billing'' or ''requesting'''
+          enum:
+          - billing
+          - requesting
+          title: Customer Type
+          type: string
+        customer_location:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerLocationObject'
+          - type: 'null'
+          description: Customer location information
+      required:
+      - updated_at
+      - id
+      - project_id
+      - customer_contact
+      - customer_type
+      title: ProjectContactResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RelationshipTypeObject:
+      additionalProperties: false
+      description: Nested relationship type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: RelationshipTypeObject
+      type: object
+    CustomerLocationObject:
+      additionalProperties: false
+      description: Nested customer location object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/LocationObject'
+        relationship:
+          anyOf:
+          - $ref: '#/components/schemas/RelationshipTypeObject'
+          - type: 'null'
+      required:
+      - id
+      - location
+      title: CustomerLocationObject
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectContactRole:
+      description: 'All possible roles for ProjectContact (used in responses).
+
+
+        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
+
+        intentionally preserve it for API compatibility.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - SITE_CONTACT
+      - QHSE_CONTACT
+      title: ProjectContactRole
+      type: string
+    ProjectContactCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectContact.
+      properties:
+        customer_contact_id:
+          description: Customer contact ID
+          title: Customer Contact Id
+          type: integer
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactMutableRole'
+          - type: 'null'
+          description: Role in project
+        customer_type:
+          description: 'Customer type: ''billing'' or ''requesting'''
+          enum:
+          - billing
+          - requesting
+          title: Customer Type
+          type: string
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
+      required:
+      - customer_contact_id
+      - customer_type
+      title: ProjectContactCreate
+      type: object
+    CustomerContactObject:
+      additionalProperties: false
+      description: Nested customer contact object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+      required:
+      - id
+      - name
+      title: CustomerContactObject
+      type: object
+    ProjectContactMutableRole:
+      description: 'Roles allowed when creating or updating a ProjectContact.
+
+
+        SITE_CONTACT remains migration-managed and read-only. QHSE_CONTACT is
+
+        assignable through the API for pre-job safety workflows.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - QHSE_CONTACT
+      title: ProjectContactMutableRole
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

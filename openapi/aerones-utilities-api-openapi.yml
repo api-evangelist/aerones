@@ -1,0 +1,71 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Utilities API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Utilities
+paths:
+  /api/scheduler:
+    get:
+      operationId: builderapi_scheduler_api_get_scheduler_jobs
+      summary: Get Scheduler Jobs
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulerJobList'
+      description: Return list of scheduler jobs.
+      tags:
+      - Utilities
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SchedulerJobList:
+      additionalProperties: false
+      description: Schema for list of scheduler jobs.
+      properties:
+        jobs:
+          items:
+            $ref: '#/components/schemas/SchedulerJob'
+          title: Jobs
+          type: array
+      required:
+      - jobs
+      title: SchedulerJobList
+      type: object
+    SchedulerJob:
+      additionalProperties: false
+      description: Schema for scheduler job details.
+      properties:
+        name:
+          title: Name
+          type: string
+        next_run_time:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Next Run Time
+      required:
+      - name
+      - next_run_time
+      title: SchedulerJob
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

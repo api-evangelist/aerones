@@ -1,0 +1,1445 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Active Workload API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: active-workload
+paths:
+  /api/active-workload/service-order-lines:
+    get:
+      operationId: active_workload_api_list_service_order_lines
+      summary: List Service Order Lines
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by service code, description, or SO number
+          title: Search
+        required: false
+        description: Search by service code, description, or SO number
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Sort field, prefix with ''-'' for descending. Allowed: service_code, status, number'
+          title: Sort
+        required: false
+        description: 'Sort field, prefix with ''-'' for descending. Allowed: service_code, status, number'
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by customer ID
+          title: Customer Id
+        required: false
+        description: Filter by customer ID
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country ID
+          title: Country Id
+        required: false
+        description: Filter by country ID
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by SOL status
+          title: Status
+        required: false
+        description: Filter by SOL status
+      - in: query
+        name: service_codes
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated service codes to filter by
+          title: Service Codes
+        required: false
+        description: Comma-separated service codes to filter by
+      - in: query
+        name: turbine_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine ID
+          title: Turbine Id
+        required: false
+        description: Filter by turbine ID
+      - in: query
+        name: date_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter SO date on or after
+          title: Date From
+        required: false
+        description: Filter SO date on or after
+      - in: query
+        name: date_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter SO date on or before
+          title: Date To
+        required: false
+        description: Filter SO date on or before
+      - in: query
+        name: project_manager_user_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project manager user ID
+          title: Project Manager User Id
+        required: false
+        description: Filter by project manager user ID
+      - in: query
+        name: include_cancelled
+        schema:
+          default: false
+          description: Include cancelled lines
+          title: Include Cancelled
+          type: boolean
+        required: false
+        description: Include cancelled lines
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ActiveWorkloadSOLResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List service order lines for active workload view.
+      tags:
+      - active-workload
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/active-workload/service-order-lines/{sol_id}:
+    get:
+      operationId: active_workload_api_get_service_order_line_detail
+      summary: Get Service Order Line Detail
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveWorkloadSOLDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get service order line detail with nested workorders.
+      tags:
+      - active-workload
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/active-workload/work-orders:
+    get:
+      operationId: active_workload_api_list_work_orders
+      summary: List Work Orders
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by workorder name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by workorder name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Sort field, prefix with ''-'' for descending. Allowed: name, status, planned_start_date, planned_end_date, so_number, latest_activity'
+          title: Sort
+        required: false
+        description: 'Sort field, prefix with ''-'' for descending. Allowed: name, status, planned_start_date, planned_end_date, so_number, latest_activity'
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by customer ID
+          title: Customer Id
+        required: false
+        description: Filter by customer ID
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country ID
+          title: Country Id
+        required: false
+        description: Filter by country ID
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status (comma-separated for multiple)
+          title: Status
+        required: false
+        description: Filter by status (comma-separated for multiple)
+      - in: query
+        name: turbine_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine ID
+          title: Turbine Id
+        required: false
+        description: Filter by turbine ID
+      - in: query
+        name: component_type_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by component type ID
+          title: Component Type Id
+        required: false
+        description: Filter by component type ID
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by WO type (FIELD, ADMIN, OFFICE, DATA_UPLOAD)
+          title: Type
+        required: false
+        description: Filter by WO type (FIELD, ADMIN, OFFICE, DATA_UPLOAD)
+      - in: query
+        name: resource_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by resource ID
+          title: Resource Id
+        required: false
+        description: Filter by resource ID
+      - in: query
+        name: resource_set_name
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by resource set name
+          title: Resource Set Name
+        required: false
+        description: Filter by resource set name
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated service codes to filter by (matches service_order_line.service_code)
+          title: Service Code
+        required: false
+        description: Comma-separated service codes to filter by (matches service_order_line.service_code)
+      - in: query
+        name: date_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter planned start on or after
+          title: Date From
+        required: false
+        description: Filter planned start on or after
+      - in: query
+        name: date_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter planned end on or before
+          title: Date To
+        required: false
+        description: Filter planned end on or before
+      - in: query
+        name: activity_date_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter WOs with activities whose time report overlaps this start date
+          title: Activity Date From
+        required: false
+        description: Filter WOs with activities whose time report overlaps this start date
+      - in: query
+        name: activity_date_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter WOs with activities whose time report overlaps this end date
+          title: Activity Date To
+        required: false
+        description: Filter WOs with activities whose time report overlaps this end date
+      - in: query
+        name: project_manager_user_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project manager user ID
+          title: Project Manager User Id
+        required: false
+        description: Filter by project manager user ID
+      - in: query
+        name: include_cancelled
+        schema:
+          default: false
+          description: Include cancelled work orders
+          title: Include Cancelled
+          type: boolean
+        required: false
+        description: Include cancelled work orders
+      - in: query
+        name: has_inspection
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter WOs with (true) or without (false) inspection data
+          title: Has Inspection
+        required: false
+        description: Filter WOs with (true) or without (false) inspection data
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ActiveWorkloadWOResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List work orders for active workload view.
+      tags:
+      - active-workload
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/active-workload/work-orders/{wo_id}:
+    get:
+      operationId: active_workload_api_get_work_order_detail
+      summary: Get Work Order Detail
+      parameters:
+      - in: path
+        name: wo_id
+        schema:
+          title: Wo Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveWorkloadWODetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get work order detail with activities and resource sets.
+      tags:
+      - active-workload
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/active-workload/filters:
+    get:
+      operationId: active_workload_api_get_filters
+      summary: Get Filters
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveWorkloadFiltersResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return distinct filter options for active workload views.
+      tags:
+      - active-workload
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    InspectionComponentInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        sections:
+          default: []
+          items:
+            $ref: '#/components/schemas/InspectionSectionInfo'
+          title: Sections
+          type: array
+      required:
+      - id
+      - name
+      title: InspectionComponentInfo
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    WOTypeOption:
+      additionalProperties: false
+      properties:
+        value:
+          title: Value
+          type: string
+        label:
+          title: Label
+          type: string
+      required:
+      - value
+      - label
+      title: WOTypeOption
+      type: object
+    InspectionSectionInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+        video_files_count:
+          default: 0
+          title: Video Files Count
+          type: integer
+        rosbags_count:
+          default: 0
+          title: Rosbags Count
+          type: integer
+        photos_count:
+          default: 0
+          title: Photos Count
+          type: integer
+      required:
+      - id
+      - name
+      - status
+      title: InspectionSectionInfo
+      type: object
+    ActiveWorkloadWOResponse:
+      additionalProperties: false
+      description: Response schema for a single work order in the active workload list.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectInfo'
+          - type: 'null'
+        so_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: So Number
+        service_order_line:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceOrderLineInfo'
+          - type: 'null'
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+          - type: 'null'
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineInfo'
+          - type: 'null'
+        component:
+          anyOf:
+          - $ref: '#/components/schemas/ComponentInfo'
+          - type: 'null'
+        planned_start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned Start
+        planned_end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End
+        resource_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceSetInfo'
+          title: Resource Sets
+          type: array
+        resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceInfo'
+          title: Resources
+          type: array
+        activities_count:
+          default: 0
+          title: Activities Count
+          type: integer
+        estimated_duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration Min
+        activities_duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Activities Duration Min
+        inspection:
+          anyOf:
+          - $ref: '#/components/schemas/InspectionSummary'
+          - type: 'null'
+      required:
+      - id
+      title: ActiveWorkloadWOResponse
+      type: object
+    InspectionDetail:
+      additionalProperties: false
+      properties:
+        sections_total:
+          default: 0
+          title: Sections Total
+          type: integer
+        sections_completed:
+          default: 0
+          title: Sections Completed
+          type: integer
+        video_files_count:
+          default: 0
+          title: Video Files Count
+          type: integer
+        rosbags_count:
+          default: 0
+          title: Rosbags Count
+          type: integer
+        photos_count:
+          default: 0
+          title: Photos Count
+          type: integer
+        components:
+          default: []
+          items:
+            $ref: '#/components/schemas/InspectionComponentInfo'
+          title: Components
+          type: array
+      title: InspectionDetail
+      type: object
+    InspectionSummary:
+      additionalProperties: false
+      properties:
+        sections_total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sections Total
+        sections_completed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sections Completed
+        video_files_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Video Files Count
+      title: InspectionSummary
+      type: object
+    ServiceOrderLineInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        so_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: So Number
+      required:
+      - id
+      title: ServiceOrderLineInfo
+      type: object
+    ResourceSetInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: ResourceSetInfo
+      type: object
+    SOLWorkorderInfo:
+      additionalProperties: false
+      description: Nested WO info inside an SOL detail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        planned_start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned Start
+        planned_end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End
+        resource_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceSetInfo'
+          title: Resource Sets
+          type: array
+        resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceInfo'
+          title: Resources
+          type: array
+      required:
+      - id
+      title: SOLWorkorderInfo
+      type: object
+    ResourceSetFilterOption:
+      additionalProperties: false
+      properties:
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: ResourceSetFilterOption
+      type: object
+    WOResourceSetMember:
+      additionalProperties: false
+      description: Resource within a resource set.
+      properties:
+        id:
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+      required:
+      - id
+      title: WOResourceSetMember
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CountryFilterOption:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: CountryFilterOption
+      type: object
+    ActiveWorkloadWODetailResponse:
+      additionalProperties: false
+      description: Detail response for a work order (modal).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectInfo'
+          - type: 'null'
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerInfo'
+          - type: 'null'
+        so_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: So Number
+        service_order_line:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceOrderLineInfo'
+          - type: 'null'
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+          - type: 'null'
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineInfo'
+          - type: 'null'
+        component:
+          anyOf:
+          - $ref: '#/components/schemas/ComponentInfo'
+          - type: 'null'
+        planned_start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned Start
+        planned_end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End
+        activities:
+          default: []
+          items:
+            $ref: '#/components/schemas/WOActivityInfo'
+          title: Activities
+          type: array
+        resource_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/WOResourceSetDetail'
+          title: Resource Sets
+          type: array
+        inspection:
+          anyOf:
+          - $ref: '#/components/schemas/InspectionDetail'
+          - type: 'null'
+      required:
+      - id
+      title: ActiveWorkloadWODetailResponse
+      type: object
+    ActiveWorkloadFiltersResponse:
+      additionalProperties: false
+      description: Response schema for filter options endpoint.
+      properties:
+        projects:
+          default: []
+          items:
+            $ref: '#/components/schemas/ProjectInfo'
+          title: Projects
+          type: array
+        customers:
+          default: []
+          items:
+            $ref: '#/components/schemas/CustomerInfo'
+          title: Customers
+          type: array
+        locations:
+          default: []
+          items:
+            $ref: '#/components/schemas/LocationInfo'
+          title: Locations
+          type: array
+        countries:
+          default: []
+          items:
+            $ref: '#/components/schemas/CountryFilterOption'
+          title: Countries
+          type: array
+        statuses:
+          allOf:
+          - $ref: '#/components/schemas/FilterStatusGroup'
+          default:
+            sol: []
+            wo: []
+        turbines:
+          default: []
+          items:
+            $ref: '#/components/schemas/TurbineInfo'
+          title: Turbines
+          type: array
+        component_types:
+          default: []
+          items:
+            $ref: '#/components/schemas/ComponentInfo'
+          title: Component Types
+          type: array
+        resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceInfo'
+          title: Resources
+          type: array
+        resource_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceSetFilterOption'
+          title: Resource Sets
+          type: array
+        wo_types:
+          default: []
+          items:
+            $ref: '#/components/schemas/WOTypeOption'
+          title: Wo Types
+          type: array
+        service_codes:
+          default: []
+          items:
+            type: string
+          title: Service Codes
+          type: array
+      title: ActiveWorkloadFiltersResponse
+      type: object
+    ResourceInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+      required:
+      - id
+      title: ResourceInfo
+      type: object
+    ProjectInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Builder Id
+      required:
+      - id
+      title: ProjectInfo
+      type: object
+    ActiveWorkloadSOLDetailResponse:
+      additionalProperties: false
+      description: Detail response for a service order line (modal).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        so_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: So Number
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectInfo'
+          - type: 'null'
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerInfo'
+          - type: 'null'
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+          - type: 'null'
+        service_order_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Service Order Date
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Type Name
+        workorders:
+          default: []
+          items:
+            $ref: '#/components/schemas/SOLWorkorderInfo'
+          title: Workorders
+          type: array
+      required:
+      - id
+      title: ActiveWorkloadSOLDetailResponse
+      type: object
+    ActiveWorkloadSOLResponse:
+      additionalProperties: false
+      description: Response schema for a single service order line in the active workload list.
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        so_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: So Number
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectInfo'
+          - type: 'null'
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerInfo'
+          - type: 'null'
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationInfo'
+          - type: 'null'
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Type Name
+        workorders_count:
+          default: 0
+          title: Workorders Count
+          type: integer
+      required:
+      - id
+      title: ActiveWorkloadSOLResponse
+      type: object
+    TurbineInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: TurbineInfo
+      type: object
+    WOActivityInfo:
+      additionalProperties: false
+      description: Nested activity for WO detail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Min
+        estimated_duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration Min
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Type Name
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+      required:
+      - id
+      title: WOActivityInfo
+      type: object
+    ComponentInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: ComponentInfo
+      type: object
+    WOResourceSetDetail:
+      additionalProperties: false
+      description: Resource set with members for WO detail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        members:
+          default: []
+          items:
+            $ref: '#/components/schemas/WOResourceSetMember'
+          title: Members
+          type: array
+      required:
+      - id
+      title: WOResourceSetDetail
+      type: object
+    CustomerInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: CustomerInfo
+      type: object
+    FilterStatusGroup:
+      additionalProperties: false
+      properties:
+        sol:
+          default: []
+          items:
+            type: string
+          title: Sol
+          type: array
+        wo:
+          default: []
+          items:
+            type: string
+          title: Wo
+          type: array
+      title: FilterStatusGroup
+      type: object
+    LocationInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State Region
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+      required:
+      - id
+      title: LocationInfo
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

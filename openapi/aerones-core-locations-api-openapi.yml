@@ -1,0 +1,878 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.locations API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.locations
+paths:
+  /api/core/v1/locations/resolve-coordinates:
+    post:
+      operationId: resolve_location_coordinates
+      summary: Resolve geographic data from coordinates
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveCoordinatesResponse'
+      description: Resolve address, timezone, country, city, and state from coordinates.
+      tags:
+      - core.locations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveCoordinatesRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/locations:
+    get:
+      operationId: list_locations
+      summary: List Locations
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+          description: Filter by location type
+        required: false
+        description: Filter by location type
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country ID
+          title: Country Id
+        required: false
+        description: Filter by country ID
+      - in: query
+        name: timezone_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by timezone ID
+          title: Timezone Id
+        required: false
+        description: Filter by timezone ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LocationResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.locations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_location
+      summary: Create Location
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+      description: Create a new item.
+      tags:
+      - core.locations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/locations/{id}:
+    get:
+      operationId: get_location
+      summary: Get Location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.locations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_location
+      summary: Update Location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+      description: Update an item.
+      tags:
+      - core.locations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_location
+      summary: Delete Location
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.locations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    LocationUpdate:
+      additionalProperties: false
+      description: Schema for updating a Location.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Location name
+          title: Name
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+          description: Location type
+        windpark_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Wind park type
+          title: Windpark Type
+        address_line1:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address line 1
+          title: Address Line1
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text coordinates (e.g. 37°51'05.0"N 99°12'53.5"W)
+          title: Coordinates
+        global_wind_park_db_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Global wind park database ID
+          title: Global Wind Park Db Id
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LocationCertificateInput'
+            type: array
+          - type: 'null'
+          description: Required certificates for the location
+          title: Certificates
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: 'Site-specific attributes as JSON. Canonical keys: terrain_type, terrain_details, ground_conditions, regulations, operational_limitations'
+          title: Custom Fields
+      title: LocationUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResolveCoordinatesResponse:
+      additionalProperties: false
+      description: Resolved geographic data from coordinates.
+      properties:
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude
+          title: Longitude
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Matched Timezone ID
+          title: Timezone Id
+        timezone_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IANA timezone name (e.g. Europe/Berlin)
+          title: Timezone Name
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Matched Country ID
+          title: Country Id
+        country_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 3166-1 alpha-2 code
+          title: Country Code
+        address_line1:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Street address line resolved from coordinates
+          title: Address Line1
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Nearest city name
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+      title: ResolveCoordinatesResponse
+      type: object
+    LocationResponse:
+      additionalProperties: false
+      description: Schema for Location response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Location ID
+          title: Id
+          type: integer
+        name:
+          description: Location name
+          title: Name
+          type: string
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+          description: Location type
+        windpark_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Wind park type
+          title: Windpark Type
+        address_line1:
+          description: Address line 1
+          title: Address Line1
+          type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+          description: Country information
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+          description: Timezone information
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Coordinates string
+          title: Coordinates
+        global_wind_park_db_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Global wind park database ID
+          title: Global Wind Park Db Id
+        certificates:
+          description: Required certificates for the location
+          items:
+            $ref: '#/components/schemas/LocationCertificateOutput'
+          title: Certificates
+          type: array
+        customers:
+          description: Customers linked to the location
+          items:
+            $ref: '#/components/schemas/CustomerObject'
+          title: Customers
+          type: array
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: 'Site-specific attributes as JSON. Canonical keys: terrain_type, terrain_details, ground_conditions, regulations, operational_limitations'
+          title: Custom Fields
+      required:
+      - updated_at
+      - id
+      - name
+      - address_line1
+      title: LocationResponse
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    LocationCreate:
+      additionalProperties: false
+      description: Schema for creating a Location.
+      properties:
+        name:
+          description: Location name
+          minLength: 1
+          title: Name
+          type: string
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          $ref: '#/components/schemas/LocationType'
+          description: Location type
+        windpark_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Wind park type
+          title: Windpark Type
+        address_line1:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address line 1 (auto-filled from coordinates text if omitted)
+          title: Address Line1
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: City (auto-filled from coordinates text if omitted)
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID (auto-filled from coordinates text if omitted)
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID (auto-filled from coordinates text if omitted)
+          title: Timezone Id
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate (auto-filled from coordinates text if omitted)
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate (auto-filled from coordinates text if omitted)
+          title: Longitude
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text coordinates (e.g. 37°51'05.0"N 99°12'53.5"W)
+          title: Coordinates
+        global_wind_park_db_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Global wind park database ID
+          title: Global Wind Park Db Id
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LocationCertificateInput'
+            type: array
+          - type: 'null'
+          description: Required certificates for the location
+          title: Certificates
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: 'Site-specific attributes as JSON. Canonical keys: terrain_type, terrain_details, ground_conditions, regulations, operational_limitations'
+          example:
+            ground_conditions: sandy seabed
+            operational_limitations: No crane ops above 12 m/s wind
+            regulations: IMO / MCA compliant
+            terrain_details: North Sea, shallow waters
+            terrain_type: offshore
+          title: Custom Fields
+      required:
+      - name
+      - type
+      title: LocationCreate
+      type: object
+    LocationCertificateOutput:
+      additionalProperties: false
+      description: Output schema for location certificate in responses.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        certificate_name:
+          description: Certificate name
+          title: Certificate Name
+          type: string
+        is_mandatory:
+          description: Whether certificate is mandatory
+          title: Is Mandatory
+          type: boolean
+      required:
+      - certificate_id
+      - certificate_name
+      - is_mandatory
+      title: LocationCertificateOutput
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    LocationCertificateInput:
+      additionalProperties: false
+      description: Input schema for location certificate in create/update requests.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        is_mandatory:
+          default: false
+          description: Whether certificate is mandatory
+          title: Is Mandatory
+          type: boolean
+      required:
+      - certificate_id
+      title: LocationCertificateInput
+      type: object
+    ResolveCoordinatesRequest:
+      additionalProperties: false
+      description: Request body for resolving geographic data from coordinates.
+      properties:
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text coordinates (e.g. 37°51'05.0"N 99°12'53.5"W)
+          title: Coordinates
+      title: ResolveCoordinatesRequest
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

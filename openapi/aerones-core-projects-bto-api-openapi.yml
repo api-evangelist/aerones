@@ -1,0 +1,1239 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.bto API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.bto
+paths:
+  /api/core/v1/projects/{project_id}/bto/travel-orders:
+    get:
+      operationId: list_bto_travel_orders
+      summary: List Bto Travel Orders
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BusinessTravelOrderListSchema'
+                title: Response
+                type: array
+      description: List all travel orders for a project.
+      tags:
+      - core.projects.bto
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_bto_travel_order
+      summary: Create Bto Travel Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BusinessTravelOrderListSchema'
+                title: Response
+                type: array
+      description: Create a travel order and return the refreshed list (legacy contract).
+      tags:
+      - core.projects.bto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessTravelOrderCreateSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/bto/travel-orders/{order_id}:
+    get:
+      operationId: get_bto_travel_order
+      summary: Get Bto Travel Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessTravelOrderDetailSchema'
+      description: Get a single travel order's details.
+      tags:
+      - core.projects.bto
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_bto_travel_order
+      summary: Update Bto Travel Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessTravelOrderDetailSchema'
+      description: Update an existing travel order.
+      tags:
+      - core.projects.bto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessTravelOrderUpdateSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_bto_travel_order
+      summary: Delete Bto Travel Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a travel order.
+      tags:
+      - core.projects.bto
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/bto/travel-orders/{order_id}/refresh:
+    post:
+      operationId: refresh_bto_travel_order
+      summary: Refresh Bto Travel Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessTravelOrderDetailSchema'
+      description: Refresh planned dates + unit counts from their Core sources.
+      tags:
+      - core.projects.bto
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/bto/travel-orders/{order_id}/send-emails:
+    post:
+      operationId: send_bto_travel_order_emails
+      summary: Send Bto Travel Order Emails
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessTravelOrderDetailSchema'
+      description: Send BTO notification emails and mark the travel order as sent.
+      tags:
+      - core.projects.bto
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/bto/travel-orders/{order_id}/questions:
+    get:
+      operationId: get_bto_travel_order_questions
+      summary: Get Bto Travel Order Questions
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessTravelOrderQuestionsSchema'
+      description: Get the travel order questionnaire.
+      tags:
+      - core.projects.bto
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: update_bto_travel_order_questions
+      summary: Update Bto Travel Order Questions
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessTravelOrderQuestionsSchema'
+      description: Update the travel order questionnaire.
+      tags:
+      - core.projects.bto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessTravelOrderQuestionsSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    BusinessTravelOrderQuestionsSchema:
+      additionalProperties: false
+      description: Schema for BTO questionnaire (both read and write operations).
+      properties:
+        general:
+          $ref: '#/components/schemas/BusinessTravelOrderQuestionsGeneralSchema'
+          description: General questions applicable to any business travel order
+        iin_ons:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderIINONSQuestionsSchema'
+          - type: 'null'
+          description: IIN-ONS specific questions, included only if BTO is for IIN-ONS service
+        iin_ofs:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderIINOFSQuestionsSchema'
+          - type: 'null'
+          description: IIN-OFS specific questions, included only if BTO is for IIN-OFS service
+        ler:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderLERQuestionsSchema'
+          - type: 'null'
+          description: LER specific questions, included only if BTO is for LER service
+        tcl:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderTCLQuestionsSchema'
+          - type: 'null'
+          description: TCL specific questions, included only if BTO is for TCL service
+        bcl:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderBCLQuestionsSchema'
+          - type: 'null'
+          description: BCL specific questions, included only if BTO is for BCL service
+        vin:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderVINQuestionsSchema'
+          - type: 'null'
+          description: VIN specific questions, included only if BTO is for VIN service
+        lps:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderLPSQuestionsSchema'
+          - type: 'null'
+          description: LPS specific questions, included only if BTO is for LPS service
+        rat:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderRATQuestionsSchema'
+          - type: 'null'
+          description: RAT specific questions, included only if BTO is for RAT service
+        ice:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderICEQuestionsSchema'
+          - type: 'null'
+          description: ICE specific questions, included only if BTO is for ICE service
+      required:
+      - general
+      title: BusinessTravelOrderQuestionsSchema
+      type: object
+    BusinessTravelOrderICEQuestionsSchema:
+      additionalProperties: false
+      description: ICE specific questions.
+      properties:
+        ensure_internet_cables:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Ensure internet cables have the correct connectors.
+        confirm_ice_chemicals:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Confirm that enough ICE chemicals are in stock.
+        verify_spare_motor:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Verify that a spare motor is available for the cleaning robot.
+        curing_time_source:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What is the curing time for the material?
+        repeat_photos_understanding:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand that repeat photos must be taken 24 hours after the curing time.
+      title: BusinessTravelOrderICEQuestionsSchema
+      type: object
+    BusinessTravelOrderCreateSchema:
+      additionalProperties: false
+      description: Schema for business travel order creation.
+      properties:
+        service_id:
+          description: CORE Service ID
+          title: Service Id
+          type: integer
+        project_location_id:
+          description: CORE ProjectLocation ID the service is delivered at
+          title: Project Location Id
+          type: integer
+        project_resource_set_id:
+          description: CORE ProjectResourceSet ID to populate team members
+          title: Project Resource Set Id
+          type: integer
+        supervisor_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Django auth User ID for the BTO supervisor
+          title: Supervisor User Id
+      required:
+      - service_id
+      - project_location_id
+      - project_resource_set_id
+      title: BusinessTravelOrderCreateSchema
+      type: object
+    ContactPerson:
+      additionalProperties: false
+      description: Schema for contact person.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full name of the contact person.
+          title: Name
+        email:
+          anyOf:
+          - format: email
+            type: string
+          - type: 'null'
+          description: Valid email address of the contact person.
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Role of the contact person (for site contacts)
+          title: Role
+      title: ContactPerson
+      type: object
+    BusinessTravelOrderUpdateSchema:
+      additionalProperties: false
+      description: Schema for business travel order updates.
+      properties:
+        project_technical_information:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Link to folder for technical information
+          title: Project Technical Information
+        project_technical_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Technical description text field
+          title: Project Technical Description
+        daily_report_folder_link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Google Drive daily report folder link
+          title: Daily Report Folder Link
+        robot_set_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set id in specific project
+          title: Robot Set Id
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource set ID from CORE schema
+          title: Resource Set Id
+        supervisor_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Django auth User ID for the BTO supervisor
+          title: Supervisor User Id
+      title: BusinessTravelOrderUpdateSchema
+      type: object
+    BusinessTravelOrderTCLQuestionsSchema:
+      additionalProperties: false
+      description: TCL specific questions.
+      properties:
+        water_source_identification:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know where to take the water from.
+        chemical_availability:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have the required chemicals with me, and I know exactly which ones they are and how to use them.
+        dirtiness_assessment:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know the type and level of dirtiness on the WTG.
+        wastewater_disposal_known:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: If necessary, I know where to dispose of the wastewater.
+      title: BusinessTravelOrderTCLQuestionsSchema
+      type: object
+    TravelOrderStatus:
+      description: Travel order status.
+      enum:
+      - Draft
+      - Sent
+      title: TravelOrderStatus
+      type: string
+    BusinessTravelOrderLERQuestionsSchema:
+      additionalProperties: false
+      description: LER specific questions.
+      properties:
+        robotic_tools_in_use:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: How many robotic tools are in use, and what types are they?
+        robotic_tool_usage_sequence:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What is the sequence of robotic tool usage?
+        project_materials:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What materials will be used in this project?
+        drone_photo_activities:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: After which activities must photos be taken with a drone?
+        ler_meters:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: How many meters of LER will be performed?
+        scope_change_definition:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What does "scope change" mean?
+        material_curing_time_source:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Where can the curing time for each material be found?
+      title: BusinessTravelOrderLERQuestionsSchema
+      type: object
+    BusinessTravelOrderIINOFSQuestionsSchema:
+      additionalProperties: false
+      description: IIN-OFS specific questions.
+      properties:
+        specific_customer_requirements:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand the specific customer requirements for the inspection.
+        crawler_operation_requirements:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand the minimum crawler operation requirements for performing the service.
+        crawler_spare_parts_availability:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am aware of the availability of crawler spare parts during the turbine service.
+        data_upload_familiarity:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have access to the data upload folders and am familiar with data sorting.
+        blade_information_card_familiarity:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am familiar with the blade information card and its purpose.
+        data_upload_timing:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand that data uploads must be completed within 24 hours.
+        gas_detector_expiry_awareness:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I acknowledge that the gas detector expiry date must not be less than two months.
+        quick_spare_parts_awareness:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am aware of the quick availability of critical spare parts at the offshore site
+        starlink_offshore_availability:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Starlink for offshore use is available in the set.
+      title: BusinessTravelOrderIINOFSQuestionsSchema
+      type: object
+    BusinessTravelOrderVINQuestionsSchema:
+      additionalProperties: false
+      description: VIN specific questions.
+      properties:
+        flight_restrictions:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Are there any flight restrictions or airports nearby?
+        charging_socket_info:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Does the tower have a socket for charging batteries, and does it require an adapter?
+      title: BusinessTravelOrderVINQuestionsSchema
+      type: object
+    BusinessTravelOrderLPSQuestionsSchema:
+      additionalProperties: false
+      description: LPS specific questions.
+      properties:
+        receptor_types_known:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Is the number and location of receptors on the blade known?
+        bridge_necessity_known:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Is the bridge necessary, and in what cases is it used?
+        blade_troubleshooting_known:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Do you know how to troubleshoot a blade?
+        service_provided_known:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Do you know what service are you providing?
+        full_loop_measurements_required:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: Does the client require full loop measurements or blade-only measurements?
+      title: BusinessTravelOrderLPSQuestionsSchema
+      type: object
+    BusinessTravelOrderListSchema:
+      additionalProperties: false
+      description: Schema for business travel order list response.
+      properties:
+        id:
+          description: BTO database ID
+          title: Id
+          type: integer
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Planned start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Planned end date
+          title: End Date
+        robot_set:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set information
+          title: Robot Set
+        service_by_robotic_set:
+          description: Service code that will be handled by robotic set
+          title: Service By Robotic Set
+          type: string
+        status:
+          description: Delivery status of BTO emails
+          title: Status
+          type: string
+      required:
+      - id
+      - service_by_robotic_set
+      - status
+      title: BusinessTravelOrderListSchema
+      type: object
+    TeamMember:
+      description: Schema for Aerones team member.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - format: email
+            type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        qualifications:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: List of qualifications for the team member.
+          title: Qualifications
+      title: TeamMember
+      type: object
+    BusinessTravelOrderDetailSchema:
+      description: 'Schema for business travel order details.
+
+
+        Business travel order is sent by specific set on specific service.'
+      properties:
+        project_technical_information:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Link to folder for technical information
+          title: Project Technical Information
+        project_technical_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Technical description text field
+          title: Project Technical Description
+        daily_report_folder_link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Google Drive daily report folder link
+          title: Daily Report Folder Link
+        robot_set_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set id in specific project
+          title: Robot Set Id
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource set ID from CORE schema
+          title: Resource Set Id
+        id:
+          description: BTO database ID
+          title: Id
+          type: integer
+        team_members:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/TeamMember'
+            type: array
+          - type: 'null'
+          description: List of team members assigned to the BTO and receiving emails
+          title: Team Members
+        robot_set:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set name (code)
+          title: Robot Set
+        units_total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Total units, prefilled from assets but editable
+          title: Units Total
+        units_turbines:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Total turbines
+          title: Units Turbines
+        units_blades:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Total blades
+          title: Units Blades
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Planned project start date
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Planned project end date
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Actual start date
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Actual end date
+          title: Actual End Date
+        dedicated_client_scope_change:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Dedicated client for scope change (LER projects only)
+          title: Dedicated Client Scope Change
+        reinspection:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Reinspection information
+          title: Reinspection
+        status:
+          $ref: '#/components/schemas/TravelOrderStatus'
+          description: Delivery status of BTO emails
+        prejob_pdf:
+          description: Pre-job PDF link
+          title: Prejob Pdf
+          type: string
+        questionnaire_filled:
+          default: 0
+          description: BTO questionnaire filled by team lead 0-100
+          title: Questionnaire Filled
+          type: integer
+        service_category_by_robotic_set:
+          description: Code of service category.
+          title: Service Category By Robotic Set
+          type: string
+        service_name_by_robotic_set:
+          description: Service name
+          title: Service Name By Robotic Set
+          type: string
+        service_by_robotic_set:
+          description: Service code by robotic set
+          title: Service By Robotic Set
+          type: string
+        site_contact_persons:
+          default: []
+          description: List of site contact persons
+          items:
+            $ref: '#/components/schemas/ContactPerson'
+          title: Site Contact Persons
+          type: array
+        site_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Site name
+          title: Site Name
+        site_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Site address
+          title: Site Address
+        site_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site latitude
+          title: Site Latitude
+        site_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site longitude
+          title: Site Longitude
+        site_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Site country, two letter ISO code
+          title: Site Country
+        om_building_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: O&M building address
+          title: Om Building Address
+        om_building_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: O&M building latitude
+          title: Om Building Latitude
+        om_building_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: O&M building longitude
+          title: Om Building Longitude
+        can_compensate_on_sundays:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether work on Sundays can be compensated, taken from site safety form
+          title: Can Compensate On Sundays
+        can_work_six_days:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether work on six days a week is allowed, taken from site safety form
+          title: Can Work Six Days
+        regional_or_country_regulations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Regional or country-specific regulations affecting work schedules, taken from site safety form
+          title: Regional Or Country Regulations
+        operational_limitations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Operational limitations affecting work schedules, taken from site safety form
+          title: Operational Limitations
+        team_from_iep:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          description: Whether team members were populated from IEP resource set
+          title: Team From Iep
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderAuditUser'
+          - type: 'null'
+          description: Information about who created the BTO
+        sent_by:
+          anyOf:
+          - $ref: '#/components/schemas/BusinessTravelOrderAuditUser'
+          - type: 'null'
+          description: Information about who sent the BTO notifications
+      required:
+      - id
+      - status
+      - prejob_pdf
+      - service_category_by_robotic_set
+      - service_name_by_robotic_set
+      - service_by_robotic_set
+      title: BusinessTravelOrderDetailSchema
+      type: object
+    BusinessTravelOrderQuestionsGeneralSchema:
+      additionalProperties: false
+      description: General questions applicable to any business travel order.
+      properties:
+        proper_rescue_device:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have the proper rescue device and know how to inspect it.
+        fall_arrester:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have the proper fall arrester. (What type of fall arrester is required?)
+        jsa_completion:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to complete the JSA and understand the criteria for filling it out.
+        ppe_inspection:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to inspect PPE and check expiration dates.
+        car_incident_action:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to act in the event of a car incident.
+        hot_weather_action:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to act in extremely hot weather conditions.
+        data_sheets_available:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have the relevant data sheets available.
+        near_miss_response:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to respond to a near miss and how to report it.
+        health_compliance_action:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to act in health compliance situations.
+        insurance_policy_info:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have been informed about the insurance policy.
+        turbine_models_info:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am aware of the turbine models scheduled for service.
+        wtg_operation:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to operate the WTG.
+        wtg_list_available:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: A list of WTGs requiring servicing is available.
+        maintainx_access:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have access to MaintainX and am added to the correct set.
+        maintainx_set_acceptance:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to perform set acceptance in MaintainX.
+        maintainx_support:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am familiar with using MaintainX for support.
+        purchase_order_creation:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to create a purchase order.
+        set_not_working_procedure:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know what to do if, upon set acceptance, the set is found not to be in working order.
+        spendesk_access:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have access to a Spendesk card and know how to report expenses
+        work_hours_registration:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to register work hours.
+        vehicle_form_info:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am aware of how to fill out the vehicle acceptance and transfer form.
+        accommodation_request:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know how to request accommodation.
+        site_address_info:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have the site address and the contact person's phone number.
+      title: BusinessTravelOrderQuestionsGeneralSchema
+      type: object
+    QuestionField:
+      additionalProperties: false
+      description: Schema for a single question field with checkbox and description.
+      properties:
+        is_checked:
+          default: false
+          description: Whether the question is marked as known/understood (I know / I don't know)
+          title: Is Checked
+          type: boolean
+        description:
+          default: ''
+          description: Optional freeform text field for additional details
+          title: Description
+          type: string
+      title: QuestionField
+      type: object
+    BusinessTravelOrderRATQuestionsSchema:
+      additionalProperties: false
+      description: RAT specific questions.
+      properties:
+        safety_devices_required:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: How many ASAP safety devices are required for the work?
+        deviation_definition:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What is a deviation?
+        nacelle_access_equipment:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What equipment will be used to access the bottom of the nacelle?
+        deviation_equipment:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: What equipment will be used for deviation?
+      title: BusinessTravelOrderRATQuestionsSchema
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    BusinessTravelOrderIINONSQuestionsSchema:
+      additionalProperties: false
+      description: IIN-ONS specific questions.
+      properties:
+        specific_customer_requirements:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand the specific customer requirements for the inspection.
+        crawler_operation_requirements:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand the minimum crawler operation requirements for performing the service.
+        crawler_spare_parts_availability:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am aware of the availability of crawler spare parts during the turbine service.
+        data_upload_familiarity:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have access to the data upload folders and am familiar with data sorting.
+        blade_information_card_familiarity:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I am familiar with the blade information card and its purpose.
+        data_upload_timing:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I understand that data uploads must be completed within 24 hours.
+        gas_detector_expiry_awareness:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I acknowledge that the gas detector expiry date must not be less than two months.
+      title: BusinessTravelOrderIINONSQuestionsSchema
+      type: object
+    BusinessTravelOrderAuditUser:
+      additionalProperties: false
+      description: Schema describing a user involved in BTO lifecycle events.
+      properties:
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full name of the user
+          title: Full Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address of the user
+          title: Email
+      title: BusinessTravelOrderAuditUser
+      type: object
+    BusinessTravelOrderBCLQuestionsSchema:
+      additionalProperties: false
+      description: BCL specific questions.
+      properties:
+        water_source_identification:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know where to take the water from.
+        chemical_availability:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I have the required chemicals with me, and I know exactly which ones they are and how to use them.
+        dirtiness_assessment:
+          anyOf:
+          - $ref: '#/components/schemas/QuestionField'
+          - type: 'null'
+          description: I know the type and level of dirtiness on the WTG.
+      title: BusinessTravelOrderBCLQuestionsSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

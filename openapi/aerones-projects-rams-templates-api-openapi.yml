@@ -1,0 +1,664 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.rams Templates API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.rams-templates
+paths:
+  /api/rams-templates:
+    get:
+      operationId: projects_api_rams_templates_list_rams_templates
+      summary: List Rams Templates
+      parameters:
+      - in: query
+        name: service_family_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Family Id
+        required: false
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        required: false
+      - in: query
+        name: region_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RamsTemplateResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List RAMS templates for the HSE template admin UI.
+      tags:
+      - projects.rams-templates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_rams_templates_create_rams_template
+      summary: Create Rams Template
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a new RAMS template. At least one scope dimension is required.
+      tags:
+      - projects.rams-templates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsTemplateCreateBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/rams-templates/convert-to-pdf:
+    post:
+      operationId: projects_api_rams_templates_convert_template_docx_to_pdf
+      summary: Convert Template Docx To Pdf
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Convert a template-preview DOCX upload to PDF and stream it back.
+      tags:
+      - projects.rams-templates
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/rams-templates/resolved:
+    get:
+      operationId: projects_api_rams_templates_resolve_rams_template_content
+      summary: Resolve Rams Template Content
+      parameters:
+      - in: query
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      - in: query
+        name: region
+        schema:
+          default: ''
+          title: Region
+          type: string
+        required: false
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        required: false
+      - in: query
+        name: country_code
+        schema:
+          default: ''
+          title: Country Code
+          type: string
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateResolvedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Resolve the most-specific template (a service-scoped row beats the family
+
+        row; then customer > country > region) a PM should start a new RAMS document
+
+        from. No manager gate — read-only, used at document creation. The template
+
+        family comes off ``Service.service_family`` and the optional service scope is
+
+        the service itself — nothing is read out of the code. A service with no
+
+        family is not RAMS-eligible. Accepts a country_code (the project context
+
+        carries the code, not the core id). The geographic region is derived from
+
+        that country; the RAMS `region` string is only a fallback for callers that
+
+        pass no country.'
+      tags:
+      - projects.rams-templates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/rams-templates/{template_id}:
+    get:
+      operationId: projects_api_rams_templates_get_rams_template
+      summary: Get Rams Template
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          title: Template Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Return a single template plus its uploaded images.
+
+
+        No manager gate, and soft-deleted rows still resolve: every RAMS document
+
+        viewer (PMs included) fetches its linked template as the drift/PPE
+
+        baseline, which must survive HSE retiring the template. Mutations below
+
+        stay HSE-only.'
+      tags:
+      - projects.rams-templates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_rams_templates_update_rams_template
+      summary: Update Rams Template
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          title: Template Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Update template content and/or scope. The service family and the optional
+
+        service narrowing are immutable post-create — they identify *what* the
+
+        template is for; duplicate it to target a different one.'
+      tags:
+      - projects.rams-templates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsTemplateUpdateBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_rams_templates_delete_rams_template
+      summary: Delete Rams Template
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          title: Template Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Soft-delete a template. Existing RAMS documents are unaffected.
+      tags:
+      - projects.rams-templates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/rams-templates/{template_id}/images:
+    post:
+      operationId: projects_api_rams_templates_upload_rams_template_image
+      summary: Upload Rams Template Image
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          title: Template Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateImageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Upload an HSE default image for a specific template slot.
+
+
+        The bytes go to GCS through the shared ``core.File`` uploader in bare mode
+
+        (no ``FileEntityLink``) — the template-side link is this ``RamsTemplateImage``
+
+        row, which carries the slot/label placement metadata.'
+      tags:
+      - projects.rams-templates
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              title: MultiPartBodyParams
+              type: object
+              properties:
+                slot:
+                  title: Slot
+                  type: string
+                label:
+                  default: ''
+                  title: Label
+                  type: string
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - slot
+              - file
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/rams-templates/{template_id}/images/{image_id}:
+    delete:
+      operationId: projects_api_rams_templates_delete_rams_template_image
+      summary: Delete Rams Template Image
+      parameters:
+      - in: path
+        name: template_id
+        schema:
+          title: Template Id
+          type: integer
+        required: true
+      - in: path
+        name: image_id
+        schema:
+          title: Image Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Soft-delete an HSE-uploaded default image.
+      tags:
+      - projects.rams-templates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    RamsTemplateScopeBody:
+      additionalProperties: false
+      description: New scope for a template (region / country / customer).
+      properties:
+        region_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+      title: RamsTemplateScopeBody
+      type: object
+    RamsTemplateUpdateBody:
+      additionalProperties: false
+      description: Body for patching a RAMS template.
+      properties:
+        form_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Form Data
+        layout:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Layout
+        scope:
+          anyOf:
+          - $ref: '#/components/schemas/RamsTemplateScopeBody'
+          - type: 'null'
+      title: RamsTemplateUpdateBody
+      type: object
+    RamsTemplateImageResponse:
+      additionalProperties: false
+      description: Serialised HSE-uploaded default image.
+      properties:
+        id:
+          title: Id
+          type: integer
+        slot:
+          title: Slot
+          type: string
+        label:
+          title: Label
+          type: string
+        file_id:
+          title: File Id
+          type: integer
+        url:
+          title: Url
+          type: string
+      required:
+      - id
+      - slot
+      - label
+      - file_id
+      - url
+      title: RamsTemplateImageResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RamsTemplateResponse:
+      additionalProperties: false
+      description: Serialised RAMS template.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_family_id:
+          title: Service Family Id
+          type: integer
+        service_family_code:
+          title: Service Family Code
+          type: string
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        service_code:
+          default: ''
+          title: Service Code
+          type: string
+        region_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        region_name:
+          default: ''
+          title: Region Name
+          type: string
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        country_name:
+          default: ''
+          title: Country Name
+          type: string
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        customer_name:
+          default: ''
+          title: Customer Name
+          type: string
+        form_data:
+          title: Form Data
+          type: object
+        layout:
+          title: Layout
+          type: object
+        images:
+          items:
+            $ref: '#/components/schemas/RamsTemplateImageResponse'
+          title: Images
+          type: array
+        updated_at:
+          title: Updated At
+          type: string
+      required:
+      - id
+      - service_family_id
+      - service_family_code
+      - form_data
+      - updated_at
+      title: RamsTemplateResponse
+      type: object
+    RamsTemplateResolvedResponse:
+      additionalProperties: false
+      description: Resolved template content for starting a new RAMS document.
+      properties:
+        found:
+          default: false
+          title: Found
+          type: boolean
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Family Id
+        service_family_code:
+          default: ''
+          title: Service Family Code
+          type: string
+        form_data:
+          title: Form Data
+          type: object
+        layout:
+          title: Layout
+          type: object
+      title: RamsTemplateResolvedResponse
+      type: object
+    RamsTemplateCreateBody:
+      additionalProperties: false
+      description: 'Body for creating a new RAMS template.
+
+
+        ``service_family_id`` (and the optional ``service_id`` narrowing) fix *what*
+
+        the template is for and are immutable afterwards; region / country /
+
+        customer are the editable scope.'
+      properties:
+        service_family_id:
+          title: Service Family Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        region_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        form_data:
+          title: Form Data
+          type: object
+        layout:
+          title: Layout
+          type: object
+      required:
+      - service_family_id
+      title: RamsTemplateCreateBody
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,1021 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.offer.changelog API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.offer.changelog
+paths:
+  /api/projects/{project_id}/offer/view/{version}:
+    get:
+      operationId: projects_api_offer_get_offer_version
+      summary: Get Offer Version
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: version
+        schema:
+          title: Version
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOffer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get a specific offer version for viewing.
+
+
+        Returns the complete offer data for a specific version, including all line items
+
+        with the same format as the current offer endpoint. This allows displaying
+
+        historical versions with the same UI components.'
+      tags:
+      - projects.offer.changelog
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/compare:
+    get:
+      operationId: projects_api_offer_compare_offer_versions
+      summary: Compare Offer Versions
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: version1
+        schema:
+          title: Version1
+          type: integer
+        required: true
+      - in: query
+        name: version2
+        schema:
+          title: Version2
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferComparison'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Compare two offer versions and return detailed differences.
+      tags:
+      - projects.offer.changelog
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/send-for-approval:
+    post:
+      operationId: projects_api_offer_send_for_approval
+      summary: Send For Approval
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Send the current draft offer as a new version for review with enhanced approval routing.
+
+
+        Only one draft version exists and as soon as it is sent for approval new draft
+
+        version must be created from scratch.
+
+
+        During the review process, offer version is in status `Pending` and project has
+
+        offer_status in `Pending` state. This means that the offer is not yet reviewed.
+
+
+        The system automatically determines the required approver based on deal value:
+
+        - 0-100k: Sales Director approval required
+
+        - 100k+: CCO approval required
+
+
+        After the review is completed, the offer version can be either approved or rejected.'
+      tags:
+      - projects.offer.changelog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/OfferApprovalRequest'
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/approve:
+    post:
+      operationId: projects_api_offer_approve_offer
+      summary: Approve Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Approve the current pending offer with role-based authority check.
+
+
+        This endpoint approves the current pending offer, which is in status `Pending`.
+
+        The system checks if the user has appropriate approval authority based on
+
+        the offer''s deal value and required_approver_role field.
+
+
+        Once approved, the offer version is finalized and notifications are sent.
+
+
+        After approval, the project offer status is set to `Approved`.'
+      tags:
+      - projects.offer.changelog
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/reject:
+    post:
+      operationId: projects_api_offer_reject_offer
+      summary: Reject Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Reject the current pending offer with role-based authority check.
+
+
+        This endpoint rejects the current pending offer, which is in status `Pending`.
+
+        The system checks if the user has appropriate approval authority based on
+
+        the offer''s deal value and required_approver_role field.
+
+
+        After rejection, the project offer status is set to `Rejected`.
+
+        The rejected offer version remains accessible for review and comparison.'
+      tags:
+      - projects.offer.changelog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferRejectRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/draft:
+    post:
+      operationId: projects_api_offer_create_draft_offer
+      summary: Create Draft Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Create a new draft offer after an approved version exists.
+
+
+        This endpoint creates a new draft offer version, typically used after
+
+        an offer has been approved or rejected and new changes need to be made.'
+      tags:
+      - projects.offer.changelog
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    IDWithName:
+      additionalProperties: false
+      description: Schema for ID with name.
+      properties:
+        id:
+          description: Identifier.
+          title: Id
+          type: integer
+        name:
+          description: Name.
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: IDWithName
+      type: object
+    LineItem:
+      additionalProperties: false
+      description: Schema for offer line item.
+      properties:
+        persistent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated lineage identifier alias. Use `original_item_id`.
+          title: Persistent Id
+        row_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Unique identified of line item. Can be used to update specific line items.
+          examples:
+          - 1
+          title: Row Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated duplicated line item code. Use service.code.
+          examples:
+          - ACC
+          title: Code
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Line item category with code and name
+          examples:
+          - code: 01INS
+            name: Inspections
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the line item
+          examples:
+          - Emergency Mobilization Fee
+          title: Description
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          examples:
+          - 100.5
+          title: Price
+        turbine_manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Turbine manufacturer object
+        turbine_model:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Turbine model object
+        component_manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Component manufacturer object
+        manufacturer_component_model:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Component model object
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          examples:
+          - 5
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount percentage
+          examples:
+          - 10.5
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price adjustment (positive or negative)
+          examples:
+          - 100.5
+          - -50.25
+          title: Adjustment
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component type name for the line item
+          examples:
+          - Blade
+          - Nacelle
+          title: Type
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Location object with id and name
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceRef'
+          - type: 'null'
+          description: Service object with id/code/name
+        pricing_unit:
+          anyOf:
+          - $ref: '#/components/schemas/PricingUnitRef'
+          - type: 'null'
+          description: Pricing unit object with id and name
+        coefficients:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ItemCoefficient'
+            type: array
+          - type: 'null'
+          description: List of coefficients applied to this line item (for services and addons only)
+          examples:
+          - - name: Latvia
+              type: Country
+              value: 1.1
+            - name: January
+              type: Month
+              value: 1.2
+            - name: Offshore
+              type: Special Conditions
+              value: 1.15
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Asset group ID a line item belongs to.
+          title: Group Id
+        total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: Total price of the line item
+          title: Total
+        unit_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: Unit price per asset
+          title: Unit Price
+        original_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version lineage pointer to version 1 ancestor item
+          title: Original Item Id
+        parent_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Deprecated parent service row id for addon/material hierarchy.
+          title: Parent Id
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated pricing unit name alias. Use `pricing_unit_id` in requests.
+          examples:
+          - WTG
+          - BLADE
+          - MONTHLY
+          title: Unit Type
+        is_optional:
+          default: false
+          description: Line quotes a price without a committed quantity
+          examples:
+          - true
+          title: Is Optional
+          type: boolean
+        ler_repair_meters:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Leading edge repair length in metres
+          examples:
+          - 7
+          title: Ler Repair Meters
+      required:
+      - category
+      title: LineItem
+      type: object
+    ItemCoefficient:
+      additionalProperties: false
+      description: Schema for item coefficient information.
+      properties:
+        type:
+          description: Type of coefficient (Country, Month, or Special Conditions)
+          examples:
+          - Country
+          - Month
+          - Special Conditions
+          title: Type
+          type: string
+        name:
+          description: Name of the coefficient (e.g. country name, month name, or condition name)
+          examples:
+          - Germany
+          - February
+          - Unavailable Technicians
+          title: Name
+          type: string
+        value:
+          description: Value of the coefficient
+          examples:
+          - 1.1
+          - 1.2
+          - 1.5
+          title: Value
+          type: number
+      required:
+      - type
+      - name
+      - value
+      title: ItemCoefficient
+      type: object
+    LineItemDiff:
+      additionalProperties: false
+      description: Schema for line item differences between offer versions.
+      properties:
+        action:
+          description: 'Type of change: ''added'', ''removed'', ''modified'', ''unchanged'''
+          title: Action
+          type: string
+        row_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Row ID of the line item
+          title: Row Id
+        code:
+          description: Line item code
+          title: Code
+          type: string
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Line item category
+        price_old:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Old price value
+          title: Price Old
+        price_new:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New price value
+          title: Price New
+        quantity_old:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Old quantity value
+          title: Quantity Old
+        quantity_new:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: New quantity value
+          title: Quantity New
+        discount_old:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Old discount value
+          title: Discount Old
+        discount_new:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New discount value
+          title: Discount New
+        adjustment_old:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Old adjustment value
+          title: Adjustment Old
+        adjustment_new:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New adjustment value
+          title: Adjustment New
+        description_old:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Old description value
+          title: Description Old
+        description_new:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: New description value
+          title: Description New
+        turbine_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine model
+          title: Turbine Model
+        turbine_manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine manufacturer
+          title: Turbine Manufacturer
+        blade_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade model
+          title: Blade Model
+        blade_manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade manufacturer
+          title: Blade Manufacturer
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type
+          title: Type
+        site:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Site information
+      required:
+      - action
+      - code
+      - category
+      title: LineItemDiff
+      type: object
+    Offer:
+      additionalProperties: false
+      description: Schema for project offer.
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyRef'
+          description: Offer currency object
+          examples:
+          - code: EUR
+            id: 1
+        line_items:
+          description: List of line items
+          items:
+            $ref: '#/components/schemas/LineItem'
+          title: Line Items
+          type: array
+        final_sum:
+          description: Final sum of the offer, including all line items and adjustments
+          title: Final Sum
+          type: number
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Overall discount amount applied to the original sum
+          title: Discount
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 2
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 2
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        status:
+          $ref: '#/components/schemas/OfferStatus'
+          description: Status of the offer version
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Message/reason for the offer status change (e.g., rejection reason)
+          title: Message
+      required:
+      - currency
+      - line_items
+      - final_sum
+      - discount
+      - status
+      title: Offer
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    OfferRejectRequest:
+      additionalProperties: false
+      description: Schema for offer rejection request.
+      properties:
+        message:
+          description: Reason for rejecting the offer
+          title: Message
+          type: string
+      required:
+      - message
+      title: OfferRejectRequest
+      type: object
+    CodeWithName:
+      additionalProperties: false
+      description: Schema for code and name.
+      properties:
+        code:
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CodeWithName
+      type: object
+    OfferStatus:
+      description: Individual offer level status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      title: OfferStatus
+      type: string
+    CurrencyRef:
+      additionalProperties: false
+      description: Nested currency reference.
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyRef
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    OfferComparison:
+      additionalProperties: false
+      description: Schema for offer version comparison.
+      properties:
+        version1:
+          description: First version number
+          title: Version1
+          type: integer
+        version2:
+          description: Second version number
+          title: Version2
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyRef'
+          description: Currency of the offers
+        changes_summary:
+          $ref: '#/components/schemas/OfferChangeSummary'
+          description: Summary of changes between versions
+        line_item_diffs:
+          description: Detailed line item differences
+          items:
+            $ref: '#/components/schemas/LineItemDiff'
+          title: Line Item Diffs
+          type: array
+        final_sum_old:
+          description: Final sum of the first version
+          title: Final Sum Old
+          type: number
+        final_sum_new:
+          description: Final sum of the second version
+          title: Final Sum New
+          type: number
+        version1_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Date of first version
+          title: Version1 Date
+        version2_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Date of second version
+          title: Version2 Date
+      required:
+      - version1
+      - version2
+      - currency
+      - changes_summary
+      - line_item_diffs
+      - final_sum_old
+      - final_sum_new
+      title: OfferComparison
+      type: object
+    ProjectOffer:
+      additionalProperties: false
+      description: Schema for project offer response.
+      properties:
+        offer:
+          $ref: '#/components/schemas/Offer'
+          description: Project offer
+          examples:
+          - currency:
+              code: EUR
+              id: 1
+            line_items:
+            - category:
+                code: 01INS
+                name: Inspections
+              code: IIN-ONS
+              discount: 10.0
+              location:
+                id: 10
+                name: Site A
+              price: 100.5
+              quantity: 5
+              row_id: 1
+              service:
+                code: IIN-ONS
+                id: 123
+                name: Internal inspection
+              turbine_manufacturer:
+                id: 2
+                name: Vestas
+              turbine_model:
+                id: 5
+                name: V150
+      required:
+      - offer
+      title: ProjectOffer
+      type: object
+    OfferChangeSummary:
+      additionalProperties: false
+      description: Schema for high-level changes between offer versions.
+      properties:
+        manual_price_changes:
+          description: List of line item modifications (price, quantity, discount, etc.)
+          items:
+            type: string
+          title: Manual Price Changes
+          type: array
+        new_services:
+          description: List of new services added
+          items:
+            type: string
+          title: New Services
+          type: array
+        removed_services:
+          description: List of services removed
+          items:
+            type: string
+          title: Removed Services
+          type: array
+        price_increase:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total price increase
+          title: Price Increase
+        price_decrease:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total price decrease
+          title: Price Decrease
+      required:
+      - manual_price_changes
+      - new_services
+      - removed_services
+      title: OfferChangeSummary
+      type: object
+    ServiceRef:
+      additionalProperties: false
+      description: Nested service reference.
+      properties:
+        id:
+          description: Service ID
+          title: Id
+          type: integer
+        code:
+          description: Service code
+          title: Code
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service description
+          title: Name
+      required:
+      - id
+      - code
+      title: ServiceRef
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PricingUnitRef:
+      additionalProperties: false
+      description: Nested pricing unit reference.
+      properties:
+        id:
+          description: Pricing unit ID
+          title: Id
+          type: integer
+        name:
+          description: Pricing unit name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PricingUnitRef
+      type: object
+    OfferApprovalRequest:
+      additionalProperties: false
+      description: Schema for enhanced offer approval request.
+      properties:
+        sales_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales context for approver (pricing logic, discounts, etc.)
+          title: Sales Comment
+      title: OfferApprovalRequest
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

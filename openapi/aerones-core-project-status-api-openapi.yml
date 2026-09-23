@@ -1,0 +1,173 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.project Status API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.project-status
+paths:
+  /api/core/v1/project-statuses:
+    get:
+      operationId: list_project_statuss
+      summary: List Project Status
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by code (case-insensitive)
+          title: Search
+        required: false
+        description: Search by code (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: enabled
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by enabled status
+          title: Enabled
+        required: false
+        description: Filter by enabled status
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectStatusResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - core.project-status
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectStatusResponse:
+      additionalProperties: false
+      description: Schema for ProjectStatus response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project status ID
+          title: Id
+          type: integer
+        code:
+          description: Status code
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status description
+          title: Description
+        enabled:
+          description: Whether status is enabled
+          title: Enabled
+          type: boolean
+        sort_order:
+          description: Sort order for display
+          title: Sort Order
+          type: integer
+      required:
+      - updated_at
+      - id
+      - code
+      - enabled
+      - sort_order
+      title: ProjectStatusResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

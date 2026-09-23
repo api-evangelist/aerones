@@ -1,0 +1,395 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Planning.services API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: planning.services
+paths:
+  /api/planning/v1/services:
+    get:
+      operationId: list_services
+      summary: List Services
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: core_service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        required: false
+      - in: query
+        name: active
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlanningServiceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - planning.services
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_service
+      summary: Create Service
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningServiceResponse'
+      description: Create a new item.
+      tags:
+      - planning.services
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningServiceCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/planning/v1/services/{id}:
+    get:
+      operationId: get_service
+      summary: Get Service
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningServiceResponse'
+      description: Get a single item by ID.
+      tags:
+      - planning.services
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_service
+      summary: Update Service
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningServiceResponse'
+      description: Update an item.
+      tags:
+      - planning.services
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningServiceUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_service
+      summary: Delete Service
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - planning.services
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningServiceUpdate:
+      properties:
+        core_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+      title: PlanningServiceUpdate
+      type: object
+    PlanningNestedCoreService:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedCoreService
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PlanningServiceCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        core_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        active:
+          default: true
+          title: Active
+          type: boolean
+      required:
+      - customer_id
+      - code
+      title: PlanningServiceCreate
+      type: object
+    PlanningServiceResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        active:
+          title: Active
+          type: boolean
+        customer_id:
+          title: Customer Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCustomer'
+          - type: 'null'
+        core_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        core_service:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCoreService'
+          - type: 'null'
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - code
+      - active
+      - customer_id
+      - created_at
+      - updated_at
+      title: PlanningServiceResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

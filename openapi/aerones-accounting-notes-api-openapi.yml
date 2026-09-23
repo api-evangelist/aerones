@@ -1,0 +1,399 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.notes API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.notes
+paths:
+  /api/accounting/v2/notes:
+    get:
+      operationId: list_notes
+      summary: List Notes
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search (case-insensitive)
+          title: Search
+        required: false
+        description: Search (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: entity_name
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type
+          title: Entity Name
+        required: false
+        description: Filter by entity type
+      - in: query
+        name: entity_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by entity ID
+          title: Entity Id
+        required: false
+        description: Filter by entity ID
+      - in: query
+        name: is_internal
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by internal flag
+          title: Is Internal
+        required: false
+        description: Filter by internal flag
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NoteResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - accounting.notes
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_note
+      summary: Create Note
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      description: Create a new item.
+      tags:
+      - accounting.notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/accounting/v2/notes/{id}:
+    get:
+      operationId: get_note
+      summary: Get Note
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      description: Get a single item by ID.
+      tags:
+      - accounting.notes
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_note
+      summary: Update Note
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+      description: Update an item.
+      tags:
+      - accounting.notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_note
+      summary: Delete Note
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - accounting.notes
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    NoteResponse:
+      additionalProperties: false
+      description: Schema for Note response.
+      properties:
+        id:
+          description: Note ID
+          title: Id
+          type: integer
+        entity_name:
+          description: Entity type
+          title: Entity Name
+          type: string
+        entity_id:
+          description: ID of the related entity
+          title: Entity Id
+          type: integer
+        content:
+          description: Note content
+          title: Content
+          type: string
+        is_internal:
+          description: Internal note hidden from customers
+          title: Is Internal
+          type: boolean
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: Note author
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - entity_name
+      - entity_id
+      - content
+      - is_internal
+      - created_at
+      - updated_at
+      title: NoteResponse
+      type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    NoteUpdate:
+      additionalProperties: false
+      description: Schema for updating a Note.
+      properties:
+        content:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Note content
+          title: Content
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Internal note hidden from customers
+          title: Is Internal
+      title: NoteUpdate
+      type: object
+    NoteCreate:
+      additionalProperties: false
+      description: Schema for creating a Note.
+      properties:
+        entity_name:
+          description: Entity type (e.g. service_charge, billing_statement)
+          title: Entity Name
+          type: string
+        entity_id:
+          description: ID of the related entity
+          title: Entity Id
+          type: integer
+        content:
+          description: Note content
+          title: Content
+          type: string
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          description: Internal note hidden from customers
+          title: Is Internal
+      required:
+      - entity_name
+      - entity_id
+      - content
+      title: NoteCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

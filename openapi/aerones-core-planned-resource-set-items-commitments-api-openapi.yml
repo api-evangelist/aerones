@@ -1,0 +1,459 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.planned Resource Set Items.commitments…
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.planned-resource-set-items.commitments
+paths:
+  /api/core/v1/planned-resource-set-items/{planned_resource_set_item_id}/commitments:
+    get:
+      operationId: list_planned_resource_set_item_commitments
+      summary: List Commitments for Planned Resource Set Item
+      parameters:
+      - in: path
+        name: planned_resource_set_item_id
+        schema:
+          title: Planned Resource Set Item Id
+          type: integer
+        required: true
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by service
+          title: Service Id
+        required: false
+        description: Filter by service
+      - in: query
+        name: pricing_unit_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by pricing unit
+          title: Pricing Unit Id
+        required: false
+        description: Filter by pricing unit
+      - in: query
+        name: turbine_model_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine model
+          title: Turbine Model Id
+        required: false
+        description: Filter by turbine model
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectPlannedResourceSetItemCommitmentResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.planned-resource-set-items.commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_planned_resource_set_item_commitment
+      summary: Create Commitment
+      parameters:
+      - in: path
+        name: planned_resource_set_item_id
+        schema:
+          title: Planned Resource Set Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPlannedResourceSetItemCommitmentResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.planned-resource-set-items.commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPlannedResourceSetItemCommitmentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/planned-resource-set-items/{planned_resource_set_item_id}/commitments/{commitment_id}:
+    get:
+      operationId: get_planned_resource_set_item_commitment
+      summary: Get Commitment
+      parameters:
+      - in: path
+        name: planned_resource_set_item_id
+        schema:
+          title: Planned Resource Set Item Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPlannedResourceSetItemCommitmentResponse'
+      description: Get a single child item.
+      tags:
+      - core.planned-resource-set-items.commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_planned_resource_set_item_commitment
+      summary: Update Commitment
+      parameters:
+      - in: path
+        name: planned_resource_set_item_id
+        schema:
+          title: Planned Resource Set Item Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPlannedResourceSetItemCommitmentResponse'
+      description: Update a child item.
+      tags:
+      - core.planned-resource-set-items.commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPlannedResourceSetItemCommitmentUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_planned_resource_set_item_commitment
+      summary: Delete Commitment
+      parameters:
+      - in: path
+        name: planned_resource_set_item_id
+        schema:
+          title: Planned Resource Set Item Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.planned-resource-set-items.commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    ProjectPlannedResourceSetItemCommitmentUpdate:
+      additionalProperties: false
+      description: Schema for updating a planned scope commitment.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit (the unit) ID
+          title: Pricing Unit Id
+        quantity:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Committed quantity
+          title: Quantity
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional turbine model the commitment is specific to
+          title: Turbine Model Id
+      title: ProjectPlannedResourceSetItemCommitmentUpdate
+      type: object
+    ProjectPlannedResourceSetItemCommitmentCreate:
+      additionalProperties: false
+      description: Schema for creating a planned scope commitment on a deployment leg.
+      properties:
+        service_id:
+          description: Service ID
+          title: Service Id
+          type: integer
+        pricing_unit_id:
+          description: Pricing unit (the unit) ID
+          title: Pricing Unit Id
+          type: integer
+        quantity:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: string
+          description: Committed quantity
+          title: Quantity
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional turbine model the commitment is specific to
+          title: Turbine Model Id
+      required:
+      - service_id
+      - pricing_unit_id
+      - quantity
+      title: ProjectPlannedResourceSetItemCommitmentCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectPlannedResourceSetItemCommitmentResponse:
+      additionalProperties: false
+      description: Schema for planned scope commitment response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Commitment ID
+          title: Id
+          type: integer
+        project_planned_resource_set_item_id:
+          description: Deployment leg (planned resource set item) ID
+          title: Project Planned Resource Set Item Id
+          type: integer
+        quantity:
+          anyOf:
+          - type: number
+          - type: string
+          description: Committed quantity
+          title: Quantity
+        service:
+          $ref: '#/components/schemas/ServiceObject'
+          description: Committed service
+        pricing_unit:
+          $ref: '#/components/schemas/PricingUnitNestedResponse'
+          description: Unit the quantity is expressed in
+        turbine_model:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineModelObject'
+          - type: 'null'
+          description: Turbine model the commitment is specific to, if any
+      required:
+      - updated_at
+      - id
+      - project_planned_resource_set_item_id
+      - quantity
+      - service
+      - pricing_unit
+      title: ProjectPlannedResourceSetItemCommitmentResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
+    TurbineModelObject:
+      additionalProperties: false
+      description: Nested turbine model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineModelObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

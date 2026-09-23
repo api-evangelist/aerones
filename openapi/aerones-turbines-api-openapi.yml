@@ -1,0 +1,290 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Turbines API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: turbines
+paths:
+  /api/turbines/turbine-manufacturers:
+    get:
+      operationId: turbines_api_get_turbine_manufacturers
+      summary: Get Turbine Manufacturers
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineManufacturerResponse'
+      description: Get all turbine manufacturers.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/turbines/turbine-models:
+    get:
+      operationId: turbines_api_get_all_turbine_models
+      summary: Get All Turbine Models
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyTurbineModelResponse'
+      description: Get all turbine models.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/turbines/turbine-models/{manufacturer_id}:
+    get:
+      operationId: turbines_api_get_turbine_models
+      summary: Get Turbine Models
+      parameters:
+      - in: path
+        name: manufacturer_id
+        schema:
+          title: Manufacturer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyTurbineModelResponse'
+      description: Get turbine models for a specific manufacturer.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/turbines/refresh-cache:
+    post:
+      operationId: turbines_api_refresh_turbine_data
+      summary: Refresh Turbine Data
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+      description: Refresh turbine data from the API.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/turbines/blade-manufacturers:
+    get:
+      operationId: turbines_api_get_blade_manufacturers
+      summary: Get Blade Manufacturers
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BladeManufacturerResponse'
+      description: Get all blade manufacturers.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/turbines/blade-models:
+    get:
+      operationId: turbines_api_get_all_blade_models
+      summary: Get All Blade Models
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyBladeModelResponse'
+      description: Get all blade models.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/turbines/blade-models/{manufacturer_id}:
+    get:
+      operationId: turbines_api_get_blade_models
+      summary: Get Blade Models
+      parameters:
+      - in: path
+        name: manufacturer_id
+        schema:
+          title: Manufacturer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyBladeModelResponse'
+      description: Get blade models for a specific manufacturer.
+      tags:
+      - turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    TurbineManufacturer:
+      description: Schema for turbine manufacturer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        models_count:
+          title: Models Count
+          type: integer
+      required:
+      - id
+      - name
+      - models_count
+      title: TurbineManufacturer
+      type: object
+    LegacyBladeModelResponse:
+      description: Schema for blade model list response (legacy turbines API).
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/LegacyBladeModel'
+          title: Items
+          type: array
+      required:
+      - items
+      title: LegacyBladeModelResponse
+      type: object
+    LegacyTurbineModel:
+      description: Schema for turbine model (legacy turbines API).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        manufacturer_id:
+          title: Manufacturer Id
+          type: integer
+      required:
+      - id
+      - name
+      - manufacturer_id
+      title: LegacyTurbineModel
+      type: object
+    BladeManufacturerResponse:
+      description: Schema for blade manufacturer list response.
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/BladeManufacturer'
+          title: Items
+          type: array
+      required:
+      - items
+      title: BladeManufacturerResponse
+      type: object
+    TurbineManufacturerResponse:
+      description: Schema for turbine manufacturer list response.
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TurbineManufacturer'
+          title: Items
+          type: array
+      required:
+      - items
+      title: TurbineManufacturerResponse
+      type: object
+    BladeManufacturer:
+      description: Schema for blade manufacturer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: BladeManufacturer
+      type: object
+    RefreshResponse:
+      description: Schema for refresh data response.
+      properties:
+        manufacturers_count:
+          title: Manufacturers Count
+          type: integer
+        models_count:
+          title: Models Count
+          type: integer
+      required:
+      - manufacturers_count
+      - models_count
+      title: RefreshResponse
+      type: object
+    LegacyTurbineModelResponse:
+      description: Schema for turbine model list response (legacy turbines API).
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/LegacyTurbineModel'
+          title: Items
+          type: array
+      required:
+      - items
+      title: LegacyTurbineModelResponse
+      type: object
+    LegacyBladeModel:
+      description: Schema for blade model (legacy turbines API).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        manufacturer_id:
+          title: Manufacturer Id
+          type: integer
+      required:
+      - id
+      - name
+      - manufacturer_id
+      title: LegacyBladeModel
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

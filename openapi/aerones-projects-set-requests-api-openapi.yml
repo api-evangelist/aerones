@@ -1,0 +1,1843 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.set Requests API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.set-requests
+paths:
+  /api/projects/{project_id}/set-requests/set-options:
+    get:
+      operationId: projects_api_set_request_get_set_options
+      summary: Get Set Options
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  type: object
+                title: Response
+                type: array
+      description: Robot sets pickable for a new Set Request.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/item-categories:
+    get:
+      operationId: projects_api_set_request_list_set_request_item_categories
+      summary: List Set Request Item Categories
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemCategoryListResponse'
+      description: The ItemCategory lookup the FE renders as the line-category dropdown.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/items:
+    get:
+      operationId: projects_api_set_request_list_set_request_items
+      summary: List Set Request Items
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: category_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemListResponse'
+      description: Catalog of selectable descriptions for the item dropdowns.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_set_request_create_set_request_item
+      summary: Create Set Request Item
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+      description: Add a user-defined entry to the shared item catalog (idempotent on duplicate).
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/items/{item_id}:
+    patch:
+      operationId: projects_api_set_request_update_set_request_item
+      summary: Update Set Request Item
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: item_id
+        schema:
+          title: Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResponse'
+      description: Rename a catalog entry. Cascades the rename to existing SR rows.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_set_request_delete_set_request_item
+      summary: Delete Set Request Item
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: item_id
+        schema:
+          title: Item Id
+          type: integer
+        required: true
+      responses:
+        '204':
+          description: No Content
+      description: Soft-delete a catalog entry. Existing SR rows keep their text.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/offer-pairs:
+    get:
+      operationId: projects_api_set_request_get_offer_pairs
+      summary: Get Offer Pairs
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferPairsResponse'
+      description: 'Every (location, service) pair on the latest commercial offer.
+
+
+        Each pair becomes one row in the SR create modal''s combined picker.'
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/inherit-candidates:
+    get:
+      operationId: projects_api_set_request_get_inherit_candidates
+      summary: Get Inherit Candidates
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: robot_set_id
+        schema:
+          title: Robot Set Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetRequestInheritCandidate'
+                title: Response
+                type: array
+      description: 'Prior PICKED_UP SRs for this robot set, across all projects.
+
+
+        ``project_id`` anchors routing/permissions only — a set''s last picked-up
+
+        SR usually lives on the project it just left.'
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/prefill-options:
+    get:
+      operationId: projects_api_set_request_get_prefill_options
+      summary: Get Prefill Options
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: pprs_id
+        schema:
+          title: Pprs Id
+          type: integer
+        required: true
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        required: false
+      - in: query
+        name: region
+        schema:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          title: Region
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestPrefillOptionsResponse'
+      description: Suggested consumables + summary for the create modal.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - items:
+                  type: integer
+                type: array
+              - type: 'null'
+              title: Service Ids
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests:
+    post:
+      operationId: projects_api_set_request_create_set_request
+      summary: Create Set Request
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: Create a DRAFT Set Request bound to a planning PPRS.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequestCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: projects_api_set_request_list_set_requests
+      summary: List Set Requests
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetRequestResponse'
+                title: Response
+                type: array
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}:
+    get:
+      operationId: projects_api_set_request_get_set_request
+      summary: Get Set Request
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_set_request_update_set_request
+      summary: Update Set Request
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: 'Edit a Set Request.
+
+
+        Field-aware status gate: notes / kind / items are editable only in
+
+        DRAFT / SUBMITTED / REJECTED, while the mobilization date
+
+        (``needed_by_date``) stays editable in every live status up to
+
+        mobilization — all except the terminal PICKED_UP / CANCELLED.'
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequestUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/events:
+    get:
+      operationId: projects_api_set_request_list_set_request_events
+      summary: List Set Request Events
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetRequestEventResponse'
+                title: Response
+                type: array
+      description: Merged status-change + activity timeline.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/notes:
+    post:
+      operationId: projects_api_set_request_create_set_request_note
+      summary: Create Set Request Note
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestEventResponse'
+      description: Append a free-form note (with optional @-mentions) to a SR's timeline.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequestNoteCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/mention-candidates:
+    get:
+      operationId: projects_api_set_request_list_set_request_mention_candidates
+      summary: List Set Request Mention Candidates
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MentionCandidateListResponse'
+      description: Users available for @-mention on a SR note.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/submit:
+    post:
+      operationId: projects_api_set_request_submit_set_request
+      summary: Submit Set Request
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: DRAFT -> SUBMITTED.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/approve-current:
+    post:
+      operationId: projects_api_set_request_approve_current_set
+      summary: Approve Current Set
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: Planner approves the currently-bound robot set.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequestApproveCurrent'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/change-set-and-approve:
+    post:
+      operationId: projects_api_set_request_change_set_and_approve
+      summary: Change Set And Approve
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: Planner swaps the ROBOT PPRSI to a different robot set and approves.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequestChangeAndApprove'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/reject:
+    post:
+      operationId: projects_api_set_request_reject_set_request
+      summary: Reject Set Request
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: SUBMITTED -> REJECTED. Planner rejects with a mandatory reason.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRequestReject'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/cancel:
+    post:
+      operationId: projects_api_set_request_cancel_set_request
+      summary: Cancel Set Request
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: Any non-terminal -> CANCELLED. Idempotent.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/mark-ready:
+    post:
+      operationId: projects_api_set_request_mark_set_request_ready
+      summary: Mark Set Request Ready
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: MRO confirms (or undoes) the 'set built' readiness gate.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/SetRequestReadinessToggle'
+              - type: 'null'
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/confirm-it:
+    post:
+      operationId: projects_api_set_request_confirm_set_request_it
+      summary: Confirm Set Request It
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: IT confirms (or undoes) Starlink/setup done. Captured, never blocks pickup.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/SetRequestReadinessToggle'
+              - type: 'null'
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/confirm-ppe:
+    post:
+      operationId: projects_api_set_request_confirm_set_request_ppe
+      summary: Confirm Set Request Ppe
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: PPE coordinator confirms (or undoes) that the set PPE is in the bus.
+      tags:
+      - projects.set-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/SetRequestReadinessToggle'
+              - type: 'null'
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-requests/{set_request_id}/mark-picked-up:
+    post:
+      operationId: projects_api_set_request_mark_set_request_picked_up
+      summary: Mark Set Request Picked Up
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: set_request_id
+        schema:
+          title: Set Request Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetRequestResponse'
+      description: READY -> PICKED_UP. The set-pickup permission holder (MRO) confirms it.
+      tags:
+      - projects.set-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SetRequestCreate:
+      additionalProperties: false
+      properties:
+        robot_pprsi_id:
+          description: The ROBOT PPRSI (planned robot line) this Set Request is for. The PPRS is derived from it, so a PPRS with several sets can carry one Set Request per set.
+          title: Robot Pprsi Id
+          type: integer
+        service_ids:
+          items:
+            type: integer
+          title: Service Ids
+          type: array
+        kind:
+          default: STANDARD
+          enum:
+          - STANDARD
+          - EXISTING_SET
+          title: Kind
+          type: string
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Standard-set region. Defaults server-side from the project location's country when omitted.
+          title: Region
+        inherit_from_set_request_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Inherit From Set Request Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        needed_by_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Date the set must be ready on-site (mobilization date). Server defaults to the selected robot PPRSI's planned start date when omitted, and rejects the request when neither is available.
+          title: Needed By Date
+        items:
+          items:
+            $ref: '#/components/schemas/SetRequestItemInput'
+          title: Items
+          type: array
+      required:
+      - robot_pprsi_id
+      title: SetRequestCreate
+      type: object
+    ItemCreate:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 255
+          minLength: 1
+          title: Description
+          type: string
+        category_id:
+          description: ItemCategory id (PPE / Consumable / …).
+          title: Category Id
+          type: integer
+      required:
+      - description
+      - category_id
+      title: ItemCreate
+      type: object
+    SetRequestInheritCandidate:
+      additionalProperties: false
+      description: 'A prior PICKED_UP SR (any project) whose lines can seed a new
+
+        EXISTING_SET request for the same robot set.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_id:
+          title: Display Id
+          type: string
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        items:
+          items:
+            $ref: '#/components/schemas/SetRequestInheritCandidateItem'
+          title: Items
+          type: array
+      required:
+      - id
+      - display_id
+      - updated_at
+      title: SetRequestInheritCandidate
+      type: object
+    ItemListResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ItemResponse'
+          title: Items
+          type: array
+      title: ItemListResponse
+      type: object
+    SetRequestReadinessToggle:
+      additionalProperties: false
+      properties:
+        confirmed:
+          default: true
+          description: True to confirm this readiness step, False to undo it.
+          title: Confirmed
+          type: boolean
+      title: SetRequestReadinessToggle
+      type: object
+    SetRequestInheritCandidateItem:
+      additionalProperties: false
+      description: One line of a prior SR, ready to copy into the create form.
+      properties:
+        description:
+          title: Description
+          type: string
+        quantity:
+          title: Quantity
+          type: string
+        unit:
+          title: Unit
+          type: string
+        scope:
+          title: Scope
+          type: string
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      required:
+      - description
+      - quantity
+      - unit
+      - scope
+      title: SetRequestInheritCandidateItem
+      type: object
+    ItemUpdate:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 255
+          minLength: 1
+          title: Description
+          type: string
+      required:
+      - description
+      title: ItemUpdate
+      type: object
+    OfferPair:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          title: Project Location Id
+          type: integer
+        location_name:
+          title: Location Name
+          type: string
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+      required:
+      - project_location_id
+      - location_name
+      - service_id
+      - service_code
+      title: OfferPair
+      type: object
+    ItemResponse:
+      additionalProperties: false
+      description: 'One entry in the shared ``core.item`` catalog.
+
+
+        Editable so PMs can fix typos in place instead of forking a new entry.
+
+        ``source`` is informational — the FE tags user-added rows.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        category_id:
+          title: Category Id
+          type: integer
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        source:
+          title: Source
+          type: string
+      required:
+      - id
+      - description
+      - category_id
+      - source
+      title: ItemResponse
+      type: object
+    ItemCategoryResponse:
+      additionalProperties: false
+      description: One row in the ``core.item_category`` lookup.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ItemCategoryResponse
+      type: object
+    SetRequestResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_id:
+          title: Display Id
+          type: string
+        project_id:
+          title: Project Id
+          type: integer
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        service_ids:
+          items:
+            type: integer
+          title: Service Ids
+          type: array
+        kind:
+          default: STANDARD
+          enum:
+          - STANDARD
+          - EXISTING_SET
+          title: Kind
+          type: string
+        region:
+          default: EU
+          title: Region
+          type: string
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        robot_pprsi_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Pprsi Id
+        status:
+          title: Status
+          type: string
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        needed_by_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Needed By Date
+        planner_decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planner Decision Note
+        approved_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Approved At
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        set_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Set Status
+        expected_ready_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Expected Ready Date
+        items:
+          items:
+            $ref: '#/components/schemas/SetRequestItemResponse'
+          title: Items
+          type: array
+        related_team_request_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Related Team Request Id
+        team_size:
+          default: 0
+          title: Team Size
+          type: integer
+        team_lead_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Team Lead Name
+        team_lead_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Team Lead User Id
+        required_ready_gates:
+          items:
+            type: string
+          title: Required Ready Gates
+          type: array
+        mro_ready_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Mro Ready At
+        mro_ready_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mro Ready By Name
+        it_done_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: It Done At
+        it_done_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: It Done By Name
+        ppe_ready_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ppe Ready At
+        ppe_ready_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ppe Ready By Name
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - display_id
+      - project_id
+      - pprs_id
+      - status
+      - updated_at
+      title: SetRequestResponse
+      type: object
+    SetRequestNoteCreate:
+      additionalProperties: false
+      description: POST .../notes body — free-form note with optional @-mentions.
+      properties:
+        text:
+          maxLength: 4000
+          minLength: 1
+          title: Text
+          type: string
+        item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Item Id
+        mentioned_user_ids:
+          items:
+            type: integer
+          title: Mentioned User Ids
+          type: array
+      required:
+      - text
+      title: SetRequestNoteCreate
+      type: object
+    OfferPairsResponse:
+      additionalProperties: false
+      properties:
+        pairs:
+          items:
+            $ref: '#/components/schemas/OfferPair'
+          title: Pairs
+          type: array
+      title: OfferPairsResponse
+      type: object
+    SetRequestItemInput:
+      additionalProperties: false
+      description: One item / PPE line on a Set Request payload.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Existing line id (omit when adding a new line).
+          title: Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        project_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Offer Item Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: Description
+        quantity:
+          anyOf:
+          - type: number
+          - type: string
+          default: '0'
+          title: Quantity
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: Unit
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ItemCategory id (PPE / Consumable / …).
+          title: Category Id
+        scope:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: PER_SET (default), PER_PERSON, PER_WTG, or PER_BLADE.
+          title: Scope
+      title: SetRequestItemInput
+      type: object
+    SetRequestReject:
+      additionalProperties: false
+      properties:
+        reason:
+          description: Why the request is rejected. Required.
+          minLength: 1
+          title: Reason
+          type: string
+        expected_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The robot set id the planner was shown. When supplied, the server rejects the action if the set changed since — forcing a re-review rather than rejecting a stale set.
+          title: Expected Robot Set Id
+      required:
+      - reason
+      title: SetRequestReject
+      type: object
+    SetRequestPrefillOptionsResponse:
+      additionalProperties: false
+      description: 'Read-only snapshot the create modal renders.
+
+
+        Mirrors team-request''s set-options shape but adds the item preview the
+
+        PM can edit before submitting.'
+      properties:
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        region:
+          default: EU
+          description: Standard-set region the suggestions were drawn from — the explicit request param, else derived from the project location's country.
+          enum:
+          - EU
+          - NA
+          title: Region
+          type: string
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+        project_planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Default value for the create-modal's mobilization date picker (the robot PPRSI's planned start date).
+          title: Project Planned Start Date
+        suggested_items:
+          items:
+            $ref: '#/components/schemas/SetRequestItemSuggestion'
+          title: Suggested Items
+          type: array
+      required:
+      - pprs_id
+      title: SetRequestPrefillOptionsResponse
+      type: object
+    ItemCategoryListResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ItemCategoryResponse'
+          title: Items
+          type: array
+      title: ItemCategoryListResponse
+      type: object
+    SetRequestChangeAndApprove:
+      additionalProperties: false
+      properties:
+        robot_set_id:
+          description: The robot set to approve.
+          title: Robot Set Id
+          type: integer
+        planner_decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planner Decision Note
+      required:
+      - robot_set_id
+      title: SetRequestChangeAndApprove
+      type: object
+    SetRequestEventResponse:
+      additionalProperties: false
+      description: 'One row in the unified Set Request timeline.
+
+
+        Mirrors ``TeamRequestEventResponse`` shape so the FE can render notes,
+
+        @-mentions, and history with the same components.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        event_type:
+          title: Event Type
+          type: string
+        description:
+          title: Description
+          type: string
+        old_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Old Status
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Status
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+        created_by_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Email
+        mentioned_user_ids:
+          items:
+            type: integer
+          title: Mentioned User Ids
+          type: array
+        item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Item Id
+      required:
+      - id
+      - event_type
+      - description
+      - created_at
+      title: SetRequestEventResponse
+      type: object
+    SetRequestItemResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        description:
+          default: ''
+          title: Description
+          type: string
+        quantity:
+          anyOf:
+          - type: number
+          - type: string
+          default: '0'
+          title: Quantity
+        unit:
+          default: ''
+          title: Unit
+          type: string
+        source:
+          title: Source
+          type: string
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        scope:
+          default: PER_SET
+          title: Scope
+          type: string
+        project_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Offer Item Id
+        co_budget_qty:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Qty
+        co_budget_drawn:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Drawn
+        co_budget_remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Remaining
+      required:
+      - id
+      - source
+      title: SetRequestItemResponse
+      type: object
+    SetRequestUpdate:
+      additionalProperties: false
+      properties:
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        needed_by_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Needed By Date
+        kind:
+          anyOf:
+          - enum:
+            - STANDARD
+            - EXISTING_SET
+            type: string
+          - type: 'null'
+          title: Kind
+        items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SetRequestItemInput'
+            type: array
+          - type: 'null'
+          title: Items
+      title: SetRequestUpdate
+      type: object
+    MentionCandidateListResponse:
+      additionalProperties: false
+      properties:
+        candidates:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Candidates
+          type: array
+      title: MentionCandidateListResponse
+      type: object
+    MentionCandidate:
+      additionalProperties: false
+      description: One user available for @-mention in a Set Request note.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: MentionCandidate
+      type: object
+    SetRequestItemSuggestion:
+      additionalProperties: false
+      description: Server-suggested item / PPE line for the create modal preview.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        description:
+          default: ''
+          title: Description
+          type: string
+        quantity:
+          default: '0'
+          title: Quantity
+          type: string
+        unit:
+          default: ''
+          title: Unit
+          type: string
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        source:
+          default: PREFILL
+          title: Source
+          type: string
+        scope:
+          default: PER_SET
+          title: Scope
+          type: string
+        project_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Offer Item Id
+        co_budget_qty:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Qty
+        co_budget_drawn:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Drawn
+        co_budget_remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Remaining
+      title: SetRequestItemSuggestion
+      type: object
+    SetRequestApproveCurrent:
+      additionalProperties: false
+      properties:
+        planner_decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planner Decision Note
+        expected_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The robot set id the planner was shown. When supplied, the server rejects the approval if the set changed since — forcing a re-review rather than approving a stale set.
+          title: Expected Robot Set Id
+      title: SetRequestApproveCurrent
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,824 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Resource Mobilization.vehicle Fleet Invoices…
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: resource-mobilization.vehicle-fleet-invoices
+paths:
+  /api/resource-mobilization/v1/vehicle-fleet-invoices:
+    get:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_list_invoices
+      summary: List Invoices
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by invoice number
+          title: Search
+        required: false
+        description: Search by invoice number
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: vehicle_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by vehicle ID
+          title: Vehicle Id
+        required: false
+        description: Filter by vehicle ID
+      - in: query
+        name: assignment_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by assignment ID
+          title: Assignment Id
+        required: false
+        description: Filter by assignment ID
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by invoice type
+          title: Type
+        required: false
+        description: Filter by invoice type
+      - in: query
+        name: date_from
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter invoices from this date (inclusive)
+          title: Date From
+        required: false
+        description: Filter invoices from this date (inclusive)
+      - in: query
+        name: date_to
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter invoices up to this date (inclusive)
+          title: Date To
+        required: false
+        description: Filter invoices up to this date (inclusive)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VehicleFleetInvoiceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_create_invoice
+      summary: Create Invoice
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleFleetInvoiceResponse'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleFleetInvoiceCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/resource-mobilization/v1/vehicle-fleet-invoices/extract:
+    post:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_extract_invoice
+      summary: Extract Invoice
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleFleetInvoiceExtractionResponse'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/resource-mobilization/v1/vehicle-fleet-invoices/{id}:
+    get:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_get_invoice
+      summary: Get Invoice
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleFleetInvoiceResponse'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_update_invoice
+      summary: Update Invoice
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleFleetInvoiceResponse'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleFleetInvoiceUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_delete_invoice
+      summary: Delete Invoice
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/resource-mobilization/v1/vehicle-fleet-invoices/{id}/files:
+    get:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_list_invoice_files
+      summary: List Invoice Files
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResourceResponse'
+                title: Response
+                type: array
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_upload_invoice_file
+      summary: Upload Invoice File
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResourceResponse'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/resource-mobilization/v1/vehicle-fleet-invoices/{id}/files/{file_id}/download:
+    get:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_download_invoice_file
+      summary: Download Invoice File
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: file_id
+        schema:
+          title: File Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/resource-mobilization/v1/vehicle-fleet-invoices/{id}/files/{file_resource_id}:
+    delete:
+      operationId: resource_mobilization_endpoints_vehicle_fleet_invoices_delete_invoice_file
+      summary: Delete Invoice File
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: file_resource_id
+        schema:
+          title: File Resource Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - resource-mobilization.vehicle-fleet-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    VehicleFleetInvoiceLineCreate:
+      additionalProperties: false
+      properties:
+        vehicle_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vehicle Id
+        vehicle_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Label
+        assignment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignment Id
+        type:
+          title: Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        currency:
+          default: EUR
+          title: Currency
+          type: string
+      required:
+      - type
+      - amount
+      title: VehicleFleetInvoiceLineCreate
+      type: object
+    VehicleFleetInvoiceResponse:
+      additionalProperties: false
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        vendor:
+          title: Vendor
+          type: string
+        invoice_number:
+          title: Invoice Number
+          type: string
+        lines:
+          default: []
+          items:
+            $ref: '#/components/schemas/VehicleFleetInvoiceLineResponse'
+          title: Lines
+          type: array
+        total_amount:
+          anyOf:
+          - type: number
+          - type: string
+          default: '0'
+          title: Total Amount
+      required:
+      - updated_at
+      - id
+      - date
+      - vendor
+      - invoice_number
+      title: VehicleFleetInvoiceResponse
+      type: object
+    FileResourceResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        file_id:
+          title: File Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_class:
+          title: Resource Class
+          type: string
+        extra_data:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Extra Data
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Name
+      required:
+      - id
+      - file_id
+      - resource_id
+      - resource_class
+      title: FileResourceResponse
+      type: object
+    VehicleFleetInvoiceUpdate:
+      additionalProperties: false
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        vendor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vendor
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        lines:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VehicleFleetInvoiceLineUpdate'
+            type: array
+          - type: 'null'
+          title: Lines
+      title: VehicleFleetInvoiceUpdate
+      type: object
+    VehicleFleetInvoiceExtractionResponse:
+      additionalProperties: false
+      properties:
+        file_name:
+          title: File Name
+          type: string
+        vendor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vendor
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Currency
+        total_amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Total Amount
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        duplicate_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duplicate Invoice Id
+        lines:
+          default: []
+          items:
+            $ref: '#/components/schemas/VehicleFleetInvoiceExtractedLine'
+          title: Lines
+          type: array
+        warnings:
+          default: []
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - file_name
+      title: VehicleFleetInvoiceExtractionResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    VehicleFleetInvoiceLineUpdate:
+      additionalProperties: false
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        vehicle_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vehicle Id
+        vehicle_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Label
+        assignment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignment Id
+        type:
+          title: Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        currency:
+          default: EUR
+          title: Currency
+          type: string
+      required:
+      - type
+      - amount
+      title: VehicleFleetInvoiceLineUpdate
+      type: object
+    VehicleFleetInvoiceCreate:
+      additionalProperties: false
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        vendor:
+          title: Vendor
+          type: string
+        invoice_number:
+          title: Invoice Number
+          type: string
+        lines:
+          items:
+            $ref: '#/components/schemas/VehicleFleetInvoiceLineCreate'
+          title: Lines
+          type: array
+      required:
+      - date
+      - vendor
+      - invoice_number
+      - lines
+      title: VehicleFleetInvoiceCreate
+      type: object
+    VehicleFleetInvoiceExtractedLine:
+      additionalProperties: false
+      properties:
+        vehicle_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vehicle Id
+        vehicle_license_plate:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle License Plate
+        type:
+          title: Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        currency:
+          default: EUR
+          title: Currency
+          type: string
+      required:
+      - type
+      - amount
+      title: VehicleFleetInvoiceExtractedLine
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    VehicleFleetInvoiceLineResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        vehicle_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vehicle Id
+        vehicle_license_plate:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle License Plate
+        vehicle_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Label
+        assignment_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignment Id
+        type:
+          title: Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        currency:
+          title: Currency
+          type: string
+      required:
+      - id
+      - type
+      - amount
+      - currency
+      title: VehicleFleetInvoiceLineResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

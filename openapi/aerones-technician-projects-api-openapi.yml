@@ -1,0 +1,524 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Technician.projects API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: technician.projects
+paths:
+  /api/technician/service-order-lines:
+    get:
+      operationId: technician_api_projects_list_service_order_lines
+      summary: List Service Order Lines
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by SOL ID, service code, or service description (case-insensitive)
+          title: Search
+        required: false
+        description: Search by SOL ID, service code, or service description (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Sort field, prefix with ''-'' for descending. Allowed: service_code, service_description, status, quantity'
+          title: Sort
+        required: false
+        description: 'Sort field, prefix with ''-'' for descending. Allowed: service_code, service_description, status, quantity'
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: turbine_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine ID
+          title: Turbine Id
+        required: false
+        description: Filter by turbine ID
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service code (exact match)
+          title: Service Code
+        required: false
+        description: Filter by service code (exact match)
+      - in: query
+        name: activity_date_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter SOLs with activities on or after this date
+          title: Activity Date From
+        required: false
+        description: Filter SOLs with activities on or after this date
+      - in: query
+        name: activity_date_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter SOLs with activities on or before this date
+          title: Activity Date To
+        required: false
+        description: Filter SOLs with activities on or before this date
+      - in: query
+        name: total_count
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Client-supplied total count from a previous page response. When provided, skips the COUNT query and returns this value as Total-Count.
+          title: Total Count
+        required: false
+        description: Client-supplied total count from a previous page response. When provided, skips the COUNT query and returns this value as Total-Count.
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceOrderLineResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'List service order lines with optional filters.
+
+
+        Returns paginated service order lines with turbine, component type,
+
+        and project info.'
+      tags:
+      - technician.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/filters:
+    get:
+      operationId: technician_api_projects_get_service_order_line_filters
+      summary: Get Service Order Line Filters
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderLineFiltersResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return distinct filter options from existing service order lines.
+      tags:
+      - technician.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/{line_id}:
+    get:
+      operationId: technician_api_projects_get_service_order_line_detail
+      summary: Get Service Order Line Detail
+      parameters:
+      - in: path
+        name: line_id
+        schema:
+          title: Line Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderLineDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get a single scoped service order line detail for technician views.
+      tags:
+      - technician.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Builder Id
+      required:
+      - id
+      title: ProjectInfo
+      type: object
+    TurbineComponentInfo:
+      additionalProperties: false
+      description: Nested turbine component info for service order line response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: TurbineComponentInfo
+      type: object
+    FilterProjectOption:
+      additionalProperties: false
+      description: Project option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: FilterProjectOption
+      type: object
+    ServiceOrderLineResponse:
+      additionalProperties: false
+      description: Response schema for a single service order line.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineInfo'
+          - type: 'null'
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/ComponentTypeInfo'
+          - type: 'null'
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineComponentInfo'
+          - type: 'null'
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectInfo'
+          - type: 'null'
+        assigned_team_lead:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned Team Lead
+        activity_date_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Activity Date From
+        activity_date_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Activity Date To
+      required:
+      - id
+      title: ServiceOrderLineResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ComponentTypeInfo:
+      additionalProperties: false
+      description: Nested component type info for service order line response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ComponentTypeInfo
+      type: object
+    FilterTurbineOption:
+      additionalProperties: false
+      description: Turbine option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: FilterTurbineOption
+      type: object
+    ServiceOrderLineFiltersResponse:
+      additionalProperties: false
+      description: Response schema for SOL filters endpoint.
+      properties:
+        projects:
+          items:
+            $ref: '#/components/schemas/FilterProjectOption'
+          title: Projects
+          type: array
+        turbines:
+          items:
+            $ref: '#/components/schemas/FilterTurbineOption'
+          title: Turbines
+          type: array
+        services:
+          items:
+            $ref: '#/components/schemas/FilterServiceOption'
+          title: Services
+          type: array
+      required:
+      - projects
+      - turbines
+      - services
+      title: ServiceOrderLineFiltersResponse
+      type: object
+    TurbineInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: TurbineInfo
+      type: object
+    FilterServiceOption:
+      additionalProperties: false
+      description: Service option for filters endpoint.
+      properties:
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - code
+      title: FilterServiceOption
+      type: object
+    ServiceOrderLineDetailResponse:
+      additionalProperties: false
+      description: Detail schema for SOL context used in technician service results view.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Name
+        turbine_component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Component Serial
+        turbine_component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Component Position
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+      required:
+      - id
+      title: ServiceOrderLineDetailResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

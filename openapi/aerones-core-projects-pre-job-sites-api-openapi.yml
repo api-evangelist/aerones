@@ -1,0 +1,429 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.pre Job Sites API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.pre-job-sites
+paths:
+  /api/core/v1/projects/{project_id}/pre-job/sites:
+    get:
+      operationId: get_pre_job_sites
+      summary: Get pre-job sites for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreJobSitesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Return project locations enriched with pre-job answers, O&M address,
+
+        contacts, and file links.'
+      tags:
+      - core.projects.pre-job-sites
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PreJobSiteOMBuildingObject:
+      additionalProperties: false
+      description: O&M building address in the pre-job sites response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        address_line1:
+          title: Address Line1
+          type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line2
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+      required:
+      - id
+      - address_line1
+      title: PreJobSiteOMBuildingObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PreJobSiteLocationObject:
+      additionalProperties: false
+      description: Location details within a pre-job site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Formatted address from address components
+          title: Address
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+        certificates:
+          description: Location certificates [{id, name, is_mandatory}]
+          items:
+            type: object
+          title: Certificates
+          type: array
+      required:
+      - id
+      - name
+      title: PreJobSiteLocationObject
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    PreJobSiteAnswerObject:
+      additionalProperties: false
+      description: Pre-job answer within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        question_id:
+          title: Question Id
+          type: integer
+        key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Question config key for programmatic access
+          title: Key
+        title:
+          title: Title
+          type: string
+        answer:
+          title: Answer
+      required:
+      - id
+      - question_id
+      - title
+      - answer
+      title: PreJobSiteAnswerObject
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
+      type: object
+    PreJobSiteObject:
+      additionalProperties: false
+      description: Single site (project location) in the pre-job sites response.
+      properties:
+        project_location_id:
+          title: Project Location Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/PreJobSiteLocationObject'
+        contact:
+          anyOf:
+          - $ref: '#/components/schemas/PreJobSiteContactObject'
+          - type: 'null'
+          description: Primary contact from ProjectContact
+        customer_contacts:
+          description: Contacts linked to the customer-location relationship
+          items:
+            $ref: '#/components/schemas/PreJobSiteContactObject'
+          title: Customer Contacts
+          type: array
+        pre_job_answers:
+          items:
+            $ref: '#/components/schemas/PreJobSiteAnswerObject'
+          title: Pre Job Answers
+          type: array
+        files:
+          items:
+            $ref: '#/components/schemas/PreJobSiteFileObject'
+          title: Files
+          type: array
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Additional Information
+        om_building_address:
+          anyOf:
+          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
+          - type: 'null'
+        required_certifications:
+          description: Per-project required certifications. Primary source is ``CustomerLocation.metadata.required_certifications``; falls back to legacy ``projects.Site.required_certifications`` (matched by site name) when the metadata entry is missing. Consumed by RAMS prefill to populate the qualifications section.
+          items:
+            type: string
+          title: Required Certifications
+          type: array
+        other_certification_details:
+          default: ''
+          description: Free-text certification details. Primary source is ``CustomerLocation.metadata.other_certification_details``; falls back to legacy ``projects.Site.other_certification_details`` when the metadata entry is missing. Consumed by RAMS prefill to populate the qualifications section.
+          title: Other Certification Details
+          type: string
+        suggested_certifications:
+          description: Certificates auto-assigned to this site by the certificate mapping rules (``core.certificate_requirement_rule``), resolved from the site's region and its scope-item services. Not removable on the pre-job form.
+          items:
+            $ref: '#/components/schemas/PreJobSuggestedCertificationObject'
+          title: Suggested Certifications
+          type: array
+      required:
+      - project_location_id
+      - location
+      title: PreJobSiteObject
+      type: object
+    PreJobSuggestedCertificationObject:
+      additionalProperties: false
+      description: One certificate auto-assigned to a site by the certificate mapping rules.
+      properties:
+        id:
+          description: Certificate ID
+          title: Id
+          type: integer
+        name:
+          description: Certificate name
+          title: Name
+          type: string
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note from the matching rule
+          title: Comment
+      required:
+      - id
+      - name
+      title: PreJobSuggestedCertificationObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PreJobSiteContactObject:
+      additionalProperties: false
+      description: Contact within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        is_qhse:
+          default: false
+          title: Is Qhse
+          type: boolean
+      required:
+      - id
+      title: PreJobSiteContactObject
+      type: object
+    PreJobSitesResponse:
+      additionalProperties: false
+      description: Top-level response for the pre-job sites aggregation endpoint.
+      properties:
+        sites:
+          items:
+            $ref: '#/components/schemas/PreJobSiteObject'
+          title: Sites
+          type: array
+        om_building_address:
+          anyOf:
+          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
+          - type: 'null'
+          description: Mirror of the first site's ``om_building_address`` in list order when present; null when that site has no ``ProjectLocation.om_building_customer_address``. Prefer each site object for per-location O&M.
+      required:
+      - sites
+      title: PreJobSitesResponse
+      type: object
+    PreJobSiteFileObject:
+      additionalProperties: false
+      description: File link within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        file_id:
+          title: File Id
+          type: integer
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Additional Information
+      required:
+      - id
+      - file_id
+      title: PreJobSiteFileObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

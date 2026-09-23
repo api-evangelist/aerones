@@ -1,0 +1,985 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Work Management.work Packages API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: work-management.work-packages
+paths:
+  /api/work-management/work-packages/with-scope:
+    post:
+      operationId: client_work_management_endpoints_work_packages_create_work_packages_with_scope
+      summary: Create Work Packages With Scope
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPackageWithScopeResponse'
+      description: Atomically create one WP per selected turbine, or one WP for a whole park.
+      tags:
+      - work-management.work-packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkPackageWithScopeCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages/with-campaigns:
+    get:
+      operationId: client_work_management_endpoints_work_packages_list_work_packages_with_campaigns
+      summary: List Work Packages With Campaigns
+      parameters:
+      - in: query
+        name: active_only
+        schema:
+          default: true
+          title: Active Only
+          type: boolean
+        required: false
+      - in: query
+        name: turbine_ids
+        schema:
+          default: ''
+          title: Turbine Ids
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPackagesWithCampaignsResponse'
+      description: Turbines linked to campaign-scoped work packages (active-campaigns widget).
+      tags:
+      - work-management.work-packages
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages:
+    get:
+      operationId: list_work_packages
+      summary: List Work Packages
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: campaign_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        required: false
+      - in: query
+        name: vendor_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        required: false
+      - in: query
+        name: site_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        required: false
+      - in: query
+        name: active_only
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active Only
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkPackageResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - work-management.work-packages
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_work_package
+      summary: Create Work Package
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPackageResponse'
+      description: Create a new item.
+      tags:
+      - work-management.work-packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkPackageCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages/{id}:
+    get:
+      operationId: get_work_package
+      summary: Get Work Package
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPackageResponse'
+      description: Get a single item by ID.
+      tags:
+      - work-management.work-packages
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_work_package
+      summary: Update Work Package
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPackageResponse'
+      description: Update an item.
+      tags:
+      - work-management.work-packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkPackageUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_work_package
+      summary: Delete Work Package
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - work-management.work-packages
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages/{id}/comments:
+    post:
+      operationId: client_work_management_endpoints_work_packages_add_comment
+      summary: Add Comment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponse'
+      tags:
+      - work-management.work-packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages/{id}/comments/{comment_id}:
+    delete:
+      operationId: client_work_management_endpoints_work_packages_delete_comment
+      summary: Delete Comment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - work-management.work-packages
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages/{id}/attach:
+    post:
+      operationId: client_work_management_endpoints_work_packages_attach_file
+      summary: Attach File
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentResponse'
+      tags:
+      - work-management.work-packages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachmentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/work-packages/{id}/detach/{storage_id}:
+    delete:
+      operationId: client_work_management_endpoints_work_packages_detach_file
+      summary: Detach File
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: storage_id
+        schema:
+          title: Storage Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - work-management.work-packages
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    NestedCampaign:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedCampaign
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CommentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By Id
+      required:
+      - id
+      - body
+      title: CommentResponse
+      type: object
+    AttachmentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          default: ''
+          title: File Name
+          type: string
+        file_type:
+          default: ''
+          title: File Type
+          type: string
+      required:
+      - id
+      - storage_id
+      title: AttachmentResponse
+      type: object
+    WorkPackageCampaignRow:
+      description: 'A work package on a turbine, projected with its parent campaign.
+
+
+        Feeds the Turbines-overview "active campaigns affecting" widget / side panel.
+
+        Productionises AeroCore''s ``get-turbines-with-active-campaigns`` shim.'
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        campaign_id:
+          title: Campaign Id
+          type: integer
+        campaign_name:
+          title: Campaign Name
+          type: string
+        campaign_status:
+          title: Campaign Status
+          type: string
+      required:
+      - turbine_id
+      - campaign_id
+      - campaign_name
+      - campaign_status
+      title: WorkPackageCampaignRow
+      type: object
+    NestedSite:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedSite
+      type: object
+    WorkPackageCreate:
+      additionalProperties: false
+      properties:
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: draft
+          title: Status
+        campaign_id:
+          title: Campaign Id
+          type: integer
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+      required:
+      - name
+      - campaign_id
+      title: WorkPackageCreate
+      type: object
+    WorkPackageWithScopeResponse:
+      properties:
+        work_packages:
+          items:
+            $ref: '#/components/schemas/WorkPackageScopeRow'
+          title: Work Packages
+          type: array
+      required:
+      - work_packages
+      title: WorkPackageWithScopeResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    WorkPackagesWithCampaignsResponse:
+      properties:
+        work_packages:
+          items:
+            $ref: '#/components/schemas/WorkPackageCampaignRow'
+          title: Work Packages
+          type: array
+      required:
+      - work_packages
+      title: WorkPackagesWithCampaignsResponse
+      type: object
+    NestedVendor:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedVendor
+      type: object
+    WorkPackageWithScopeCreate:
+      additionalProperties: false
+      description: "Create work package(s) pre-scoped to selected turbines (or a park) atomically.\n\nProductionises AeroCore's ``create-work-package-with-scope`` Track-2 shim (a\nper-turbine loop with client-side cleanup-on-failure) as one transaction.\n\n``mode``:\n- ``\"single\"`` / ``\"per-turbine\"`` — one WorkPackage per ``turbine_ids`` entry,\n  each pinned via ``WorkPackage.turbine``.\n- ``\"one-for-all\"`` — a single WorkPackage covering a whole park, pinned via\n  ``WorkPackage.site`` (turbines are not individually linked)."
+      properties:
+        mode:
+          title: Mode
+          type: string
+        campaign_id:
+          title: Campaign Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: draft
+          title: Status
+        turbine_ids:
+          default: []
+          items:
+            type: integer
+          title: Turbine Ids
+          type: array
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - mode
+      - campaign_id
+      - name
+      title: WorkPackageWithScopeCreate
+      type: object
+    WorkPackageResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+        campaign_id:
+          title: Campaign Id
+          type: integer
+        campaign:
+          anyOf:
+          - $ref: '#/components/schemas/NestedCampaign'
+          - type: 'null'
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        vendor:
+          anyOf:
+          - $ref: '#/components/schemas/NestedVendor'
+          - type: 'null'
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        site:
+          anyOf:
+          - $ref: '#/components/schemas/NestedSite'
+          - type: 'null'
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/NestedTurbine'
+          - type: 'null'
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/NestedTurbineComponent'
+          - type: 'null'
+        comments:
+          default: []
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+          title: Comments
+          type: array
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+          title: Attachments
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - status
+      - campaign_id
+      - created_at
+      - updated_at
+      title: WorkPackageResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    AttachmentCreate:
+      additionalProperties: false
+      properties:
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Type
+      required:
+      - storage_id
+      title: AttachmentCreate
+      type: object
+    WorkPackageUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+      title: WorkPackageUpdate
+      type: object
+    NestedTurbineComponent:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: NestedTurbineComponent
+      type: object
+    NestedTurbine:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: NestedTurbine
+      type: object
+    WorkPackageScopeRow:
+      properties:
+        work_package_id:
+          title: Work Package Id
+          type: integer
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+      required:
+      - work_package_id
+      title: WorkPackageScopeRow
+      type: object
+    CommentCreate:
+      additionalProperties: false
+      properties:
+        body:
+          title: Body
+          type: string
+      required:
+      - body
+      title: CommentCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

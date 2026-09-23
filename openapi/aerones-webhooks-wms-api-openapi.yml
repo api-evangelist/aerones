@@ -1,0 +1,101 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Webhooks.wms API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: webhooks.wms
+paths:
+  /api/webhooks/wms/coverage-published:
+    post:
+      operationId: projects_api_wms_webhook_handle_wms_coverage_published
+      summary: Handle Wms Coverage Published
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Ack a coverage-published notification and schedule the fan-out off-request.
+      tags:
+      - webhooks.wms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoveragePublishedPayload'
+        required: true
+components:
+  schemas:
+    CoveragePublishedPayload:
+      description: 'Payload WMS sends when a roster layer is published.
+
+
+        project_codes is the union of every project_code with at least one
+
+        assignment in the published layer''s date range — WMS doesn''t diff
+
+        against the prior snapshot. Our handler is idempotent so receiving
+
+        untouched codes is harmless. The ``Literal`` on ``event`` rejects
+
+        any other event type at the API boundary, before fan-out runs.
+
+
+        Uses plain ``ninja.Schema`` (not the ``extra=''forbid''`` REST base) on
+
+        purpose: this is an inbound webhook from an external system, so unknown
+
+        fields WMS may add later are ignored rather than 422-rejected — the
+
+        integration stays forward-compatible without a lock-step deploy.'
+      properties:
+        event:
+          const: coverage.published
+          enum:
+          - coverage.published
+          title: Event
+          type: string
+        layer_id:
+          title: Layer Id
+          type: integer
+        project_codes:
+          items:
+            type: string
+          title: Project Codes
+          type: array
+        date_from:
+          format: date
+          title: Date From
+          type: string
+        date_to:
+          format: date
+          title: Date To
+          type: string
+        published_at:
+          format: date-time
+          title: Published At
+          type: string
+        delivery_id:
+          title: Delivery Id
+          type: string
+      required:
+      - event
+      - layer_id
+      - project_codes
+      - date_from
+      - date_to
+      - published_at
+      - delivery_id
+      title: CoveragePublishedPayload
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

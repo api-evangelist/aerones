@@ -1,0 +1,703 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.certificate Requirements API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.certificate-requirements
+paths:
+  /api/core/v1/certificate-requirements:
+    get:
+      operationId: list_certificate_requirement_rules
+      summary: List Certificate Requirement Rules
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: certificate_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Certificate Id
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        required: false
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        required: false
+      - in: query
+        name: service_family_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Family Id
+        required: false
+      - in: query
+        name: region
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CertificateRequirementRuleResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.certificate-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_certificate_requirement_rule
+      summary: Create Certificate Requirement Rule
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateRequirementRuleResponse'
+      description: Create a new item.
+      tags:
+      - core.certificate-requirements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateRequirementRuleCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/certificate-requirements/{id}:
+    get:
+      operationId: get_certificate_requirement_rule
+      summary: Get Certificate Requirement Rule
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateRequirementRuleResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.certificate-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_certificate_requirement_rule
+      summary: Update Certificate Requirement Rule
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateRequirementRuleResponse'
+      description: Update an item.
+      tags:
+      - core.certificate-requirements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateRequirementRuleUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_certificate_requirement_rule
+      summary: Delete Certificate Requirement Rule
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.certificate-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/certificate-requirement-groups:
+    post:
+      operationId: save_certificate_requirement_group
+      summary: Save a certificate mapping group
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CertificateRequirementRuleResponse'
+                title: Response
+                type: array
+      description: Create/patch/delete a whole mapping group in one transaction.
+      tags:
+      - core.certificate-requirements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateRequirementGroupSave'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/recompute-suggested-certificates:
+    post:
+      operationId: recompute_project_suggested_certificates
+      summary: Recompute suggested certificates for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: 'Refresh the materialized per-site suggestions for one project.
+
+
+        Derived data only, so any internal user may trigger it — the same
+
+        recompute the dimension-change signals run.'
+      tags:
+      - core.certificate-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    NestedIdName:
+      additionalProperties: false
+      description: Generic nested object with id and name (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedIdName
+      type: object
+    CertificateRequirementGroupSave:
+      additionalProperties: false
+      description: 'Bulk save of one mapping group in a single transaction.
+
+
+        Targets are (certificate × unit) pairs sharing region/customer/comment.
+
+        Rules in ``existing_rule_ids`` not matching a target are soft-deleted;
+
+        matching ones are patched when the shared fields changed; the rest are
+
+        created.'
+      properties:
+        certificate_ids:
+          description: Certificates
+          items:
+            type: integer
+          minItems: 1
+          title: Certificate Ids
+          type: array
+        units:
+          description: Scopes the certificates apply to
+          items:
+            $ref: '#/components/schemas/CertificateRequirementScopeUnit'
+          minItems: 1
+          title: Units
+          type: array
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer; omit for every customer
+          title: Customer Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site; omit for every site
+          title: Location Id
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Region; omit for every region
+          title: Region
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note
+          title: Comment
+        existing_rule_ids:
+          description: Rules currently forming the edited group; empty on create
+          items:
+            type: integer
+          title: Existing Rule Ids
+          type: array
+      required:
+      - certificate_ids
+      - units
+      title: CertificateRequirementGroupSave
+      type: object
+    CertificateRequirementScopeUnit:
+      additionalProperties: false
+      description: 'One scope of a mapping group: a service, a family, or (both empty) all services.'
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Exact service
+          title: Service Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service family
+          title: Service Family Id
+      title: CertificateRequirementScopeUnit
+      type: object
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    CertificateRequirementRuleUpdate:
+      additionalProperties: false
+      description: Schema for updating a certificate mapping rule.
+      properties:
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Certificate ID
+          title: Certificate Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer
+          title: Customer Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Exact service
+          title: Service Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service family
+          title: Service Family Id
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Region
+          title: Region
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note
+          title: Comment
+      title: CertificateRequirementRuleUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ServiceFamilyObject:
+      additionalProperties: false
+      description: Nested service-family object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: ServiceFamilyObject
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    CertificateObject:
+      additionalProperties: false
+      description: Nested certificate object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertificateObject
+      type: object
+    CertificateRequirementRuleResponse:
+      additionalProperties: false
+      description: 'One certificate mapping rule: (service | family | all) × region × customer → certificate.'
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Rule ID
+          title: Id
+          type: integer
+        certificate:
+          $ref: '#/components/schemas/CertificateObject'
+          description: Required certificate
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerObject'
+          - type: 'null'
+          description: Customer the rule applies to; null = every customer
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/NestedIdName'
+          - type: 'null'
+          description: Site the rule applies to; null = every site
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+          description: Exact service the rule applies to
+        service_family:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceFamilyObject'
+          - type: 'null'
+          description: Service family the rule applies to
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Region the rule applies to (EU/NA); null = every region
+          title: Region
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition shown next to the certificate on the pre-job form
+          title: Comment
+      required:
+      - updated_at
+      - id
+      - certificate
+      title: CertificateRequirementRuleResponse
+      type: object
+    CertificateRequirementRuleCreate:
+      additionalProperties: false
+      description: Schema for creating a certificate mapping rule.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer; omit for every customer
+          title: Customer Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site; omit for every site
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Exact service; mutually exclusive with service_family_id
+          title: Service Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service family; mutually exclusive with service_id
+          title: Service Family Id
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Region; omit for every region
+          title: Region
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note
+          title: Comment
+      required:
+      - certificate_id
+      title: CertificateRequirementRuleCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

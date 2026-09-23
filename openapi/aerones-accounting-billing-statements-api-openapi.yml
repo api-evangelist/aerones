@@ -1,0 +1,419 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.billing Statements API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.billing-statements
+paths:
+  /api/accounting/v2/billing-statements:
+    get:
+      operationId: list_billing_statements
+      summary: List Billing Statements
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search (case-insensitive)
+          title: Search
+        required: false
+        description: Search (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by customer ID
+          title: Customer Id
+        required: false
+        description: Filter by customer ID
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        required: false
+        description: Filter by status
+      - in: query
+        name: billing_period
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by billing period
+          title: Billing Period
+        required: false
+        description: Filter by billing period
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BillingStatementResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - accounting.billing-statements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_billing_statement
+      summary: Create Billing Statement
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingStatementResponse'
+      description: Create a new item.
+      tags:
+      - accounting.billing-statements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingStatementCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/accounting/v2/billing-statements/{id}:
+    get:
+      operationId: get_billing_statement
+      summary: Get Billing Statement
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingStatementResponse'
+      description: Get a single item by ID.
+      tags:
+      - accounting.billing-statements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_billing_statement
+      summary: Update Billing Statement
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingStatementResponse'
+      description: Update an item.
+      tags:
+      - accounting.billing-statements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingStatementUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_billing_statement
+      summary: Delete Billing Statement
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - accounting.billing-statements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    BillingStatementResponse:
+      additionalProperties: false
+      description: Schema for BillingStatement response.
+      properties:
+        id:
+          description: Billing statement ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        date_from:
+          description: Period start date
+          format: date
+          title: Date From
+          type: string
+        date_to:
+          description: Period end date
+          format: date
+          title: Date To
+          type: string
+        billing_period:
+          description: Billing period
+          title: Billing Period
+          type: string
+        status:
+          description: Status
+          title: Status
+          type: string
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - project_id
+      - customer_id
+      - date_from
+      - date_to
+      - billing_period
+      - status
+      - created_at
+      - updated_at
+      title: BillingStatementResponse
+      type: object
+    BillingStatementCreate:
+      additionalProperties: false
+      description: Schema for creating a BillingStatement.
+      properties:
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        date_from:
+          description: Period start date (YYYY-MM-DD)
+          title: Date From
+          type: string
+        date_to:
+          description: Period end date (YYYY-MM-DD)
+          title: Date To
+          type: string
+        billing_period:
+          description: Billing period (WEEK, MONTH)
+          title: Billing Period
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status (defaults to DRAFT)
+          title: Status
+      required:
+      - project_id
+      - customer_id
+      - date_from
+      - date_to
+      - billing_period
+      title: BillingStatementCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    BillingStatementUpdate:
+      additionalProperties: false
+      description: Schema for updating a BillingStatement.
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer ID
+          title: Customer Id
+        date_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period start date (YYYY-MM-DD)
+          title: Date From
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period end date (YYYY-MM-DD)
+          title: Date To
+        billing_period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing period (WEEK, MONTH)
+          title: Billing Period
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status
+          title: Status
+      title: BillingStatementUpdate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

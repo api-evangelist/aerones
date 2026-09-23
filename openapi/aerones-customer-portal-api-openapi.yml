@@ -1,0 +1,383 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Customer Portal API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Customer Portal
+paths:
+  /api/core/v1/terms-of-service:
+    get:
+      operationId: list_terms_of_services
+      summary: List Terms of Services
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by active status
+          title: Is Active
+        required: false
+        description: Filter by active status
+      - in: query
+        name: is_required
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by required status
+          title: Is Required
+        required: false
+        description: Filter by required status
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by title, version, or content
+          title: Search
+        required: false
+        description: Search by title, version, or content
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TermsOfServiceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - Customer Portal
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/user-tos-acceptances:
+    get:
+      operationId: list_user_tos_acceptances
+      summary: List User ToS Acceptances
+      parameters:
+      - in: query
+        name: user_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by user ID
+          title: User Id
+        required: false
+        description: Filter by user ID
+      - in: query
+        name: tos_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by ToS ID
+          title: Tos Id
+        required: false
+        description: Filter by ToS ID
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserTosAcceptanceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'List user ToS acceptances with optional filtering.
+
+
+        Query parameters:
+
+        - user_id: Filter by user ID (optional)
+
+        - tos_id: Filter by ToS ID (optional)
+
+        - sort: Sort field (id, user_id, tos_id, created_at), prefix with ''-'' for descending
+
+        - page: Page number (default: 1)
+
+        - page_size: Items per page (default: 50)'
+      tags:
+      - Customer Portal
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_user_tos_acceptance
+      summary: Create User ToS Acceptance
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTosAcceptanceResponse'
+      description: 'Create a new user ToS acceptance record.
+
+
+        Note: This is an immutable record. Once created, it should never be updated.
+
+        Both user and created_by are set from the authenticated user.'
+      tags:
+      - Customer Portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserTosAcceptanceCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    TermsOfServiceResponse:
+      additionalProperties: false
+      description: Schema for Terms of Service response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Terms of Service ID
+          title: Id
+          type: integer
+        version:
+          description: Version identifier
+          title: Version
+          type: string
+        title:
+          description: Terms of Service title
+          title: Title
+          type: string
+        content:
+          description: Terms of Service content
+          title: Content
+          type: string
+        is_required:
+          description: Whether acceptance is required
+          title: Is Required
+          type: boolean
+        is_active:
+          description: Whether this version is active
+          title: Is Active
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - version
+      - title
+      - content
+      - is_required
+      - is_active
+      title: TermsOfServiceResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    UserTosAcceptanceResponse:
+      additionalProperties: false
+      description: 'Schema for User ToS Acceptance response.
+
+
+        Note: This is an immutable record, so only created_at is included (no updated_at).'
+      properties:
+        id:
+          description: User ToS Acceptance ID
+          title: Id
+          type: integer
+        user_id:
+          description: User ID
+          title: User Id
+          type: integer
+        tos_id:
+          description: Terms of Service ID
+          title: Tos Id
+          type: integer
+        ip_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User IP address
+          title: Ip Address
+        user_agent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User agent string
+          title: User Agent
+        created_at:
+          description: Acceptance timestamp
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - id
+      - user_id
+      - tos_id
+      - created_at
+      title: UserTosAcceptanceResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    UserTosAcceptanceCreate:
+      additionalProperties: false
+      description: Schema for creating a User ToS Acceptance.
+      properties:
+        tos_id:
+          description: Terms of Service ID
+          title: Tos Id
+          type: integer
+        ip_address:
+          anyOf:
+          - maxLength: 45
+            type: string
+          - type: 'null'
+          description: User IP address
+          title: Ip Address
+        user_agent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User agent string
+          title: User Agent
+      required:
+      - tos_id
+      title: UserTosAcceptanceCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

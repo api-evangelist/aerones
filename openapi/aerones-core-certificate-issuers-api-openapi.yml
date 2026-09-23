@@ -1,0 +1,427 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.certificate Issuers API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.certificate-issuers
+paths:
+  /api/core/v1/certificate-issuers:
+    get:
+      operationId: list_certificateissuers
+      summary: List CertificateIssuers
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country
+          title: Country Id
+        required: false
+        description: Filter by country
+      - in: query
+        name: is_active
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by active flag
+          title: Is Active
+        required: false
+        description: Filter by active flag
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CertificateIssuerResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.certificate-issuers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_certificateissuer
+      summary: Create CertificateIssuer
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateIssuerResponse'
+      description: Create a new item.
+      tags:
+      - core.certificate-issuers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateIssuerCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/certificate-issuers/{id}:
+    get:
+      operationId: get_certificateissuer
+      summary: Get CertificateIssuer
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateIssuerResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.certificate-issuers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_certificateissuer
+      summary: Update CertificateIssuer
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateIssuerResponse'
+      description: Update an item.
+      tags:
+      - core.certificate-issuers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateIssuerUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_certificateissuer
+      summary: Delete CertificateIssuer
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.certificate-issuers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CertificateIssuerResponse:
+      additionalProperties: false
+      description: Schema for CertificateIssuer response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          title: Is Active
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - name
+      - is_active
+      title: CertificateIssuerResponse
+      type: object
+    CertificateIssuerUpdate:
+      additionalProperties: false
+      description: Schema for updating a CertificateIssuer (partial).
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      title: CertificateIssuerUpdate
+      type: object
+    CertificateIssuerCreate:
+      additionalProperties: false
+      description: Schema for creating a CertificateIssuer.
+      properties:
+        name:
+          description: Issuer name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+      required:
+      - name
+      title: CertificateIssuerCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,645 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Dispatch.scope Commitments API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: dispatch.scope-commitments
+paths:
+  /api/dispatch/v1/projects/{project_id}/dispatch/scope-groups:
+    get:
+      operationId: list_scope_groups_v1
+      summary: List service/component-type buckets of scope items available for team dispatch
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ScopeGroupResponse'
+                title: Response
+                type: array
+      description: 'Group real per-turbine scope items by (service, component_type) --
+
+        see ``list_scope_groups_sync``.'
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/scope-workorder:
+    post:
+      operationId: create_scope_workorder_v1
+      summary: Reserve pending scope-dispatch commitments for a team against a scope bucket
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateScopeWorkorderResponse'
+      description: Dispatch a team against a scope bucket -- no turbine pinned yet.
+      tags:
+      - dispatch.scope-commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScopeWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/turbines:
+    get:
+      operationId: list_scope_commitment_turbine_options_v1
+      summary: List turbines a pending scope-dispatch commitment can resolve to
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ScopeCommitmentTurbineOption'
+                title: Response
+                type: array
+      description: 'Turbines with at least one free (not actively dispatched) scope row in
+
+        this commitment''s bucket — the drawer''s picker offers ONLY these, so a
+
+        dispatcher can''t pick a turbine that is out of scope or already claimed.
+
+
+        Shared with the GraphQL ``scopeCommitmentTurbineOptions`` query instead of
+
+        duplicating the filter -- see ``list_scope_commitment_turbine_options_sync``.'
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/turbine:
+    post:
+      operationId: resolve_scope_commitment_turbine_v1
+      summary: Resolve a pending scope-dispatch commitment by picking a turbine
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: OpsHub fallback for AeroTask's resolveScopeCommitmentTurbine.
+      tags:
+      - dispatch.scope-commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveScopeCommitmentPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/scope-commitments/{commitment_id}:
+    patch:
+      operationId: reschedule_scope_commitment_v1
+      summary: Reschedule a still-pending scope-dispatch commitment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Move a still-PENDING commitment''s planned window, and optionally its
+
+        team -- see ``reschedule_scope_commitment_sync``.'
+      tags:
+      - dispatch.scope-commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleScopeCommitmentPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: cancel_scope_commitment_v1
+      summary: Cancel a still-pending scope-dispatch commitment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a still-PENDING commitment, freeing its capacity.
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/scope-groups:
+    get:
+      operationId: dispatch_api_scope_commitments_list_scope_groups
+      summary: List service/component-type buckets of scope items available for team dispatch
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ScopeGroupResponse'
+                title: Response
+                type: array
+      description: 'Group real per-turbine scope items by (service, component_type) --
+
+        see ``list_scope_groups_sync``.'
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/scope-workorder:
+    post:
+      operationId: dispatch_api_scope_commitments_create_scope_workorder
+      summary: Reserve pending scope-dispatch commitments for a team against a scope bucket
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateScopeWorkorderResponse'
+      description: Dispatch a team against a scope bucket -- no turbine pinned yet.
+      tags:
+      - dispatch.scope-commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScopeWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/turbines:
+    get:
+      operationId: dispatch_api_scope_commitments_list_scope_commitment_turbine_options
+      summary: List turbines a pending scope-dispatch commitment can resolve to
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ScopeCommitmentTurbineOption'
+                title: Response
+                type: array
+      description: 'Turbines with at least one free (not actively dispatched) scope row in
+
+        this commitment''s bucket — the drawer''s picker offers ONLY these, so a
+
+        dispatcher can''t pick a turbine that is out of scope or already claimed.
+
+
+        Shared with the GraphQL ``scopeCommitmentTurbineOptions`` query instead of
+
+        duplicating the filter -- see ``list_scope_commitment_turbine_options_sync``.'
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/turbine:
+    post:
+      operationId: dispatch_api_scope_commitments_resolve_scope_commitment_turbine
+      summary: Resolve a pending scope-dispatch commitment by picking a turbine
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: OpsHub fallback for AeroTask's resolveScopeCommitmentTurbine.
+      tags:
+      - dispatch.scope-commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveScopeCommitmentPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/scope-commitments/{commitment_id}:
+    patch:
+      operationId: dispatch_api_scope_commitments_reschedule_scope_commitment
+      summary: Reschedule a still-pending scope-dispatch commitment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Move a still-PENDING commitment''s planned window, and optionally its
+
+        team -- see ``reschedule_scope_commitment_sync``.'
+      tags:
+      - dispatch.scope-commitments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleScopeCommitmentPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_scope_commitments_cancel_scope_commitment
+      summary: Cancel a still-pending scope-dispatch commitment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a still-PENDING commitment, freeing its capacity.
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ResolveScopeCommitmentPayload:
+      additionalProperties: false
+      description: '`turbine_component_id` disambiguates component-level buckets.'
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+      required:
+      - turbine_id
+      title: ResolveScopeCommitmentPayload
+      type: object
+    RescheduleScopeCommitmentPayload:
+      additionalProperties: false
+      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
+
+        scope-dispatch commitment.'
+      properties:
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
+      required:
+      - planned_start_datetime
+      - planned_end_datetime
+      title: RescheduleScopeCommitmentPayload
+      type: object
+    ScopeDispatchCommitmentItem:
+      additionalProperties: false
+      description: One pending commitment row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+      required:
+      - id
+      - status
+      - planned_start_datetime
+      - planned_end_datetime
+      title: ScopeDispatchCommitmentItem
+      type: object
+    CreateScopeWorkorderResponse:
+      additionalProperties: false
+      description: '`quantity` independent pending commitments, window split evenly.'
+      properties:
+        commitments:
+          items:
+            $ref: '#/components/schemas/ScopeDispatchCommitmentItem'
+          title: Commitments
+          type: array
+        quantity:
+          title: Quantity
+          type: integer
+        unit:
+          title: Unit
+          type: string
+      required:
+      - commitments
+      - quantity
+      - unit
+      title: CreateScopeWorkorderResponse
+      type: object
+    ScopeGroupResponse:
+      additionalProperties: false
+      description: 'One scope bucket. `remaining` = total minus pending commitments and
+
+        items already claimed by an actively dispatched workorder.
+
+
+        ``default_kpi_minutes`` is the benchmark minutes per unit; it prefills
+
+        (and stays editable as) the dispatcher''s per-unit duration when planning
+
+        by scope. This project''s own ``ProjectServiceKpi`` override, when set,
+
+        wins over this flat value -- see ``ProjectServiceKpiManager``.'
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        total:
+          title: Total
+          type: integer
+        remaining:
+          title: Remaining
+          type: integer
+        unit:
+          title: Unit
+          type: string
+        default_kpi_minutes:
+          title: Default Kpi Minutes
+          type: integer
+      required:
+      - service_id
+      - service_code
+      - total
+      - remaining
+      - unit
+      - default_kpi_minutes
+      title: ScopeGroupResponse
+      type: object
+    ScopeCommitmentTurbineOption:
+      additionalProperties: false
+      description: A turbine this commitment can actually resolve to.
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+      required:
+      - turbine_id
+      title: ScopeCommitmentTurbineOption
+      type: object
+    CreateScopeWorkorderPayload:
+      additionalProperties: false
+      description: 'Payload for dispatching a team against a scope bucket. ``component_type_id``
+
+        identifies which bucket''s ProjectScopeItems this dispatch targets when a
+
+        service spans more than one component type (e.g. both blade-level and
+
+        whole-turbine scope) -- must match exactly what ``list_scope_groups``
+
+        reported for the chosen bucket, including ``None``. Buckets are not
+
+        site-scoped: a single commitment can be resolved against a turbine at
+
+        any site offering this service.'
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        resource_set_id:
+          title: Resource Set Id
+          type: integer
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        quantity:
+          default: 1
+          title: Quantity
+          type: integer
+      required:
+      - service_id
+      - resource_set_id
+      - planned_start_datetime
+      - planned_end_datetime
+      title: CreateScopeWorkorderPayload
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

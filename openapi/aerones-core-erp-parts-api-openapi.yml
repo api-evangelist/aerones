@@ -1,0 +1,308 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.erp Parts API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.erp-parts
+paths:
+  /api/core/v1/erp-parts:
+    get:
+      operationId: list_erp_parts
+      summary: List ERP Parts
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: category_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        required: false
+      - in: query
+        name: erp_status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Erp Status
+        required: false
+      - in: query
+        name: part_code_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Part Code Id
+        required: false
+      - in: query
+        name: flagged
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Flagged
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ErpPartResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List synced Monitor ERP parts with search, filters, and pagination.
+      tags:
+      - core.erp-parts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/erp-parts/{id}:
+    get:
+      operationId: get_erp_part
+      summary: Get ERP Part
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErpPartResponse'
+      description: Get a single ERP part by ID.
+      tags:
+      - core.erp-parts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_erp_part
+      summary: Set ERP Part category
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErpPartResponse'
+      description: Flag an ERP part with an item category (or clear it with null).
+      tags:
+      - core.erp-parts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErpPartUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ErpPartUpdate:
+      additionalProperties: false
+      description: Schema for flagging an ERP part — only the category is editable.
+      properties:
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Item category to assign; null clears the flag
+          title: Category Id
+      title: ErpPartUpdate
+      type: object
+    ErpPartCodeObject:
+      additionalProperties: false
+      description: Nested Monitor part-classification code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ErpPartCodeObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErpPartResponse:
+      additionalProperties: false
+      description: Schema for a synced Monitor ERP part.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: ERP part ID (Ops Hub)
+          title: Id
+          type: integer
+        erp_id:
+          description: Monitor ERP internal part id
+          title: Erp Id
+          type: integer
+        part_number:
+          description: Monitor part number
+          title: Part Number
+          type: string
+        description:
+          default: ''
+          description: Part description
+          title: Description
+          type: string
+        erp_status:
+          default: ''
+          description: Raw Monitor status code
+          title: Erp Status
+          type: string
+        unit:
+          default: ''
+          description: Standard unit code (pcs, kg, ...)
+          title: Unit
+          type: string
+        part_code:
+          anyOf:
+          - $ref: '#/components/schemas/ErpPartCodeObject'
+          - type: 'null'
+          description: Monitor's own classification (e.g. 5007 PPE)
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/ErpPartCategoryObject'
+          - type: 'null'
+          description: Ops-Hub-assigned item category (PPE, Consumable, ...)
+      required:
+      - updated_at
+      - id
+      - erp_id
+      - part_number
+      title: ErpPartResponse
+      type: object
+    ErpPartCategoryObject:
+      additionalProperties: false
+      description: Nested item-category object for ERP part responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ErpPartCategoryObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,466 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.resources.certificates API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.resources.certificates
+paths:
+  /api/core/v1/resources/{resource_id}/certificates:
+    get:
+      operationId: list_resource_certificates
+      summary: List Certificates for Resource
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResourceCertificateResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.resources.certificates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_resource_certificate
+      summary: Create Certificate
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceCertificateResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.resources.certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceCertificateCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/resources/{resource_id}/certificates/{certificate_id}:
+    get:
+      operationId: get_resource_certificate
+      summary: Get Certificate
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      - in: path
+        name: certificate_id
+        schema:
+          title: Certificate Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceCertificateResponse'
+      description: Get a single child item.
+      tags:
+      - core.resources.certificates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_resource_certificate
+      summary: Update Certificate
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      - in: path
+        name: certificate_id
+        schema:
+          title: Certificate Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceCertificateResponse'
+      description: Update a child item.
+      tags:
+      - core.resources.certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceCertificateUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_resource_certificate
+      summary: Delete Certificate
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      - in: path
+        name: certificate_id
+        schema:
+          title: Certificate Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.resources.certificates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResourceCertificateUpdate:
+      additionalProperties: false
+      description: 'Schema for updating a ResourceCertificate (partial).
+
+
+        ``certificate_id`` is intentionally omitted: the certificate a row points at
+
+        is immutable. To assign a different certificate, delete this row and create a
+
+        new one.'
+      properties:
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from (e.g. "bamboohr")
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      title: ResourceCertificateUpdate
+      type: object
+    ResourceCertificateCreate:
+      additionalProperties: false
+      description: Schema for creating a ResourceCertificate under a resource.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from (e.g. "bamboohr")
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      required:
+      - certificate_id
+      title: ResourceCertificateCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CertificateObject:
+      additionalProperties: false
+      description: Nested certificate object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertificateObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ResourceCertificateResponse:
+      additionalProperties: false
+      description: Schema for ResourceCertificate response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: ResourceCertificate ID
+          title: Id
+          type: integer
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        certificate:
+          $ref: '#/components/schemas/CertificateObject'
+          description: Certificate information
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      required:
+      - updated_at
+      - id
+      - resource_id
+      - certificate
+      title: ResourceCertificateResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,451 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.component Models API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.component-models
+paths:
+  /api/core/v1/component-models:
+    get:
+      operationId: list_component_models
+      summary: List Component Models
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: manufacturer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by manufacturer ID
+          title: Manufacturer Id
+        required: false
+        description: Filter by manufacturer ID
+      - in: query
+        name: component_type_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by component type ID
+          title: Component Type Id
+        required: false
+        description: Filter by component type ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ComponentModelResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.component-models
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_component_model
+      summary: Create Component Model
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentModelResponse'
+      description: Create a new item.
+      tags:
+      - core.component-models
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentModelCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/component-models/{id}:
+    get:
+      operationId: get_component_model
+      summary: Get Component Model
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentModelResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.component-models
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_component_model
+      summary: Update Component Model
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentModelResponse'
+      description: Update an item.
+      tags:
+      - core.component-models
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentModelUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_component_model
+      summary: Delete Component Model
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.component-models
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ComponentModelCreate:
+      additionalProperties: false
+      description: Schema for creating a ManufacturerComponentModel.
+      properties:
+        name:
+          description: Component model name
+          minLength: 1
+          title: Name
+          type: string
+        manufacturer_id:
+          description: Manufacturer ID
+          title: Manufacturer Id
+          type: integer
+        component_type_id:
+          description: Component type ID
+          title: Component Type Id
+          type: integer
+        length:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Length in meters
+          title: Length
+        crawler_range:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Crawler range in meters
+          title: Crawler Range
+        blade_type:
+          anyOf:
+          - enum:
+            - BOX_SPAR
+            - SINGLE_SHEAR_WEB
+            - DOUBLE_SHEAR_WEB
+            - TRIPLE_SHEAR_WEB
+            - QUADRUPLE_SHEAR_WEB
+            type: string
+          - type: 'null'
+          description: Blade construction type
+          title: Blade Type
+      required:
+      - name
+      - manufacturer_id
+      - component_type_id
+      title: ComponentModelCreate
+      type: object
+    ComponentModelUpdate:
+      additionalProperties: false
+      description: Schema for updating a ManufacturerComponentModel.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Component model name
+          title: Name
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component type ID
+          title: Component Type Id
+        length:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Length in meters
+          title: Length
+        crawler_range:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Crawler range in meters
+          title: Crawler Range
+        blade_type:
+          anyOf:
+          - enum:
+            - BOX_SPAR
+            - SINGLE_SHEAR_WEB
+            - DOUBLE_SHEAR_WEB
+            - TRIPLE_SHEAR_WEB
+            - QUADRUPLE_SHEAR_WEB
+            type: string
+          - type: 'null'
+          description: Blade construction type
+          title: Blade Type
+      title: ComponentModelUpdate
+      type: object
+    ComponentModelResponse:
+      additionalProperties: false
+      description: Schema for ManufacturerComponentModel response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Component model ID
+          title: Id
+          type: integer
+        name:
+          description: Component model name
+          title: Name
+          type: string
+        manufacturer:
+          $ref: '#/components/schemas/ManufacturerObject'
+          description: Manufacturer information
+        component_type:
+          $ref: '#/components/schemas/ComponentTypeObject'
+          description: Component type information
+        length:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Length in meters
+          title: Length
+        crawler_range:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Crawler range in meters
+          title: Crawler Range
+        blade_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade construction type
+          title: Blade Type
+      required:
+      - updated_at
+      - id
+      - name
+      - manufacturer
+      - component_type
+      title: ComponentModelResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

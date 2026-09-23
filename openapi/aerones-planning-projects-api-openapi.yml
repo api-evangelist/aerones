@@ -1,0 +1,613 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Planning.projects API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: planning.projects
+paths:
+  /api/planning/v1/projects:
+    get:
+      operationId: list_projects
+      summary: List Projects
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: campaign_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlanningProjectResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - planning.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project
+      summary: Create Project
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningProjectResponse'
+      description: Create a new item.
+      tags:
+      - planning.projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningProjectCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/planning/v1/projects/{id}:
+    get:
+      operationId: get_project
+      summary: Get Project
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningProjectResponse'
+      description: Get a single item by ID.
+      tags:
+      - planning.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project
+      summary: Update Project
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningProjectResponse'
+      description: Update an item.
+      tags:
+      - planning.projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningProjectUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project
+      summary: Delete Project
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - planning.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningNestedCurrency:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: PlanningNestedCurrency
+      type: object
+    PlanningProjectUpdate:
+      properties:
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        core_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Project Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        planned_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Planned Cost
+        actual_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Actual Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      title: PlanningProjectUpdate
+      type: object
+    PlanningNestedCoreProject:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: PlanningNestedCoreProject
+      type: object
+    PlanningNestedCampaign:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PlanningNestedCampaign
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PlanningProjectCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        core_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Project Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: PLANNED
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        planned_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Planned Cost
+        actual_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Actual Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - customer_id
+      - name
+      title: PlanningProjectCreate
+      type: object
+    PlanningProjectResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        status:
+          title: Status
+          type: string
+        customer_id:
+          title: Customer Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCustomer'
+          - type: 'null'
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        campaign:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCampaign'
+          - type: 'null'
+        core_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Project Id
+        core_project:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCoreProject'
+          - type: 'null'
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        planned_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Planned Cost
+        actual_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Actual Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCurrency'
+          - type: 'null'
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - status
+      - customer_id
+      - created_at
+      - updated_at
+      title: PlanningProjectResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

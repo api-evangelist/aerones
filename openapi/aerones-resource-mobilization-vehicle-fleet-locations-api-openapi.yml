@@ -1,0 +1,152 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Resource Mobilization.vehicle Fleet…
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: resource-mobilization.vehicle-fleet-locations
+paths:
+  /api/resource-mobilization/v1/vehicle-fleet-locations/vehicle-map:
+    get:
+      operationId: get_vehicle_map_locations
+      summary: Get locations with vehicle counts for map view
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VehicleMapLocation'
+                title: Response
+                type: array
+      tags:
+      - resource-mobilization.vehicle-fleet-locations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/resource-mobilization/v1/vehicle-fleet-locations:
+    get:
+      operationId: list_vehicle_fleet_locations
+      summary: List locations for fleet use
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name
+          title: Search
+        required: false
+        description: Search by name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VehicleFleetLocationResponse'
+                title: Response
+                type: array
+      tags:
+      - resource-mobilization.vehicle-fleet-locations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    VehicleFleetLocationResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: VehicleFleetLocationResponse
+      type: object
+    VehicleMapLocationVehicle:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        license_plate:
+          title: License Plate
+          type: string
+        make:
+          title: Make
+          type: string
+        model:
+          title: Model
+          type: string
+        type:
+          title: Type
+          type: string
+        status:
+          title: Status
+          type: string
+      required:
+      - id
+      - license_plate
+      - make
+      - model
+      - type
+      - status
+      title: VehicleMapLocationVehicle
+      type: object
+    VehicleMapLocation:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          title: Type
+          type: string
+        latitude:
+          title: Latitude
+          type: number
+        longitude:
+          title: Longitude
+          type: number
+        vehicle_count:
+          title: Vehicle Count
+          type: integer
+        vehicles:
+          items:
+            $ref: '#/components/schemas/VehicleMapLocationVehicle'
+          title: Vehicles
+          type: array
+      required:
+      - id
+      - name
+      - type
+      - latitude
+      - longitude
+      - vehicle_count
+      - vehicles
+      title: VehicleMapLocation
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

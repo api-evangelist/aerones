@@ -1,0 +1,507 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.turbine Models.receptor Presets API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.turbine-models.receptor-presets
+paths:
+  /api/core/v1/turbine-models/{turbine_model_id}/receptor-presets:
+    get:
+      operationId: list_turbine_model_receptor_presets
+      summary: List receptor presets for a turbine model
+      parameters:
+      - in: path
+        name: turbine_model_id
+        schema:
+          title: Turbine Model Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceptorPresetListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.turbine-models.receptor-presets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_turbine_model_receptor_preset
+      summary: Create a receptor preset for a turbine model
+      parameters:
+      - in: path
+        name: turbine_model_id
+        schema:
+          title: Turbine Model Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceptorPresetResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.turbine-models.receptor-presets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceptorPresetCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/receptor-presets/{preset_id}:
+    patch:
+      operationId: update_receptor_preset
+      summary: Update a receptor preset (name / description)
+      parameters:
+      - in: path
+        name: preset_id
+        schema:
+          title: Preset Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceptorPresetResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.turbine-models.receptor-presets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceptorPresetUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_receptor_preset
+      summary: Soft-delete a receptor preset (and its receptor children)
+      parameters:
+      - in: path
+        name: preset_id
+        schema:
+          title: Preset Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - core.turbine-models.receptor-presets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/receptor-presets/{preset_id}/receptors:
+    get:
+      operationId: list_preset_receptors
+      summary: List receptors in a preset
+      parameters:
+      - in: path
+        name: preset_id
+        schema:
+          title: Preset Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceptorListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.turbine-models.receptor-presets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: sync_preset_receptors
+      summary: Sync receptors in a preset
+      parameters:
+      - in: path
+        name: preset_id
+        schema:
+          title: Preset Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceptorListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.turbine-models.receptor-presets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceptorSyncBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ReceptorPresetCreate:
+      additionalProperties: false
+      description: POST body for creating a preset under a turbine model.
+      properties:
+        name:
+          description: Preset name (e.g. 'Standard'). Cannot be blank.
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - maxLength: 2000
+            type: string
+          - type: 'null'
+          title: Description
+      required:
+      - name
+      title: ReceptorPresetCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ReceptorPresetListResponse:
+      additionalProperties: false
+      description: GET ``/turbine-models/{id}/receptor-presets`` — all presets.
+      properties:
+        presets:
+          items:
+            $ref: '#/components/schemas/ReceptorPresetObject'
+          title: Presets
+          type: array
+      title: ReceptorPresetListResponse
+      type: object
+    ReceptorPresetObject:
+      additionalProperties: false
+      description: One named receptor preset belonging to a turbine model.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        manufacturer_turbine_model_id:
+          title: Manufacturer Turbine Model Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        receptor_count:
+          default: 0
+          description: How many receptor entries this preset currently contains.
+          title: Receptor Count
+          type: integer
+      required:
+      - updated_at
+      - id
+      - manufacturer_turbine_model_id
+      - name
+      title: ReceptorPresetObject
+      type: object
+    ReceptorListResponse:
+      additionalProperties: false
+      description: 'GET response: ordered receptor list for one blade.'
+      properties:
+        receptors:
+          items:
+            $ref: '#/components/schemas/ReceptorObject'
+          title: Receptors
+          type: array
+      title: ReceptorListResponse
+      type: object
+    ReceptorPresetUpdate:
+      additionalProperties: false
+      description: PATCH body for renaming / re-describing a preset.
+      properties:
+        name:
+          anyOf:
+          - maxLength: 255
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - maxLength: 2000
+            type: string
+          - type: 'null'
+          title: Description
+      title: ReceptorPresetUpdate
+      type: object
+    ReceptorSyncBody:
+      additionalProperties: false
+      description: PUT body for ``/blades/{id}/receptors`` — replaces the full list.
+      properties:
+        receptors:
+          description: Full desired receptor list for this blade. Rows missing from the list are soft-deleted; matching rows update; new rows (no id) are created with parent_turbine_component_id set to this blade.
+          items:
+            $ref: '#/components/schemas/ReceptorItem'
+          title: Receptors
+          type: array
+      title: ReceptorSyncBody
+      type: object
+    ReceptorObject:
+      additionalProperties: false
+      description: Single receptor row in a GET response (includes ``updated_at``).
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Receptor TurbineComponent id
+          title: Id
+          type: integer
+        name:
+          description: Receptor label (serial_number)
+          title: Name
+          type: string
+        radius_from_hub_m:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Distance from hub in meters
+          title: Radius From Hub M
+        is_blade_tip:
+          description: True for the tip-of-blade receptor
+          title: Is Blade Tip
+          type: boolean
+        component_type_id:
+          description: ComponentType id — Receptor or HV Receptor
+          title: Component Type Id
+          type: integer
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors (turbine model has double_receptors / hv_double_receptors set); NULL for non-paired. Echo back on PUT to round-trip paired rows.
+          title: Pair Index
+      required:
+      - updated_at
+      - id
+      - name
+      - is_blade_tip
+      - component_type_id
+      title: ReceptorObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ReceptorPresetResponse:
+      additionalProperties: false
+      description: GET / POST / PATCH single-preset response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        manufacturer_turbine_model_id:
+          title: Manufacturer Turbine Model Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        receptor_count:
+          default: 0
+          description: How many receptor entries this preset currently contains.
+          title: Receptor Count
+          type: integer
+      required:
+      - updated_at
+      - id
+      - manufacturer_turbine_model_id
+      - name
+      title: ReceptorPresetResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ReceptorItem:
+      additionalProperties: false
+      description: 'One receptor row in a sync (PUT) body for a single blade.
+
+
+        A receptor is a ``TurbineComponent`` with ``component_type`` Receptor or
+
+        HV Receptor and ``parent_turbine_component`` set to the owning blade.
+
+        The sync endpoint operates on the receptor children of one blade at a
+
+        time.
+
+
+        Upsert by ``id``: rows with ``id`` set update the matching record; rows
+
+        without ``id`` create a new one. Existing rows whose ``id`` is omitted
+
+        from the list are soft-deleted (full-list sync semantics).'
+      properties:
+        id:
+          anyOf:
+          - exclusiveMinimum: 0
+            type: integer
+          - type: 'null'
+          description: Existing receptor TurbineComponent id when updating; omit for create
+          title: Id
+        name:
+          description: Receptor label (stored in TurbineComponent.serial_number)
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        radius_from_hub_m:
+          anyOf:
+          - maximum: 200.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Distance from hub in meters (TurbineComponent.radius)
+          title: Radius From Hub M
+        is_blade_tip:
+          default: false
+          description: True for the single tip-of-blade receptor (TurbineComponent.blade_tip)
+          title: Is Blade Tip
+          type: boolean
+        component_type_id:
+          anyOf:
+          - exclusiveMinimum: 0
+            type: integer
+          - type: 'null'
+          description: Optional ComponentType id. Must point at a Receptor or HV Receptor row. Defaults to Receptor on create when omitted.
+          title: Component Type Id
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors (turbine model has double_receptors / hv_double_receptors set); NULL for non-paired. The frontend echoes back what GET returned so paired rows round-trip through a full-list PUT; on update by id the value is preserved when omitted.
+          title: Pair Index
+      required:
+      - name
+      title: ReceptorItem
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

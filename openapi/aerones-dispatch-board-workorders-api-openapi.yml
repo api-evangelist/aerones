@@ -1,0 +1,1182 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Dispatch.board Workorders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: dispatch.board-workorders
+paths:
+  /api/dispatch/v1/projects/{project_id}/dispatch/assign:
+    post:
+      operationId: assign_workorder_v1
+      summary: Assign workorder to resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Assign a workorder to a resource set and set planned datetimes.
+
+
+        Finds the ProjectResourceSet that contains the given resource_ids,
+
+        ensures a WorkorderResourceSet links the workorder to it, and sets
+
+        Workorder.planned_start_datetime / planned_end_datetime.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/assign-bulk:
+    post:
+      operationId: assign_workorders_bulk_v1
+      summary: Bulk assign workorders to resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Assign multiple workorders to resources and set planned datetimes.
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkAssignWorkordersPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/unassign:
+    post:
+      operationId: unassign_workorder_v1
+      summary: Unassign workorder from resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Remove all resource assignments and clear planned datetimes for a workorder.
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnassignWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/workorders/{workorder_id}:
+    delete:
+      operationId: delete_admin_workorder_v1
+      summary: Soft-delete an administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Soft-delete a dispatcher-created ADMIN workorder (and its dispatch links).
+
+
+        Only administrative work (ADMIN/OFFICE) may be deleted from the board — field
+
+        service work is driven by the service order and must not be removed here.'
+      tags:
+      - dispatch.board-workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/admin-workorder/{workorder_id}:
+    patch:
+      operationId: update_admin_workorder_v1
+      summary: Edit an existing administrative workorder's name/duration
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminWorkorderResponse'
+      description: 'DISP-2892: the drawer''s edit-mode pencil icon for an ADMIN workorder.
+
+
+        Name and duration only -- assignee is fixed after creation (no endpoint
+
+        for it exists), and activities are edited individually via
+
+        ``update_workorder_activity`` below.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAdminWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/workorders/{workorder_id}/turbine:
+    post:
+      operationId: set_workorder_turbine_v1
+      summary: Set the turbine for a scope-dispatched workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Bind a turbine to a scope-dispatched (DISP-2259) workorder + its SOL,
+
+        once the crew knows which asset they''re actually working on. No-op if
+
+        already set to the same turbine; rejects overwriting a different one.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetWorkorderTurbinePayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/admin-workorder:
+    post:
+      operationId: create_admin_workorder_v1
+      summary: Create an ADMIN workorder assigned to a single technician
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAdminWorkorderResponse'
+      description: 'Create a standalone ADMIN workorder pinned to one individual technician.
+
+
+        The workorder is scoped to ``project_id`` and inherits the project''s
+
+        ``requesting_customer`` (so it is visible under the customer-scoped RLS
+
+        policy and returned by ``board-data``). It is created with
+
+        ``type=ADMIN`` / ``status=NOT_STARTED`` via the canonical
+
+        ``WorkorderManager.gql_create`` path, then linked to the project resource
+
+        set the technician belongs to and pinned to that individual — reusing the
+
+        same assignment machinery as ``/assign`` so the board routes it into the
+
+        member''s person lane.
+
+
+        The manager creates, links, and pins the workorder inside one
+
+        transaction: if the resource-set or assignee step fails, the workorder
+
+        must not be left committed without its dispatch links (mirrors the
+
+        atomic pattern in ``_assign_workorders_bulk_sync``).'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdminWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/workorders/{workorder_id}/activities:
+    post:
+      operationId: add_workorder_activity_v1
+      summary: Add an activity to an existing administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddWorkorderActivityResponse'
+      description: 'Add one WorkorderActivity to an already-created ADMIN workorder
+
+        (DISP-2379) -- lets a dispatcher extend scope after creation, the same
+
+        way activities picked at create time work.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminActivityInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/workorders/{workorder_id}/activities/{activity_id}:
+    patch:
+      operationId: update_workorder_activity_v1
+      summary: Edit an activity on an existing administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateWorkorderActivityResponse'
+      description: 'DISP-2892: the drawer''s edit-mode counterpart to
+
+        ``add_workorder_activity`` -- same remaining-budget rule, but excluding
+
+        this activity''s own current duration from the "other activities" total.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkorderActivityPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_workorder_activity_v1
+      summary: Remove an activity from an existing administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Soft-delete one WorkorderActivity from an ADMIN workorder (FEAT-2554
+
+        follow-up) -- the undo of ``add_workorder_activity`` above.
+
+
+        Refuses to remove the workorder''s last remaining activity: that would
+
+        recreate the exact "inert on mobile" state DISP-2379 exists to prevent.'
+      tags:
+      - dispatch.board-workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/assign:
+    post:
+      operationId: dispatch_api_board_workorders_assign_workorder
+      summary: Assign workorder to resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Assign a workorder to a resource set and set planned datetimes.
+
+
+        Finds the ProjectResourceSet that contains the given resource_ids,
+
+        ensures a WorkorderResourceSet links the workorder to it, and sets
+
+        Workorder.planned_start_datetime / planned_end_datetime.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/assign-bulk:
+    post:
+      operationId: dispatch_api_board_workorders_assign_workorders_bulk
+      summary: Bulk assign workorders to resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Assign multiple workorders to resources and set planned datetimes.
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkAssignWorkordersPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/unassign:
+    post:
+      operationId: dispatch_api_board_workorders_unassign_workorder
+      summary: Unassign workorder from resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Remove all resource assignments and clear planned datetimes for a workorder.
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnassignWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/workorders/{workorder_id}:
+    delete:
+      operationId: dispatch_api_board_workorders_delete_admin_workorder
+      summary: Soft-delete an administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Soft-delete a dispatcher-created ADMIN workorder (and its dispatch links).
+
+
+        Only administrative work (ADMIN/OFFICE) may be deleted from the board — field
+
+        service work is driven by the service order and must not be removed here.'
+      tags:
+      - dispatch.board-workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/admin-workorder/{workorder_id}:
+    patch:
+      operationId: dispatch_api_board_workorders_update_admin_workorder
+      summary: Edit an existing administrative workorder's name/duration
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAdminWorkorderResponse'
+      description: 'DISP-2892: the drawer''s edit-mode pencil icon for an ADMIN workorder.
+
+
+        Name and duration only -- assignee is fixed after creation (no endpoint
+
+        for it exists), and activities are edited individually via
+
+        ``update_workorder_activity`` below.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAdminWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/workorders/{workorder_id}/turbine:
+    post:
+      operationId: dispatch_api_board_workorders_set_workorder_turbine
+      summary: Set the turbine for a scope-dispatched workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Bind a turbine to a scope-dispatched (DISP-2259) workorder + its SOL,
+
+        once the crew knows which asset they''re actually working on. No-op if
+
+        already set to the same turbine; rejects overwriting a different one.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetWorkorderTurbinePayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/admin-workorder:
+    post:
+      operationId: dispatch_api_board_workorders_create_admin_workorder
+      summary: Create an ADMIN workorder assigned to a single technician
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAdminWorkorderResponse'
+      description: 'Create a standalone ADMIN workorder pinned to one individual technician.
+
+
+        The workorder is scoped to ``project_id`` and inherits the project''s
+
+        ``requesting_customer`` (so it is visible under the customer-scoped RLS
+
+        policy and returned by ``board-data``). It is created with
+
+        ``type=ADMIN`` / ``status=NOT_STARTED`` via the canonical
+
+        ``WorkorderManager.gql_create`` path, then linked to the project resource
+
+        set the technician belongs to and pinned to that individual — reusing the
+
+        same assignment machinery as ``/assign`` so the board routes it into the
+
+        member''s person lane.
+
+
+        The manager creates, links, and pins the workorder inside one
+
+        transaction: if the resource-set or assignee step fails, the workorder
+
+        must not be left committed without its dispatch links (mirrors the
+
+        atomic pattern in ``_assign_workorders_bulk_sync``).'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdminWorkorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/workorders/{workorder_id}/activities:
+    post:
+      operationId: dispatch_api_board_workorders_add_workorder_activity
+      summary: Add an activity to an existing administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddWorkorderActivityResponse'
+      description: 'Add one WorkorderActivity to an already-created ADMIN workorder
+
+        (DISP-2379) -- lets a dispatcher extend scope after creation, the same
+
+        way activities picked at create time work.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminActivityInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/workorders/{workorder_id}/activities/{activity_id}:
+    patch:
+      operationId: dispatch_api_board_workorders_update_workorder_activity
+      summary: Edit an activity on an existing administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateWorkorderActivityResponse'
+      description: 'DISP-2892: the drawer''s edit-mode counterpart to
+
+        ``add_workorder_activity`` -- same remaining-budget rule, but excluding
+
+        this activity''s own current duration from the "other activities" total.'
+      tags:
+      - dispatch.board-workorders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkorderActivityPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_board_workorders_delete_workorder_activity
+      summary: Remove an activity from an existing administrative workorder
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Soft-delete one WorkorderActivity from an ADMIN workorder (FEAT-2554
+
+        follow-up) -- the undo of ``add_workorder_activity`` above.
+
+
+        Refuses to remove the workorder''s last remaining activity: that would
+
+        recreate the exact "inert on mobile" state DISP-2379 exists to prevent.'
+      tags:
+      - dispatch.board-workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    UpdateAdminWorkorderPayload:
+      additionalProperties: false
+      description: 'Payload for editing an existing ADMIN workorder''s name/duration
+
+        (DISP-2892).
+
+
+        ``duration_minutes`` only moves ``planned_end_datetime`` --
+
+        ``planned_start_datetime`` (and therefore the board''s lane placement)
+
+        never changes from an edit; that''s what "Move to next day" (DISP-3391)
+
+        is for. Assignee/activities are edited through their own endpoints.'
+      properties:
+        name:
+          title: Name
+          type: string
+        duration_minutes:
+          minimum: 5
+          title: Duration Minutes
+          type: integer
+      required:
+      - name
+      - duration_minutes
+      title: UpdateAdminWorkorderPayload
+      type: object
+    CreateAdminWorkorderPayload:
+      additionalProperties: false
+      description: 'Payload for creating an ADMIN workorder pinned to a single technician.
+
+
+        An admin workorder is standalone work (no service order line) scoped to the
+
+        currently-open project: it inherits the project''s ``requesting_customer`` so
+
+        the row is visible under the customer-scoped RLS policy and returned by the
+
+        project ``board-data`` query. ``assignee_resource_id`` pins the WO to one
+
+        individual so the board routes it into that member''s person lane; the
+
+        resource must belong to an active project resource set of this project.
+
+
+        ``activities`` requires at least one entry -- AeroTask''s start/finish/
+
+        update flow acts on WorkorderActivity rows, not bare workorders, so an
+
+        ADMIN WO with none is inert on mobile (DISP-2379). FEAT-2554 dropped the
+
+        free-text whole-WO ``description`` in favour of the Activities section
+
+        (which now always carries real, timed activities) and caps their combined
+
+        duration at the workorder''s own -- both enforced below.
+
+
+        ``auto_carry_over`` is opt-in (DISP-3391): while the workorder is
+
+        incomplete, the hourly carry-over task keeps shifting its planned window
+
+        onto the site''s current day.'
+      properties:
+        name:
+          title: Name
+          type: string
+        assignee_resource_id:
+          title: Assignee Resource Id
+          type: integer
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        activities:
+          items:
+            $ref: '#/components/schemas/AdminActivityInput'
+          title: Activities
+          type: array
+        auto_carry_over:
+          default: false
+          title: Auto Carry Over
+          type: boolean
+      required:
+      - name
+      - assignee_resource_id
+      - planned_start_datetime
+      - planned_end_datetime
+      - activities
+      title: CreateAdminWorkorderPayload
+      type: object
+    UpdateAdminWorkorderResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+      required:
+      - id
+      - name
+      - planned_start_datetime
+      - planned_end_datetime
+      title: UpdateAdminWorkorderResponse
+      type: object
+    AssignWorkorderPayload:
+      additionalProperties: false
+      description: 'Payload for assigning a workorder to resources on a datetime.
+
+
+        ``assignee_resource_id`` optionally pins the workorder to a single
+
+        individual within the set (ADMIN WOs only); recorded as a
+
+        ``WorkorderResource`` row and must be one of ``resource_ids``.'
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+        resource_ids:
+          items:
+            type: integer
+          title: Resource Ids
+          type: array
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End Datetime
+        assignee_resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee Resource Id
+      required:
+      - workorder_id
+      - resource_ids
+      - planned_start_datetime
+      title: AssignWorkorderPayload
+      type: object
+    UpdateWorkorderActivityPayload:
+      additionalProperties: false
+      description: 'Payload for editing one activity on an existing ADMIN workorder
+
+        (DISP-2892) -- name, duration, and the image-required toggle.'
+      properties:
+        description:
+          title: Description
+          type: string
+        estimated_duration_minutes:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          title: Estimated Duration Minutes
+        image_required:
+          default: false
+          title: Image Required
+          type: boolean
+      required:
+      - description
+      title: UpdateWorkorderActivityPayload
+      type: object
+    AdminActivityInput:
+      additionalProperties: false
+      description: 'One activity, shared by "create a new ADMIN workorder" (DISP-2379)
+
+        and "add an activity to an already-created one" (``add_workorder_activity``
+
+        below).
+
+
+        ``estimated_duration_minutes`` stays optional here -- adding to an existing
+
+        WO has never required one -- but if given it must be a real, positive
+
+        number, never the old silent-zero default. Workorder *creation* additionally
+
+        requires every activity to carry one; see
+
+        ``CreateAdminWorkorderPayload.validate_payload``.
+
+
+        ``image_required`` (FEAT-2554) mirrors the ``custom_fields`` shape the
+
+        "Replace Cleaning Cloth" field activity already uses to require a photo
+
+        before AeroTask lets the activity complete (see migration
+
+        0047_add_replace_cleaning_cloth_activities) -- reused verbatim here rather
+
+        than inventing a second mechanism for the same thing.'
+      properties:
+        description:
+          title: Description
+          type: string
+        estimated_duration_minutes:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          title: Estimated Duration Minutes
+        image_required:
+          default: false
+          title: Image Required
+          type: boolean
+      required:
+      - description
+      title: AdminActivityInput
+      type: object
+    UnassignWorkorderPayload:
+      additionalProperties: false
+      description: Payload for unassigning a workorder.
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+      required:
+      - workorder_id
+      title: UnassignWorkorderPayload
+      type: object
+    BulkAssignWorkordersPayload:
+      additionalProperties: false
+      description: Payload for bulk-assigning workorders to resources.
+      properties:
+        assignments:
+          items:
+            $ref: '#/components/schemas/AssignWorkorderPayload'
+          title: Assignments
+          type: array
+      required:
+      - assignments
+      title: BulkAssignWorkordersPayload
+      type: object
+    AddWorkorderActivityResponse:
+      additionalProperties: false
+      description: Result of adding an activity to an existing ADMIN workorder.
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - description
+      title: AddWorkorderActivityResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    UpdateWorkorderActivityResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        estimated_duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration Minutes
+        image_required:
+          title: Image Required
+          type: boolean
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - description
+      - estimated_duration_minutes
+      - image_required
+      title: UpdateWorkorderActivityResponse
+      type: object
+    SetWorkorderTurbinePayload:
+      additionalProperties: false
+      description: Payload for binding a turbine to a scope-dispatched workorder.
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+      required:
+      - turbine_id
+      title: SetWorkorderTurbinePayload
+      type: object
+    CreateAdminWorkorderResponse:
+      additionalProperties: false
+      description: Result of creating an ADMIN workorder.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        assignee_resource_id:
+          title: Assignee Resource Id
+          type: integer
+      required:
+      - id
+      - name
+      - assignee_resource_id
+      title: CreateAdminWorkorderResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

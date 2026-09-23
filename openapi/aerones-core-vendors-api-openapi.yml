@@ -1,0 +1,572 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.vendors API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.vendors
+paths:
+  /api/core/v1/vendors:
+    get:
+      operationId: list_vendors
+      summary: List Vendors
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by display_name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by display_name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country ID
+          title: Country Id
+        required: false
+        description: Filter by country ID
+      - in: query
+        name: currency_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by currency ID
+          title: Currency Id
+        required: false
+        description: Filter by currency ID
+      - in: query
+        name: parent_vendor_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by parent vendor ID
+          title: Parent Vendor Id
+        required: false
+        description: Filter by parent vendor ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/VendorResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.vendors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_vendor
+      summary: Create Vendor
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorResponse'
+      description: Create a new item.
+      tags:
+      - core.vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/vendors/{id}:
+    get:
+      operationId: get_vendor
+      summary: Get Vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.vendors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_vendor
+      summary: Update Vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorResponse'
+      description: Update an item.
+      tags:
+      - core.vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_vendor
+      summary: Delete Vendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.vendors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    VendorResponse:
+      additionalProperties: false
+      description: Schema for Vendor response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Vendor ID
+          title: Id
+          type: integer
+        number:
+          description: Vendor number
+          title: Number
+          type: string
+        display_name:
+          description: Display name
+          title: Display Name
+          type: string
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+          description: Country information
+        parent_vendor:
+          anyOf:
+          - $ref: '#/components/schemas/ParentVendorObject'
+          - type: 'null'
+          description: Parent vendor information
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyObject'
+          - type: 'null'
+          description: Currency information
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite vendor ID
+          title: Netsuite Vendor Id
+      required:
+      - updated_at
+      - id
+      - number
+      - display_name
+      title: VendorResponse
+      type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    ParentVendorObject:
+      additionalProperties: false
+      description: Nested parent vendor object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Parent vendor ID
+          title: Id
+          type: integer
+        display_name:
+          description: Parent vendor display name
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: ParentVendorObject
+      type: object
+    VendorUpdate:
+      additionalProperties: false
+      description: Schema for updating a Vendor.
+      properties:
+        number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Vendor number
+          title: Number
+        display_name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Display name
+          title: Display Name
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        parent_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent vendor ID
+          title: Parent Vendor Id
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite vendor ID
+          title: Netsuite Vendor Id
+      title: VendorUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    VendorCreate:
+      additionalProperties: false
+      description: Schema for creating a Vendor. Number is auto-generated.
+      properties:
+        display_name:
+          description: Display name
+          minLength: 1
+          title: Display Name
+          type: string
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        parent_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent vendor ID
+          title: Parent Vendor Id
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite vendor ID
+          title: Netsuite Vendor Id
+      required:
+      - display_name
+      title: VendorCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

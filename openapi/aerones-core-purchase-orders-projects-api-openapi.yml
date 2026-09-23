@@ -1,0 +1,312 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.purchase Orders.projects API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.purchase-orders.projects
+paths:
+  /api/core/v1/purchase-orders/{id}/projects:
+    get:
+      operationId: core_endpoints_purchase_orders_list_project_links
+      summary: List project links for a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PurchaseOrderProjectResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.purchase-orders.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_purchase_orders_add_project_link
+      summary: Link a project to a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderProjectResponse'
+      tags:
+      - core.purchase-orders.projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderProjectCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/purchase-orders/{id}/projects/{project_id}:
+    patch:
+      operationId: core_endpoints_purchase_orders_update_project_link
+      summary: Update the allocation for a PO-project link
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderProjectResponse'
+      tags:
+      - core.purchase-orders.projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderProjectUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_purchase_orders_remove_project_link
+      summary: Remove a project link from a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - core.purchase-orders.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PurchaseOrderProjectUpdate:
+      additionalProperties: false
+      description: Update the allocation for an existing PO-project link.
+      properties:
+        allocated_amount:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Set to a value to cap this project's PO budget, or null to use the full PO amount.
+          title: Allocated Amount
+      title: PurchaseOrderProjectUpdate
+      type: object
+    PurchaseOrderProjectCreate:
+      additionalProperties: false
+      description: Link a project to a PO.
+      properties:
+        project_id:
+          title: Project Id
+          type: integer
+        allocated_amount:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Optional budget allocation for this project. When set, budget warnings use this value instead of the full PO amount.
+          title: Allocated Amount
+      required:
+      - project_id
+      title: PurchaseOrderProjectCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PurchaseOrderProjectResponse:
+      additionalProperties: false
+      description: PurchaseOrderProject link response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        purchase_order_id:
+          title: Purchase Order Id
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        allocated_amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Allocated Amount
+        charges_total:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Sum of all active charges for this project (usage against this PO).
+          title: Charges Total
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project code for display.
+          title: Project Code
+        project_builder_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: UUID used in project URLs.
+          title: Project Builder Id
+      required:
+      - updated_at
+      - id
+      - purchase_order_id
+      - project_id
+      title: PurchaseOrderProjectResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

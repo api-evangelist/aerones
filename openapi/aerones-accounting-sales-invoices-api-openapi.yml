@@ -1,0 +1,425 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.sales Invoices API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.sales-invoices
+paths:
+  /api/accounting/v2/sales-invoices:
+    get:
+      operationId: list_sales_invoices
+      summary: List Sales Invoices
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search (case-insensitive)
+          title: Search
+        required: false
+        description: Search (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: sales_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by sales order ID
+          title: Sales Order Id
+        required: false
+        description: Filter by sales order ID
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        required: false
+        description: Filter by status
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SalesInvoiceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - accounting.sales-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_sales_invoice
+      summary: Create Sales Invoice
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesInvoiceResponse'
+      description: Create a new item.
+      tags:
+      - accounting.sales-invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesInvoiceCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/accounting/v2/sales-invoices/{id}:
+    get:
+      operationId: get_sales_invoice
+      summary: Get Sales Invoice
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesInvoiceResponse'
+      description: Get a single item by ID.
+      tags:
+      - accounting.sales-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_sales_invoice
+      summary: Update Sales Invoice
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesInvoiceResponse'
+      description: Update an item.
+      tags:
+      - accounting.sales-invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesInvoiceUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_sales_invoice
+      summary: Delete Sales Invoice
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - accounting.sales-invoices
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    SalesInvoiceResponse:
+      additionalProperties: false
+      description: Schema for SalesInvoice response.
+      properties:
+        id:
+          description: Invoice ID
+          title: Id
+          type: integer
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        netsuite_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite invoice ID
+          title: Netsuite Invoice Id
+        invoice_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice date
+          title: Invoice Date
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice status
+          title: Status
+        due_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Due date
+          title: Due Date
+        invoice_final_sent:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the final invoice has been sent
+          title: Invoice Final Sent
+        transaction_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NetSuite transaction number (tranId)
+          title: Transaction Number
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - updated_at
+      title: SalesInvoiceResponse
+      type: object
+    SalesInvoiceUpdate:
+      additionalProperties: false
+      description: Schema for updating a SalesInvoice.
+      properties:
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        netsuite_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite invoice ID
+          title: Netsuite Invoice Id
+        invoice_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice date (YYYY-MM-DD)
+          title: Invoice Date
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice status
+          title: Status
+        due_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Due date (YYYY-MM-DD)
+          title: Due Date
+        invoice_final_sent:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the final invoice has been sent
+          title: Invoice Final Sent
+      title: SalesInvoiceUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    SalesInvoiceCreate:
+      additionalProperties: false
+      description: Schema for creating a SalesInvoice.
+      properties:
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        netsuite_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite invoice ID
+          title: Netsuite Invoice Id
+        invoice_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice date (YYYY-MM-DD)
+          title: Invoice Date
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice status
+          title: Status
+        due_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Due date (YYYY-MM-DD)
+          title: Due Date
+        invoice_final_sent:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the final invoice has been sent
+          title: Invoice Final Sent
+      title: SalesInvoiceCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

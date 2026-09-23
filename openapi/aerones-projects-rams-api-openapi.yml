@@ -1,0 +1,1722 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.rams API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.rams
+paths:
+  /api/projects/{project_id}/rams/documents:
+    get:
+      operationId: projects_api_rams_list_rams_documents
+      summary: List Rams Documents
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RamsDocumentResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all RAMS documents for a project.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_rams_create_rams_document
+      summary: Create Rams Document
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsDocumentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a new RAMS document.
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsDocumentCreateBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/set-options:
+    get:
+      operationId: projects_api_rams_get_rams_set_options
+      summary: Get Rams Set Options
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsSetOptionsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: PPRS options (by robot set) pickable for a new RAMS on this project.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}:
+    get:
+      operationId: projects_api_rams_get_rams_document
+      summary: Get Rams Document
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsDocumentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get a single RAMS document.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_rams_update_rams_document
+      summary: Update Rams Document
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsDocumentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Patch a RAMS document (form_data, status, comments, etc.).
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsDocumentUpdateBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_rams_delete_rams_document
+      summary: Delete Rams Document
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a RAMS document.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/technician-acknowledgements:
+    get:
+      operationId: projects_api_rams_list_rams_technician_acknowledgements
+      summary: List Rams Technician Acknowledgements
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RamsTechAckSummary'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'List the active technician acknowledgement rows for a RAMS document.
+
+
+        Active means ``deleted_at IS NULL`` — soft-deleted rows from a prior
+
+        round (e.g. before HSE bounced the doc back to draft) are excluded.
+
+        The acknowledgement page lives at one shared URL per RAMS; each
+
+        team member authenticates with SSO and the page identifies them
+
+        against the ack rows by ID, not a per-row token.'
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/technician-roster:
+    get:
+      operationId: projects_api_rams_get_rams_technician_roster
+      summary: Get Rams Technician Roster
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsRosterResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Current signing roster annotated with per-person acknowledgement state.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/send-to-new-technicians:
+    post:
+      operationId: projects_api_rams_send_rams_to_new_technicians
+      summary: Send Rams To New Technicians
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsRosterResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Email the roster people who have no acknowledgement row yet.
+
+
+        Adds ack rows for them only; existing signatures and the document status
+
+        are untouched. Allowed once the doc has reached the technician stage.
+
+
+        ``body.technician_emails`` restricts the top-up to the chosen crew members;
+
+        an omitted body tops up everyone who has not been sent the RAMS yet.'
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/RamsSendSelectionBody'
+              - type: 'null'
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/duplicate:
+    post:
+      operationId: projects_api_rams_duplicate_rams_document
+      summary: Duplicate Rams Document
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsDocumentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Duplicate a RAMS document — copies form data, resets status to draft.
+
+
+        The clone keeps the original''s PPRSI/robot link by default (so its derived
+
+        dates keep tracking the deployment) and can target different site(s); pass a
+
+        ``pprs_id`` to rebind it to another set. Each site may hold at most one
+
+        active RAMS for the (set, service). Attachments are copied too: the body
+
+        text referencing them ("see attachment") is copied, so the files have to
+
+        travel with it.'
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsDuplicateBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/rams-attachments/shared/{token}:
+    get:
+      operationId: projects_api_rams_download_shared_rams_attachment
+      summary: Download Shared Rams Attachment
+      parameters:
+      - in: path
+        name: token
+        schema:
+          title: Token
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Download one RAMS attachment from its signed share token.
+
+
+        Deliberately unauthenticated: the reader is a customer clicking a link
+
+        inside a RAMS PDF, so there is no session to check and the signed token is
+
+        the credential. It names a single attachment, cannot be forged without
+
+        ``SECRET_KEY``, and stops resolving once the attachment is deleted.'
+      tags:
+      - projects.rams
+  /api/projects/{project_id}/rams/documents/{doc_id}/attachments:
+    get:
+      operationId: projects_api_rams_list_rams_attachments
+      summary: List Rams Attachments
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RamsAttachmentResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List attachments for a RAMS document.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_rams_upload_rams_attachment
+      summary: Upload Rams Attachment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsAttachmentResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Upload a file attachment to a RAMS document.
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+                uploaded_by:
+                  default: ''
+                  title: Uploaded By
+                  type: string
+              required:
+              - file
+              title: MultiPartBodyParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/attachments/{attachment_id}:
+    delete:
+      operationId: projects_api_rams_delete_rams_attachment
+      summary: Delete Rams Attachment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      - in: path
+        name: attachment_id
+        schema:
+          title: Attachment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a RAMS attachment.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/attachments/{attachment_id}/download:
+    get:
+      operationId: projects_api_rams_download_rams_attachment
+      summary: Download Rams Attachment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      - in: path
+        name: attachment_id
+        schema:
+          title: Attachment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download a RAMS attachment file.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/submit-to-customer:
+    post:
+      operationId: projects_api_rams_submit_rams_to_customer
+      summary: Submit Rams To Customer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsApprovalResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Create a RAMS approval request for manual customer review.
+
+
+        The FE uploads the DOCX it just generated; this endpoint converts it to
+
+        PDF via LibreOffice and stores the PDF for the customer to download.'
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              title: MultiPartBodyParams
+              type: object
+              properties:
+                rams_document_id:
+                  title: Rams Document Id
+                  type: integer
+                service_type:
+                  title: Service Type
+                  type: string
+                version:
+                  title: Version
+                  type: string
+                form_data_snapshot:
+                  title: Form Data Snapshot
+                  type: string
+                submitted_by:
+                  title: Submitted By
+                  type: string
+                docx_file:
+                  format: binary
+                  title: Docx File
+                  type: string
+              required:
+              - rams_document_id
+              - service_type
+              - version
+              - form_data_snapshot
+              - submitted_by
+              - docx_file
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/convert-to-pdf:
+    post:
+      operationId: projects_api_rams_convert_rams_docx_to_pdf
+      summary: Convert Rams Docx To Pdf
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Convert a DOCX upload to PDF and stream the PDF back.
+
+
+        Used by the internal download button: the FE generates a DOCX in the
+
+        browser, posts it here, receives the PDF blob, and triggers a download.'
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                docx_file:
+                  format: binary
+                  title: Docx File
+                  type: string
+              required:
+              - docx_file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/{approval_id}/status:
+    get:
+      operationId: projects_api_rams_get_rams_approval_status
+      summary: Get Rams Approval Status
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: approval_id
+        schema:
+          title: Approval Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsStatusResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Lightweight status check for a RAMS approval request.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/{approval_id}:
+    get:
+      operationId: projects_api_rams_get_rams_for_client
+      summary: Get Rams For Client
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: approval_id
+        schema:
+          title: Approval Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsApprovalResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return full RAMS data for client viewing, attachments included.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/{approval_id}/respond:
+    post:
+      operationId: projects_api_rams_client_respond_to_rams
+      summary: Client Respond To Rams
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: approval_id
+        schema:
+          title: Approval Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsApprovalResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Client approves or rejects the RAMS.
+      tags:
+      - projects.rams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsClientRespondBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/{approval_id}/pdf:
+    get:
+      operationId: projects_api_rams_download_rams_pdf
+      summary: Download Rams Pdf
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: approval_id
+        schema:
+          title: Approval Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download the RAMS PDF file.
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/technician-acknowledgements/sign:
+    post:
+      operationId: projects_api_rams_sign_rams_technician_acknowledgement
+      summary: Sign Rams Technician Acknowledgement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTechAckSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Authenticated team-member acknowledgement of a RAMS.
+
+
+        The authenticated user is matched against the doc''s active ack rows
+
+        by email (with a fallback to the user''s linked Resource). If a row
+
+        matches, ``acknowledged_at`` is stamped on it; if this ack closes
+
+        the cohort the parent RAMS auto-transitions to
+
+        ``signed_by_technicians``. 404 when the user has no row on this doc.'
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/technician-acknowledgements/{ack_id}/mark-signed:
+    post:
+      operationId: projects_api_rams_mark_rams_technician_acknowledgement_signed
+      summary: Mark Rams Technician Acknowledgement Signed
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      - in: path
+        name: ack_id
+        schema:
+          title: Ack Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTechAckSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'PM/HSE marks a single technician''s row as signed on their behalf.
+
+
+        For crew who acknowledged offline (e.g. on paper). Stamps the row and,
+
+        if it closes the cohort, auto-advances the RAMS to
+
+        ``signed_by_technicians`` — same as a self-sign.'
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/rams/documents/{doc_id}/technician-acknowledgements/{ack_id}/dismiss:
+    post:
+      operationId: projects_api_rams_dismiss_rams_technician_acknowledgement
+      summary: Dismiss Rams Technician Acknowledgement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: doc_id
+        schema:
+          title: Doc Id
+          type: integer
+        required: true
+      - in: path
+        name: ack_id
+        schema:
+          title: Ack Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTechAckSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'PM/HSE dismisses a single unsigned acknowledgement row.
+
+
+        The companion rule (OH-4041) for a "former" crew member who was sent the
+
+        RAMS but is no longer on the roster and will never sign — e.g. removed from a
+
+        manual team mid-signing. Their unsigned row would otherwise pin the doc in
+
+        ``tech_review`` forever under the enforced invariant. Soft-deletes the row
+
+        and re-reconciles, so the doc advances to ``signed_by_technicians`` when this
+
+        was the last blocker. 404 when the row isn''t an active unsigned row here.'
+      tags:
+      - projects.rams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    RamsRosterCertificate:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: RamsRosterCertificate
+      type: object
+    RamsDocumentCreateBody:
+      description: Body for creating a new RAMS document.
+      properties:
+        pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprs Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        project_location_ids:
+          items:
+            type: integer
+          title: Project Location Ids
+          type: array
+        region:
+          title: Region
+          type: string
+        location_type:
+          title: Location Type
+          type: string
+        version:
+          default: '1.0'
+          title: Version
+          type: string
+        status:
+          default: draft
+          title: Status
+          type: string
+        form_data:
+          title: Form Data
+          type: object
+        prefill_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Prefill Snapshot
+      required:
+      - region
+      - location_type
+      title: RamsDocumentCreateBody
+      type: object
+    RamsDocumentUpdateBody:
+      description: Body for patching a RAMS document.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Version
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        form_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Form Data
+        prefill_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Prefill Snapshot
+        comments:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Comments
+        version_history:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Version History
+        change_log:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Change Log
+        reviewed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewed By
+        approved_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approved At
+        customer_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Status
+        customer_submitted_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Submitted At
+        customer_response_deadline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Response Deadline
+        client_feedback:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Feedback
+        technician_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Recipient technicians for the customer_approved -> tech_review hand-off; only these get an acknowledgement row and signing email. None sends to the whole resolved roster.
+          title: Technician Emails
+      title: RamsDocumentUpdateBody
+      type: object
+    RamsDocumentResponse:
+      description: Serialised RAMS document.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprs Id
+        pprs_name:
+          default: ''
+          title: Pprs Name
+          type: string
+        pprs_dates_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pprs Dates From
+        pprs_dates_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pprs Dates To
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        service_code:
+          default: ''
+          title: Service Code
+          type: string
+        service_family_code:
+          default: ''
+          title: Service Family Code
+          type: string
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        template_resolved_scope:
+          default: ''
+          title: Template Resolved Scope
+          type: string
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          default: ''
+          title: Robot Set Name
+          type: string
+        region:
+          title: Region
+          type: string
+        location_type:
+          title: Location Type
+          type: string
+        version:
+          title: Version
+          type: string
+        status:
+          title: Status
+          type: string
+        form_data:
+          title: Form Data
+          type: object
+        prefill_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Prefill Snapshot
+        pre_hse_review_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Pre Hse Review Snapshot
+        project_location_ids:
+          items:
+            type: integer
+          title: Project Location Ids
+          type: array
+        comments:
+          items: {}
+          title: Comments
+          type: array
+        version_history:
+          items: {}
+          title: Version History
+          type: array
+        change_log:
+          items: {}
+          title: Change Log
+          type: array
+        created_by:
+          title: Created By
+          type: string
+        reviewed_by:
+          title: Reviewed By
+          type: string
+        approved_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approved At
+        customer_status:
+          title: Customer Status
+          type: string
+        customer_submitted_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Submitted At
+        customer_response_deadline:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Response Deadline
+        customer_approved_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Approved At
+        customer_approved_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Approved By Name
+        approval_request_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Approval Request Id
+        client_feedback:
+          title: Client Feedback
+          type: string
+        created_at:
+          title: Created At
+          type: string
+        updated_at:
+          title: Updated At
+          type: string
+      required:
+      - id
+      - project_id
+      - region
+      - location_type
+      - version
+      - status
+      - form_data
+      - project_location_ids
+      - comments
+      - version_history
+      - change_log
+      - created_by
+      - reviewed_by
+      - customer_status
+      - client_feedback
+      - created_at
+      - updated_at
+      title: RamsDocumentResponse
+      type: object
+    RamsRosterResponse:
+      properties:
+        source:
+          $ref: '#/components/schemas/RosterSource'
+        entries:
+          items:
+            $ref: '#/components/schemas/RamsRosterEntry'
+          title: Entries
+          type: array
+        required_certificates:
+          items:
+            $ref: '#/components/schemas/RamsRosterCertificate'
+          title: Required Certificates
+          type: array
+        pending_count:
+          default: 0
+          title: Pending Count
+          type: integer
+        not_sent_count:
+          default: 0
+          title: Not Sent Count
+          type: integer
+      required:
+      - source
+      title: RamsRosterResponse
+      type: object
+    RamsDuplicateBody:
+      description: Body for duplicating a RAMS document.
+      properties:
+        pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprs Id
+        project_location_ids:
+          items:
+            type: integer
+          title: Project Location Ids
+          type: array
+        form_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Form Data
+        prefill_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Prefill Snapshot
+      title: RamsDuplicateBody
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RamsSetOption:
+      properties:
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        dates_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dates To
+      required:
+      - pprs_id
+      - name
+      title: RamsSetOption
+      type: object
+    RamsClientRespondBody:
+      description: Body for client approval / rejection.
+      properties:
+        status:
+          description: '''approved'' or ''rejected'''
+          title: Status
+          type: string
+        feedback:
+          default: ''
+          title: Feedback
+          type: string
+        client_comments:
+          items: {}
+          title: Client Comments
+          type: array
+      required:
+      - status
+      title: RamsClientRespondBody
+      type: object
+    RamsTechAckSummary:
+      description: Per-technician acknowledgement summary for the internal detail panel.
+      properties:
+        id:
+          title: Id
+          type: integer
+        technician_name:
+          title: Technician Name
+          type: string
+        technician_email:
+          title: Technician Email
+          type: string
+        sent_at:
+          title: Sent At
+          type: string
+        acknowledged_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acknowledged At
+      required:
+      - id
+      - technician_name
+      - technician_email
+      - sent_at
+      title: RamsTechAckSummary
+      type: object
+    RamsSendSelectionBody:
+      description: 'Optional recipient selection for the ``send-to-new-technicians`` top-up.
+
+
+        ``technician_emails`` restricts the top-up to the chosen crew members; an
+
+        omitted body (or ``None``) tops up every roster member with no active
+
+        acknowledgement row, matching the pre-selection behaviour.'
+      properties:
+        technician_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Technician Emails
+      title: RamsSendSelectionBody
+      type: object
+    RamsSetOptionsResponse:
+      properties:
+        sets:
+          items:
+            $ref: '#/components/schemas/RamsSetOption'
+          title: Sets
+          type: array
+      title: RamsSetOptionsResponse
+      type: object
+    RamsRosterEntry:
+      properties:
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        name:
+          title: Name
+          type: string
+        email:
+          title: Email
+          type: string
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+        certificates:
+          items:
+            $ref: '#/components/schemas/RamsRosterCertificate'
+          title: Certificates
+          type: array
+        window_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Window Start
+        window_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Window End
+        ack_state:
+          $ref: '#/components/schemas/AckState'
+        acknowledged_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acknowledged At
+        acknowledgement_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Acknowledgement Id
+        additional:
+          default: false
+          title: Additional
+          type: boolean
+        former:
+          default: false
+          title: Former
+          type: boolean
+      required:
+      - name
+      - email
+      - ack_state
+      title: RamsRosterEntry
+      type: object
+    RosterSource:
+      description: Where the signing roster was derived from.
+      enum:
+      - pprs
+      - manual
+      title: RosterSource
+      type: string
+    RamsAttachmentResponse:
+      description: Serialised RAMS attachment.
+      properties:
+        id:
+          title: Id
+          type: integer
+        file_name:
+          title: File Name
+          type: string
+        file_size:
+          title: File Size
+          type: integer
+        content_type:
+          title: Content Type
+          type: string
+        uploaded_by:
+          title: Uploaded By
+          type: string
+        created_at:
+          title: Created At
+          type: string
+        share_url:
+          default: ''
+          title: Share Url
+          type: string
+      required:
+      - id
+      - file_name
+      - file_size
+      - content_type
+      - uploaded_by
+      - created_at
+      title: RamsAttachmentResponse
+      type: object
+    RamsStatusResponse:
+      description: Lightweight status check response.
+      properties:
+        status:
+          title: Status
+          type: string
+        responded_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Responded At
+        auto_approved:
+          default: false
+          title: Auto Approved
+          type: boolean
+        client_feedback:
+          default: ''
+          title: Client Feedback
+          type: string
+        client_comments:
+          items: {}
+          title: Client Comments
+          type: array
+      required:
+      - status
+      title: RamsStatusResponse
+      type: object
+    AckState:
+      description: Per-person acknowledgement state on the signing roster.
+      enum:
+      - NOT_SENT
+      - SENT
+      - SIGNED
+      title: AckState
+      type: string
+    RamsApprovalResponse:
+      description: Serialised RAMS approval request.
+      properties:
+        id:
+          title: Id
+          type: integer
+        rams_document_id:
+          title: Rams Document Id
+          type: integer
+        service_type:
+          title: Service Type
+          type: string
+        service_family_code:
+          default: ''
+          title: Service Family Code
+          type: string
+        version:
+          title: Version
+          type: string
+        status:
+          title: Status
+          type: string
+        submitted_at:
+          title: Submitted At
+          type: string
+        response_deadline:
+          title: Response Deadline
+          type: string
+        responded_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Responded At
+        client_feedback:
+          default: ''
+          title: Client Feedback
+          type: string
+        client_comments:
+          items: {}
+          title: Client Comments
+          type: array
+        auto_approved:
+          default: false
+          title: Auto Approved
+          type: boolean
+        form_data_snapshot:
+          title: Form Data Snapshot
+          type: object
+        attachments:
+          items: {}
+          title: Attachments
+          type: array
+      required:
+      - id
+      - rams_document_id
+      - service_type
+      - version
+      - status
+      - submitted_at
+      - response_deadline
+      title: RamsApprovalResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,101 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.readiness API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.readiness
+paths:
+  /api/core/v1/projects/{project_id}/readiness:
+    get:
+      operationId: get_project_readiness
+      summary: Get Project Readiness
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectReadinessResponse'
+      description: 'Per-set readiness tallies for a project, plus a project-wide bucket.
+
+
+        ``project_id`` accepts either the project-builder UUID or the numeric core
+
+        id (``ProjectManager.get`` resolves both).'
+      tags:
+      - core.projects.readiness
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectReadinessResponse:
+      additionalProperties: false
+      description: Per-set + project-wide readiness tallies.
+      properties:
+        sets:
+          items:
+            $ref: '#/components/schemas/ProjectReadinessSetTally'
+          title: Sets
+          type: array
+        project_wide:
+          $ref: '#/components/schemas/ProjectReadinessBucket'
+      required:
+      - sets
+      - project_wide
+      title: ProjectReadinessResponse
+      type: object
+    ProjectReadinessSetTally:
+      additionalProperties: false
+      description: Readiness tally for a single planned resource set.
+      properties:
+        planned_resource_set_id:
+          title: Planned Resource Set Id
+          type: integer
+        total:
+          title: Total
+          type: integer
+        completed:
+          title: Completed
+          type: integer
+      required:
+      - planned_resource_set_id
+      - total
+      - completed
+      title: ProjectReadinessSetTally
+      type: object
+    ProjectReadinessBucket:
+      additionalProperties: false
+      description: Readiness tally for tasks not tied to any planned resource set.
+      properties:
+        total:
+          title: Total
+          type: integer
+        completed:
+          title: Completed
+          type: integer
+      required:
+      - total
+      - completed
+      title: ProjectReadinessBucket
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

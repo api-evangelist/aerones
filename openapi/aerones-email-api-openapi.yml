@@ -1,0 +1,382 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Email API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Email
+paths:
+  /api/email:
+    post:
+      operationId: emailtemplater_api_send_email
+      summary: Send Email
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendEmailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Send an email using the asynchronous email service.
+
+
+        Response indicates that email is queued for sending. It does not necessarily
+
+        mean that it has already been sent out to each recipient. However, if email
+
+        could not be queued, for reasons like invalid request or some other errors,
+
+        this would be indicated in the response.
+
+
+        On success also returns `tracking_id`, for `GET .../status`.'
+      tags:
+      - Email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+        required: true
+      security:
+      - AuthBearer: []
+  /api/email-preview:
+    post:
+      operationId: emailtemplater_api_send_email_preview
+      summary: Send Email Preview
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get an email preview that would be sent to user.
+      tags:
+      - Email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailContext'
+        required: true
+      security:
+      - AuthBearer: []
+  /api/email/{tracking_id}/status:
+    get:
+      operationId: emailtemplater_api_get_sent_email_status
+      summary: Get Sent Email Status
+      parameters:
+      - in: path
+        name: tracking_id
+        schema:
+          format: uuid
+          title: Tracking Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentEmailStatusResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Look up the current status of a send by its `tracking_id`.
+      tags:
+      - Email
+      security:
+      - AuthBearer: []
+  /api/email/{tracking_id}/pixel.gif:
+    get:
+      operationId: emailtemplater_api_track_sent_email_opened
+      summary: Track Sent Email Opened
+      parameters:
+      - in: path
+        name: tracking_id
+        schema:
+          title: Tracking Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Return a 1x1 GIF and record the first open. Unauthenticated by design.
+      tags:
+      - Email
+components:
+  schemas:
+    EmailRequest:
+      additionalProperties: false
+      description: Incoming payload for sending a templated email.
+      properties:
+        to:
+          description: List of recipient email addresses
+          examples:
+          - - user@example.com
+            - other@example.com
+          - - user@example.com
+          items:
+            format: email
+            type: string
+          title: To
+          type: array
+        cc:
+          anyOf:
+          - items:
+              format: email
+              type: string
+            type: array
+          - type: 'null'
+          description: List of CC recipient email addresses
+          examples:
+          - - cc1@example.com
+            - cc2@example.com
+          title: Cc
+        bcc:
+          anyOf:
+          - items:
+              format: email
+              type: string
+            type: array
+          - type: 'null'
+          description: List of BCC recipient email addresses (audit / silent copy)
+          examples:
+          - - audit@example.com
+          title: Bcc
+        reply_to:
+          anyOf:
+          - format: email
+            type: string
+          - type: 'null'
+          description: Address replies should be routed to. Useful when the SMTP From is a no-reply mailbox but you want client replies to land on a specific human address.
+          examples:
+          - pm@example.com
+          title: Reply To
+        subject:
+          description: Email subject line
+          title: Subject
+          type: string
+        attachments:
+          anyOf:
+          - items:
+              type: object
+            type: array
+          - type: 'null'
+          description: 'Inline attachments: [{filename, content_base64, content_type}]'
+          examples:
+          - - content_base64: JVBERi…
+              content_type: application/pdf
+              filename: x.pdf
+          title: Attachments
+        context:
+          $ref: '#/components/schemas/EmailContext'
+          description: Template rendering configuration
+      required:
+      - to
+      - subject
+      - context
+      title: EmailRequest
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    EmailTemplateNames:
+      description: Definitions of available email templates.
+      enum:
+      - builder.travelorder.technician
+      - builder.travelorder.teamlead
+      - builder.travelorder.supervisor
+      - builder.travelorder.pm-sales
+      - builder.travelorder.teamlead-reminder
+      - builder.travelorder.supervisor-action-required
+      - builder.travelorder.data-operator
+      - builder.travelorder.questionnaire-complete
+      - builder.travelorder.supervisor-questionnaire-complete
+      - builder.offer.required-approval
+      - builder.offer.watcher-require-approval-notification
+      - builder.offer.watcher-offer-notification
+      - builder.offer.offer-notification
+      - builder.prejob.submission-notification
+      - builder.rams.hse-review
+      - builder.rams.customer-review
+      - builder.rams.technician-signing
+      - builder.rams.rejected
+      - builder.rams.approved
+      - builder.team_request.dc-review
+      - builder.team_request.planner-handoff
+      - builder.team_request.verification-ready
+      - builder.team_request.slot-rejection
+      - builder.team_request.rejected
+      - builder.team_request.note-mention
+      - builder.rotation.approved
+      - builder.project_task.comment-mention
+      - builder.set_request.submitted
+      - builder.set_request.mro-ready
+      - builder.set_request.it-starlink
+      - builder.set_request.ready
+      - builder.set_request.picked-up
+      - builder.set_request.rejected
+      - builder.set_request.set-changed
+      - builder.set_request.ppe-prep
+      - builder.set_demob.detected
+      - builder.set_demob.it-starlink
+      - builder.set_demob.mro-arrival
+      - datatools.payrollweeklyreport.weekly-report
+      - portal.feedback-form
+      - portal.accept-invitation
+      - auth.create-user
+      - auth.reset-password
+      - po-center.po-extension.internal-70
+      - po-center.po-extension.internal-80
+      - po-center.po-extension.internal-90
+      - po-center.po-extension.internal-100-active
+      - po-center.po-extension.internal-100-invoices
+      - po-center.po-extension.client-70
+      - po-center.po-extension.client-80
+      - po-center.po-extension.client-90
+      - po-center.po-extension.client-active
+      - po-center.po-extension.client-invoices
+      - po-center.digest.missing-pos
+      - po-center.digest.no-pm
+      - po-center.draft-charges.heads-up
+      - po-center.draft-charges.client
+      - po-center.overdue-invoice.heads-up
+      - po-center.overdue-invoice.client
+      title: EmailTemplateNames
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    EmailContext:
+      additionalProperties: false
+      description: 'Define the template context for an email.
+
+
+        Email context defines which template and with what variables are to be
+
+        sent.'
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNames'
+          description: Template name without file extension
+        variables:
+          description: Key-value data for template placeholders
+          title: Variables
+          type: object
+      required:
+      - template
+      title: EmailContext
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    SendEmailResponse:
+      additionalProperties: false
+      description: Response for a successful (or dev-mode-skipped) `/email` call.
+      properties:
+        success:
+          description: Whether the email was queued for sending
+          title: Success
+          type: boolean
+        tracking_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Id to poll `/email/{tracking_id}/status` with. Null when success is false.
+          title: Tracking Id
+      required:
+      - success
+      title: SendEmailResponse
+      type: object
+    SentEmailStatusResponse:
+      additionalProperties: false
+      description: Response for `GET /email/{tracking_id}/status`.
+      properties:
+        status:
+          description: One of SENT, OPENED, BOUNCED
+          title: Status
+          type: string
+        sent_at:
+          description: ISO timestamp the email was queued
+          title: Sent At
+          type: string
+        status_changed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO timestamp of the last status transition, if any
+          title: Status Changed At
+      required:
+      - status
+      - sent_at
+      title: SentEmailStatusResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

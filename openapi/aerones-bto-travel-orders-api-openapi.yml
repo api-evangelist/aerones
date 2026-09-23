@@ -1,0 +1,1076 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Bto.travel Orders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: bto.travel-orders
+paths:
+  /api/bto/v1/projects/{project_id}/travel-orders:
+    get:
+      operationId: bto_api_travel_orders_list_travel_orders
+      summary: List a project's travel orders with full per-site detail (no N+1 needed to…
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TravelOrderResponse'
+                title: Response
+                type: array
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: bto_api_travel_orders_create_travel_order
+      summary: Create a travel order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelOrderResponse'
+      tags:
+      - bto.travel-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TravelOrderCreateSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}:
+    get:
+      operationId: bto_api_travel_orders_get_travel_order
+      summary: Get a single travel order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelOrderResponse'
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: bto_api_travel_orders_update_travel_order
+      summary: Partially update a Draft travel order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelOrderResponse'
+      tags:
+      - bto.travel-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TravelOrderUpdateSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: bto_api_travel_orders_delete_travel_order
+      summary: Soft-delete a travel order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/refresh:
+    post:
+      operationId: bto_api_travel_orders_refresh_travel_order
+      summary: Re-pull planned dates and team snapshot from their live sources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelOrderResponse'
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/send:
+    post:
+      operationId: bto_api_travel_orders_send_travel_order
+      summary: Preflight-validate, freeze the team snapshot, and mark the order Sent
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelOrderResponse'
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/resend-all:
+    post:
+      operationId: bto_api_travel_orders_resend_all_travel_order
+      summary: Resend the BTO email to every current crew member (Sent orders only)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TravelOrderResponse'
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/members/{resource_id}/resend:
+    post:
+      operationId: bto_api_travel_orders_resend_to_member
+      summary: Resend the BTO email to one crew member (Sent orders only, magic link unchanged)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendResult'
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/questionnaire-progress:
+    get:
+      operationId: bto_api_answers_get_questionnaire_progress
+      summary: Read-only per-member questionnaire completion progress for the whole roster
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/MemberProgressResponse'
+                title: Response
+                type: array
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/questionnaire/{resource_id}:
+    get:
+      operationId: bto_api_answers_get_questionnaire
+      summary: Get one crew member's questionnaire with their current answers (read-only)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/QuestionAnswerResponse'
+                title: Response
+                type: array
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/bto/v1/projects/{project_id}/travel-orders/{order_id}/questionnaire/{resource_id}/{question_key}:
+    put:
+      operationId: bto_api_answers_submit_answer_on_behalf
+      summary: 'Staff: edit one crew member''s answer on their behalf (attributed to the acting…'
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      - in: path
+        name: question_key
+        schema:
+          title: Question Key
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionAnswerResponse'
+      tags:
+      - bto.travel-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: bto_api_answers_clear_answer_on_behalf
+      summary: 'Staff: reset one crew member''s answer back to unanswered'
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          title: Order Id
+          type: integer
+        required: true
+      - in: path
+        name: resource_id
+        schema:
+          title: Resource Id
+          type: integer
+        required: true
+      - in: path
+        name: question_key
+        schema:
+          title: Question Key
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      tags:
+      - bto.travel-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    MemberProgressResponse:
+      additionalProperties: false
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        role:
+          title: Role
+          type: string
+        answered:
+          title: Answered
+          type: integer
+        total:
+          title: Total
+          type: integer
+        flagged:
+          title: Flagged
+          type: integer
+        categories:
+          default: []
+          items:
+            $ref: '#/components/schemas/CategoryStatusResponse'
+          title: Categories
+          type: array
+      required:
+      - resource_id
+      - name
+      - role
+      - answered
+      - total
+      - flagged
+      title: MemberProgressResponse
+      type: object
+    QuestionAnswerResponse:
+      additionalProperties: false
+      properties:
+        key:
+          title: Key
+          type: string
+        category_name:
+          title: Category Name
+          type: string
+        text:
+          title: Text
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - key
+      - category_name
+      - text
+      title: QuestionAnswerResponse
+      type: object
+    SiteContactResponse:
+      additionalProperties: false
+      description: 'One Pre-Job site contact for the internal set panel''s contacts table.
+
+
+        Same shape as the crew payload''s contact rows. Sourced per project-location
+
+        from the Pre-Job composite (see `TravelOrderManager.site_contacts`).'
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+      title: SiteContactResponse
+      type: object
+    TravelOrderUpdateSchema:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        supervisor_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Supervisor User Ids
+        drive_folder_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Folder Url
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      title: TravelOrderUpdateSchema
+      type: object
+    QuestionnaireRecipientResponse:
+      additionalProperties: false
+      description: 'Per-member email/questionnaire tracking for the roster''s Email column.
+
+
+        Only present for crew members provisioned a questionnaire row, which
+
+        happens at send. `questionnaire_id` is the crew''s stable magic-link UUID so
+
+        staff can open or copy the crew URL; `events` is the append-only timeline
+
+        the popover renders.'
+      properties:
+        questionnaire_id:
+          title: Questionnaire Id
+          type: string
+        resource_id:
+          title: Resource Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        sent_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sent At
+        opened_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Opened At
+        events:
+          default: []
+          items:
+            type: object
+          title: Events
+          type: array
+      required:
+      - questionnaire_id
+      - resource_id
+      title: QuestionnaireRecipientResponse
+      type: object
+    SupervisorResponse:
+      additionalProperties: false
+      description: One assigned supervisor (an OpsHub user) for the supervisors panel chips.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: SupervisorResponse
+      type: object
+    TravelOrderAnswerValue:
+      description: 'Canonical answer values, stored lowercase in the answers JSONB to match
+
+        the design ids (`yes` | `no` | `need_info`).'
+      enum:
+      - 'yes'
+      - 'no'
+      - need_info
+      title: TravelOrderAnswerValue
+      type: string
+    TeamMemberResponse:
+      additionalProperties: false
+      properties:
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        qualifications:
+          default: []
+          items:
+            type: string
+          title: Qualifications
+          type: array
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+        membership_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Membership Status
+        joined_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Joined At
+        removed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Removed At
+      title: TeamMemberResponse
+      type: object
+    ResendResult:
+      additionalProperties: false
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        ok:
+          title: Ok
+          type: boolean
+      required:
+      - resource_id
+      - ok
+      title: ResendResult
+      type: object
+    CategoryStatusResponse:
+      additionalProperties: false
+      properties:
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+      required:
+      - name
+      - status
+      title: CategoryStatusResponse
+      type: object
+    TravelOrderResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        location_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Location Latitude
+        location_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Location Longitude
+        location_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Country
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
+        resource_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Set Name
+        resource_set_robot_names:
+          default: []
+          items:
+            type: string
+          title: Resource Set Robot Names
+          type: array
+        resource_set_from_planned:
+          default: false
+          title: Resource Set From Planned
+          type: boolean
+        resource_set_deleted:
+          default: false
+          title: Resource Set Deleted
+          type: boolean
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        status:
+          title: Status
+          type: string
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        mobilization_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Mobilization Date
+        send_blockers:
+          default: []
+          items:
+            type: string
+          title: Send Blockers
+          type: array
+        team_members:
+          items:
+            $ref: '#/components/schemas/TeamMemberResponse'
+          title: Team Members
+          type: array
+        supervisor_user_ids:
+          items:
+            type: integer
+          title: Supervisor User Ids
+          type: array
+        supervisors:
+          default: []
+          items:
+            $ref: '#/components/schemas/SupervisorResponse'
+          title: Supervisors
+          type: array
+        questionnaires:
+          default: []
+          items:
+            $ref: '#/components/schemas/QuestionnaireRecipientResponse'
+          title: Questionnaires
+          type: array
+        site_contacts:
+          default: []
+          items:
+            $ref: '#/components/schemas/SiteContactResponse'
+          title: Site Contacts
+          type: array
+        drive_folder_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Folder Url
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        is_archived:
+          default: false
+          title: Is Archived
+          type: boolean
+        created_at:
+          title: Created At
+          type: string
+        units_turbines:
+          title: Units Turbines
+          type: integer
+        units_blades:
+          title: Units Blades
+          type: integer
+        units_total:
+          title: Units Total
+          type: integer
+        set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Set Name
+        bto_creator:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bto Creator
+        bto_sender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bto Sender
+        scope_change_contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope Change Contact
+        reinspection:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Reinspection
+        gate_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Gate Latitude
+        gate_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Gate Longitude
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        om_building_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Om Building Address
+        om_building_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Om Building Latitude
+        om_building_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Om Building Longitude
+        allowed_six_days:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Allowed Six Days
+        compensate_idle_sundays:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Compensate Idle Sundays
+        regional_regulations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Regional Regulations
+        operational_limitations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operational Limitations
+        offer_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Offer Status
+        updated_at:
+          title: Updated At
+          type: string
+      required:
+      - id
+      - project_id
+      - service_id
+      - service_code
+      - status
+      - team_members
+      - supervisor_user_ids
+      - created_at
+      - units_turbines
+      - units_blades
+      - units_total
+      - updated_at
+      title: TravelOrderResponse
+      type: object
+    SubmitAnswerSchema:
+      additionalProperties: false
+      properties:
+        value:
+          $ref: '#/components/schemas/TravelOrderAnswerValue'
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - value
+      title: SubmitAnswerSchema
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    TravelOrderCreateSchema:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          title: Project Location Id
+          type: integer
+        resource_set_id:
+          title: Resource Set Id
+          type: integer
+        service_id:
+          title: Service Id
+          type: integer
+        supervisor_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Supervisor User Ids
+        drive_folder_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Folder Url
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+      required:
+      - project_location_id
+      - resource_set_id
+      - service_id
+      title: TravelOrderCreateSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

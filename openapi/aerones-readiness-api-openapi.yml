@@ -1,0 +1,302 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Readiness API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Readiness
+paths:
+  /api/readiness/requests:
+    get:
+      operationId: projects_api_readiness_get_requests_readiness
+      summary: Get Requests Readiness
+      parameters:
+      - in: query
+        name: statuses
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Statuses
+        required: false
+      - in: query
+        name: include_null_status
+        schema:
+          default: false
+          title: Include Null Status
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+      description: 'Return all readiness rows; optionally filter by project status code.
+
+
+        ``statuses``: comma-separated ProjectStatus codes (case-insensitive).
+
+        When omitted, no status filter is applied. ``include_null_status`` keeps
+
+        rows whose project has no status (only meaningful with ``statuses``).'
+      tags:
+      - Readiness
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SetRequestReadinessRow:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_id:
+          title: Display Id
+          type: string
+        status:
+          title: Status
+          type: string
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        needed_by_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Needed By Date
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+        ppe_count:
+          title: Ppe Count
+          type: integer
+        consumables_count:
+          title: Consumables Count
+          type: integer
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        project:
+          $ref: '#/components/schemas/ProjectMeta'
+      required:
+      - id
+      - display_id
+      - status
+      - robot_set_name
+      - needed_by_date
+      - dates_from
+      - dates_to
+      - ppe_count
+      - consumables_count
+      - updated_at
+      - project
+      title: SetRequestReadinessRow
+      type: object
+    TeamRequestReadinessRow:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_id:
+          title: Display Id
+          type: string
+        status:
+          title: Status
+          type: string
+        people_count:
+          title: People Count
+          type: integer
+        slots_count:
+          title: Slots Count
+          type: integer
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        project:
+          $ref: '#/components/schemas/ProjectMeta'
+      required:
+      - id
+      - display_id
+      - status
+      - people_count
+      - slots_count
+      - dates_from
+      - dates_to
+      - robot_set_name
+      - service_id
+      - updated_at
+      - project
+      title: TeamRequestReadinessRow
+      type: object
+    ReadinessResponse:
+      additionalProperties: false
+      properties:
+        generated_at:
+          format: date-time
+          title: Generated At
+          type: string
+        team_requests:
+          items:
+            $ref: '#/components/schemas/TeamRequestReadinessRow'
+          title: Team Requests
+          type: array
+        set_requests:
+          items:
+            $ref: '#/components/schemas/SetRequestReadinessRow'
+          title: Set Requests
+          type: array
+        rams_documents:
+          items:
+            $ref: '#/components/schemas/RamsDocumentReadinessRow'
+          title: Rams Documents
+          type: array
+      required:
+      - generated_at
+      - team_requests
+      - set_requests
+      - rams_documents
+      title: ReadinessResponse
+      type: object
+    ProjectMeta:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Builder Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Name
+        pm_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pm Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - project_builder_id
+      - code
+      - customer_name
+      - pm_name
+      - status
+      title: ProjectMeta
+      type: object
+    RamsDocumentReadinessRow:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        version:
+          title: Version
+          type: string
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        location_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Type
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        project:
+          $ref: '#/components/schemas/ProjectMeta'
+      required:
+      - id
+      - status
+      - version
+      - region
+      - location_type
+      - service_code
+      - robot_set_name
+      - updated_at
+      - project
+      title: RamsDocumentReadinessRow
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

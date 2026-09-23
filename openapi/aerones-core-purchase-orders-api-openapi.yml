@@ -1,0 +1,441 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.purchase Orders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.purchase-orders
+paths:
+  /api/core/v1/purchase-orders:
+    get:
+      operationId: core_endpoints_purchase_orders_list_purchase_orders
+      summary: List purchase orders
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Case-insensitive search across version order numbers
+          title: Search
+        required: false
+        description: Case-insensitive search across version order numbers
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort field (prefix with - for descending)
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: currency_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PurchaseOrderResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.purchase-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_purchase_orders_create_purchase_order
+      summary: Create a purchase order with its initial version
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderResponse'
+      tags:
+      - core.purchase-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/purchase-orders/{id}:
+    get:
+      operationId: core_endpoints_purchase_orders_get_purchase_order
+      summary: Get a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderResponse'
+      tags:
+      - core.purchase-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: core_endpoints_purchase_orders_update_purchase_order
+      summary: Update a purchase order (customer / currency only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseOrderResponse'
+      tags:
+      - core.purchase-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_purchase_orders_delete_purchase_order
+      summary: Soft-delete a purchase order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - core.purchase-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PurchaseOrderResponse:
+      additionalProperties: false
+      description: PurchaseOrder with its current version inlined for list/detail use.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderCustomerRef'
+          - type: 'null'
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyObject'
+          - type: 'null'
+        current_version:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderVersionObject'
+          - type: 'null'
+        project_ids:
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+      required:
+      - updated_at
+      - id
+      title: PurchaseOrderResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PurchaseOrderVersionObject:
+      additionalProperties: false
+      description: Nested purchase order version object (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        version_number:
+          title: Version Number
+          type: integer
+        order_number:
+          title: Order Number
+          type: string
+        issue_date:
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+      required:
+      - id
+      - version_number
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderVersionObject
+      type: object
+    PurchaseOrderCreate:
+      additionalProperties: false
+      description: Create a PurchaseOrder with its initial (v1) version. File is optional.
+      properties:
+        customer_id:
+          description: Customer that issued the PO
+          title: Customer Id
+          type: integer
+        currency_id:
+          description: Currency for all versions of this PO
+          title: Currency Id
+          type: integer
+        order_number:
+          description: Order number shown on the initial document
+          minLength: 1
+          title: Order Number
+          type: string
+        issue_date:
+          description: Issue date shown on the initial document
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          description: Amount on the initial document
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional File id to attach to the initial version
+          title: File Id
+        project_ids:
+          description: Projects this PO covers (optional, can be set later)
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+      required:
+      - customer_id
+      - currency_id
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderCreate
+      type: object
+    PurchaseOrderUpdate:
+      additionalProperties: false
+      description: 'Partial update of the PurchaseOrder-level fields.
+
+
+        Version-scoped fields (order_number, issue_date, amount) are immutable
+
+        here — correct them by adding a new version via the dedicated endpoint.'
+      properties:
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer that issued the PO
+          title: Customer Id
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency for the PO
+          title: Currency Id
+      title: PurchaseOrderUpdate
+      type: object
+    PurchaseOrderCustomerRef:
+      additionalProperties: false
+      description: 'Slim customer reference for PurchaseOrder responses.
+
+
+        Intentionally does not nest the customer''s own currency — a PO carries
+
+        its own currency, independent of the customer''s default.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      - display_name
+      title: PurchaseOrderCustomerRef
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

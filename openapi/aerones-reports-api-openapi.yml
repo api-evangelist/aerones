@@ -1,0 +1,513 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Reports API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Reports
+paths:
+  /api/core/v1/reports/daily:
+    post:
+      operationId: customer_portal_download_daily_report
+      summary: Generate and download a daily report PDF
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: 'Generate and download a daily report for a service order line.
+
+
+        Access is scoped to the authenticated user''s customer projects.
+
+        If date is omitted, the report covers all activity dates for the SOL.
+
+
+        ``require_content=False`` — the deliberate opt-out from the empty-day refusal
+
+        the internal surfaces take. ``date`` may be omitted here, so "empty" means
+
+        "this line has no activity at all", not "nothing happened that day"; the
+
+        caller is a portal in another repository whose 4xx handling we cannot see;
+
+        and there is no dialog here to show a message in. A customer asking for a
+
+        quiet line gets the quiet PDF rather than an error.'
+      tags:
+      - Reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyReportDownloadRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/reports/final:
+    post:
+      operationId: customer_portal_download_final_report
+      summary: Download a final (SOL) report — engine-rendered or uploaded
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: 'Download the final report for a service order line, whatever its type.
+
+
+        The single final-report entry point for the portal — callers do not need to
+
+        know how a given service''s report is produced. Services outside
+
+        ``_UPLOADED_FINAL_REPORT_PREFIXES`` are rendered by the engine on demand; the
+
+        rest have no engine template, so the document ops uploaded is streamed from
+
+        storage the way ``core.endpoints.files`` serves stored files (GCS blob bytes
+
+        with the blob''s own content type, falling back to a public-URL redirect).
+
+        Either way the response is the file bytes with a download
+
+        ``Content-Disposition``, so the client handles one shape. A response is not
+
+        necessarily a PDF: an uploaded LER report may be a DOCX/XLSX/ZIP, and its
+
+        ``Content-Type`` says so.
+
+
+        The customer-facing counterpart of the technician ``final-report/download``
+
+        endpoint (AECP-303): access is scoped to the caller''s customer purely by
+
+        PostgreSQL RLS on ``ServiceOrderLine`` (via ``ServiceOrderHeader.customer_id``)
+
+        — a SOL the caller cannot see is not found, and that gate stays ahead of
+
+        *both* branches. LPS SOLs resolve the project''s ``lps_standard_id`` for the
+
+        engine; a missing template is a clear 4xx, as is an LER SOL whose report has
+
+        not been uploaded yet (404).'
+      tags:
+      - Reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalReportDownloadRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/reports/final/{service_order_line_id}/file:
+    get:
+      operationId: customer_portal_download_final_report_file
+      summary: Download an uploaded final report file (e.g. LER)
+      parameters:
+      - in: path
+        name: service_order_line_id
+        schema:
+          title: Service Order Line Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Download the uploaded final report attached to a service order line.
+
+
+        Deprecated in favour of ``POST /final``, which now serves uploaded finals
+
+        itself, so no client needs to classify the report type. Kept — and marked
+
+        deprecated in the schema rather than described as such in prose — for clients
+
+        pinned to the two-endpoint contract; it delegates to the same resolution
+
+        helpers, so the two cannot drift.
+
+
+        The customer-safe uploaded-file path (TD-1 / AECP-267). Ownership is
+
+        **verified, not assumed**: the SOL is resolved through the RLS-scoped
+
+        queryset first, so a SOL outside the caller''s customer is invisible → 404,
+
+        and only then is its linked file served. This deliberately does **not** proxy
+
+        the generic ``/api/core/v1/files/service_order_line/{id}/`` endpoint, which
+
+        carries no customer RLS and no report permission.'
+      tags:
+      - Reports
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/reports/custom:
+    post:
+      operationId: customer_portal_start_custom_report
+      summary: Request a custom report for a selection of turbines, locations or projects
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalReportStartResponse'
+      description: 'Start rendering one document for the selection; returns a generation id to poll.
+
+
+        The selection is resolved and refused here, before the engine is called: an id
+
+        outside the caller''s customer, an unknown ``report_type``, band value or anomaly
+
+        type, an empty result and an oversized selection are each a 422 naming the cause.
+
+        Requesting needs the Reports feature''s Full level (``CUSTOMER_MANAGE_REPORTS``);
+
+        following the request needs View.'
+      tags:
+      - Reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: customer_portal_list_custom_reports
+      summary: List the customer's latest custom report requests
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          default: 20
+          description: Newest requests to return
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        required: false
+        description: Newest requests to return
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomReportSummary'
+                title: Response
+                type: array
+      description: The caller's newest requests first, each with its family, status and the selection it was made for, so a finished document can be offered without a new render.
+      tags:
+      - Reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/reports/custom/types:
+    get:
+      operationId: customer_portal_custom_report_types
+      summary: List the report types a custom report can be requested for
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomReportType'
+                title: Response
+                type: array
+      description: The registered families with the request fields each reads and its selection cap, so the portal form is driven by the server.
+      tags:
+      - Reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/reports/custom/{generation_id}/status:
+    get:
+      operationId: customer_portal_custom_report_status
+      summary: Poll a custom report request
+      parameters:
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalReportStatusResponse'
+      description: Poll a pending request once; it turns complete only after the PDF is stored in Ops Hub's own file store.
+      tags:
+      - Reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/reports/custom/{generation_id}/download:
+    get:
+      operationId: customer_portal_download_custom_report
+      summary: Download a finished custom report
+      parameters:
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Serve the stored PDF of a completed request under the name it was stored with; the engine is never called.
+      tags:
+      - Reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    CustomReportService:
+      additionalProperties: false
+      description: 'One "Service" choice of a family: the service code and the label the portal shows.'
+      properties:
+        code:
+          title: Code
+          type: string
+        label:
+          title: Label
+          type: string
+      required:
+      - code
+      - label
+      title: CustomReportService
+      type: object
+    FinalReportStatusResponse:
+      additionalProperties: false
+      description: Polling response for an in-flight final-report generation.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - status
+      title: FinalReportStatusResponse
+      type: object
+    FinalReportDownloadRequest:
+      additionalProperties: false
+      description: Request body for generating a final (SOL) report from the client portal.
+      properties:
+        service_order_line_id:
+          description: Service order line ID to generate the final report for
+          title: Service Order Line Id
+          type: integer
+      required:
+      - service_order_line_id
+      title: FinalReportDownloadRequest
+      type: object
+    DailyReportDownloadRequest:
+      additionalProperties: false
+      description: Request body for generating a daily report from the client portal.
+      properties:
+        service_order_line_id:
+          description: Service order line ID to generate the report for
+          title: Service Order Line Id
+          type: integer
+        date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Optional report date (YYYY-MM-DD). If omitted, the report covers all activity dates for the SOL.
+          title: Date
+      required:
+      - service_order_line_id
+      title: DailyReportDownloadRequest
+      type: object
+    FinalReportStartResponse:
+      additionalProperties: false
+      description: Response after kicking off async final-report generation.
+      properties:
+        generation_id:
+          description: Report row ID
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+      required:
+      - generation_id
+      - status
+      title: FinalReportStartResponse
+      type: object
+    CustomReportType:
+      additionalProperties: false
+      description: One report family the portal may request, with the request fields it reads, its services and its cap.
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        filters:
+          description: CustomReportRequest fields the family reads
+          items:
+            type: string
+          title: Filters
+          type: array
+        services:
+          items:
+            $ref: '#/components/schemas/CustomReportService'
+          title: Services
+          type: array
+        max_selection_lines:
+          title: Max Selection Lines
+          type: integer
+      required:
+      - name
+      - label
+      - filters
+      - services
+      - max_selection_lines
+      title: CustomReportType
+      type: object
+    CustomReportRequest:
+      additionalProperties: false
+      description: 'Request body for a custom report: the family and the selection (Ops Hub ids).'
+      properties:
+        report_type:
+          description: Report family, e.g. 'findings'
+          title: Report Type
+          type: string
+        turbine_ids:
+          items:
+            type: integer
+          title: Turbine Ids
+          type: array
+        location_ids:
+          items:
+            type: integer
+          title: Location Ids
+          type: array
+        project_ids:
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+        date_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Earliest inspection completion date (inclusive)
+          title: Date From
+        date_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Latest inspection completion date (inclusive)
+          title: Date To
+        severity_levels:
+          description: Severity band, LEVEL_0 .. LEVEL_5
+          items:
+            type: string
+          title: Severity Levels
+          type: array
+        anomaly_type_ids:
+          items:
+            type: integer
+          title: Anomaly Type Ids
+          type: array
+        services:
+          description: Service codes of the family, e.g. IIN / VIN; empty means all
+          items:
+            type: string
+          title: Services
+          type: array
+      required:
+      - report_type
+      title: CustomReportRequest
+      type: object
+    CustomReportSummary:
+      additionalProperties: false
+      description: One custom report request as the portal lists it.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        report_type:
+          title: Report Type
+          type: string
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+        selection:
+          title: Selection
+          type: object
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - report_type
+      - status
+      - selection
+      title: CustomReportSummary
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,299 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.commercial Offers API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.commercial-offers
+paths:
+  /api/core/v1/commercial-offers:
+    get:
+      operationId: list_core_commercial_offers
+      summary: List Commercial Offers Pending Approval
+      parameters:
+      - in: query
+        name: page
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+      - in: query
+        name: include_approved
+        schema:
+          default: false
+          title: Include Approved
+          type: boolean
+        required: false
+      - in: query
+        name: required_approver_role
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Required Approver Role
+        required: false
+      - in: query
+        name: ordering
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: -offer_id
+          title: Ordering
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CommercialOfferInboxRow'
+                title: Response
+                type: array
+      description: 'Return the paginated approvals inbox: latest non-draft offer per project.
+
+
+        Projects whose latest offer version is a Draft are not listed. Approved
+
+        rows are excluded unless ``include_approved`` is set. The ``discount``
+
+        field is deprecated (stored value with undefined business meaning; never
+
+        applied to totals) and kept only for parity with the legacy inbox.'
+      tags:
+      - core.commercial-offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/commercial-offers/approve:
+    post:
+      operationId: approve_core_commercial_offers
+      summary: Bulk Approve Commercial Offers
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommercialOfferInboxBulkApproveResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Approve offers in bulk when the requester has the required authority.
+
+
+        Per-offer authority is enforced (CCO approves anything; regional sales
+
+        managers only offers routed to their role). Approved and Draft offers are
+
+        skipped; Rejected offers CAN be approved (intended behaviour). Approval
+
+        cascades the core project status to "Planning" and notifies requestors
+
+        and watchers. No legacy ``projects.Project`` mirror is written.
+
+
+        Locked projects (Completed/Cancelled) are guarded like every other Core
+
+        workflow mutation: a batch touching a locked project''s offer is rejected
+
+        before any transition — approving it would cascade the project back to
+
+        "Planning".'
+      tags:
+      - core.commercial-offers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommercialOfferInboxBulkApproveRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CommercialOfferInboxBulkApproveRequest:
+      additionalProperties: false
+      description: Request payload for bulk commercial offer approval.
+      properties:
+        ids:
+          description: Project offer IDs to approve
+          items:
+            type: integer
+          title: Ids
+          type: array
+      required:
+      - ids
+      title: CommercialOfferInboxBulkApproveRequest
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CommercialOfferInboxRow:
+      additionalProperties: false
+      description: 'Cross-project approvals-inbox row: the latest non-draft offer per project.'
+      properties:
+        offer_id:
+          description: Project offer ID (bulk-approve payload)
+          title: Offer Id
+          type: integer
+        core_project_id:
+          description: Core project ID
+          title: Core Project Id
+          type: integer
+        project_builder_id:
+          description: Legacy project UUID (row links)
+          format: uuid
+          title: Project Builder Id
+          type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Last update timestamp
+          title: Updated At
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Offer version number
+          title: Version
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency code
+          title: Currency
+        total_amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Total amount (sum of item amounts)
+          title: Total Amount
+        discount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          deprecated: true
+          description: Deprecated — stored offer-level value with undefined business meaning; never applied to totals
+          title: Discount
+        status:
+          description: Offer status
+          title: Status
+          type: string
+        requestor_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email of the user who sent this version for approval
+          title: Requestor Email
+        reviewer_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email of the user who reviewed this version
+          title: Reviewer Email
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales comment
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project code
+          title: Project Code
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Customer/company name
+          title: Company Name
+      required:
+      - offer_id
+      - core_project_id
+      - project_builder_id
+      - status
+      title: CommercialOfferInboxRow
+      type: object
+    CommercialOfferInboxBulkApproveResponse:
+      additionalProperties: false
+      description: Response describing which offers were approved or skipped.
+      properties:
+        approved:
+          items:
+            type: integer
+          title: Approved
+          type: array
+        skipped:
+          items:
+            type: integer
+          title: Skipped
+          type: array
+      required:
+      - approved
+      - skipped
+      title: CommercialOfferInboxBulkApproveResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

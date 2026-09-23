@@ -1,0 +1,120 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.blade Diagrams API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.blade-diagrams
+paths:
+  /api/core/v1/blade-diagrams:
+    post:
+      operationId: generate_blade_diagram
+      summary: Generate blade anomaly diagram as PNG
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Generate a horizontal blade anomaly diagram from explicitly provided anomaly data and blade length. Returns a PNG image (580x119).
+      tags:
+      - core.blade-diagrams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BladeDiagramRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/blade-diagrams/service-order-lines/{sol_id}:
+    get:
+      operationId: generate_blade_diagram_by_sol
+      summary: Generate blade diagram from service order line
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          description: Service order line ID
+          title: Sol Id
+          type: integer
+        required: true
+        description: Service order line ID
+      - in: query
+        name: turbine_component_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter anomalies by turbine component ID
+          title: Turbine Component Id
+        required: false
+        description: Filter anomalies by turbine component ID
+      responses:
+        '200':
+          description: OK
+      description: Generate a blade anomaly diagram by pulling anomalies and blade length from a service order line. Returns a PNG image (580x119).
+      tags:
+      - core.blade-diagrams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    BladeDiagramAnomaly:
+      additionalProperties: false
+      description: Single anomaly data point for blade diagram rendering.
+      properties:
+        distance_to_root:
+          description: Distance to root in meters
+          title: Distance To Root
+          type: number
+        severity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Severity level (LEVEL_1..LEVEL_5, NO_LEVEL, LEVEL_0)
+          title: Severity
+        internal_external:
+          default: EXTERNAL
+          description: INTERNAL or EXTERNAL — determines circle fill and stacking direction
+          enum:
+          - INTERNAL
+          - EXTERNAL
+          title: Internal External
+          type: string
+      required:
+      - distance_to_root
+      title: BladeDiagramAnomaly
+      type: object
+    BladeDiagramRequest:
+      additionalProperties: false
+      description: Request body for blade diagram image generation.
+      properties:
+        blade_length:
+          description: Maximum blade length in meters
+          exclusiveMinimum: 0.0
+          title: Blade Length
+          type: number
+        anomalies:
+          description: Anomalies to plot on the diagram
+          items:
+            $ref: '#/components/schemas/BladeDiagramAnomaly'
+          title: Anomalies
+          type: array
+      required:
+      - blade_length
+      - anomalies
+      title: BladeDiagramRequest
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,249 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Dispatch.workorder Activity Metadata API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: dispatch.workorder-activity-metadata
+paths:
+  /api/dispatch/v1/workorder-activity-metadata:
+    get:
+      operationId: dispatch_api_workorder_activity_metadata_list_workorder_activity_metadata
+      summary: List Workorder Activity Metadata
+      parameters:
+      - in: query
+        name: workorder_activity_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Activity Id
+        required: false
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkorderActivityMetadata'
+                title: Response
+                type: array
+      description: List workorder activity metadata entries.
+      tags:
+      - dispatch.workorder-activity-metadata
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: dispatch_api_workorder_activity_metadata_create_workorder_activity_metadata
+      summary: Create Workorder Activity Metadata
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkorderActivityMetadata'
+      description: Create a workorder activity metadata entry.
+      tags:
+      - dispatch.workorder-activity-metadata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkorderActivityMetadataInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/workorder-activity-metadata/{metadata_id}:
+    get:
+      operationId: dispatch_api_workorder_activity_metadata_get_workorder_activity_metadata
+      summary: Get Workorder Activity Metadata
+      parameters:
+      - in: path
+        name: metadata_id
+        schema:
+          title: Metadata Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkorderActivityMetadata'
+      description: Retrieve a workorder activity metadata entry.
+      tags:
+      - dispatch.workorder-activity-metadata
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: dispatch_api_workorder_activity_metadata_patch_workorder_activity_metadata
+      summary: Patch Workorder Activity Metadata
+      parameters:
+      - in: path
+        name: metadata_id
+        schema:
+          title: Metadata Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkorderActivityMetadata'
+      description: Partially update a workorder activity metadata entry.
+      tags:
+      - dispatch.workorder-activity-metadata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkorderActivityMetadataPatchInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_workorder_activity_metadata_delete_workorder_activity_metadata
+      summary: Delete Workorder Activity Metadata
+      parameters:
+      - in: path
+        name: metadata_id
+        schema:
+          title: Metadata Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a workorder activity metadata entry.
+      tags:
+      - dispatch.workorder-activity-metadata
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    WorkorderActivityMetadataPatchInput:
+      additionalProperties: false
+      description: Payload for partially updating workorder activity metadata.
+      properties:
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Activity Id
+        payload:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Payload
+      title: WorkorderActivityMetadataPatchInput
+      type: object
+    WorkorderActivityMetadata:
+      additionalProperties: false
+      description: Dispatch workorder activity metadata entry.
+      properties:
+        id:
+          title: Id
+          type: integer
+        workorder_activity_id:
+          title: Workorder Activity Id
+          type: integer
+        payload:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Payload
+      required:
+      - id
+      - workorder_activity_id
+      title: WorkorderActivityMetadata
+      type: object
+    WorkorderActivityMetadataInput:
+      additionalProperties: false
+      description: Payload for creating workorder activity metadata.
+      properties:
+        workorder_activity_id:
+          title: Workorder Activity Id
+          type: integer
+        payload:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Payload
+      required:
+      - workorder_activity_id
+      title: WorkorderActivityMetadataInput
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

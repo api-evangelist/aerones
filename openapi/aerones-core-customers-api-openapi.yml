@@ -1,0 +1,786 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.customers API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.customers
+paths:
+  /api/core/v1/customers:
+    get:
+      operationId: list_customers
+      summary: List Customers
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by display_name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by display_name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country ID
+          title: Country Id
+        required: false
+        description: Filter by country ID
+      - in: query
+        name: currency_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by currency ID
+          title: Currency Id
+        required: false
+        description: Filter by currency ID
+      - in: query
+        name: type
+        schema:
+          allOf:
+          - description: 'Which customer types a list returns.
+
+
+              Every :class:`CustomerType` plus ``ALL``. Kept separate from
+
+              :class:`CustomerType` because ``ALL`` is a question a caller can ask, never a
+
+              value a customer row can hold.
+
+
+              ``COMMERCIAL`` is the default on every list, so a customer that cannot be
+
+              billed never reaches a picker asking "which commercial party is this". ``ALL``
+
+              is for the surfaces that administer the ``parent_customer`` hierarchy rather
+
+              than choose a payer.'
+            enum:
+            - COMMERCIAL
+            - VIRTUAL
+            - ALL
+            title: CustomerTypeFilter
+            type: string
+          default: COMMERCIAL
+          description: Which customer types to return. Defaults to COMMERCIAL, so no picker offers a customer that cannot be billed. ALL returns every type, for the surfaces that administer the parent-customer hierarchy rather than choose a payer.
+        required: false
+        description: Which customer types to return. Defaults to COMMERCIAL, so no picker offers a customer that cannot be billed. ALL returns every type, for the surfaces that administer the parent-customer hierarchy rather than choose a payer.
+      - in: query
+        name: parent_customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by parent customer ID
+          title: Parent Customer Id
+        required: false
+        description: Filter by parent customer ID
+      - in: query
+        name: pipedrive_org_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by Pipedrive organization ID
+          title: Pipedrive Org Id
+        required: false
+        description: Filter by Pipedrive organization ID
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter to customers linked to this Location via the core.customer_locations junction (active rows only).
+          title: Location Id
+        required: false
+        description: Filter to customers linked to this Location via the core.customer_locations junction (active rows only).
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomerResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all customers with optional search, sorting, and filtering.
+      tags:
+      - core.customers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_customer
+      summary: Create Customer
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+      description: 'Create a new customer, mirroring it to NetSuite when a subsidiary is chosen.
+
+
+        The NetSuite mirroring rules live in ``CustomerManager.create`` — when a
+
+        subsidiary is picked the customer is filed under that billing entity or the
+
+        whole save fails; when none is supplied the customer is created locally
+
+        (legacy behaviour).'
+      tags:
+      - core.customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/customers/{id}:
+    get:
+      operationId: get_customer
+      summary: Get Customer
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+      description: Get a single customer by ID.
+      tags:
+      - core.customers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_customer
+      summary: Update Customer
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+      description: Update a customer.
+      tags:
+      - core.customers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_customer
+      summary: Delete Customer
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a customer.
+      tags:
+      - core.customers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/customers/{id}/netsuite-subsidiary:
+    get:
+      operationId: get_customer_netsuite_subsidiary
+      summary: Get Customer NetSuite Subsidiary
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerNetsuiteSubsidiary'
+      description: Return the customer's current subsidiary, read live from NetSuite.
+      tags:
+      - core.customers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ParentCustomerObject:
+      additionalProperties: false
+      description: Nested parent customer object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Parent customer ID
+          title: Id
+          type: integer
+        display_name:
+          description: Parent customer display name
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: ParentCustomerObject
+      type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerCreate:
+      additionalProperties: false
+      description: 'Schema for creating a Customer. Number is auto-generated.
+
+
+        ``country_id``, ``currency_id`` and ``netsuite_subsidiary_id`` are required of a
+
+        commercial customer and meaningless on a virtual one, so the per-kind contract is
+
+        enforced by ``CustomerManager.create``, the one place every channel goes
+
+        through, rather than by this schema.'
+      properties:
+        display_name:
+          description: Display name
+          minLength: 1
+          title: Display Name
+          type: string
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID, required unless type is VIRTUAL
+          title: Country Id
+        parent_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent customer ID
+          title: Parent Customer Id
+        type:
+          allOf:
+          - $ref: '#/components/schemas/CustomerType'
+          default: COMMERCIAL
+          description: 'What kind of party this is. A VIRTUAL customer exists only so a group of users can read across the customers beneath it: never billed, never mirrored to NetSuite, and hidden by default from the customer lists. It requires display_name only, and refuses the NetSuite and Pipedrive ids.'
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID, required unless type is VIRTUAL
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        netsuite_subsidiary_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite subsidiary (Aerones billing entity) internal ID, required unless type is VIRTUAL, and refused for a virtual customer. The customer is mirrored to NetSuite under this subsidiary, unless netsuite_customer_id is supplied (importing an already-linked customer), in which case no NetSuite record is created.
+          title: Netsuite Subsidiary Id
+        pipedrive_org_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive organization ID
+          title: Pipedrive Org Id
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Custom fields as JSON
+          title: Custom Fields
+        logo_file_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Logo file storage id (fileupload.Files; upload via POST /api/files)
+          title: Logo File Id
+      required:
+      - display_name
+      title: CustomerCreate
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    CustomerNetsuiteSubsidiary:
+      additionalProperties: false
+      description: Current NetSuite subsidiary for a customer (source of truth = NetSuite).
+      properties:
+        subsidiary_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Subsidiary Id
+      title: CustomerNetsuiteSubsidiary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerType:
+      description: 'What kind of party a customer row represents.
+
+
+        ``COMMERCIAL`` is an ordinary customer: billable, mirrored to NetSuite, and the
+
+        answer every customer picker in the product is asking for.
+
+
+        ``VIRTUAL`` is an organisation that exists only so a group of users can read
+
+        across the customers beneath it in the ``parent_customer`` tree. It is never
+
+        billed and never mirrored to NetSuite or Pipedrive.
+
+
+        The vocabulary lives here rather than in a database constraint, so adding a kind
+
+        stays a product decision and not a deploy-ordering problem.
+
+
+        A type carries no access meaning. Scope expansion is decided entirely by
+
+        ``parent_customer`` and ``deleted_at`` in ``rls.tenant_scope``, which never reads
+
+        this column, so changing it neither grants nor revokes anything.'
+      enum:
+      - COMMERCIAL
+      - VIRTUAL
+      title: CustomerType
+      type: string
+    CustomerUpdate:
+      additionalProperties: false
+      description: Schema for updating a Customer.
+      properties:
+        number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Customer number
+          title: Number
+        display_name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Display name
+          title: Display Name
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        parent_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent customer ID
+          title: Parent Customer Id
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        pipedrive_org_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive organization ID
+          title: Pipedrive Org Id
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Custom fields as JSON
+          title: Custom Fields
+        logo_file_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Logo file storage id (fileupload.Files). Set to null to remove the logo.
+          title: Logo File Id
+      title: CustomerUpdate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CustomerResponse:
+      additionalProperties: false
+      description: Schema for Customer response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Customer ID
+          title: Id
+          type: integer
+        number:
+          description: Customer number
+          title: Number
+          type: string
+        display_name:
+          description: Display name
+          title: Display Name
+          type: string
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+          description: Country information
+        parent_customer:
+          anyOf:
+          - $ref: '#/components/schemas/ParentCustomerObject'
+          - type: 'null'
+          description: Parent customer information
+        type:
+          allOf:
+          - $ref: '#/components/schemas/CustomerType'
+          default: COMMERCIAL
+          description: What kind of party this customer is
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyObject'
+          - type: 'null'
+          description: Currency information
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        netsuite_subsidiary_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite subsidiary (Aerones billing entity) internal ID
+          title: Netsuite Subsidiary Id
+        pipedrive_org_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive organization ID
+          title: Pipedrive Org Id
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Custom fields as JSON
+          title: Custom Fields
+        logo_file_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Logo file storage id (fileupload.Files)
+          title: Logo File Id
+      required:
+      - updated_at
+      - id
+      - number
+      - display_name
+      title: CustomerResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

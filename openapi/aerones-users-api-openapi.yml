@@ -1,0 +1,337 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Users API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Users
+paths:
+  /api/users:
+    get:
+      operationId: permissions_api_get_users
+      summary: Get Users
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Return list of all users with their roles.
+
+
+        DEPRECATED: Use /core/v1/users instead.'
+      tags:
+      - Users
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/users/{user_id}:
+    patch:
+      operationId: permissions_api_update_user_role
+      summary: Update User Role
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          title: User Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Update user role.
+
+
+        Only admin can change roles.
+
+        Can set/unset admin and project manager roles.'
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRole'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    User:
+      additionalProperties: false
+      description: Schema for user details.
+      properties:
+        id:
+          title: Id
+          type: integer
+        sso_uuid:
+          title: Sso Uuid
+          type: string
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        picture_url:
+          title: Picture Url
+          type: string
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        customers:
+          default: []
+          items:
+            $ref: '#/components/schemas/UserCustomer'
+          title: Customers
+          type: array
+        phone:
+          default: ''
+          title: Phone
+          type: string
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        roles:
+          items:
+            type: string
+          title: Roles
+          type: array
+        permissions:
+          items:
+            $ref: '#/components/schemas/PermissionCodename'
+          title: Permissions
+          type: array
+        impersonate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impersonate Id
+        date_joined:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Account creation timestamp (Django auth user date_joined).
+          title: Date Joined
+      required:
+      - id
+      - sso_uuid
+      - email
+      - first_name
+      - last_name
+      - picture_url
+      - user_type
+      - roles
+      - permissions
+      title: User
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PermissionCodename:
+      description: All supported permission codenames in the system.
+      enum:
+      - auth.admin
+      - auth.impersonate
+      - auth.project_manager
+      - auth.regular_user
+      - auth.query_basic_graphql
+      - auth.mutate_basic_graphql
+      - auth.sales_manager_usa
+      - auth.sales_manager_eu
+      - auth.cco
+      - auth.co_watcher
+      - permissions.hse_reviewer
+      - permissions.rams_template_manage
+      - permissions.manage_customer_custom_field_values
+      - permissions.announce_notification_event
+      - permissions.send_team_request_to_planner
+      - permissions.approve_team_request_slot
+      - permissions.approve_set_request
+      - permissions.mark_ready_set_request
+      - permissions.mark_picked_up_set_request
+      - permissions.receive_set_request_mro_notification
+      - permissions.receive_set_request_it_notification
+      - permissions.confirm_set_request_it
+      - permissions.confirm_set_request_ppe
+      - permissions.receive_set_request_ppe_notification
+      - permissions.manage_set_demob
+      - permissions.receive_set_demob_it_notification
+      - permissions.receive_set_demob_mro_notification
+      - permissions.receive_planner_handoff_notification
+      - permissions.approve_scope_change_qc
+      - permissions.approve_scope_change_sales
+      - permissions.approve_scope_change_pm
+      - auth.bto_viewer
+      - auth.bto_supervisor
+      - projects.is_bto_watcher
+      - permissions.pwt_access
+      - auth.technician_user
+      - auth.vis_qc
+      - permissions.view_all
+      - permissions.view_all_vehicle_fleet_assignments
+      - permissions.manage_all_vehicle_fleet_assignments
+      - auth.payroll_manager
+      - permissions.manage_customer_users
+      - permissions.customer_basic_access
+      - permissions.customer_manage_access_control
+      - permissions.customer_view_fleet
+      - permissions.customer_view_services
+      - permissions.customer_manage_services
+      - permissions.customer_view_anomalies
+      - permissions.customer_manage_anomalies
+      - permissions.customer_view_vis
+      - permissions.customer_manage_vis
+      - permissions.customer_view_projects
+      - permissions.customer_view_reports
+      - permissions.customer_manage_reports
+      - permissions.customer_view_analytics
+      - permissions.customer_view_scope_changes
+      - permissions.customer_manage_scope_changes
+      - permissions.customer_view_work_management
+      - permissions.customer_manage_work_management
+      - permissions.customer_manage_terms_of_service
+      - permissions.customer_view_workorders
+      - permissions.customer_manage_workorders
+      - permissions.customer_cir_submit
+      - permissions.sales_form_app
+      - permissions.sales_pipeline_app
+      - permissions.project_tasks_dashboard_app
+      - permissions.aeroplan_app
+      - permissions.price_matrix_app
+      - permissions.data_operations_app
+      - permissions.mobilisation_app
+      - permissions.execution_app
+      - permissions.my_projects_app
+      - permissions.aeromro_app
+      - permissions.cru_qc
+      - permissions.manage_logistics
+      - permissions.manage_reporting_requirements
+      - permissions.force_complete_project
+      - permissions.remove_prejob_certificates
+      - permissions.xapp_data_operations_perform_qc
+      - permissions.xapp_data_operations_operate
+      - auth.broe
+      title: PermissionCodename
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    UserType:
+      description: User classification based on customer relationships.
+      enum:
+      - INTERNAL
+      - CUSTOMER
+      title: UserType
+      type: string
+    UpdateUserRole:
+      additionalProperties: false
+      description: Schema for updating user role.
+      properties:
+        is_admin:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Admin
+        is_pm:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Pm
+        is_user:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is User
+      title: UpdateUserRole
+      type: object
+    UserCustomer:
+      additionalProperties: false
+      description: Customer the user has access to, with their roles at that customer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        organisation:
+          title: Organisation
+          type: string
+        role:
+          default: []
+          items:
+            type: string
+          title: Role
+          type: array
+        status:
+          default: ACTIVE
+          title: Status
+          type: string
+        invite_expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Invite Expires At
+      required:
+      - id
+      - organisation
+      title: UserCustomer
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

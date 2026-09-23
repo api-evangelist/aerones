@@ -1,0 +1,220 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.netsuite Departments API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.netsuite-departments
+paths:
+  /api/accounting/v1/netsuite-departments:
+    get:
+      operationId: list_netsuite_departments
+      summary: List NetSuite Departments
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by department name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by department name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: netsuite_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by NetSuite department ID
+          title: Netsuite Id
+        required: false
+        description: Filter by NetSuite department ID
+      - in: query
+        name: is_inactive
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by the NetSuite inactive flag; omit to get active and inactive departments
+          title: Is Inactive
+        required: false
+        description: Filter by the NetSuite inactive flag; omit to get active and inactive departments
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NetSuiteDepartmentResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - accounting.netsuite-departments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    NetSuiteDepartmentResponse:
+      additionalProperties: false
+      description: Schema for a NetSuiteDepartment response, the cost center mirror row.
+      properties:
+        id:
+          description: Operations Hub row ID
+          title: Id
+          type: integer
+        netsuite_id:
+          description: NetSuite department ID, the key of the mirror
+          title: Netsuite Id
+          type: integer
+        name:
+          description: Department name
+          title: Name
+          type: string
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name prefixed with the parent department names
+          title: Full Name
+        external_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NetSuite external id, the cost center code (e.g. FINA)
+          title: External Id
+        division_netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID of the division custom segment value
+          title: Division Netsuite Id
+        division_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Division name
+          title: Division Name
+        parent_netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID of the parent department
+          title: Parent Netsuite Id
+        is_inactive:
+          description: Department is inactive in NetSuite
+          title: Is Inactive
+          type: boolean
+        subsidiary_netsuite_ids:
+          description: NetSuite IDs of the subsidiaries the department applies to
+          items:
+            type: integer
+          title: Subsidiary Netsuite Ids
+          type: array
+        last_modified_at:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Department last modified date in NetSuite
+          title: Last Modified At
+        synced_at:
+          description: When the sync last wrote this row
+          format: date-time
+          title: Synced At
+          type: string
+      required:
+      - id
+      - netsuite_id
+      - name
+      - is_inactive
+      - synced_at
+      title: NetSuiteDepartmentResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

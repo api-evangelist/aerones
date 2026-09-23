@@ -1,0 +1,725 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.delays API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.delays
+paths:
+  /api/core/v1/delays:
+    get:
+      operationId: list_delays
+      summary: List Delays
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by comment (case-insensitive)
+          title: Search
+        required: false
+        description: Search by comment (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: delay_type_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by delay type ID
+          title: Delay Type Id
+        required: false
+        description: Filter by delay type ID
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: robot_set_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by robot set ID
+          title: Robot Set Id
+        required: false
+        description: Filter by robot set ID
+      - in: query
+        name: resource_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by resource ID
+          title: Resource Id
+        required: false
+        description: Filter by resource ID
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: service_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by service order ID
+          title: Service Order Id
+        required: false
+        description: Filter by service order ID
+      - in: query
+        name: workorder_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by workorder ID
+          title: Workorder Id
+        required: false
+        description: Filter by workorder ID
+      - in: query
+        name: workorder_activity_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by workorder activity ID
+          title: Workorder Activity Id
+        required: false
+        description: Filter by workorder activity ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DelayResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.delays
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_delay
+      summary: Create Delay
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayResponse'
+      description: Create a new item.
+      tags:
+      - core.delays
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelayCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/delays/{id}:
+    get:
+      operationId: get_delay
+      summary: Get Delay
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.delays
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_delay
+      summary: Update Delay
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayResponse'
+      description: Update an item.
+      tags:
+      - core.delays
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelayUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_delay
+      summary: Delete Delay
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.delays
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    DelayResponse:
+      additionalProperties: false
+      description: Schema for Delay response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Delay ID
+          title: Id
+          type: integer
+        delay_type:
+          $ref: '#/components/schemas/DelayTypeObject'
+          description: Delay type information
+        comment:
+          description: Delay comment
+          title: Comment
+          type: string
+        description:
+          default: ''
+          description: Delay description
+          title: Description
+          type: string
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay start date and time
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay end date and time
+          title: End Datetime
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Duration in minutes
+          title: Duration Minutes
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+        robot_set:
+          anyOf:
+          - $ref: '#/components/schemas/RobotSetObject'
+          - type: 'null'
+          description: Robot set information (cause)
+        resource:
+          anyOf:
+          - $ref: '#/components/schemas/ResourceObject'
+          - type: 'null'
+          description: Resource information (cause)
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationObject'
+          - type: 'null'
+          description: Location information (cause)
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (impact)
+          title: Project Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (impact)
+          title: Service Order Id
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder ID (impact)
+          title: Workorder Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder activity ID (impact)
+          title: Workorder Activity Id
+        team_resources:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Team resources JSON (same shape as activity resources)
+          title: Team Resources
+        team_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Assigned winch set ID (team context, not cause)
+          title: Team Robot Set Id
+      required:
+      - updated_at
+      - id
+      - delay_type
+      - comment
+      title: DelayResponse
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    RobotSetObject:
+      additionalProperties: false
+      description: Nested robot set object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: RobotSetObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    DelayCreate:
+      additionalProperties: false
+      description: Schema for creating a Delay.
+      properties:
+        delay_type_id:
+          description: Delay type ID
+          title: Delay Type Id
+          type: integer
+        comment:
+          description: Delay comment
+          minLength: 1
+          title: Comment
+          type: string
+        description:
+          default: ''
+          description: Delay description
+          title: Description
+          type: string
+        start_datetime:
+          description: Delay start date and time
+          format: date-time
+          title: Start Datetime
+          type: string
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay end date and time
+          title: End Datetime
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Duration in minutes
+          title: Duration Minutes
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID (cause)
+          title: Robot Set Id
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource ID (cause)
+          title: Resource Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID (cause)
+          title: Location Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (impact)
+          title: Project Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (impact)
+          title: Service Order Id
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder ID (impact)
+          title: Workorder Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder activity ID (impact)
+          title: Workorder Activity Id
+        team_resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Team resources JSON (same shape as activity resources)
+          title: Team Resources
+        team_preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource preset ID — used to sync WorkorderResource is_lead
+          title: Team Preset Id
+      required:
+      - delay_type_id
+      - comment
+      - start_datetime
+      title: DelayCreate
+      type: object
+    ResourceObject:
+      additionalProperties: false
+      description: Nested resource object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        full_name:
+          title: Full Name
+          type: string
+      required:
+      - id
+      - full_name
+      title: ResourceObject
+      type: object
+    DelayTypeObject:
+      additionalProperties: false
+      description: Nested delay type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: DelayTypeObject
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    DelayUpdate:
+      additionalProperties: false
+      description: Schema for updating a Delay.
+      properties:
+        delay_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Delay type ID
+          title: Delay Type Id
+        comment:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Delay comment
+          title: Comment
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Delay description
+          title: Description
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay start date and time
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay end date and time
+          title: End Datetime
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Duration in minutes
+          title: Duration Minutes
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID (cause)
+          title: Robot Set Id
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource ID (cause)
+          title: Resource Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID (cause)
+          title: Location Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (impact)
+          title: Project Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (impact)
+          title: Service Order Id
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder ID (impact)
+          title: Workorder Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder activity ID (impact)
+          title: Workorder Activity Id
+        team_resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Team resources JSON (same shape as activity resources)
+          title: Team Resources
+        team_preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource preset ID — used to sync WorkorderResource is_lead
+          title: Team Preset Id
+      title: DelayUpdate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

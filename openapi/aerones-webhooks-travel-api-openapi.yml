@@ -1,0 +1,75 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Webhooks.travel API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: webhooks.travel
+paths:
+  /api/webhooks/travel/task-updated:
+    post:
+      operationId: projects_api_travel_webhook_handle_travel_task_updated
+      summary: Handle Travel Task Updated
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Resolve the project by code and trigger a project-task recompute.
+      tags:
+      - webhooks.travel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdatedPayload'
+        required: true
+components:
+  schemas:
+    TaskUpdatedPayload:
+      description: 'Payload the travel app sends when one of its travel requests changes.
+
+
+        Uses plain ``ninja.Schema`` (not the ``extra=''forbid''`` REST base) on
+
+        purpose: this is an inbound webhook from an external system, so unknown
+
+        fields the travel app may add later are ignored rather than 422-rejected —
+
+        the integration stays forward-compatible without a lock-step deploy.
+
+
+        Only ``project_code`` is consumed — it identifies which project to recompute
+
+        (the recompute re-reads the Travel API by project code). ``reference`` and
+
+        ``event`` are accepted for logging/observability only.'
+      properties:
+        project_code:
+          title: Project Code
+          type: string
+        reference:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reference
+        event:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Event
+      required:
+      - project_code
+      title: TaskUpdatedPayload
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

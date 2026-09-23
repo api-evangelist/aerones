@@ -1,0 +1,719 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.rfi Billing API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.rfi-billing
+paths:
+  /api/core/v1/projects/{project_id}/rfi-billing:
+    get:
+      operationId: get_project_rfi_billing
+      summary: Get RFI Billing composite (ProjectBilling and linked purchase orders)
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfiBillingCompositeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.projects.rfi-billing
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project_rfi_billing
+      summary: Update RFI Billing composite
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfiBillingCompositeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.projects.rfi-billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RfiBillingCompositeUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PurchaseOrderResponse:
+      additionalProperties: false
+      description: PurchaseOrder with its current version inlined for list/detail use.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderCustomerRef'
+          - type: 'null'
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyObject'
+          - type: 'null'
+        current_version:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderVersionObject'
+          - type: 'null'
+        project_ids:
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+      required:
+      - updated_at
+      - id
+      title: PurchaseOrderResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    VendorObject:
+      additionalProperties: false
+      description: Nested vendor object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: VendorObject
+      type: object
+    ProjectBillingUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectBilling (partial).
+      properties:
+        billing_lead_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project contact acting as billing lead
+          title: Billing Lead Id
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing address
+          title: Address
+        address_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing address state
+          title: Address State
+        invoice_recipient_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer receiving the invoice
+          title: Invoice Recipient Id
+        payment_terms_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text comment for payment terms
+          title: Payment Terms Comment
+        payment_terms:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Payment terms code
+          title: Payment Terms
+        purchase_order_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether a purchase order is required
+          title: Purchase Order Required
+        purchase_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Purchase order number
+          title: Purchase Order Number
+        purchase_order_value:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Purchase order value
+          title: Purchase Order Value
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency
+        invoicing_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoicing method
+          title: Invoicing Method
+        invoicing_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoicing instructions
+          title: Invoicing Instructions
+        invoicing_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoicing email(s)
+          title: Invoicing Email
+        additional_invoice_approval_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether an additional invoice approval is required
+          title: Additional Invoice Approval Required
+        invoice_approver_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice approver full name
+          title: Invoice Approver Full Name
+        invoice_approver_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice approver email
+          title: Invoice Approver Email
+        invoice_frequency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice frequency
+          title: Invoice Frequency
+        sales_tax_exemption_certificate:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether a sales tax exemption certificate applies
+          title: Sales Tax Exemption Certificate
+        sales_tax_exemption_certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales tax exemption certificate number
+          title: Sales Tax Exemption Certificate Number
+        receive_daily_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Answer to 'Would you like to receive daily reports?'
+          title: Receive Daily Reports
+        specific_report_requirements:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Answer to 'Specific report requirements?'
+          title: Specific Report Requirements
+        receive_draft_charge_statements:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Answer to 'Do you want to receive draft charge statements?'
+          title: Receive Draft Charge Statements
+        draft_charge_statement_frequency:
+          anyOf:
+          - enum:
+            - WEEKLY
+            - MONTHLY
+            type: string
+          - type: 'null'
+          description: Draft charge statement delivery frequency
+          title: Draft Charge Statement Frequency
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Vendor ID
+          title: Vendor Id
+      title: ProjectBillingUpdate
+      type: object
+    ProjectBillingResponse:
+      additionalProperties: false
+      description: Schema for ProjectBilling response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project billing ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        billing_lead:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactObject'
+          - type: 'null'
+          description: Project contact acting as billing lead
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing address
+          title: Address
+        address_state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing address state
+          title: Address State
+        invoice_recipient:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerObject'
+          - type: 'null'
+          description: Customer receiving the invoice
+        payment_terms_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text comment for payment terms
+          title: Payment Terms Comment
+        payment_terms:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Payment terms code
+          title: Payment Terms
+        purchase_order_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether a purchase order is required
+          title: Purchase Order Required
+        purchase_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Purchase order number
+          title: Purchase Order Number
+        purchase_order_value:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Purchase order value
+          title: Purchase Order Value
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency
+        invoicing_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoicing method
+          title: Invoicing Method
+        invoicing_instructions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoicing instructions
+          title: Invoicing Instructions
+        invoicing_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoicing email(s)
+          title: Invoicing Email
+        additional_invoice_approval_required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether an additional invoice approval is required
+          title: Additional Invoice Approval Required
+        invoice_approver_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice approver full name
+          title: Invoice Approver Full Name
+        invoice_approver_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice approver email
+          title: Invoice Approver Email
+        invoice_frequency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice frequency
+          title: Invoice Frequency
+        sales_tax_exemption_certificate:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether a sales tax exemption certificate applies
+          title: Sales Tax Exemption Certificate
+        sales_tax_exemption_certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales tax exemption certificate number
+          title: Sales Tax Exemption Certificate Number
+        receive_daily_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Answer to 'Would you like to receive daily reports?'
+          title: Receive Daily Reports
+        specific_report_requirements:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Answer to 'Specific report requirements?'
+          title: Specific Report Requirements
+        receive_draft_charge_statements:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Answer to 'Do you want to receive draft charge statements?'
+          title: Receive Draft Charge Statements
+        draft_charge_statement_frequency:
+          anyOf:
+          - enum:
+            - WEEKLY
+            - MONTHLY
+            type: string
+          - type: 'null'
+          description: Draft charge statement delivery frequency
+          title: Draft Charge Statement Frequency
+        vendor:
+          anyOf:
+          - $ref: '#/components/schemas/VendorObject'
+          - type: 'null'
+          description: Vendor
+      required:
+      - updated_at
+      - id
+      - project_id
+      title: ProjectBillingResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
+      type: object
+    PurchaseOrderVersionObject:
+      additionalProperties: false
+      description: Nested purchase order version object (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        version_number:
+          title: Version Number
+          type: integer
+        order_number:
+          title: Order Number
+          type: string
+        issue_date:
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+      required:
+      - id
+      - version_number
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderVersionObject
+      type: object
+    PurchaseOrderCustomerRef:
+      additionalProperties: false
+      description: 'Slim customer reference for PurchaseOrder responses.
+
+
+        Intentionally does not nest the customer''s own currency — a PO carries
+
+        its own currency, independent of the customer''s default.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      - display_name
+      title: PurchaseOrderCustomerRef
+      type: object
+    ProjectContactObject:
+      additionalProperties: false
+      description: Nested project contact object for Project response (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactRole'
+          - type: 'null'
+        customer_contact_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Contact Name
+        customer_type:
+          title: Customer Type
+          type: string
+      required:
+      - id
+      - customer_type
+      title: ProjectContactObject
+      type: object
+    RfiBillingCompositeUpdate:
+      additionalProperties: false
+      description: 'Partial update for the RFI Billing composite (ProjectBilling + linked POs).
+
+
+        Use ``project_billing`` with partial fields per ``exclude_unset`` semantics.
+
+        For ``linked_purchase_order_ids``: include the field to reconcile junction rows
+
+        to that exact id set (``[]`` clears all links). Omit the field entirely to leave
+
+        existing links unchanged.'
+      properties:
+        project_billing:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectBillingUpdate'
+          - type: 'null'
+          description: Partial ProjectBilling fields; omit to skip billing mutation
+        linked_purchase_order_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Core purchase_order ids linked to this project. Present (even as []) reconciles links; omit to leave links untouched.
+          title: Linked Purchase Order Ids
+      title: RfiBillingCompositeUpdate
+      type: object
+    RfiBillingCompositeResponse:
+      additionalProperties: false
+      description: 'Project billing snapshot plus purchase orders linked for RFI Billing.
+
+
+        ``updated_at`` is the canonical ``ProjectBilling`` row timestamp (same row as
+
+        ``project_billing``).'
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        project_id:
+          description: Core project ID
+          title: Project Id
+          type: integer
+        offer_status:
+          description: 'Effective offer status: the latest ProjectOffer.status, or ''Draft'' when the project has no offer yet. RFI Billing gates currency editing on this (editable only while ''Draft'').'
+          title: Offer Status
+          type: string
+        project_billing:
+          $ref: '#/components/schemas/ProjectBillingResponse'
+          description: Canonical ProjectBilling row for this project
+        linked_purchase_orders:
+          description: Purchase orders linked via PurchaseOrderProject
+          items:
+            $ref: '#/components/schemas/PurchaseOrderResponse'
+          title: Linked Purchase Orders
+          type: array
+      required:
+      - updated_at
+      - project_id
+      - offer_status
+      - project_billing
+      title: RfiBillingCompositeResponse
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    ProjectContactRole:
+      description: 'All possible roles for ProjectContact (used in responses).
+
+
+        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
+
+        intentionally preserve it for API compatibility.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - SITE_CONTACT
+      - QHSE_CONTACT
+      title: ProjectContactRole
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

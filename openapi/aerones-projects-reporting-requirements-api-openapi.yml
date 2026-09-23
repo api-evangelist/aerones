@@ -1,0 +1,507 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.reporting Requirements API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.reporting-requirements
+paths:
+  /api/projects/{project_id}/reporting-requirements:
+    get:
+      operationId: projects_api_reporting_requirements_list_reporting_requirements
+      summary: List Reporting Requirements
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectRequirementResponse'
+                title: Response
+                type: array
+      tags:
+      - projects.reporting-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_reporting_requirements_create_reporting_requirement
+      summary: Create Reporting Requirement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - projects.reporting-requirements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequirementCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/reporting-requirements/options:
+    get:
+      operationId: projects_api_reporting_requirements_get_reporting_requirement_options
+      summary: Get Reporting Requirement Options
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementOptionsResponse'
+      description: 'The project''s offer services + scope turbines for the modal.
+
+
+        Registered before ``/{requirement_id}`` so the literal path segment
+
+        isn''t parsed as an integer id by django-ninja''s route matcher.'
+      tags:
+      - projects.reporting-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/reporting-requirements/{requirement_id}:
+    get:
+      operationId: projects_api_reporting_requirements_get_reporting_requirement
+      summary: Get Reporting Requirement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - projects.reporting-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_reporting_requirements_update_reporting_requirement
+      summary: Update Reporting Requirement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - projects.reporting-requirements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequirementUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_reporting_requirements_delete_reporting_requirement
+      summary: Delete Reporting Requirement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      tags:
+      - projects.reporting-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/reporting-requirements/{requirement_id}/send:
+    post:
+      operationId: projects_api_reporting_requirements_send_reporting_requirement
+      summary: Send Reporting Requirement
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      description: DRAFT → PENDING (one-way). cru then pulls it and drives the rest.
+      tags:
+      - projects.reporting-requirements
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ServiceOption:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: ServiceOption
+      type: object
+    ApplicabilityInput:
+      additionalProperties: false
+      description: 'Typed-FK applicability row. Scope is read from the populated columns; at
+
+        most one of {project_id, turbine_id}; project rows never carry customer_id.'
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      title: ApplicabilityInput
+      type: object
+    ProjectRequirementCreate:
+      additionalProperties: false
+      properties:
+        title:
+          maxLength: 255
+          title: Title
+          type: string
+        body:
+          title: Body
+          type: string
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer the requirement belongs to (null = Aerones-owned). Defaults to the URL project's requesting customer.
+          title: Customer Id
+        applicabilities:
+          description: Explicit typed-FK rows; empty = whole project.
+          items:
+            $ref: '#/components/schemas/ApplicabilityInput'
+          title: Applicabilities
+          type: array
+      required:
+      - title
+      - body
+      title: ProjectRequirementCreate
+      type: object
+    AssetOption:
+      additionalProperties: false
+      description: A pickable turbine (v1 assets are turbine-only).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: AssetOption
+      type: object
+    ProjectRequirementOptionsResponse:
+      additionalProperties: false
+      description: 'Pickable options for the modal: services from the project''s latest offer +
+
+        turbines from its scope items. ``current_project_id`` is the resolved core id
+
+        of the URL project (requirements are scoped to it).'
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/ServiceOption'
+          title: Services
+          type: array
+        assets:
+          items:
+            $ref: '#/components/schemas/AssetOption'
+          title: Assets
+          type: array
+        current_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Current Project Id
+      title: ProjectRequirementOptionsResponse
+      type: object
+    ProjectRequirementResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        title:
+          title: Title
+          type: string
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        current_version:
+          title: Current Version
+          type: integer
+        required_baseline_version:
+          title: Required Baseline Version
+          type: integer
+        status:
+          title: Status
+          type: string
+        decline_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decline Reason
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        applicabilities:
+          items:
+            $ref: '#/components/schemas/ApplicabilityResponse'
+          title: Applicabilities
+          type: array
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+        updated_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated By Name
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - title
+      - current_version
+      - required_baseline_version
+      - status
+      - created_at
+      - updated_at
+      title: ProjectRequirementResponse
+      type: object
+    ProjectRequirementUpdate:
+      additionalProperties: false
+      properties:
+        title:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          title: Title
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        attachment_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Attachment File Ids
+        applicabilities:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ApplicabilityInput'
+            type: array
+          - type: 'null'
+          title: Applicabilities
+        re_familiarize:
+          default: true
+          description: 'true (default): invalidate operator familiarity — live acks are tombstoned, operators must re-acknowledge. false: carry acks forward. Applies to any edit, body or scope.'
+          title: Re Familiarize
+          type: boolean
+      title: ProjectRequirementUpdate
+      type: object
+    ApplicabilityResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      required:
+      - id
+      title: ApplicabilityResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

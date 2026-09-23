@@ -1,0 +1,326 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.overview API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.overview
+paths:
+  /api/projects/{project_id}/overview/percentages:
+    get:
+      operationId: projects_api_overview_get_project_overview_percentages
+      summary: Get Project Overview Percentages
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOverviewPercentages'
+      description: 'Get project completion percentages for various forms.
+
+
+        This endpoint returns completion statistics for different project forms
+
+        including RFI and Pre-job forms.
+
+
+        Args:
+
+        request: The request itself
+
+        project_id: The project ID to get completion percentages for
+
+
+        Returns:
+
+        ProjectOverviewPercentages: Dictionary with completion percentages for various forms'
+      tags:
+      - projects.overview
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/overview/technicians:
+    get:
+      operationId: projects_api_overview_get_project_overview_technicians
+      summary: Get Project Overview Technicians
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TechnicianSimple'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get technicians list for project overview.
+
+
+        This endpoint fetches technicians data from the Platform API
+
+        using the PlatformManager.
+
+
+        Args:
+
+        request: The request itself
+
+        project_id: The project ID
+
+
+        Returns:
+
+        List of technicians with filtered fields from the Platform API'
+      tags:
+      - projects.overview
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectOverviewPercentages:
+      additionalProperties: false
+      description: Schema for project overview completion percentages.
+      properties:
+        filled:
+          description: Total filled fields across all forms
+          title: Filled
+          type: integer
+        total:
+          description: Total fields across all forms
+          title: Total
+          type: integer
+        percentage:
+          description: Overall completion percentage (0-100)
+          title: Percentage
+          type: integer
+        rfi:
+          $ref: '#/components/schemas/RFICompletion'
+          description: RFI forms completion data
+        prejob:
+          $ref: '#/components/schemas/PreJobCompletion'
+          description: Pre-job forms completion data
+      required:
+      - filled
+      - total
+      - percentage
+      - rfi
+      - prejob
+      title: ProjectOverviewPercentages
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PreJobCompletion:
+      additionalProperties: false
+      description: Schema for Pre-job forms completion data.
+      properties:
+        filled:
+          description: Total filled fields across all Pre-job forms
+          title: Filled
+          type: integer
+        total:
+          description: Total fields across all Pre-job forms
+          title: Total
+          type: integer
+        percentage:
+          description: Overall Pre-job completion percentage (0-100)
+          title: Percentage
+          type: integer
+        billing:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Pre-job billing form completion
+        sites:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Pre-job sites form completion
+        assets_services:
+          $ref: '#/components/schemas/AssetsServicesCompletion'
+          description: Pre-job assets/services form completion
+        site_safety:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Pre-job site safety form completion
+      required:
+      - filled
+      - total
+      - percentage
+      - billing
+      - sites
+      - assets_services
+      - site_safety
+      title: PreJobCompletion
+      type: object
+    AssetsServicesCompletion:
+      additionalProperties: false
+      description: Schema for assets/services forms completion data.
+      properties:
+        filled:
+          description: Total filled fields across all assets/services forms
+          title: Filled
+          type: integer
+        total:
+          description: Total fields across all assets/services forms
+          title: Total
+          type: integer
+        percentage:
+          description: Overall assets/services completion percentage (0-100)
+          title: Percentage
+          type: integer
+        general:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Assets/services general form completion
+        questions:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Service-specific questions completion
+      required:
+      - filled
+      - total
+      - percentage
+      - general
+      - questions
+      title: AssetsServicesCompletion
+      type: object
+    TechnicianSimple:
+      additionalProperties: false
+      description: Simplified schema for technician with only essential fields.
+      properties:
+        id:
+          description: User ID
+          title: Id
+          type: integer
+        name:
+          description: Full name
+          maxLength: 255
+          title: Name
+          type: string
+        email:
+          description: User email
+          maxLength: 255
+          title: Email
+          type: string
+        phone:
+          description: Contact phone number
+          maxLength: 255
+          title: Phone
+          type: string
+      required:
+      - id
+      - name
+      - email
+      - phone
+      title: TechnicianSimple
+      type: object
+    RFICompletion:
+      additionalProperties: false
+      description: Schema for RFI forms completion data.
+      properties:
+        filled:
+          description: Total filled fields across all RFI forms
+          title: Filled
+          type: integer
+        total:
+          description: Total fields across all RFI forms
+          title: Total
+          type: integer
+        percentage:
+          description: Overall RFI completion percentage (0-100)
+          title: Percentage
+          type: integer
+        general:
+          $ref: '#/components/schemas/FormCompletion'
+          description: RFI general form completion
+        billing:
+          $ref: '#/components/schemas/FormCompletion'
+          description: RFI billing form completion
+        sites:
+          $ref: '#/components/schemas/FormCompletion'
+          description: RFI sites form completion
+        assets_services:
+          $ref: '#/components/schemas/FormCompletion'
+          description: RFI assets/services form completion
+      required:
+      - filled
+      - total
+      - percentage
+      - general
+      - billing
+      - sites
+      - assets_services
+      title: RFICompletion
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    FormCompletion:
+      additionalProperties: false
+      description: Schema for form completion data.
+      properties:
+        filled:
+          description: Number of filled fields
+          title: Filled
+          type: integer
+        total:
+          description: Total number of fields
+          title: Total
+          type: integer
+        percentage:
+          description: Completion percentage (0-100)
+          title: Percentage
+          type: integer
+      required:
+      - filled
+      - total
+      - percentage
+      title: FormCompletion
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

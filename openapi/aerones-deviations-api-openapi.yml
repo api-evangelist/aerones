@@ -1,0 +1,1584 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Deviations API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: deviations
+paths:
+  /api/deviations/filters:
+    get:
+      operationId: deviations_api_get_global_deviations_filters
+      summary: Get Global Deviations Filters
+      parameters:
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by start date (YYYY-MM-DD)
+          title: Start Date
+        required: false
+        description: Filter by start date (YYYY-MM-DD)
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by end date (YYYY-MM-DD)
+          title: End Date
+        required: false
+        description: Filter by end date (YYYY-MM-DD)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalDeviationsFilters'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get available filter values for global deviations.
+
+
+        Args:
+
+        request: HTTP request object
+
+        params: Query parameters with optional start_date and end_date
+
+
+        Returns:
+
+        GlobalDeviationsFilters with projectCodes, countryCodes, and regions'
+      tags:
+      - deviations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/deviations/summary:
+    get:
+      operationId: deviations_api_get_global_deviations_summary
+      summary: Get Global Deviations Summary
+      parameters:
+      - in: query
+        name: period_type
+        schema:
+          allOf:
+          - description: Global period type enumeration (weekly or monthly).
+            enum:
+            - weekly
+            - monthly
+            title: GlobalPeriodTypeEnum
+            type: string
+          default: weekly
+          description: 'Period type: ''weekly'' (default) or ''monthly'''
+        required: false
+        description: 'Period type: ''weekly'' (default) or ''monthly'''
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by start date (YYYY-MM-DD)
+          title: Start Date
+        required: false
+        description: Filter by start date (YYYY-MM-DD)
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by end date (YYYY-MM-DD)
+          title: End Date
+        required: false
+        description: Filter by end date (YYYY-MM-DD)
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match search on project code (case-insensitive)
+          title: Search
+        required: false
+        description: Partial match search on project code (case-insensitive)
+      - in: query
+        name: project_codes
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by exact project codes (comma-separated)
+          title: Project Codes
+        required: false
+        description: Filter by exact project codes (comma-separated)
+      - in: query
+        name: country_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by country codes (comma-separated alpha-2)
+          title: Country Code
+        required: false
+        description: Filter by country codes (comma-separated alpha-2)
+      - in: query
+        name: region
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by regions (comma-separated)
+          title: Region
+        required: false
+        description: Filter by regions (comma-separated)
+      - in: query
+        name: filter_currency
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency for financial filters (EUR, USD, or AUD)
+          title: Filter Currency
+        required: false
+        description: Currency for financial filters (EUR, USD, or AUD)
+      - in: query
+        name: fixed_planned_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum fixed planned value
+          title: Fixed Planned Min
+        required: false
+        description: Minimum fixed planned value
+      - in: query
+        name: fixed_planned_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum fixed planned value
+          title: Fixed Planned Max
+        required: false
+        description: Maximum fixed planned value
+      - in: query
+        name: actual_planned_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum actual planned value
+          title: Actual Planned Min
+        required: false
+        description: Minimum actual planned value
+      - in: query
+        name: actual_planned_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum actual planned value
+          title: Actual Planned Max
+        required: false
+        description: Maximum actual planned value
+      - in: query
+        name: amount_charged_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum amount charged
+          title: Amount Charged Min
+        required: false
+        description: Minimum amount charged
+      - in: query
+        name: amount_charged_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum amount charged
+          title: Amount Charged Max
+        required: false
+        description: Maximum amount charged
+      - in: query
+        name: deviation_from_actual_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum deviation from actual
+          title: Deviation From Actual Min
+        required: false
+        description: Minimum deviation from actual
+      - in: query
+        name: deviation_from_actual_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum deviation from actual
+          title: Deviation From Actual Max
+        required: false
+        description: Maximum deviation from actual
+      - in: query
+        name: deviation_from_fixed_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum deviation from fixed
+          title: Deviation From Fixed Min
+        required: false
+        description: Minimum deviation from fixed
+      - in: query
+        name: deviation_from_fixed_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum deviation from fixed
+          title: Deviation From Fixed Max
+        required: false
+        description: Maximum deviation from fixed
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalDeviationsSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get aggregated summary of global deviations with the same filtering as GET /deviations.
+
+
+        Args:
+
+        request: HTTP request object
+
+        params: Query parameters for filtering (same as deviations endpoint except pagination)
+
+
+        Returns:
+
+        GlobalDeviationsSummary with aggregated financial totals'
+      tags:
+      - deviations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/deviations/{project_id}/filters:
+    get:
+      operationId: deviations_api_get_project_deviations_filters
+      summary: Get Project Deviations Filters
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by start date (YYYY-MM-DD)
+          title: Start Date
+        required: false
+        description: Filter by start date (YYYY-MM-DD)
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by end date (YYYY-MM-DD)
+          title: End Date
+        required: false
+        description: Filter by end date (YYYY-MM-DD)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDeviationsFilters'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get available filter values for a project''s deviations.
+
+
+        Args:
+
+        request: HTTP request object
+
+        project_id: Project UUID
+
+        params: Query parameters with optional start_date and end_date
+
+
+        Returns:
+
+        ProjectDeviationsFilters with roboticSets and serviceCodes'
+      tags:
+      - deviations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/deviations/{project_id}/summary:
+    get:
+      operationId: deviations_api_get_project_deviations_summary
+      summary: Get Project Deviations Summary
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: period_type
+        schema:
+          allOf:
+          - description: Period type enumeration.
+            enum:
+            - daily
+            - weekly
+            title: PeriodTypeEnum
+            type: string
+          default: daily
+          description: 'Period type: ''daily'' (default) or ''weekly'''
+        required: false
+        description: 'Period type: ''daily'' (default) or ''weekly'''
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by start date (YYYY-MM-DD)
+          title: Start Date
+        required: false
+        description: Filter by start date (YYYY-MM-DD)
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by end date (YYYY-MM-DD)
+          title: End Date
+        required: false
+        description: Filter by end date (YYYY-MM-DD)
+      - in: query
+        name: robotic_set
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by robotic set
+          title: Robotic Set
+        required: false
+        description: Filter by robotic set
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service code
+          title: Service Code
+        required: false
+        description: Filter by service code
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDeviationsSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get aggregated summary of a project''s deviations.
+
+
+        Args:
+
+        request: HTTP request object
+
+        project_id: Project UUID
+
+        params: Query parameters for filtering
+
+
+        Returns:
+
+        ProjectDeviationsSummary with aggregated financial totals'
+      tags:
+      - deviations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/deviations/{project_id}:
+    get:
+      operationId: deviations_api_get_project_deviations
+      summary: Get Project Deviations
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: period_type
+        schema:
+          allOf:
+          - description: Period type enumeration.
+            enum:
+            - daily
+            - weekly
+            title: PeriodTypeEnum
+            type: string
+          default: daily
+          description: 'Period type: ''daily'' (default) or ''weekly'''
+        required: false
+        description: 'Period type: ''daily'' (default) or ''weekly'''
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by start date (YYYY-MM-DD)
+          title: Start Date
+        required: false
+        description: Filter by start date (YYYY-MM-DD)
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by end date (YYYY-MM-DD)
+          title: End Date
+        required: false
+        description: Filter by end date (YYYY-MM-DD)
+      - in: query
+        name: robotic_set
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by robotic set
+          title: Robotic Set
+        required: false
+        description: Filter by robotic set
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service code
+          title: Service Code
+        required: false
+        description: Filter by service code
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number for pagination
+          title: Page
+          type: integer
+        required: false
+        description: Page number for pagination
+      - in: query
+        name: page_size
+        schema:
+          default: 10
+          description: Number of items per page
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      - in: query
+        name: format
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ExportFormat'
+          - type: 'null'
+          description: 'Export format: ''csv'' or ''xlsx''. If not provided, returns JSON.'
+        required: false
+        description: 'Export format: ''csv'' or ''xlsx''. If not provided, returns JSON.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviationsListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get deviation data for a project.
+
+
+        Args:
+
+        request: HTTP request object
+
+        project_id: Project UUID
+
+        params: Query parameters for filtering, pagination, and export format
+
+
+        Returns:
+
+        DeviationsListResponse with deviation data, or file response if format specified'
+      tags:
+      - deviations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: deviations_api_update_project_deviations
+      summary: Update Project Deviations
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviationsPatchResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Update deviation rows for a project (bulk update).
+
+
+        Args:
+
+        request: HTTP request object
+
+        project_id: Project UUID
+
+        payload: List of deviation update items
+
+
+        Returns:
+
+        DeviationsPatchResponse with update results'
+      tags:
+      - deviations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/DeviationUpdateItem'
+              title: Payload
+              type: array
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/deviations:
+    get:
+      operationId: deviations_api_get_global_deviations
+      summary: Get Global Deviations
+      parameters:
+      - in: query
+        name: period_type
+        schema:
+          allOf:
+          - description: Global period type enumeration (weekly or monthly).
+            enum:
+            - weekly
+            - monthly
+            title: GlobalPeriodTypeEnum
+            type: string
+          default: weekly
+          description: 'Period type: ''weekly'' (default) or ''monthly'''
+        required: false
+        description: 'Period type: ''weekly'' (default) or ''monthly'''
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by start date (YYYY-MM-DD)
+          title: Start Date
+        required: false
+        description: Filter by start date (YYYY-MM-DD)
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter by end date (YYYY-MM-DD)
+          title: End Date
+        required: false
+        description: Filter by end date (YYYY-MM-DD)
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Partial match search on project code (case-insensitive)
+          title: Search
+        required: false
+        description: Partial match search on project code (case-insensitive)
+      - in: query
+        name: project_codes
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by exact project codes (comma-separated, e.g. 'EBUS-4885,GEFI-4916')
+          title: Project Codes
+        required: false
+        description: Filter by exact project codes (comma-separated, e.g. 'EBUS-4885,GEFI-4916')
+      - in: query
+        name: country_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by country codes (comma-separated alpha-2, e.g. 'BE,DE,FR')
+          title: Country Code
+        required: false
+        description: Filter by country codes (comma-separated alpha-2, e.g. 'BE,DE,FR')
+      - in: query
+        name: region
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by regions (comma-separated, e.g. 'Europe,North America')
+          title: Region
+        required: false
+        description: Filter by regions (comma-separated, e.g. 'Europe,North America')
+      - in: query
+        name: filter_currency
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency for financial filters (EUR, USD, or AUD)
+          title: Filter Currency
+        required: false
+        description: Currency for financial filters (EUR, USD, or AUD)
+      - in: query
+        name: fixed_planned_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum fixed planned value
+          title: Fixed Planned Min
+        required: false
+        description: Minimum fixed planned value
+      - in: query
+        name: fixed_planned_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum fixed planned value
+          title: Fixed Planned Max
+        required: false
+        description: Maximum fixed planned value
+      - in: query
+        name: actual_planned_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum actual planned value
+          title: Actual Planned Min
+        required: false
+        description: Minimum actual planned value
+      - in: query
+        name: actual_planned_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum actual planned value
+          title: Actual Planned Max
+        required: false
+        description: Maximum actual planned value
+      - in: query
+        name: amount_charged_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum amount charged
+          title: Amount Charged Min
+        required: false
+        description: Minimum amount charged
+      - in: query
+        name: amount_charged_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum amount charged
+          title: Amount Charged Max
+        required: false
+        description: Maximum amount charged
+      - in: query
+        name: deviation_from_actual_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum deviation from actual
+          title: Deviation From Actual Min
+        required: false
+        description: Minimum deviation from actual
+      - in: query
+        name: deviation_from_actual_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum deviation from actual
+          title: Deviation From Actual Max
+        required: false
+        description: Maximum deviation from actual
+      - in: query
+        name: deviation_from_fixed_min
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Minimum deviation from fixed
+          title: Deviation From Fixed Min
+        required: false
+        description: Minimum deviation from fixed
+      - in: query
+        name: deviation_from_fixed_max
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Maximum deviation from fixed
+          title: Deviation From Fixed Max
+        required: false
+        description: Maximum deviation from fixed
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number for pagination
+          title: Page
+          type: integer
+        required: false
+        description: Page number for pagination
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      - in: query
+        name: format
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ExportFormat'
+          - type: 'null'
+          description: 'Export format: ''csv'' or ''xlsx''. If not provided, returns JSON.'
+        required: false
+        description: 'Export format: ''csv'' or ''xlsx''. If not provided, returns JSON.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalDeviationsListResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get global deviation data aggregated across all projects.
+
+
+        Args:
+
+        request: HTTP request object
+
+        params: Query parameters for filtering, pagination, and export format
+
+
+        Returns:
+
+        GlobalDeviationsListResponse with aggregated deviation data, or file if format specified'
+      tags:
+      - deviations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: deviations_api_update_global_deviations
+      summary: Update Global Deviations
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviationsPatchResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Update global deviation comments (bulk update).
+
+
+        Args:
+
+        request: HTTP request object
+
+        payload: List of global deviation update items
+
+
+        Returns:
+
+        DeviationsPatchResponse with update results'
+      tags:
+      - deviations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/GlobalDeviationUpdateItem'
+              title: Payload
+              type: array
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    GlobalPeriodTypeEnum:
+      description: Global period type enumeration (weekly or monthly).
+      enum:
+      - weekly
+      - monthly
+      title: GlobalPeriodTypeEnum
+      type: string
+    ProjectDeviationsFilters:
+      additionalProperties: false
+      description: Response schema for GET /deviations/{project_id}/filters.
+      properties:
+        robotic_sets:
+          description: All unique robotic sets
+          items:
+            type: string
+          title: Robotic Sets
+          type: array
+        service_codes:
+          description: All unique service codes
+          items:
+            type: string
+          title: Service Codes
+          type: array
+      title: ProjectDeviationsFilters
+      type: object
+    DeviationCategoryEnum:
+      description: "Deviation category enumeration.\n\nInternal categories (fault_side = Internal):\n- Set Readiness, Rotation, Missing reports, Low performance,\n  Sales, Planning, Health & Safety\n\nExternal categories (fault_side = External):\n- Customer, Weather, Previous project delay"
+      enum:
+      - Set Readiness
+      - Rotation
+      - Missing reports
+      - Low performance
+      - Sales
+      - Planning
+      - Health & Safety
+      - Customer
+      - Weather
+      - Previous project delay
+      title: DeviationCategoryEnum
+      type: string
+    FaultSideEnum:
+      description: Fault side enumeration.
+      enum:
+      - Internal
+      - External
+      title: FaultSideEnum
+      type: string
+    DeviationCountry:
+      additionalProperties: false
+      description: Country information for deviations.
+      properties:
+        code:
+          description: Country code in alpha-2
+          title: Code
+          type: string
+        name:
+          description: Human readable country name
+          title: Name
+          type: string
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom region name a country belongs to
+          title: Region
+      required:
+      - code
+      - name
+      title: DeviationCountry
+      type: object
+    PeriodTypeEnum:
+      description: Period type enumeration.
+      enum:
+      - daily
+      - weekly
+      title: PeriodTypeEnum
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    GlobalDeviationsFilters:
+      additionalProperties: false
+      description: Response schema for GET /deviations/filters.
+      properties:
+        project_codes:
+          description: All unique project codes
+          items:
+            type: string
+          title: Project Codes
+          type: array
+        country_codes:
+          description: All unique countries with code and name
+          items:
+            $ref: '#/components/schemas/CountryFilter'
+          title: Country Codes
+          type: array
+        regions:
+          description: All unique region names
+          items:
+            type: string
+          title: Regions
+          type: array
+      title: GlobalDeviationsFilters
+      type: object
+    GlobalPeriod:
+      additionalProperties: false
+      description: Period information for global deviation rows.
+      properties:
+        type:
+          $ref: '#/components/schemas/GlobalPeriodTypeEnum'
+          description: Period type (weekly or monthly)
+        start_date:
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+          type: string
+        end_date:
+          description: End date (YYYY-MM-DD)
+          title: End Date
+          type: string
+        week_number:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ISO week number (1-53), only for weekly type
+          title: Week Number
+        year:
+          description: Year
+          title: Year
+          type: integer
+        month:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Month (1-12), only for monthly type
+          title: Month
+      required:
+      - type
+      - start_date
+      - end_date
+      - year
+      title: GlobalPeriod
+      type: object
+    GlobalDeviationsSummary:
+      additionalProperties: false
+      description: Summary schema for global deviations aggregated data.
+      properties:
+        project_count:
+          description: Total number of unique projects
+          title: Project Count
+          type: integer
+        fixed_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total fixed planned value across all filtered rows
+        actual_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total actual planned value across all filtered rows
+        amount_charged:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total amount charged across all filtered rows
+        deviation_from_actual:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total deviation from actual across all filtered rows
+        deviation_from_fixed:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total deviation from fixed across all filtered rows
+      required:
+      - project_count
+      - fixed_planned
+      - actual_planned
+      - amount_charged
+      - deviation_from_actual
+      - deviation_from_fixed
+      title: GlobalDeviationsSummary
+      type: object
+    GlobalDeviationUpdateItem:
+      additionalProperties: false
+      description: Single global deviation update in PATCH request.
+      properties:
+        id:
+          description: Unique identifier for the global deviation row
+          title: Id
+          type: string
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: New comment (null to keep existing)
+          title: Comment
+      required:
+      - id
+      title: GlobalDeviationUpdateItem
+      type: object
+    GlobalDeviationRow:
+      additionalProperties: false
+      description: Single row in global deviations response (one row per project per period).
+      properties:
+        id:
+          description: Unique identifier for this global deviation row
+          title: Id
+          type: string
+        period:
+          $ref: '#/components/schemas/GlobalPeriod'
+          description: Period information
+        project_id:
+          description: Project ID (UUID)
+          title: Project Id
+          type: string
+        project_code:
+          description: Project code
+          title: Project Code
+          type: string
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/DeviationCountry'
+          - type: 'null'
+          description: Country information
+        robotic_sets:
+          description: All robotic sets for this project/period
+          items:
+            type: string
+          title: Robotic Sets
+          type: array
+        service_codes:
+          description: All service codes for this project/period
+          items:
+            type: string
+          title: Service Codes
+          type: array
+        fixed_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Aggregated fixed planned value (snapshot from month start)
+        actual_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Aggregated actual planned value (current state)
+        amount_charged:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Aggregated sum of charges for the period
+        deviation_from_actual:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Deviation from actual planned (charged - actual_planned)
+        deviation_from_fixed:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Deviation from fixed planned (charged - fixed_planned)
+        deviation_between_fixed_and_actual:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Difference between fixed and actual planned (fixed - actual)
+        deviation:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: 'DEPRECATED: Use deviation_from_actual. (charged - actual_planned)'
+        fault_side:
+          description: Unique fault sides from all deviations in the period
+          items:
+            $ref: '#/components/schemas/FaultSideEnum'
+          title: Fault Side
+          type: array
+        categories:
+          description: Unique categories from all deviations in the period
+          items:
+            $ref: '#/components/schemas/DeviationCategoryEnum'
+          title: Categories
+          type: array
+        comment:
+          default: ''
+          description: Global comment for this period
+          title: Comment
+          type: string
+        updated_by:
+          default: ''
+          description: User who last updated the comment
+          title: Updated By
+          type: string
+        is_locked:
+          description: Whether this row can be edited based on locking rules
+          title: Is Locked
+          type: boolean
+      required:
+      - id
+      - period
+      - project_id
+      - project_code
+      - fixed_planned
+      - actual_planned
+      - amount_charged
+      - deviation_from_actual
+      - deviation_from_fixed
+      - deviation_between_fixed_and_actual
+      - deviation
+      - is_locked
+      title: GlobalDeviationRow
+      type: object
+    DeviationsListResponse:
+      additionalProperties: false
+      description: Response schema for GET /deviations/{project_id}.
+      properties:
+        project_id:
+          description: Project ID (UUID)
+          title: Project Id
+          type: string
+        project_code:
+          description: Project code
+          title: Project Code
+          type: string
+        rows:
+          description: List of deviation rows
+          items:
+            $ref: '#/components/schemas/DeviationRow'
+          title: Rows
+          type: array
+        total_count:
+          description: Total number of rows (before pagination)
+          title: Total Count
+          type: integer
+        page:
+          description: Current page number
+          title: Page
+          type: integer
+        page_size:
+          description: Number of items per page
+          title: Page Size
+          type: integer
+      required:
+      - project_id
+      - project_code
+      - total_count
+      - page
+      - page_size
+      title: DeviationsListResponse
+      type: object
+    ExportFormat:
+      description: Export format options.
+      enum:
+      - csv
+      - xlsx
+      title: ExportFormat
+      type: string
+    ProjectDeviationsSummary:
+      additionalProperties: false
+      description: Summary schema for project-specific deviations aggregated data.
+      properties:
+        project_id:
+          description: Project ID (UUID)
+          title: Project Id
+          type: string
+        project_code:
+          description: Project code
+          title: Project Code
+          type: string
+        row_count:
+          description: Total number of rows matching filters
+          title: Row Count
+          type: integer
+        robotic_set_count:
+          description: Number of unique robotic sets
+          title: Robotic Set Count
+          type: integer
+        fixed_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total fixed planned value across all filtered rows
+        actual_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total actual planned value across all filtered rows
+        amount_charged:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total amount charged across all filtered rows
+        deviation_from_actual:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total deviation from actual across all filtered rows
+        deviation_from_fixed:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Total deviation from fixed across all filtered rows
+      required:
+      - project_id
+      - project_code
+      - row_count
+      - robotic_set_count
+      - fixed_planned
+      - actual_planned
+      - amount_charged
+      - deviation_from_actual
+      - deviation_from_fixed
+      title: ProjectDeviationsSummary
+      type: object
+    Period:
+      additionalProperties: false
+      description: Period information for deviation rows.
+      properties:
+        type:
+          $ref: '#/components/schemas/PeriodTypeEnum'
+          description: Period type (daily or weekly)
+        start_date:
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+          type: string
+        end_date:
+          description: End date (YYYY-MM-DD)
+          title: End Date
+          type: string
+        week_number:
+          description: ISO week number (1-53)
+          title: Week Number
+          type: integer
+        year:
+          description: ISO year for the week
+          title: Year
+          type: integer
+      required:
+      - type
+      - start_date
+      - end_date
+      - week_number
+      - year
+      title: Period
+      type: object
+    GlobalDeviationsListResponse:
+      additionalProperties: false
+      description: Response schema for GET /deviations.
+      properties:
+        rows:
+          description: List of global deviation rows
+          items:
+            $ref: '#/components/schemas/GlobalDeviationRow'
+          title: Rows
+          type: array
+        total_count:
+          description: Total number of rows (before pagination)
+          title: Total Count
+          type: integer
+        page:
+          description: Current page number
+          title: Page
+          type: integer
+        page_size:
+          description: Number of items per page
+          title: Page Size
+          type: integer
+      required:
+      - total_count
+      - page
+      - page_size
+      title: GlobalDeviationsListResponse
+      type: object
+    CountryFilter:
+      additionalProperties: false
+      description: Country filter item with code and name.
+      properties:
+        code:
+          description: Country code (alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CountryFilter
+      type: object
+    DeviationsPatchResponse:
+      additionalProperties: false
+      description: Response schema for PATCH /deviations/{project_id}.
+      properties:
+        updated_count:
+          description: Number of rows successfully updated
+          title: Updated Count
+          type: integer
+        failed_count:
+          description: Number of rows that failed to update
+          title: Failed Count
+          type: integer
+        errors:
+          description: List of errors for failed updates
+          items:
+            type: object
+          title: Errors
+          type: array
+      required:
+      - updated_count
+      - failed_count
+      title: DeviationsPatchResponse
+      type: object
+    CurrencyAmounts:
+      additionalProperties: false
+      description: Financial amounts in multiple currencies.
+      properties:
+        EUR:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount in EUR
+          title: Eur
+        AUD:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount in AUD
+          title: Aud
+        USD:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount in USD
+          title: Usd
+      title: CurrencyAmounts
+      type: object
+    DeviationRow:
+      additionalProperties: false
+      description: Single deviation row in response (daily or weekly).
+      properties:
+        id:
+          description: Unique identifier for this deviation row
+          title: Id
+          type: string
+        period:
+          $ref: '#/components/schemas/Period'
+          description: Period information
+        robotic_set:
+          description: Robotic set identifier
+          title: Robotic Set
+          type: string
+        service_codes:
+          description: USN service codes array
+          items:
+            type: string
+          title: Service Codes
+          type: array
+        fixed_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Fixed planned value (snapshot from month start)
+        actual_planned:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Actual planned value (current state)
+        amount_charged:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Sum of charges (daily or aggregated weekly)
+        deviation_from_actual:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Deviation from actual planned (charged - actual_planned)
+        deviation_from_fixed:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Deviation from fixed planned (charged - fixed_planned)
+        deviation_between_fixed_and_actual:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: Difference between fixed and actual planned (fixed - actual)
+        deviation:
+          $ref: '#/components/schemas/CurrencyAmounts'
+          description: 'DEPRECATED: Use deviation_from_actual. (charged - actual_planned)'
+        fault_side:
+          description: Fault sides inferred from categories (Internal/External)
+          items:
+            $ref: '#/components/schemas/FaultSideEnum'
+          title: Fault Side
+          type: array
+        category:
+          description: Deviation categories (user editable)
+          items:
+            $ref: '#/components/schemas/DeviationCategoryEnum'
+          title: Category
+          type: array
+        comment:
+          default: ''
+          description: User comment (user editable)
+          title: Comment
+          type: string
+        updated_by:
+          default: ''
+          description: First name + last name of user who last edited
+          title: Updated By
+          type: string
+        is_locked:
+          description: Whether this row can be edited based on locking rules
+          title: Is Locked
+          type: boolean
+      required:
+      - id
+      - period
+      - robotic_set
+      - fixed_planned
+      - actual_planned
+      - amount_charged
+      - deviation_from_actual
+      - deviation_from_fixed
+      - deviation_between_fixed_and_actual
+      - deviation
+      - is_locked
+      title: DeviationRow
+      type: object
+    DeviationUpdateItem:
+      additionalProperties: false
+      description: Single deviation update in PATCH request.
+      properties:
+        id:
+          description: Unique identifier for the deviation row
+          title: Id
+          type: string
+        period_type:
+          allOf:
+          - $ref: '#/components/schemas/PeriodTypeEnum'
+          default: daily
+          description: Period type (daily or weekly) to identify which entity to update
+        category:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/DeviationCategoryEnum'
+            type: array
+          - type: 'null'
+          description: New deviation categories array (null to keep existing, empty to clear). Not allowed for weekly type.
+          title: Category
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: New comment (null to keep existing)
+          title: Comment
+      required:
+      - id
+      title: DeviationUpdateItem
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

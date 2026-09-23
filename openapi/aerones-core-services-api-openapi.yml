@@ -1,0 +1,355 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.services API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.services
+paths:
+  /api/core/v1/services:
+    get:
+      operationId: core_endpoints_services_v2_list_services
+      summary: List Services
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by code (case-insensitive)
+          title: Search
+        required: false
+        description: Search by code (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: categories
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by category IDs (comma-separated, e.g., '1,2,3')
+          title: Categories
+        required: false
+        description: Filter by category IDs (comma-separated, e.g., '1,2,3')
+      - in: query
+        name: is_service
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by whether this is a service (true/false)
+          title: Is Service
+        required: false
+        description: Filter by whether this is a service (true/false)
+      - in: query
+        name: service_family_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by capability family ID
+          title: Service Family Id
+        required: false
+        description: Filter by capability family ID
+      - in: query
+        name: deprecated
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by deprecation state (true/false). Omit to return both; pass false to list only the services that can still be sold.
+          title: Deprecated
+        required: false
+        description: Filter by deprecation state (true/false). Omit to return both; pass false to list only the services that can still be sold.
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all services with optional search, sorting, and filtering by categories.
+      tags:
+      - core.services
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/services/{service_id}:
+    get:
+      operationId: core_endpoints_services_v2_get_service
+      summary: Get Service
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Retrieve a single service by its ID.
+      tags:
+      - core.services
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ServiceGroupNestedResponse:
+      additionalProperties: false
+      description: Nested response for service group in service response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ServiceGroupNestedResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceResponse:
+      additionalProperties: false
+      description: Schema for Service response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Service ID
+          title: Id
+          type: integer
+        code:
+          description: Service code
+          title: Code
+          type: string
+        description:
+          description: Service description
+          title: Description
+          type: string
+        is_rat:
+          description: Whether service is RAT
+          title: Is Rat
+          type: boolean
+        is_service:
+          description: Whether this is a service
+          title: Is Service
+          type: boolean
+        deprecated:
+          description: Whether the service is retired from the sellable catalogue. Clients should hide deprecated services from pickers; rows that already reference one stay valid and editable.
+          title: Deprecated
+          type: boolean
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceCategoryNestedResponse'
+          - type: 'null'
+          description: Service category
+        service_group:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceGroupNestedResponse'
+          - type: 'null'
+          description: Service group
+        service_family:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceFamilyNestedResponse'
+          - type: 'null'
+          description: Capability family that executes this service. Omitted entirely for catalogue rows that carry no capability (support, mobilisation, idle, direct materials) - responses exclude unset fields rather than sending null.
+        pricing_unit_types:
+          description: Available pricing unit types
+          items:
+            $ref: '#/components/schemas/PricingUnitNestedResponse'
+          title: Pricing Unit Types
+          type: array
+        component_types:
+          description: Component types applicable for this service
+          items:
+            $ref: '#/components/schemas/ComponentTypeObject'
+          title: Component Types
+          type: array
+      required:
+      - updated_at
+      - id
+      - code
+      - description
+      - is_rat
+      - is_service
+      - deprecated
+      title: ServiceResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceCategoryNestedResponse:
+      additionalProperties: false
+      description: Nested response for service category in service response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ServiceCategoryNestedResponse
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
+    ServiceFamilyNestedResponse:
+      additionalProperties: false
+      description: Nested response for service family in service response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: ServiceFamilyNestedResponse
+      type: object
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

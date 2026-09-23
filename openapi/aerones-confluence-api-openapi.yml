@@ -1,0 +1,80 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Confluence API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: confluence
+paths:
+  /api/common/unified-services:
+    get:
+      operationId: core_endpoints_services_get_unified_services
+      summary: Get unified services as HTML table
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnifiedServices'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get all unified services with their full names and codes in an HTML table format. Requires a valid public access token as a parameter ?token=
+      tags:
+      - confluence
+components:
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    UnifiedServices:
+      additionalProperties: false
+      description: Schema for unified services response.
+      properties:
+        response:
+          description: HTML response with service types
+          title: Response
+          type: string
+      required:
+      - response
+      title: UnifiedServices
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

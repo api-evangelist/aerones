@@ -1,0 +1,416 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.delay Types API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.delay-types
+paths:
+  /api/core/v1/delay-types:
+    get:
+      operationId: list_delaytypes
+      summary: List DelayTypes
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by code (case-insensitive)
+          title: Search
+        required: false
+        description: Search by code (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: delay_category_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by delay category ID
+          title: Delay Category Id
+        required: false
+        description: Filter by delay category ID
+      - in: query
+        name: enabled
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by enabled status
+          title: Enabled
+        required: false
+        description: Filter by enabled status
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DelayTypeResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.delay-types
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_delaytype
+      summary: Create DelayType
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayTypeResponse'
+      description: Create a new item.
+      tags:
+      - core.delay-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelayTypeCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/delay-types/{id}:
+    get:
+      operationId: get_delaytype
+      summary: Get DelayType
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayTypeResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.delay-types
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_delaytype
+      summary: Update DelayType
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayTypeResponse'
+      description: Update an item.
+      tags:
+      - core.delay-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelayTypeUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_delaytype
+      summary: Delete DelayType
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.delay-types
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    DelayTypeUpdate:
+      additionalProperties: false
+      description: Schema for updating a DelayType.
+      properties:
+        delay_category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Delay category ID
+          title: Delay Category Id
+        code:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Delay type code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type description
+          title: Description
+        enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether type is enabled
+          title: Enabled
+        include_in_client_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Include in client reports
+          title: Include In Client Reports
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+      title: DelayTypeUpdate
+      type: object
+    DelayCategoryObject:
+      additionalProperties: false
+      description: Nested delay category object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: DelayCategoryObject
+      type: object
+    DelayTypeResponse:
+      additionalProperties: false
+      description: Schema for DelayType response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Delay type ID
+          title: Id
+          type: integer
+        delay_category:
+          $ref: '#/components/schemas/DelayCategoryObject'
+          description: Delay category information
+        code:
+          description: Delay type code
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type description
+          title: Description
+        enabled:
+          description: Whether type is enabled
+          title: Enabled
+          type: boolean
+        include_in_client_reports:
+          description: Include in client reports
+          title: Include In Client Reports
+          type: boolean
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+      required:
+      - updated_at
+      - id
+      - delay_category
+      - code
+      - enabled
+      - include_in_client_reports
+      title: DelayTypeResponse
+      type: object
+    DelayTypeCreate:
+      additionalProperties: false
+      description: Schema for creating a DelayType.
+      properties:
+        delay_category_id:
+          description: Delay category ID
+          title: Delay Category Id
+          type: integer
+        code:
+          description: Delay type code
+          minLength: 1
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type description
+          title: Description
+        enabled:
+          default: true
+          description: Whether type is enabled
+          title: Enabled
+          type: boolean
+        include_in_client_reports:
+          default: true
+          description: Include in client reports
+          title: Include In Client Reports
+          type: boolean
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+      required:
+      - delay_category_id
+      - code
+      title: DelayTypeCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

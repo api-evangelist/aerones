@@ -1,0 +1,805 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Technician.reports API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: technician.reports
+paths:
+  /api/technician/reports/service-order-lines:
+    get:
+      operationId: reports_api_list_report_service_order_lines
+      summary: List Report Service Order Lines
+      parameters:
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (optional)
+          title: Project Id
+        required: false
+        description: Project ID (optional)
+      - in: query
+        name: project_manager_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project manager user ID
+          title: Project Manager Id
+        required: false
+        description: Project manager user ID
+      - in: query
+        name: robot_set_ids
+        schema:
+          description: Robot set IDs
+          items:
+            type: integer
+          title: Robot Set Ids
+          type: array
+        required: false
+        description: Robot set IDs
+      - in: query
+        name: statuses
+        schema:
+          description: 'Filter by service order line status (the ''Status Now'' column). Repeatable / comma-separated. Allowed: NOT_STARTED, IN_PROGRESS, FIELD_COMPLETED, COMPLETED, CANCELLED.'
+          items:
+            type: string
+          title: Statuses
+          type: array
+        required: false
+        description: 'Filter by service order line status (the ''Status Now'' column). Repeatable / comma-separated. Allowed: NOT_STARTED, IN_PROGRESS, FIELD_COMPLETED, COMPLETED, CANCELLED.'
+      - in: query
+        name: date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Activity date
+          title: Date
+        required: false
+        description: Activity date
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Sort field (snake_case). Prefix with ''-'' for descending. Supported: id, service_code, actual_status, report_status, customer_name, project_code, turbine_name, location_name, activity_from, activity_to, daily_report_last_sent_at.'
+          title: Sort
+        required: false
+        description: 'Sort field (snake_case). Prefix with ''-'' for descending. Supported: id, service_code, actual_status, report_status, customer_name, project_code, turbine_name, location_name, activity_from, activity_to, daily_report_last_sent_at.'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DailyReportSolResponse'
+                title: Response
+                type: array
+      description: Return SOLs matching the daily-report filters for the preview table.
+      tags:
+      - technician.reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/download:
+    post:
+      operationId: reports_api_download_report
+      summary: Download Report
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Generate and download a daily report via the reporting engine.
+      tags:
+      - technician.reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownloadReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/submit-draft:
+    post:
+      operationId: reports_api_submit_draft_report
+      summary: Submit Draft Report
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendReportResponse'
+      description: Submit a daily report draft (log + PM email) without file download response.
+      tags:
+      - technician.reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownloadReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/send:
+    post:
+      operationId: reports_api_send_report
+      summary: Send Report
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendReportResponse'
+      description: 'Send a daily report via the reporting engine send endpoint.
+
+
+        Technicians cannot call this endpoint — on the Daily Reports page they
+
+        use /reports/submit-draft to notify the PM instead of sending to the
+
+        client. Customer delivery stays with PMs and admins.
+
+
+        When file_token and report_token are supplied (from the download step),
+
+        the reporting engine attaches the already-rendered file without re-rendering.
+
+        When omitted, the report is generated fresh before sending.
+
+
+        Recipients are resolved here, not by the reporting engine: OpsHub owns the
+
+        Pre-job "Would you like to receive daily reports?" answer and the Pre-job →
+
+        RFI recipient fallback, and passes the finished list to the engine. A
+
+        project that answered "no" is refused outright.'
+      tags:
+      - technician.reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/download:
+    post:
+      operationId: reports_api_download_final_report
+      summary: Download Final Report
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Generate and download a final report for a single service order line.
+      tags:
+      - technician.reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/send:
+    post:
+      operationId: reports_api_send_final_report
+      summary: Send Final Report
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendReportResponse'
+      description: 'Render a final report and send it via the reporting engine.
+
+
+        Recipients are resolved here, not by the engine, mirroring the daily
+
+        ``send_report``: the Pre-job ``FINAL_REPORT`` selection with the RFI
+
+        fallback plus internal copies. Resolved before the render so a project
+
+        with nobody to send to is refused without a wasted render.'
+      tags:
+      - technician.reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/start:
+    post:
+      operationId: reports_api_start_final_report
+      summary: Start Final Report
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalReportStartResponse'
+      description: Kick off async final-report generation; returns immediately with a token.
+      tags:
+      - technician.reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/{generation_id}/status:
+    get:
+      operationId: reports_api_final_report_status
+      summary: Final Report Status
+      parameters:
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalReportStatusResponse'
+      description: Poll the status of an in-flight final-report generation.
+      tags:
+      - technician.reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/{generation_id}/download:
+    get:
+      operationId: reports_api_download_final_report_by_id
+      summary: Download Final Report By Id
+      parameters:
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Download the stored PDF for a generation (fresh or previously generated).
+
+
+        Always serves our own copy — the PDF is persisted to the file store when
+
+        generation completes, so downloads never touch the reporting engine.'
+      tags:
+      - technician.reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/state:
+    get:
+      operationId: reports_api_final_report_state
+      summary: Final Report State
+      parameters:
+      - in: query
+        name: service_order_line_id
+        schema:
+          description: Service order line ID
+          title: Service Order Line Id
+          type: integer
+        required: true
+        description: Service order line ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalReportStateResponse'
+      description: Return the latest completed + any in-flight generation for the modal.
+      tags:
+      - technician.reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/reports/final-report/{generation_id}/send:
+    post:
+      operationId: reports_api_send_final_report_by_id
+      summary: Send Final Report By Id
+      parameters:
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendReportResponse'
+      description: 'Email a previously generated final report, reusing its rendered snapshot.
+
+
+        Recipients come from ``_resolve_final_report_recipient_emails`` (Pre-job
+
+        ``FINAL_REPORT`` selection, RFI fallback, internal copies, archive and
+
+        forwards), never from the engine''s own lookup. The engine send needs the
+
+        file token, which is fetched lazily when the report was never downloaded
+
+        in this session.'
+      tags:
+      - technician.reports
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    FinalReportStatusResponse:
+      additionalProperties: false
+      description: Polling response for an in-flight final-report generation.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - status
+      title: FinalReportStatusResponse
+      type: object
+    DownloadReportRequest:
+      additionalProperties: false
+      description: Request body for generating a daily report.
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (optional when all selected SOLs belong to one project)
+          title: Project Id
+        robot_set_ids:
+          description: List of robot set IDs
+          items:
+            type: integer
+          title: Robot Set Ids
+          type: array
+        date:
+          description: Report date (YYYY-MM-DD)
+          format: date
+          title: Date
+          type: string
+        format:
+          default: pdf
+          description: Output format (pdf, html)
+          title: Format
+          type: string
+        service_order_line_ids:
+          description: Selected service order line IDs (empty = all matching)
+          items:
+            type: integer
+          title: Service Order Line Ids
+          type: array
+        submit_draft:
+          default: false
+          description: When true, persist a draft-submission log for selected SOLs.
+          title: Submit Draft
+          type: boolean
+      required:
+      - date
+      title: DownloadReportRequest
+      type: object
+    FinalReportRequest:
+      additionalProperties: false
+      description: Request body for generating a final report for a single SOL.
+      properties:
+        service_order_line_id:
+          description: Service order line ID
+          title: Service Order Line Id
+          type: integer
+        format:
+          default: pdf
+          description: Output format (pdf, html)
+          title: Format
+          type: string
+        exclude_fields:
+          description: Optional report field names to exclude (e.g. comments, description)
+          items:
+            type: string
+          title: Exclude Fields
+          type: array
+      required:
+      - service_order_line_id
+      title: FinalReportRequest
+      type: object
+    DailyReportSolResponse:
+      additionalProperties: false
+      description: Response schema for a single SOL in the daily reports preview.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        actual_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actual Status
+        actual_status_changed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Actual Status Changed At
+        report_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Report Status
+        completed_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Completed Date
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Name
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        project_manager_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Manager Id
+        project_manager_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Manager Name
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        component_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Label
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        current_team_lead:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Team Lead
+        daily_report_last_sent_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Daily Report Last Sent At
+        daily_report_last_sent_by_user:
+          anyOf:
+          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
+          - type: 'null'
+        selected_date_last_sent_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Selected Date Last Sent At
+        selected_date_last_sent_by_user:
+          anyOf:
+          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
+          - type: 'null'
+        selected_date_draft_submitted_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Selected Date Draft Submitted At
+        selected_date_draft_submitted_by_user:
+          anyOf:
+          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
+          - type: 'null'
+        activity_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Activity From
+        activity_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Activity To
+        available_report_dates:
+          items:
+            format: date
+            type: string
+          title: Available Report Dates
+          type: array
+        activity_report_dates:
+          items:
+            format: date
+            type: string
+          title: Activity Report Dates
+          type: array
+        sent_report_dates:
+          items:
+            format: date
+            type: string
+          title: Sent Report Dates
+          type: array
+        is_report_eligible:
+          default: false
+          title: Is Report Eligible
+          type: boolean
+        report_recipients:
+          items:
+            type: string
+          title: Report Recipients
+          type: array
+        receive_daily_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Pre-job → Billing & Reporting → Reporting answer to 'Would you like to receive daily reports?'. NULL means never answered and behaves as yes. False blocks sending the report to the client.
+          title: Receive Daily Reports
+        recipient_source:
+          default: none
+          description: 'Where the client recipients came from: ''pre_job'' (Pre-job Reporting selection), ''rfi'' (RFI Contacts report recipients, used when no Pre-job selection is saved) or ''none''.'
+          title: Recipient Source
+          type: string
+      required:
+      - id
+      title: DailyReportSolResponse
+      type: object
+    FinalReportStartResponse:
+      additionalProperties: false
+      description: Response after kicking off async final-report generation.
+      properties:
+        generation_id:
+          description: Report row ID
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+      required:
+      - generation_id
+      - status
+      title: FinalReportStartResponse
+      type: object
+    SendReportResponse:
+      additionalProperties: false
+      description: Response payload for successful daily report send action.
+      properties:
+        success:
+          title: Success
+          type: boolean
+        message:
+          title: Message
+          type: string
+        recipients_count:
+          title: Recipients Count
+          type: integer
+        recipient_emails:
+          items:
+            type: string
+          title: Recipient Emails
+          type: array
+      required:
+      - success
+      - message
+      - recipients_count
+      title: SendReportResponse
+      type: object
+    DailyReportSubmittedByUser:
+      additionalProperties: false
+      description: Submitted-by user identity for selected-date draft metadata.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: DailyReportSubmittedByUser
+      type: object
+    FinalReportStateResponse:
+      additionalProperties: false
+      description: 'State the Final Report modal needs on open.
+
+
+        ``latest_completed`` drives the "Previously generated report" button and its
+
+        tooltip; ``in_progress`` lets the modal resume the "Generating..." state.'
+      properties:
+        latest_completed:
+          anyOf:
+          - $ref: '#/components/schemas/FinalReportGenerationSummary'
+          - type: 'null'
+        in_progress:
+          anyOf:
+          - $ref: '#/components/schemas/FinalReportGenerationSummary'
+          - type: 'null'
+      title: FinalReportStateResponse
+      type: object
+    SendReportRequest:
+      additionalProperties: false
+      description: Request body for sending a daily report via the reporting engine.
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (optional when all selected SOLs belong to one project)
+          title: Project Id
+        robot_set_ids:
+          description: List of robot set IDs
+          items:
+            type: integer
+          title: Robot Set Ids
+          type: array
+        date:
+          description: Report date (YYYY-MM-DD)
+          format: date
+          title: Date
+          type: string
+        format:
+          default: pdf
+          description: Output format (pdf, docx)
+          title: Format
+          type: string
+        service_order_line_ids:
+          description: Selected service order line IDs (empty = all matching)
+          items:
+            type: integer
+          title: Service Order Line Ids
+          type: array
+        file_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: X-File-Token from the download step. When provided the reporting engine attaches the exact cached file without re-rendering.
+          title: File Token
+        report_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Report snapshot token (X-Report-Token) returned by the download step.
+          title: Report Token
+      required:
+      - date
+      title: SendReportRequest
+      type: object
+    FinalReportGenerationSummary:
+      additionalProperties: false
+      description: A single final-report generation, used in the modal state payload.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        generated_by_user:
+          anyOf:
+          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
+          - type: 'null'
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+      required:
+      - generation_id
+      - status
+      title: FinalReportGenerationSummary
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,438 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.turbine Models API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.turbine-models
+paths:
+  /api/core/v1/turbine-models:
+    get:
+      operationId: list_turbine_models
+      summary: List Turbine Models
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: manufacturer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by manufacturer ID
+          title: Manufacturer Id
+        required: false
+        description: Filter by manufacturer ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TurbineModelResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.turbine-models
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_turbine_model
+      summary: Create Turbine Model
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineModelResponse'
+      description: Create a new item.
+      tags:
+      - core.turbine-models
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurbineModelCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbine-models/{id}:
+    get:
+      operationId: get_turbine_model
+      summary: Get Turbine Model
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineModelResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.turbine-models
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_turbine_model
+      summary: Update Turbine Model
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineModelResponse'
+      description: Update an item.
+      tags:
+      - core.turbine-models
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurbineModelUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_turbine_model
+      summary: Delete Turbine Model
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.turbine-models
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    TurbineModelUpdate:
+      additionalProperties: false
+      description: Schema for updating a TurbineModel.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Turbine model name
+          title: Name
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        center_to_root_offset:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: 'null'
+          description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
+          title: Center To Root Offset
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        double_receptors:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Has double receptors
+          title: Double Receptors
+        hv_double_receptors:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Has HV double receptors
+          title: Hv Double Receptors
+      title: TurbineModelUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    TurbineModelResponse:
+      additionalProperties: false
+      description: Schema for TurbineModel response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Turbine model ID
+          title: Id
+          type: integer
+        name:
+          description: Turbine model name
+          title: Name
+          type: string
+        manufacturer:
+          $ref: '#/components/schemas/ManufacturerObject'
+          description: Manufacturer details
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        center_to_root_offset:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
+          title: Center To Root Offset
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        double_receptors:
+          description: Has double receptors
+          title: Double Receptors
+          type: boolean
+        hv_double_receptors:
+          description: Has HV double receptors
+          title: Hv Double Receptors
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - name
+      - manufacturer
+      - double_receptors
+      - hv_double_receptors
+      title: TurbineModelResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    TurbineModelCreate:
+      additionalProperties: false
+      description: Schema for creating a TurbineModel.
+      properties:
+        name:
+          description: Turbine model name
+          minLength: 1
+          title: Name
+          type: string
+        manufacturer_id:
+          description: Manufacturer ID
+          title: Manufacturer Id
+          type: integer
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        center_to_root_offset:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: 'null'
+          description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
+          title: Center To Root Offset
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        double_receptors:
+          default: false
+          description: Has double receptors
+          title: Double Receptors
+          type: boolean
+        hv_double_receptors:
+          default: false
+          description: Has HV double receptors
+          title: Hv Double Receptors
+          type: boolean
+      required:
+      - name
+      - manufacturer_id
+      title: TurbineModelCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

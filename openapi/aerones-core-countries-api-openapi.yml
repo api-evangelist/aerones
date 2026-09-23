@@ -1,0 +1,182 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.countries API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.countries
+paths:
+  /api/core/v1/countries:
+    get:
+      operationId: list_countrys
+      summary: List Countrys
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CountryResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - core.countries
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CountryResponse:
+      additionalProperties: false
+      description: Schema for Country response matching legacy /countries endpoint.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: ISO 3166-1 alpha-2 country code
+          title: Code
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Country name
+          title: Name
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Geographic region name
+          title: Region
+        business_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Business region name
+          title: Business Region
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency code
+          title: Currency
+        enabled:
+          description: Whether country is enabled
+          title: Enabled
+          type: boolean
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID
+          title: Netsuite Id
+      required:
+      - updated_at
+      - id
+      - code
+      - enabled
+      title: CountryResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

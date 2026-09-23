@@ -1,0 +1,566 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.workorders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.workorders
+paths:
+  /api/projects/{project_id}/workorders:
+    get:
+      operationId: projects_api_service_orders_list_project_workorders
+      summary: ⚠️ List project workorders
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        required: false
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 25
+          title: Page Size
+          type: integer
+        required: false
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        required: false
+      - in: query
+        name: service_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectWorkorderListItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: '⚠️ Internal OpsHub UI endpoint. Not intended for external consumption.
+
+
+        List workorders for a project with server-side pagination and filtering.'
+      tags:
+      - projects.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/workorders/{workorder_id}:
+    get:
+      operationId: projects_api_service_orders_get_admin_workorder_detail
+      summary: ⚠️ Get admin workorder detail
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminWorkorderDetail'
+      description: '⚠️ Internal OpsHub UI endpoint. Not intended for external consumption.
+
+
+        Get admin workorder detail.'
+      tags:
+      - projects.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectWorkorderListItem:
+      additionalProperties: false
+      description: Workorder list item for project workorders tab.
+      properties:
+        id:
+          description: Workorder ID
+          title: Id
+          type: integer
+        workorder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder ID string
+          title: Workorder Id
+        name:
+          description: Workorder name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder type
+          title: Type
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder status
+          title: Status
+        service_item:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderNestedIdName'
+          - type: 'null'
+          description: Service item
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderNestedIdName'
+          - type: 'null'
+          description: Component type
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderNestedIdSerial'
+          - type: 'null'
+          description: Turbine component
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order line ID (for SERVICE workorders)
+          title: Service Order Line Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (for SERVICE workorders)
+          title: Service Order Id
+        planned_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Planned start datetime
+          title: Planned Start Datetime
+      required:
+      - id
+      - name
+      - created_at
+      title: ProjectWorkorderListItem
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    AdminWorkorderAssignee:
+      additionalProperties: false
+      description: Assignee for admin workorder.
+      properties:
+        id:
+          description: User ID
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full name
+          title: Full Name
+      required:
+      - id
+      title: AdminWorkorderAssignee
+      type: object
+    WorkorderActivityResourceLink:
+      additionalProperties: false
+      description: 'Resource assignment row on a workorder activity.
+
+
+        Mirrors the dict shape returned by
+
+        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
+
+        per row in the ``dispatch.workorder_activity_resources`` junction table).'
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      title: WorkorderActivityResourceLink
+      type: object
+    WorkorderNestedIdSerial:
+      additionalProperties: false
+      description: Nested object with id and serial.
+      properties:
+        id:
+          description: ID
+          title: Id
+          type: integer
+        serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Serial number
+          title: Serial
+      required:
+      - id
+      title: WorkorderNestedIdSerial
+      type: object
+    AdminWorkorderDetail:
+      additionalProperties: false
+      description: Admin workorder detail response.
+      properties:
+        id:
+          description: Workorder ID
+          title: Id
+          type: integer
+        name:
+          description: Workorder name
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder status
+          title: Status
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder type
+          title: Type
+        is_rework:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the workorder is rework (redoing completed work).
+          title: Is Rework
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IANA timezone of the workorder's location, used for activity time edits
+          title: Location Timezone
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine name
+          title: Turbine Name
+        component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component serial number
+          title: Component Serial
+        component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component position
+          title: Component Position
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component type name
+          title: Component Type Name
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service item code
+          title: Service Code
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service item description
+          title: Service Name
+        resource_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource set name
+          title: Resource Set Name
+        resources:
+          description: Assigned resources
+          items:
+            $ref: '#/components/schemas/WorkorderResource'
+          title: Resources
+          type: array
+        technician_names:
+          description: Aggregated technician names from assignments and delays
+          items:
+            type: string
+          title: Technician Names
+          type: array
+        planned_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Planned start datetime
+          title: Planned Start Datetime
+        planned_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Planned end datetime
+          title: Planned End Datetime
+        assignee:
+          anyOf:
+          - $ref: '#/components/schemas/AdminWorkorderAssignee'
+          - type: 'null'
+          description: Assigned user
+        activities:
+          description: Workorder activities
+          items:
+            $ref: '#/components/schemas/AdminWorkorderActivity'
+          title: Activities
+          type: array
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+        cancellation_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text reason recorded when the workorder was cancelled. Sourced from the change_note of the latest WorkorderStatusChangeLog entry that transitioned the workorder into CANCELLED. Null when the workorder isn't cancelled or no note was captured (e.g. cascades).
+          title: Cancellation Reason
+        cancelled_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Display name of the user who cancelled the workorder. Null when the workorder isn't cancelled or the actor is unknown.
+          title: Cancelled By Name
+      required:
+      - id
+      - name
+      - created_at
+      title: AdminWorkorderDetail
+      type: object
+    AdminWorkorderActivity:
+      additionalProperties: false
+      description: Activity for admin workorder.
+      properties:
+        id:
+          description: Activity ID
+          title: Id
+          type: integer
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity description
+          title: Activity Description
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start datetime
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End datetime
+          title: End Datetime
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity status
+          title: Status
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the activity is optional. Null is treated as optional.
+          title: Is Optional
+        resources:
+          description: Resources assigned to this activity (snapshot)
+          items:
+            $ref: '#/components/schemas/WorkorderResource'
+          title: Resources
+          type: array
+        activity_resources:
+          description: Normalised resource assignments from the ``dispatch.workorder_activity_resources`` junction table. Empty until the cutover from the legacy ``resources`` JSON column has landed.
+          items:
+            $ref: '#/components/schemas/WorkorderActivityResourceLink'
+          title: Activity Resources
+          type: array
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields data
+          title: Custom Fields
+      required:
+      - id
+      title: AdminWorkorderActivity
+      type: object
+    WorkorderResource:
+      additionalProperties: false
+      description: Resource assigned to a workorder.
+      properties:
+        id:
+          description: Resource ID
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ROBOT or TECHNICIAN
+          title: Resource Type
+      required:
+      - id
+      title: WorkorderResource
+      type: object
+    WorkorderNestedIdName:
+      additionalProperties: false
+      description: Nested object with id and name.
+      properties:
+        id:
+          description: ID
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name
+          title: Name
+      required:
+      - id
+      title: WorkorderNestedIdName
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

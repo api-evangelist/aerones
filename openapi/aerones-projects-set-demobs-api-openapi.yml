@@ -1,0 +1,601 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.set Demobs API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.set-demobs
+paths:
+  /api/projects/{project_id}/set-demobs:
+    get:
+      operationId: projects_api_set_demob_list_set_demobs
+      summary: List Set Demobs
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetDemobResponse'
+                title: Response
+                type: array
+      tags:
+      - projects.set-demobs
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_set_demob_create_set_demob
+      summary: Create Set Demob
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDemobResponse'
+      description: Manually create an APPROVED demob for a case the sweep won't catch.
+      tags:
+      - projects.set-demobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDemobCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/anchor-candidates:
+    get:
+      operationId: projects_api_set_demob_list_set_demob_anchor_candidates
+      summary: List Set Demob Anchor Candidates
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetDemobAnchorCandidate'
+                title: Response
+                type: array
+      description: ROBOT PPRSIs a manual demob can anchor on (picker for Create demob).
+      tags:
+      - projects.set-demobs
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/{demob_id}:
+    get:
+      operationId: projects_api_set_demob_get_set_demob
+      summary: Get Set Demob
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: demob_id
+        schema:
+          title: Demob Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDemobResponse'
+      tags:
+      - projects.set-demobs
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/{demob_id}/events:
+    get:
+      operationId: projects_api_set_demob_list_set_demob_events
+      summary: List Set Demob Events
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: demob_id
+        schema:
+          title: Demob Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SetDemobEventResponse'
+                title: Response
+                type: array
+      description: 'The change log: approvals, date adjustments, rejections, drift flags.'
+      tags:
+      - projects.set-demobs
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/{demob_id}/approve:
+    post:
+      operationId: projects_api_set_demob_approve_set_demob
+      summary: Approve Set Demob
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: demob_id
+        schema:
+          title: Demob Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDemobResponse'
+      description: Approve a PLANNED demob, confirming or overriding the return date.
+      tags:
+      - projects.set-demobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDemobApprove'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/{demob_id}/adjust-date:
+    post:
+      operationId: projects_api_set_demob_adjust_set_demob_date
+      summary: Adjust Set Demob Date
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: demob_id
+        schema:
+          title: Demob Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDemobResponse'
+      description: Edit an APPROVED demob's return date (logged in the change log).
+      tags:
+      - projects.set-demobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDemobAdjustDate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/{demob_id}/reject:
+    post:
+      operationId: projects_api_set_demob_reject_set_demob
+      summary: Reject Set Demob
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: demob_id
+        schema:
+          title: Demob Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDemobResponse'
+      description: Reject a PLANNED demob (sticky — the sweep won't recreate it).
+      tags:
+      - projects.set-demobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDemobReject'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/set-demobs/{demob_id}/cancel:
+    post:
+      operationId: projects_api_set_demob_cancel_set_demob
+      summary: Cancel Set Demob
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: demob_id
+        schema:
+          title: Demob Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDemobResponse'
+      description: Cancel an APPROVED demob (manual reversal).
+      tags:
+      - projects.set-demobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDemobCancel'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SetDemobReject:
+      additionalProperties: false
+      properties:
+        reason:
+          description: Why this demob is rejected. Required.
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - reason
+      title: SetDemobReject
+      type: object
+    SetDemobCancel:
+      additionalProperties: false
+      properties:
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      title: SetDemobCancel
+      type: object
+    SetDemobResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_id:
+          title: Display Id
+          type: string
+        project_id:
+          title: Project Id
+          type: integer
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        status:
+          title: Status
+          type: string
+        is_manual:
+          default: false
+          title: Is Manual
+          type: boolean
+        demob_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Demob Date
+        auto_demob_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Auto Demob Date
+        date_overridden:
+          default: false
+          title: Date Overridden
+          type: boolean
+        has_date_drift:
+          default: false
+          title: Has Date Drift
+          type: boolean
+        gap_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Gap Days
+        next_pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Next Pprs Id
+        next_project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Project Code
+        approved_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Approved At
+        approved_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approved By Name
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - display_id
+      - project_id
+      - pprs_id
+      - status
+      - updated_at
+      title: SetDemobResponse
+      type: object
+    SetDemobApprove:
+      additionalProperties: false
+      properties:
+        demob_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Return date to confirm. Defaults to the set's PPRSI end date (auto_demob_date) when omitted.
+          title: Demob Date
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      title: SetDemobApprove
+      type: object
+    SetDemobCreate:
+      additionalProperties: false
+      properties:
+        pprsi_id:
+          description: The ROBOT PPRSI (robot-set deployment line) to anchor the demob on. The demob is bound to that line's parent PPRS.
+          title: Pprsi Id
+          type: integer
+        demob_date:
+          description: The PM-committed demobilization date (the project end date), stored as the override. Must be today or later.
+          format: date
+          title: Demob Date
+          type: string
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      required:
+      - pprsi_id
+      - demob_date
+      title: SetDemobCreate
+      type: object
+    SetDemobAdjustDate:
+      additionalProperties: false
+      properties:
+        demob_date:
+          description: The corrected return date.
+          format: date
+          title: Demob Date
+          type: string
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      required:
+      - demob_date
+      title: SetDemobAdjustDate
+      type: object
+    SetDemobEventResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        event_type:
+          title: Event Type
+          type: string
+        old_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Old Status
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Status
+        old_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Old Date
+        new_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: New Date
+        description:
+          default: ''
+          title: Description
+          type: string
+        actor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Name
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - event_type
+      - updated_at
+      title: SetDemobEventResponse
+      type: object
+    SetDemobAnchorCandidate:
+      additionalProperties: false
+      description: A ROBOT PPRSI a manual demob can be anchored on (picker option).
+      properties:
+        pprsi_id:
+          title: Pprsi Id
+          type: integer
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+      required:
+      - pprsi_id
+      - pprs_id
+      title: SetDemobAnchorCandidate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

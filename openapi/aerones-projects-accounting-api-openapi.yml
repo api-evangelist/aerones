@@ -1,0 +1,4872 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.accounting API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.accounting
+paths:
+  /api/projects/{project_id}/sales-orders:
+    get:
+      operationId: accounting_api_get_sales_orders
+      summary: Get Sales Orders
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SalesOrder'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Retrieve all sales orders for a given project.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: accounting_api_create_sales_order
+      summary: Create Sales Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesOrder'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create sales order for given project
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/legacy:
+    post:
+      operationId: accounting_api_create_sales_order_old
+      summary: Create Sales Order Old
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesOrder'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Legacy sales order create endpoint (kept for testing).
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesOrderPOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/create-background:
+    post:
+      operationId: accounting_api_create_sales_order_in_background
+      summary: Create Sales Order In Background
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithSuccess'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create sales order in background for given project.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/status:
+    get:
+      operationId: accounting_api_get_sales_order_status
+      summary: Get Sales Order Status
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CombinedSalesOrderStatus'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get combined sales order creation and sync status for a project.
+
+
+        Returns creation status and sync status (if sales order exists).'
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}:
+    delete:
+      operationId: accounting_api_delete_sales_order
+      summary: Delete Sales Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete sales order for given project
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/line-items:
+    get:
+      operationId: accounting_api_get_sales_order_line_items
+      summary: Get Sales Order Line Items
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SalesOrderLineItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Retrieve all line items for a specific sales order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/line-items/summary:
+    get:
+      operationId: accounting_api_get_sales_order_line_items_summary
+      summary: Get Sales Order Line Items Summary
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceRate'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Retrieve summary of all line items for a specific sales order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/line-items/tree:
+    get:
+      operationId: accounting_api_get_sales_order_line_items_tree
+      summary: Get Sales Order Line Items Tree
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SalesOrderLineItemTLNode'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Retrieve all line items in tree structure, i.e. blades as child nodes of turbines.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/charges:
+    get:
+      operationId: accounting_api_get_charges
+      summary: Get Charges
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Charge'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return list of charges by sales order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: accounting_api_update_charges_bulk
+      summary: Update Charges Bulk
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Charge'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Update multiple charges in bulk.
+
+
+        Only charges with status DRAFT can be updated.'
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/ChargeBulkPATCHItem'
+              title: Body
+              type: array
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: accounting_api_delete_charges_bulk
+      summary: Delete Charges Bulk
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Delete multiple charges in bulk.
+
+
+        Only charges with status DRAFT can be deleted.'
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargeBulkDELETE'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/email-sends:
+    get:
+      operationId: accounting_api_get_email_sends
+      summary: Get Email Sends
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/EmailSendLogResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return a project's sent-email history, most recent first.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/charges/summary:
+    get:
+      operationId: accounting_api_get_charges_summary
+      summary: Get Charges Summary
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: query
+        name: date_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Date From
+        required: false
+      - in: query
+        name: date_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Date To
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargeSummary'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return pre-aggregated charge totals from local DB, optionally filtered by date range.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/line-items/{line_item_id}/charges:
+    post:
+      operationId: accounting_api_create_charge
+      summary: Create Charge
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: path
+        name: line_item_id
+        schema:
+          title: Line Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charge'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a charge.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargePOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/line-items/{line_item_id}/charges/{charge_id}:
+    patch:
+      operationId: accounting_api_update_charge
+      summary: Update Charge
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: path
+        name: line_item_id
+        schema:
+          title: Line Item Id
+          type: integer
+        required: true
+      - in: path
+        name: charge_id
+        schema:
+          title: Charge Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charge'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Update a charge.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargePATCH'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: accounting_api_delete_charge
+      summary: Delete Charge
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: path
+        name: line_item_id
+        schema:
+          title: Line Item Id
+          type: integer
+        required: true
+      - in: path
+        name: charge_id
+        schema:
+          title: Charge Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a charge.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/charges/bulk-approve:
+    post:
+      operationId: accounting_api_bulk_approve_charges
+      summary: Bulk Approve Charges
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargeBulkApproveResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChargeBulkApprove'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/invoices:
+    get:
+      operationId: accounting_api_get_invoices
+      summary: Get Invoices
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AccountingInvoice'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get all invoices for a sales order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: accounting_api_create_invoice
+      summary: Create Invoice
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateInvoiceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create invoice for given sales order.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSalesOrderInvoicePOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/invoices/create-background:
+    post:
+      operationId: accounting_api_create_invoice_in_background
+      summary: Create Invoice In Background
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithSuccess'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create invoice in background for given sales order.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSalesOrderInvoicePOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/diff-asset-names:
+    get:
+      operationId: accounting_api_get_sales_order_diff_asset_names
+      summary: Get Sales Order Diff Asset Names
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/PatchStrValue'
+                title: Response
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get Sales Order diff asset names.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: accounting_api_create_sales_order_diff_asset_names_patch
+      summary: Create Sales Order Diff Asset Names Patch
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetPatchGET'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create Sales Order diff asset names patch.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: accounting_api_apply_sales_order_diff_asset_names_patch
+      summary: Apply Sales Order Diff Asset Names Patch
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Apply Sales Order diff asset names patch.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetPatchPATCH'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/idle-hour-time-windows:
+    get:
+      operationId: accounting_api_get_idle_hour_time_windows
+      summary: Get Idle Hour Time Windows
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: query
+        name: charge_date
+        schema:
+          format: date
+          title: Charge Date
+          type: string
+        required: true
+      - in: query
+        name: robot_set_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        required: false
+      - in: query
+        name: robot_set_name
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdleHourTimeWindowsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Build idle-hour delay windows for a charge date and robot set.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/sync-offer:
+    post:
+      operationId: accounting_api_sync_offer_line_items
+      summary: Sync Offer Line Items
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithSuccess'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Sync offer line items for Sales Order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/sync-background:
+    post:
+      operationId: accounting_api_sync_sales_order_in_background
+      summary: Sync Sales Order In Background
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Trigger background sync of Sales Order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/sync-core:
+    post:
+      operationId: accounting_api_sync_core_sales_order
+      summary: Sync Core Sales Order
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithSuccess'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Sync core sales order with core-only reconciliation rules.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/sync-core-background:
+    post:
+      operationId: accounting_api_sync_core_sales_order_in_background
+      summary: Sync Core Sales Order In Background
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Trigger background core sync of Sales Order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/sync-delay-charges:
+    post:
+      operationId: accounting_api_sync_delay_charges
+      summary: Sync Delay Charges
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: query
+        name: filter_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Filter Date
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncDelayChargesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Sync delay charges from local core.Delay records to NetSuite.
+
+
+        Aggregates core.Delay rows for the given project (by robot set and date)
+
+        and creates corresponding charges in NetSuite for non-asset line items.
+
+
+        Uses the delay ID for idempotency - delays that already have charges
+
+        will be skipped.
+
+
+        Quantity is calculated based on delay duration (8 hours = 1 day).'
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/re-evaluate-require-po:
+    post:
+      operationId: accounting_api_re_evaluate_require_po
+      summary: Re Evaluate Require Po
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithSuccess'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Re-evaluate REQUIRE_PO charges for all POs linked to a project.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/accounting/comments:
+    get:
+      operationId: accounting_api_list_accounting_comments
+      summary: List Accounting Comments
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: comment_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Comment Date
+        required: false
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        required: false
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AccountingComment'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List accounting comments for a project.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: accounting_api_create_accounting_comment
+      summary: Create Accounting Comment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingComment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a new accounting comment for a project.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountingCommentPOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/accounting/comments/{comment_id}:
+    patch:
+      operationId: accounting_api_update_accounting_comment
+      summary: Update Accounting Comment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingComment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Update an accounting comment.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountingCommentPATCH'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: accounting_api_delete_accounting_comment
+      summary: Delete Accounting Comment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete an accounting comment.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/accounting/suggestion-decisions:
+    get:
+      operationId: accounting_api_list_suggestion_decisions
+      summary: List Suggestion Decisions
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: decision_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Decision Date
+        required: false
+      - in: query
+        name: set_name
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Set Name
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SuggestionDecisionSchema'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List suggestion decisions for a project.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: accounting_api_upsert_suggestion_decision
+      summary: Upsert Suggestion Decision
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionDecisionSchema'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create or update a suggestion decision.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionDecisionPOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: accounting_api_delete_suggestion_decision
+      summary: Delete Suggestion Decision
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a suggestion decision.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuggestionDecisionDELETE'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/accounting/team-workload:
+    get:
+      operationId: accounting_api_get_team_workload
+      summary: Get Team Workload
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        required: false
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        required: false
+      - in: query
+        name: sales_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sales Order Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TeamWorkloadDay'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return daily team workload summary for a project.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/accounting/delays:
+    get:
+      operationId: accounting_api_get_delays
+      summary: Get Delays
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: query_date
+        schema:
+          format: date
+          title: Query Date
+          type: string
+        required: true
+      - in: query
+        name: robot_set_id
+        schema:
+          title: Robot Set Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DelayItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List delays for a robot set on a specific day, for idle charge linking.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/accounting/daily-reports:
+    get:
+      operationId: accounting_api_get_accounting_daily_reports
+      summary: Get Accounting Daily Reports
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        required: false
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyReportsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return daily reports from local dispatch data for accounting calendar.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/charged-revenue:
+    get:
+      operationId: accounting_api_get_charged_revenue
+      summary: Get Charged Revenue
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargedRevenueResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get total charged revenue aggregated from approved charges.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/netsuite/countries:
+    get:
+      operationId: accounting_api_get_netsuite_service_countries
+      summary: Get Netsuite Service Countries
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NSServiceCountry'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get active NetSuite service countries.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/turbines-progress:
+    get:
+      operationId: accounting_api_get_turbines_progress
+      summary: Get Turbines Progress
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbinesProgress'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Turbine charge progress from local DB for a sales order.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/netsuite/subsidiaries:
+    get:
+      operationId: accounting_api_get_netsuite_subsidiaries
+      summary: Get Netsuite Subsidiaries
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NSSubsidiaryListItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get NetSuite subsidiaries, excluding elimination and holding entries.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/service-rates-context:
+    get:
+      operationId: accounting_api_get_service_rates_context
+      summary: Get Service Rates Context
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceRateItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Service rates from the latest approved CO — for OPS_HUB SO sidebars.
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/charge-creation-context:
+    get:
+      operationId: accounting_api_get_charge_creation_context
+      summary: Get Charge Creation Context
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      - in: query
+        name: co_item_ids
+        schema:
+          title: Co Item Ids
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargeCreationContext'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Return charge creation context for one or more CO line items — 100% local DB, no NS call.
+
+
+        ``co_item_ids`` is a comma-separated list: a service priced per asset spans
+
+        several CO lines, and the modal needs the assets from all of them.'
+      tags:
+      - projects.accounting
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/sales-orders/{sales_order_id}/scope-charges:
+    post:
+      operationId: accounting_api_create_scope_charge
+      summary: Create Scope Charge
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: sales_order_id
+        schema:
+          title: Sales Order Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charge'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a charge from a scope item — ensures NS asset exists and CO price is synced.
+      tags:
+      - projects.accounting
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScopeChargePOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    TeamWorkloadSuggestedCharge:
+      additionalProperties: false
+      description: Schema for suggested charge candidate with prefill details.
+      properties:
+        label:
+          description: Suggested charge label displayed in UI
+          title: Label
+          type: string
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service
+          title: Service Id
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service name
+          title: Service Name
+        service_unit_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service unit type
+          title: Service Unit Type Id
+        service_unit_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service unit type name
+          title: Service Unit Type Name
+        rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Suggested service rate
+          title: Rate
+        quantity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Suggested quantity — direct work hours for -RAT services, otherwise unset (frontend falls back to 1)
+          title: Quantity
+        primary_asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Preferred asset ID for charge prefill
+          title: Primary Asset Id
+        assets:
+          description: Asset options related to the suggested service
+          items:
+            $ref: '#/components/schemas/TeamWorkloadSuggestedChargeAsset'
+          title: Assets
+          type: array
+      required:
+      - label
+      title: TeamWorkloadSuggestedCharge
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    SuggestionDecisionSchema:
+      additionalProperties: false
+      description: Schema for suggestion decision response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          format: uuid
+          title: Project Id
+          type: string
+        date:
+          format: date
+          title: Date
+          type: string
+        set_name:
+          title: Set Name
+          type: string
+        label:
+          title: Label
+          type: string
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Asset Id
+        decision:
+          title: Decision
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+      required:
+      - id
+      - project_id
+      - date
+      - set_name
+      - label
+      - decision
+      - created_at
+      title: SuggestionDecisionSchema
+      type: object
+    TeamWorkloadSetStatus:
+      additionalProperties: false
+      description: Schema for set workload status details.
+      properties:
+        set_name:
+          title: Set Name
+          type: string
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: OpsHub core.RobotSet id, for routes keyed by the local id.
+          title: Robot Set Id
+        ns_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite id of the robot set. Lets the client join charges to this set by id instead of reconciling the two systems' set names.
+          title: Ns Robot Set Id
+        workorder_service_codes:
+          description: Service codes from workorders for the day
+          items:
+            type: string
+          title: Workorder Service Codes
+          type: array
+        direct_minutes:
+          description: Direct work minutes for the set
+          title: Direct Minutes
+          type: number
+        total_delay_minutes:
+          description: Total delay minutes for the set
+          title: Total Delay Minutes
+          type: number
+        aerones_delay_minutes:
+          description: Aerones delay minutes for the set
+          title: Aerones Delay Minutes
+          type: number
+        customer_delay_minutes:
+          description: Customer delay minutes for the set
+          title: Customer Delay Minutes
+          type: number
+        weather_delay_minutes:
+          description: Weather delay minutes for the set
+          title: Weather Delay Minutes
+          type: number
+        other_delay_minutes:
+          description: Other delay minutes for the set
+          title: Other Delay Minutes
+          type: number
+        worked:
+          description: True if direct minutes meet or exceed the worked threshold
+          title: Worked
+          type: boolean
+        aerones_idle_day:
+          description: True if Aerones delay dominates the day with low direct work
+          title: Aerones Idle Day
+          type: boolean
+        customer_idle_day:
+          description: True if customer delay dominates the day with low direct work
+          title: Customer Idle Day
+          type: boolean
+        weather_idle_day:
+          description: True if weather delay dominates the day with low direct work
+          title: Weather Idle Day
+          type: boolean
+        other_idle_day:
+          description: True if other delay dominates the day with low direct work
+          title: Other Idle Day
+          type: boolean
+        had_idle:
+          description: True if customer/other/weather delays reached idle threshold on a worked day
+          title: Had Idle
+          type: boolean
+        no_activity:
+          default: false
+          description: True if set has a workorder assigned but no direct or delay activity for the day
+          title: No Activity
+          type: boolean
+        day_off:
+          default: false
+          description: True if set has no workorder assigned and no direct or delay activity for the day
+          title: Day Off
+          type: boolean
+        expected_charges:
+          description: Expected charge labels based on set status and available services
+          items:
+            type: string
+          title: Expected Charges
+          type: array
+        suggested_charges:
+          description: Suggested charges with prefilled service and asset details
+          items:
+            $ref: '#/components/schemas/TeamWorkloadSuggestedCharge'
+          title: Suggested Charges
+          type: array
+        expected_charge_details:
+          description: Expected charges with resolved monetary amounts
+          items:
+            $ref: '#/components/schemas/ExpectedChargeDetail'
+          title: Expected Charge Details
+          type: array
+        approximate_revenue:
+          default: 0.0
+          description: Sum of expected charge totals (approximate revenue for this set-day)
+          title: Approximate Revenue
+          type: number
+        idle_delay_ids:
+          description: IDs of delays that contributed to idle minutes for this set-day
+          items:
+            type: integer
+          title: Idle Delay Ids
+          type: array
+        activity_segments:
+          description: Individual activity/delay time segments for timeline display
+          items:
+            $ref: '#/components/schemas/ActivitySegment'
+          title: Activity Segments
+          type: array
+      required:
+      - set_name
+      - direct_minutes
+      - total_delay_minutes
+      - aerones_delay_minutes
+      - customer_delay_minutes
+      - weather_delay_minutes
+      - other_delay_minutes
+      - worked
+      - aerones_idle_day
+      - customer_idle_day
+      - weather_idle_day
+      - other_idle_day
+      - had_idle
+      title: TeamWorkloadSetStatus
+      type: object
+    ExpectedChargeDetail:
+      additionalProperties: false
+      description: Detail for a single expected/approximate charge.
+      properties:
+        label:
+          description: Charge label, e.g. ACC, IDLE-HOUR
+          title: Label
+          type: string
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resolved NetSuite service ID
+          title: Service Id
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resolved service name from line item
+          title: Service Name
+        rate:
+          description: Unit rate from sales order line item
+          title: Rate
+          type: number
+        quantity:
+          description: Expected quantity (1 for ACC/IDLE-DAY, idle hours for IDLE-HOUR)
+          title: Quantity
+          type: number
+        total:
+          description: rate * quantity
+          title: Total
+          type: number
+      required:
+      - label
+      - rate
+      - quantity
+      - total
+      title: ExpectedChargeDetail
+      type: object
+    DailyReportWinchSet:
+      additionalProperties: false
+      description: Schema for winch set in daily report.
+      properties:
+        winch_set_id:
+          title: Winch Set Id
+          type: integer
+        winch_set_name:
+          title: Winch Set Name
+          type: string
+      required:
+      - winch_set_id
+      - winch_set_name
+      title: DailyReportWinchSet
+      type: object
+    CreateInvoiceResponse:
+      additionalProperties: true
+      description: Schema for API response after invoice creation flow.
+      properties:
+        success:
+          description: Indicates if the invoice creation was successful.
+          title: Success
+          type: boolean
+        invoice_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: NetSuite invoice IDs linked to the charges.
+          title: Invoice Ids
+        queue_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Queue record ID.
+          title: Queue Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Queue status text.
+          title: Status
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Error code from NetSuite.
+          title: Error
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Error message from NetSuite.
+          title: Message
+      required:
+      - success
+      title: CreateInvoiceResponse
+      type: object
+    PatchStrValue:
+      additionalProperties: false
+      description: Patch string value.
+      properties:
+        old:
+          title: Old
+          type: string
+        new:
+          title: New
+          type: string
+      required:
+      - old
+      - new
+      title: PatchStrValue
+      type: object
+    SalesOrderLineItemPart:
+      additionalProperties: false
+      description: Schema for sales order line item.
+      properties:
+        id:
+          description: NetSuite internal ID for the sales order line item
+          title: Id
+          type: integer
+        sales_order_id:
+          description: NetSuite ID for (parent) sales order
+          title: Sales Order Id
+          type: integer
+        ns_project_id:
+          description: NetSuite ID for (NS) project
+          title: Ns Project Id
+          type: integer
+        charge_count:
+          description: Number of charges created for this line item
+          title: Charge Count
+          type: integer
+        quantity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item quantity
+          title: Quantity
+        rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item rate in SO currency
+          title: Rate
+        rate_base:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item rate in base/subsidiary currency
+          title: Rate Base
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item amount
+          title: Amount
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service
+          title: Service Id
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service name
+          title: Service Name
+        service_unit_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service type
+          title: Service Unit Type Id
+        service_unit_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service type name
+          title: Service Unit Type Name
+        service_unit_conversion_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Conversion rate for service unit type
+          title: Service Unit Conversion Rate
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset
+          title: Asset Id
+        asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset name
+          title: Asset Name
+        asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset alt name
+          title: Asset Altname
+        asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset type
+          title: Asset Type Id
+        asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type name
+          title: Asset Type Name
+        line_is_disabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Line item disabled flag
+          title: Line Is Disabled
+        asset_is_disabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Asset disabled flag
+          title: Asset Is Disabled
+        persistent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Persistent ID
+          title: Persistent Id
+      required:
+      - id
+      - sales_order_id
+      - ns_project_id
+      - charge_count
+      title: SalesOrderLineItemPart
+      type: object
+    AccountingInvoice:
+      additionalProperties: false
+      description: Schema for invoice response with linked charges.
+      properties:
+        id:
+          description: NetSuite invoice ID
+          title: Id
+          type: integer
+        sales_order_id:
+          description: NetSuite sales order ID
+          title: Sales Order Id
+          type: integer
+        transaction_number:
+          description: Invoice transaction number
+          title: Transaction Number
+          type: string
+        status:
+          description: Invoice status
+          title: Status
+          type: string
+        total_amount:
+          description: Total invoice amount
+          title: Total Amount
+          type: number
+        created_date:
+          description: Date invoice was created
+          format: date
+          title: Created Date
+          type: string
+        posting_period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Posting period name (Service Period)
+          title: Posting Period
+        currency_id:
+          description: NetSuite currency ID
+          title: Currency Id
+          type: integer
+        currency_name:
+          description: Currency name
+          title: Currency Name
+          type: string
+        charges:
+          description: Charges linked to this invoice
+          items:
+            $ref: '#/components/schemas/AccountingInvoiceCharge'
+          title: Charges
+          type: array
+        invoice_draft_sent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Is draft invoice sent (internal use only)
+          title: Invoice Draft Sent
+        invoice_final_sent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Is final invoice sent (internal use only)
+          title: Invoice Final Sent
+      required:
+      - id
+      - sales_order_id
+      - transaction_number
+      - status
+      - total_amount
+      - created_date
+      - currency_id
+      - currency_name
+      title: AccountingInvoice
+      type: object
+    Charge:
+      additionalProperties: false
+      description: Schema for charge.
+      properties:
+        id:
+          description: NetSuite ID for charge
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Charge name
+          title: Name
+        charge_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Charge date
+          title: Charge Date
+        ns_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for (NS) project
+          title: Ns Project Id
+        ns_project_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project name
+          title: Ns Project Name
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for sales order
+          title: Sales Order Id
+        sales_order_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order name
+          title: Sales Order Name
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Dispatch service-order ID
+          title: Service Order Id
+        sales_order_line_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for sales order line item
+          title: Sales Order Line Item Id
+        quantity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          title: Price
+        status_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for status
+          title: Status Id
+        status_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status name
+          title: Status Name
+        invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for invoice
+          title: Invoice Id
+        invoice_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Invoice date
+          title: Invoice Date
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service
+          title: Service Id
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service name
+          title: Service Name
+        service_unit_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service unit type
+          title: Service Unit Type Id
+        service_unit_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service unit type name
+          title: Service Unit Type Name
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset
+          title: Asset Id
+        asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset name
+          title: Asset Name
+        asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset alt name
+          title: Asset Altname
+        asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset type
+          title: Asset Type Id
+        asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type name
+          title: Asset Type Name
+        parent_asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for parent asset
+          title: Parent Asset Id
+        parent_asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Parent asset name
+          title: Parent Asset Name
+        parent_asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Parent asset alt name
+          title: Parent Asset Altname
+        parent_asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for parent asset type
+          title: Parent Asset Type Id
+        parent_asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Parent asset type name
+          title: Parent Asset Type Name
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for robot set
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the robot set
+          title: Robot Set Name
+        total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total amount
+          title: Total
+        service_activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service activity description (300 char limit)
+          title: Service Activity Description
+        service_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'Idempotency ID for auto-synced idle charges: a Platform service activity ID or a core.Delay ID, depending on source'
+          title: Service Activity Id
+        corrects_charge_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID of the charge this charge corrects
+          title: Corrects Charge Id
+        invoice_status_name:
+          anyOf:
+          - $ref: '#/components/schemas/InvoiceStatus'
+          - type: 'null'
+          description: Status of invoice
+        is_editable:
+          description: Only editable if status is DRAFT
+          readOnly: true
+          title: Is Editable
+          type: boolean
+        doc_sent_status:
+          $ref: '#/components/schemas/InvoiceSentStatus'
+          description: Combined invoice sent status (Final/Draft/Unsent)
+          readOnly: true
+      required:
+      - id
+      - is_editable
+      - doc_sent_status
+      title: Charge
+      type: object
+    TaskStatus:
+      description: status enumeration.
+      enum:
+      - ongoing
+      - completed
+      - error
+      - inactive
+      title: TaskStatus
+      type: string
+    TurbineProgressChargeGroup:
+      additionalProperties: false
+      description: One asset's charges of a single charge type (service), aggregated.
+      properties:
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service code (charge type); None when the charge has no service
+          title: Service Code
+        count:
+          default: 0
+          description: Number of charges of this type
+          title: Count
+          type: integer
+        total_amount:
+          default: 0.0
+          description: Sum of charge amounts
+          title: Total Amount
+          type: number
+        invoiced_count:
+          default: 0
+          description: How many of these charges are linked to a sales invoice
+          title: Invoiced Count
+          type: integer
+        charges:
+          description: The individual charges, ordered by charge date
+          items:
+            $ref: '#/components/schemas/TurbineProgressCharge'
+          title: Charges
+          type: array
+      title: TurbineProgressChargeGroup
+      type: object
+    ChargeCreationScopeItem:
+      additionalProperties: false
+      description: 'Scope item for charge creation.
+
+
+        dispatch_sol_ids contains all SOL IDs that the created charge will cover.
+
+        For a blade-level scope item this is a single ID. For a WTG whose CO line is
+
+        WTG-scoped but scope items are individual blades, all blade SOL IDs are grouped
+
+        here and one charge is created covering all of them.'
+      properties:
+        scope_item_id:
+          title: Scope Item Id
+          type: integer
+        dispatch_sol_ids:
+          items:
+            type: integer
+          title: Dispatch Sol Ids
+          type: array
+        asset_identity:
+          description: e.g. 'WTG 1_06_S' (grouped blades) or 'WTG 1_06_S - Blade - A'
+          title: Asset Identity
+          type: string
+        field_completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Date the SOL reached FIELD_COMPLETED status
+          title: Field Completed Date
+        robot_sets:
+          items:
+            $ref: '#/components/schemas/ChargeCreationRobotSet'
+          title: Robot Sets
+          type: array
+      required:
+      - scope_item_id
+      - dispatch_sol_ids
+      - asset_identity
+      title: ChargeCreationScopeItem
+      type: object
+    ServiceRateItem:
+      additionalProperties: false
+      description: 'One service rate row per service for the OPS_HUB sidebar.
+
+
+        A service can be priced by several CO lines (one per asset). Those lines are
+
+        collapsed into a single row: ``co_item_ids`` holds every contributing CO line
+
+        and ``rate`` is only set when they all agree on one price — otherwise it is
+
+        ``None`` and the real rate is picked per asset in the charge-creation modal.'
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_name:
+          title: Service Name
+          type: string
+        service_netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite item id of the service — lets the frontend address the NS line item when it falls back to the legacy charge flow for services without scope items (EXTRA, MOB, ACC, ...)
+          title: Service Netsuite Id
+        rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Unit rate when every CO line for this service shares one price; None when they differ — the rate then comes from the asset's own CO line, chosen in the charge-creation modal
+          title: Rate
+        has_scope_items:
+          default: false
+          title: Has Scope Items
+          type: boolean
+        has_linked_scope_items:
+          default: false
+          title: Has Linked Scope Items
+          type: boolean
+        co_item_ids:
+          description: Every CO line item ID priced under this service — the modal resolves assets across all of them
+          items:
+            type: integer
+          title: Co Item Ids
+          type: array
+      required:
+      - service_id
+      - service_code
+      - service_name
+      - co_item_ids
+      title: ServiceRateItem
+      type: object
+    SalesOrderLineItem:
+      additionalProperties: false
+      description: Schema for sales order line item.
+      properties:
+        id:
+          description: NetSuite internal ID for the sales order line item
+          title: Id
+          type: integer
+        sales_order_id:
+          description: NetSuite ID for (parent) sales order
+          title: Sales Order Id
+          type: integer
+        ns_project_id:
+          description: NetSuite ID for (NS) project
+          title: Ns Project Id
+          type: integer
+        charge_count:
+          description: Number of charges created for this line item
+          title: Charge Count
+          type: integer
+        quantity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item quantity
+          title: Quantity
+        rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item rate in SO currency
+          title: Rate
+        rate_base:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item rate in base/subsidiary currency
+          title: Rate Base
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item amount
+          title: Amount
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service
+          title: Service Id
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service name
+          title: Service Name
+        service_unit_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service type
+          title: Service Unit Type Id
+        service_unit_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service type name
+          title: Service Unit Type Name
+        service_unit_conversion_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Conversion rate for service unit type
+          title: Service Unit Conversion Rate
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset
+          title: Asset Id
+        asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset name
+          title: Asset Name
+        asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset alt name
+          title: Asset Altname
+        asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset type
+          title: Asset Type Id
+        asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type name
+          title: Asset Type Name
+        line_is_disabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Line item disabled flag
+          title: Line Is Disabled
+        asset_is_disabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Asset disabled flag
+          title: Asset Is Disabled
+        persistent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Persistent ID
+          title: Persistent Id
+        parent_asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for parent asset
+          title: Parent Asset Id
+        parent_asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Parent asset name
+          title: Parent Asset Name
+        parent_asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Parent asset alt name
+          title: Parent Asset Altname
+        parent_asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for parent asset type
+          title: Parent Asset Type Id
+        parent_asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Parent Asset type name
+          title: Parent Asset Type Name
+      required:
+      - id
+      - sales_order_id
+      - ns_project_id
+      - charge_count
+      title: SalesOrderLineItem
+      type: object
+    ChargeStatusName:
+      description: Charge status names matching NetSuite status IDs.
+      enum:
+      - DRAFT
+      - APPROVED
+      title: ChargeStatusName
+      type: string
+    ChargeStatusSummary:
+      additionalProperties: false
+      description: All charges in one status on a sales order, aggregated.
+      properties:
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NetSuite charge status; None when the charge has no status
+          title: Status
+        count:
+          default: 0
+          description: Number of charges in this status
+          title: Count
+          type: integer
+        total_amount:
+          default: 0.0
+          description: Sum of charge amounts
+          title: Total Amount
+          type: number
+      title: ChargeStatusSummary
+      type: object
+    SalesOrder:
+      additionalProperties: false
+      description: Schema for sales order.
+      properties:
+        id:
+          description: NetSuite ID for the sales order
+          title: Id
+          type: integer
+        name:
+          description: Sales order name
+          title: Name
+          type: string
+        ns_project_id:
+          description: NetSuite ID for (NS) project
+          title: Ns Project Id
+          type: integer
+        customer_id:
+          description: NetSuite ID for customer
+          title: Customer Id
+          type: integer
+        customer_name:
+          description: Customer name
+          title: Customer Name
+          type: string
+        status_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status name
+          title: Status Name
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for currency
+          title: Currency Id
+        currency_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency name
+          title: Currency Name
+        offer_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Offer version
+          title: Offer Version
+        created_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Sales order transaction date
+          title: Created Date
+        source_system:
+          anyOf:
+          - $ref: '#/components/schemas/SalesOrderSourceSystem'
+          - type: 'null'
+          description: Source system for sales order (legacy, ops_hub)
+      required:
+      - id
+      - name
+      - ns_project_id
+      - customer_id
+      - customer_name
+      title: SalesOrder
+      type: object
+    AccountingCommentPOST:
+      additionalProperties: false
+      description: Schema for creating an accounting comment.
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        text:
+          title: Text
+          type: string
+      required:
+      - date
+      - text
+      title: AccountingCommentPOST
+      type: object
+    NSSubsidiaryListItem:
+      description: NetSuite Subsidiary.
+      properties:
+        id:
+          description: NetSuite ID
+          title: Id
+          type: integer
+        name:
+          description: Name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NSSubsidiaryListItem
+      type: object
+    EmailSendLogChargeResponse:
+      additionalProperties: false
+      description: A single charge included in a sent email, for the expanded row detail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        charge_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Charge Date
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Name
+        quantity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Quantity
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Price
+        total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Total
+      required:
+      - id
+      - charge_date
+      - service_name
+      - quantity
+      - price
+      - total
+      title: EmailSendLogChargeResponse
+      type: object
+    AssetPatchGET:
+      additionalProperties: false
+      description: Asset patch GET
+      properties:
+        patch_id:
+          title: Patch Id
+          type: string
+        patch:
+          additionalProperties:
+            $ref: '#/components/schemas/PatchStrValue'
+          title: Patch
+          type: object
+      required:
+      - patch_id
+      - patch
+      title: AssetPatchGET
+      type: object
+    IdleHourTimeWindow:
+      additionalProperties: false
+      description: Schema for an idle-hour delay time window.
+      properties:
+        start_time:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start time in HH:MM format
+          title: Start Time
+        end_time:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End time in HH:MM format
+          title: End Time
+        category:
+          description: Delay category
+          title: Category
+          type: string
+        sub_category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Delay sub-category (delay type code or description)
+          title: Sub Category
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Delay comment or activity type name
+          title: Description
+        counts_towards_chargeable:
+          description: Whether this delay counts towards chargeable idle hours
+          title: Counts Towards Chargeable
+          type: boolean
+      required:
+      - category
+      - counts_towards_chargeable
+      title: IdleHourTimeWindow
+      type: object
+    ChargePATCH:
+      additionalProperties: false
+      description: Schema for PATCH charge.
+      properties:
+        quantity:
+          title: Quantity
+          type: number
+        charge_date:
+          format: date
+          title: Charge Date
+          type: string
+        robot_set_id:
+          title: Robot Set Id
+          type: integer
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ChargeStatusName'
+          - type: 'null'
+        service_activity_description:
+          anyOf:
+          - maxLength: 300
+            type: string
+          - type: 'null'
+          description: Service activity description / idle reason (max 300 chars)
+          title: Service Activity Description
+      title: ChargePATCH
+      type: object
+    SuggestionDecisionPOST:
+      additionalProperties: false
+      description: Schema for creating/updating a suggestion decision.
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        set_name:
+          title: Set Name
+          type: string
+        label:
+          title: Label
+          type: string
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Asset Id
+        decision:
+          title: Decision
+          type: string
+      required:
+      - date
+      - set_name
+      - label
+      - decision
+      title: SuggestionDecisionPOST
+      type: object
+    ChargeCreationRobotSet:
+      additionalProperties: false
+      description: Robot set with id and name.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ChargeCreationRobotSet
+      type: object
+    ActivitySegment:
+      additionalProperties: false
+      description: A time segment for the activity timeline.
+      properties:
+        start_dt:
+          description: ISO datetime start
+          title: Start Dt
+          type: string
+        end_dt:
+          description: ISO datetime end
+          title: End Dt
+          type: string
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine name if available
+          title: Turbine Name
+        segment_type:
+          description: 'Segment type: work, info, aerones, customer, weather, or other'
+          title: Segment Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity description or delay description
+          title: Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity status (for work segments)
+          title: Status
+      required:
+      - start_dt
+      - end_dt
+      - segment_type
+      title: ActivitySegment
+      type: object
+    InvoiceStatus:
+      description: 'Invoice status enum from NetSuite.
+
+
+        These statuses come from NetSuite''s transaction status table for invoice records.
+
+        Values queried from transactionstatus table where trantype = ''CustInvc''.'
+      enum:
+      - Open
+      - Paid In Full
+      - Pending Approval
+      - Rejected
+      - Undefined
+      - Voided
+      title: InvoiceStatus
+      type: string
+    SalesOrderStatus:
+      additionalProperties: false
+      description: Sales order status schema - handles both creation and sync operations.
+      properties:
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: string
+        record_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Record ID (None during creation, set after)
+          title: Record Id
+        status:
+          allOf:
+          - $ref: '#/components/schemas/TaskStatus'
+          default: inactive
+          description: Operation status
+        offer_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Offer version
+          title: Offer Version
+        status_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status message
+          title: Status Message
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Operation started at
+          title: Started At
+        completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Operation completed at
+          title: Completed At
+        progress_percentage:
+          default: 0
+          description: Progress percentage (0-100)
+          title: Progress Percentage
+          type: integer
+        error_code:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Error code
+          title: Error Code
+      required:
+      - project_id
+      title: SalesOrderStatus
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    DelayItem:
+      additionalProperties: false
+      description: A single delay for a robot set on a given day.
+      properties:
+        delay_id:
+          title: Delay Id
+          type: integer
+        type_code:
+          title: Type Code
+          type: string
+        type_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type Description
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Minutes
+      required:
+      - delay_id
+      - type_code
+      title: DelayItem
+      type: object
+    ScopeChargePOST:
+      additionalProperties: false
+      description: Request body for creating a charge from a scope item (OPS_HUB flow).
+      properties:
+        scope_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Scope Item Id
+        dispatch_sol_ids:
+          description: All dispatch SOL IDs this charge covers (0 when none available, 1 for blade, N for WTG with blade scope items)
+          items:
+            type: integer
+          title: Dispatch Sol Ids
+          type: array
+        service_id:
+          title: Service Id
+          type: integer
+        co_item_id:
+          title: Co Item Id
+          type: integer
+        robot_set_id:
+          title: Robot Set Id
+          type: integer
+        charge_date:
+          format: date
+          title: Charge Date
+          type: string
+        quantity:
+          title: Quantity
+          type: number
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ChargeStatusName'
+          default: DRAFT
+      required:
+      - service_id
+      - co_item_id
+      - robot_set_id
+      - charge_date
+      - quantity
+      title: ScopeChargePOST
+      type: object
+    ChargeBulkApprove:
+      additionalProperties: false
+      description: Input for bulk-approving charges.
+      properties:
+        ids:
+          description: List of charge IDs to approve
+          items:
+            type: integer
+          minItems: 1
+          title: Ids
+          type: array
+      required:
+      - ids
+      title: ChargeBulkApprove
+      type: object
+    DailyReport:
+      additionalProperties: false
+      description: Schema for daily report from Platform.
+      properties:
+        report_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Report Id
+        report_type:
+          title: Report Type
+          type: string
+        report_token:
+          title: Report Token
+          type: string
+        url:
+          title: Url
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        report_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Report Date
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        archived:
+          title: Archived
+          type: boolean
+        winch_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReportWinchSet'
+          title: Winch Sets
+          type: array
+        services:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReportService'
+          title: Services
+          type: array
+      required:
+      - report_type
+      - report_token
+      - url
+      - created_at
+      - updated_at
+      - archived
+      title: DailyReport
+      type: object
+    TurbinesProgress:
+      additionalProperties: false
+      description: Turbine charge progress for a sales order, sourced from local DB.
+      properties:
+        assets:
+          items:
+            $ref: '#/components/schemas/TurbineProgressAsset'
+          title: Assets
+          type: array
+        total_count:
+          description: Number of turbines in planned scope
+          title: Total Count
+          type: integer
+        charged_count:
+          description: Number of unique turbines with at least one charge
+          title: Charged Count
+          type: integer
+      required:
+      - total_count
+      - charged_count
+      title: TurbinesProgress
+      type: object
+    ChargeBulkApproveResponse:
+      additionalProperties: false
+      description: Response for bulk-approve charges.
+      properties:
+        approved_ids:
+          description: IDs of charges that were approved
+          items:
+            type: integer
+          title: Approved Ids
+          type: array
+      required:
+      - approved_ids
+      title: ChargeBulkApproveResponse
+      type: object
+    IdleHourTimeWindowsResponse:
+      additionalProperties: false
+      description: Response wrapper for idle-hour time windows.
+      properties:
+        windows:
+          items:
+            $ref: '#/components/schemas/IdleHourTimeWindow'
+          title: Windows
+          type: array
+        sub_categories:
+          description: Available sub-category options grouped by category
+          items:
+            $ref: '#/components/schemas/IdleHourSubCategoryOption'
+          title: Sub Categories
+          type: array
+      title: IdleHourTimeWindowsResponse
+      type: object
+    AccountingInvoiceCharge:
+      additionalProperties: false
+      description: Schema for charge linked to an invoice.
+      properties:
+        charge_id:
+          description: NetSuite charge ID
+          title: Charge Id
+          type: integer
+        charge_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Charge date
+          title: Charge Date
+        service_name:
+          description: Service name
+          title: Service Name
+          type: string
+        service_unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service unit type
+          title: Service Unit Type
+        quantity:
+          description: Charge quantity
+          title: Quantity
+          type: number
+        price:
+          description: Charge price
+          title: Price
+          type: number
+        total:
+          description: Charge total amount
+          title: Total
+          type: number
+        failed:
+          default: false
+          description: Whether this charge failed to be included in the invoice
+          title: Failed
+          type: boolean
+      required:
+      - charge_id
+      - service_name
+      - quantity
+      - price
+      - total
+      title: AccountingInvoiceCharge
+      type: object
+    DailyReportDay:
+      additionalProperties: false
+      description: Schema for a day's daily reports from Platform.
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        reports:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReport'
+          title: Reports
+          type: array
+        missing_reports:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissingReport'
+          title: Missing Reports
+          type: array
+      required:
+      - date
+      title: DailyReportDay
+      type: object
+    SyncDelayChargesError:
+      additionalProperties: false
+      description: Error details for a failed delay charge sync.
+      properties:
+        service_activity_id:
+          description: ID of the delay (or Platform service activity) that failed to sync
+          title: Service Activity Id
+          type: integer
+        error:
+          description: Error message
+          title: Error
+          type: string
+      required:
+      - service_activity_id
+      - error
+      title: SyncDelayChargesError
+      type: object
+    ChargeBulkDELETE:
+      additionalProperties: false
+      description: Schema for bulk DELETE charges.
+      properties:
+        ids:
+          description: List of charge IDs to delete
+          items:
+            type: integer
+          title: Ids
+          type: array
+      required:
+      - ids
+      title: ChargeBulkDELETE
+      type: object
+    ChargeTypeSummary:
+      additionalProperties: false
+      description: All charges of one charge type (service) on a sales order, aggregated.
+      properties:
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service code (charge type); None when the charge has no service
+          title: Service Code
+        count:
+          default: 0
+          description: Number of charges of this type
+          title: Count
+          type: integer
+        total_amount:
+          default: 0.0
+          description: Sum of charge amounts
+          title: Total Amount
+          type: number
+        invoiced_count:
+          default: 0
+          description: How many of these charges are linked to a sales invoice
+          title: Invoiced Count
+          type: integer
+        invoiced_amount:
+          default: 0.0
+          description: Sum of amounts of the invoiced charges
+          title: Invoiced Amount
+          type: number
+      title: ChargeTypeSummary
+      type: object
+    DailyReportsResponse:
+      additionalProperties: false
+      description: Schema for daily reports response.
+      properties:
+        days:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReportDay'
+          title: Days
+          type: array
+      title: DailyReportsResponse
+      type: object
+    MissingReport:
+      additionalProperties: false
+      description: Schema for missing daily report from Platform.
+      properties:
+        winch_set_id:
+          title: Winch Set Id
+          type: integer
+        winch_set_name:
+          title: Winch Set Name
+          type: string
+        status:
+          default: MISSING
+          title: Status
+          type: string
+        workorders:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissingReportWorkorder'
+          title: Workorders
+          type: array
+      required:
+      - winch_set_id
+      - winch_set_name
+      title: MissingReport
+      type: object
+    SalesOrderPOST:
+      additionalProperties: false
+      description: Schema for sales order POST.
+      properties:
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Customer Id
+        source_system:
+          anyOf:
+          - $ref: '#/components/schemas/SalesOrderSourceSystem'
+          - type: 'null'
+      title: SalesOrderPOST
+      type: object
+    SuggestionDecisionDELETE:
+      additionalProperties: false
+      description: Schema for deleting a suggestion decision.
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        set_name:
+          title: Set Name
+          type: string
+        label:
+          title: Label
+          type: string
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Asset Id
+      required:
+      - date
+      - set_name
+      - label
+      title: SuggestionDecisionDELETE
+      type: object
+    SyncDelayChargesResponse:
+      additionalProperties: false
+      description: Response schema for sync delay charges operation.
+      properties:
+        created_count:
+          description: Number of charges created
+          title: Created Count
+          type: integer
+        skipped_existing_count:
+          description: Number of delays skipped (already have charges)
+          title: Skipped Existing Count
+          type: integer
+        skipped_no_match_count:
+          description: Number of delays skipped (no matching line item)
+          title: Skipped No Match Count
+          type: integer
+        error_count:
+          description: Number of errors encountered
+          title: Error Count
+          type: integer
+        created_charges:
+          description: List of created charges
+          items:
+            $ref: '#/components/schemas/Charge'
+          title: Created Charges
+          type: array
+        skipped_existing_ids:
+          description: Service activity IDs that were skipped (already exist)
+          items:
+            type: integer
+          title: Skipped Existing Ids
+          type: array
+        skipped_no_match_ids:
+          description: Service activity IDs with no matching line item
+          items:
+            type: integer
+          title: Skipped No Match Ids
+          type: array
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/SyncDelayChargesError'
+          title: Errors
+          type: array
+      required:
+      - created_count
+      - skipped_existing_count
+      - skipped_no_match_count
+      - error_count
+      - created_charges
+      - skipped_existing_ids
+      - skipped_no_match_ids
+      - errors
+      title: SyncDelayChargesResponse
+      type: object
+    ChargeSummary:
+      additionalProperties: false
+      description: Pre-aggregated charge totals for a sales order, computed from local DB.
+      properties:
+        total_amount:
+          description: Sum of all charges
+          title: Total Amount
+          type: number
+        invoiced_amount:
+          default: 0.0
+          description: Sum of charges linked to a sales invoice
+          title: Invoiced Amount
+          type: number
+        acc_amount:
+          description: Sum of ACC / ACC-RAT charges
+          title: Acc Amount
+          type: number
+        mob_amount:
+          description: Sum of MOB / MOB-RAT charges
+          title: Mob Amount
+          type: number
+        idle_day_amount:
+          description: Sum of IDLE-DAY / IDLE-DAY-RAT charges
+          title: Idle Day Amount
+          type: number
+        idle_hour_amount:
+          description: Sum of IDLE-HOUR / IDLE-HOUR-RAT charges
+          title: Idle Hour Amount
+          type: number
+        groups:
+          description: Charges grouped by charge type, largest sum first
+          items:
+            $ref: '#/components/schemas/ChargeTypeSummary'
+          title: Groups
+          type: array
+        statuses:
+          description: Charges grouped by status, largest sum first
+          items:
+            $ref: '#/components/schemas/ChargeStatusSummary'
+          title: Statuses
+          type: array
+      required:
+      - total_amount
+      - acc_amount
+      - mob_amount
+      - idle_day_amount
+      - idle_hour_amount
+      title: ChargeSummary
+      type: object
+    MessageWithSuccess:
+      additionalProperties: false
+      description: Success response schema with message.
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+        message:
+          title: Message
+          type: string
+      required:
+      - message
+      title: MessageWithSuccess
+      type: object
+    TeamWorkloadSuggestedChargeAsset:
+      additionalProperties: false
+      description: Schema for suggested charge asset candidate.
+      properties:
+        asset_id:
+          description: NetSuite ID for asset
+          title: Asset Id
+          type: integer
+        service_order_id:
+          description: Dispatch service-order ID for this asset suggestion
+          title: Service Order Id
+          type: integer
+        asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset name
+          title: Asset Name
+        asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset alt name
+          title: Asset Altname
+        asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset type
+          title: Asset Type Id
+        asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type name
+          title: Asset Type Name
+      required:
+      - asset_id
+      - service_order_id
+      title: TeamWorkloadSuggestedChargeAsset
+      type: object
+    ChargedRevenueResponse:
+      additionalProperties: false
+      description: Response schema for charged revenue aggregation.
+      properties:
+        charged_revenue:
+          description: Total charged revenue from approved charges
+          title: Charged Revenue
+          type: number
+      required:
+      - charged_revenue
+      title: ChargedRevenueResponse
+      type: object
+    ChargePOST:
+      additionalProperties: false
+      description: Schema for POST charge.
+      properties:
+        service_id:
+          description: NetSuite ID for service
+          title: Service Id
+          type: integer
+        quantity:
+          description: Quantity
+          title: Quantity
+          type: number
+        price:
+          description: Price (i.e. rate)
+          title: Price
+          type: number
+        charge_date:
+          description: Charge date
+          format: date
+          title: Charge Date
+          type: string
+        total:
+          description: Total amount (mandatory)
+          title: Total
+          type: number
+        service_unit_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service unit type
+          title: Service Unit Type Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Dispatch service-order ID
+          title: Service Order Id
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset
+          title: Asset Id
+        asset_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: NetSuite IDs for assets; when provided, backend creates one charge per asset
+          title: Asset Ids
+        asset_service_order_pairs:
+          anyOf:
+          - items:
+              maxItems: 2
+              minItems: 2
+              prefixItems:
+              - type: integer
+              - type: integer
+              type: array
+            type: array
+          - type: 'null'
+          description: Per-asset service-order pairs in format [(asset_id, service_order_id), ...]. When provided, backend creates one charge per pair.
+          title: Asset Service Order Pairs
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for robot set
+          title: Robot Set Id
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ChargeStatusName'
+          - type: 'null'
+          description: Charge status (APPROVED, DRAFT). Defaults to DRAFT if not provided.
+        service_activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service activity description (300 char limit)
+          title: Service Activity Description
+        service_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'Idempotency ID for auto-synced idle charges (auto-created charges only): a Platform service activity ID or a core.Delay ID, depending on source'
+          title: Service Activity Id
+        delay_ids:
+          description: Delay IDs to link to this charge (local only, not sent to NS)
+          items:
+            type: integer
+          title: Delay Ids
+          type: array
+        corrects_charge_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ID of the charge this charge corrects. When set, quantity/price/total are derived server-side as the exact negation of the referenced charge.
+          title: Corrects Charge Id
+      required:
+      - service_id
+      - quantity
+      - price
+      - charge_date
+      - total
+      title: ChargePOST
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    InvoiceSentStatus:
+      description: 'Invoice sent status enum.
+
+
+        Indicates whether a draft or final invoice document has been sent to the customer.'
+      enum:
+      - Unsent
+      - Draft
+      - Final
+      title: InvoiceSentStatus
+      type: string
+    ChargeCreationService:
+      additionalProperties: false
+      description: Service with its scope items for charge creation.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+        rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Rate
+        co_item_id:
+          description: CO line item ID — used to identify the NS SO line for price sync
+          title: Co Item Id
+          type: integer
+        scope_items:
+          items:
+            $ref: '#/components/schemas/ChargeCreationScopeItem'
+          title: Scope Items
+          type: array
+      required:
+      - id
+      - code
+      - name
+      - co_item_id
+      title: ChargeCreationService
+      type: object
+    ChargeCreationContext:
+      additionalProperties: false
+      description: All data needed to open the charge creation modal — 100% local DB.
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/ChargeCreationService'
+          title: Services
+          type: array
+        project_robot_sets:
+          description: All robot sets that worked on any SOL in this project
+          items:
+            $ref: '#/components/schemas/ChargeCreationRobotSet'
+          title: Project Robot Sets
+          type: array
+      title: ChargeCreationContext
+      type: object
+    MissingReportWorkorder:
+      additionalProperties: false
+      description: Schema for workorder in missing report.
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+        workorder_name:
+          title: Workorder Name
+          type: string
+      required:
+      - workorder_id
+      - workorder_name
+      title: MissingReportWorkorder
+      type: object
+    NSServiceCountry:
+      description: NetSuite service country segment.
+      properties:
+        id:
+          description: NetSuite ID
+          title: Id
+          type: integer
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NSServiceCountry
+      type: object
+    EmailSendLogResponse:
+      additionalProperties: false
+      description: A single sent-email record for a project's accounting history.
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        sent_at:
+          title: Sent At
+          type: string
+        subject:
+          title: Subject
+          type: string
+        status:
+          title: Status
+          type: string
+        status_changed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Changed At
+        template_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Template Name
+        recipients_to:
+          items:
+            type: string
+          title: Recipients To
+          type: array
+        recipients_cc:
+          items:
+            type: string
+          title: Recipients Cc
+          type: array
+        recipients_bcc:
+          items:
+            type: string
+          title: Recipients Bcc
+          type: array
+        charges:
+          items:
+            $ref: '#/components/schemas/EmailSendLogChargeResponse'
+          title: Charges
+          type: array
+      required:
+      - id
+      - sent_at
+      - subject
+      - status
+      - status_changed_at
+      - template_name
+      - recipients_to
+      - recipients_cc
+      - recipients_bcc
+      - charges
+      title: EmailSendLogResponse
+      type: object
+    IdleHourSubCategoryOption:
+      additionalProperties: false
+      description: An available sub-category option for idle-hour time windows.
+      properties:
+        category:
+          description: Parent delay category
+          title: Category
+          type: string
+        value:
+          description: Sub-category value (delay type label)
+          title: Value
+          type: string
+      required:
+      - category
+      - value
+      title: IdleHourSubCategoryOption
+      type: object
+    TeamWorkloadDay:
+      additionalProperties: false
+      description: Schema for daily team workload summary.
+      properties:
+        date:
+          description: Calendar date for the workload summary
+          format: date
+          title: Date
+          type: string
+        total_set_count:
+          description: Total number of sets assigned to the project
+          title: Total Set Count
+          type: integer
+        worked_set_count:
+          description: Number of sets with direct minutes >= 60
+          title: Worked Set Count
+          type: integer
+        worked_set_percentage:
+          description: Percentage of assigned sets that worked (0-100)
+          title: Worked Set Percentage
+          type: number
+        worked_set_names:
+          description: Set names that worked on the day
+          items:
+            type: string
+          title: Worked Set Names
+          type: array
+        not_worked_set_names:
+          description: Set names assigned but not worked on the day
+          items:
+            type: string
+          title: Not Worked Set Names
+          type: array
+        set_statuses:
+          description: Per-set workload and idle status details
+          items:
+            $ref: '#/components/schemas/TeamWorkloadSetStatus'
+          title: Set Statuses
+          type: array
+      required:
+      - date
+      - total_set_count
+      - worked_set_count
+      - worked_set_percentage
+      - worked_set_names
+      - not_worked_set_names
+      - set_statuses
+      title: TeamWorkloadDay
+      type: object
+    CombinedSalesOrderStatus:
+      additionalProperties: false
+      description: Combined sales order creation and sync status schema.
+      properties:
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: string
+        creation_status:
+          $ref: '#/components/schemas/SalesOrderStatus'
+          description: Sales order creation status
+        sync_status:
+          $ref: '#/components/schemas/SalesOrderStatus'
+          description: Sales order sync status (only if sales order exists)
+        invoice_status:
+          $ref: '#/components/schemas/SalesOrderStatus'
+          description: Invoice creation status (only if invoice creation was triggered)
+      required:
+      - project_id
+      - creation_status
+      - sync_status
+      - invoice_status
+      title: CombinedSalesOrderStatus
+      type: object
+    AccountingCommentPATCH:
+      additionalProperties: false
+      description: Schema for updating an accounting comment.
+      properties:
+        is_completed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Completed
+        text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Text
+      title: AccountingCommentPATCH
+      type: object
+    SalesOrderLineItemTLNode:
+      additionalProperties: false
+      description: Sales Order Line Item top-level node in tree.
+      properties:
+        id:
+          description: NetSuite internal ID for the sales order line item
+          title: Id
+          type: integer
+        sales_order_id:
+          description: NetSuite ID for (parent) sales order
+          title: Sales Order Id
+          type: integer
+        ns_project_id:
+          description: NetSuite ID for (NS) project
+          title: Ns Project Id
+          type: integer
+        charge_count:
+          description: Number of charges created for this line item
+          title: Charge Count
+          type: integer
+        quantity:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item quantity
+          title: Quantity
+        rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item rate in SO currency
+          title: Rate
+        rate_base:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item rate in base/subsidiary currency
+          title: Rate Base
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Line item amount
+          title: Amount
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service
+          title: Service Id
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service name
+          title: Service Name
+        service_unit_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service type
+          title: Service Unit Type Id
+        service_unit_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service type name
+          title: Service Unit Type Name
+        service_unit_conversion_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Conversion rate for service unit type
+          title: Service Unit Conversion Rate
+        asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset
+          title: Asset Id
+        asset_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset name
+          title: Asset Name
+        asset_altname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset alt name
+          title: Asset Altname
+        asset_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for asset type
+          title: Asset Type Id
+        asset_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type name
+          title: Asset Type Name
+        line_is_disabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Line item disabled flag
+          title: Line Is Disabled
+        asset_is_disabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Asset disabled flag
+          title: Asset Is Disabled
+        persistent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Persistent ID
+          title: Persistent Id
+        blades:
+          items:
+            $ref: '#/components/schemas/SalesOrderLineItemPart'
+          title: Blades
+          type: array
+      required:
+      - id
+      - sales_order_id
+      - ns_project_id
+      - charge_count
+      - blades
+      title: SalesOrderLineItemTLNode
+      type: object
+    AccountingComment:
+      additionalProperties: false
+      description: Schema for accounting comment response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          format: uuid
+          title: Project Id
+          type: string
+        date:
+          format: date
+          title: Date
+          type: string
+        text:
+          title: Text
+          type: string
+        is_completed:
+          title: Is Completed
+          type: boolean
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        created_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By Id
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+      required:
+      - id
+      - project_id
+      - date
+      - text
+      - is_completed
+      - created_at
+      - updated_at
+      title: AccountingComment
+      type: object
+    DailyReportService:
+      additionalProperties: false
+      description: Schema for service in daily report.
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_type_code:
+          title: Service Type Code
+          type: string
+      required:
+      - service_id
+      - service_code
+      - service_type_code
+      title: DailyReportService
+      type: object
+    TurbineProgressAsset:
+      additionalProperties: false
+      description: A turbine in the turbines charge progress panel.
+      properties:
+        id:
+          description: Turbine ID (local DB)
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine name
+          title: Name
+        type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type name (WTG or Blade)
+          title: Type Name
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade position on the turbine (A/B/C); None for turbines and non-blade components
+          title: Position
+        parent_turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Owning turbine ID for a component asset; None for turbines
+          title: Parent Turbine Id
+        parent_turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Owning turbine name for a component asset; None for turbines
+          title: Parent Turbine Name
+        parent_turbine_is_virtual:
+          default: false
+          description: True when the owning turbine is a virtual holder (a port/warehouse with no manufacturer turbine model) rather than a physical WTG
+          title: Parent Turbine Is Virtual
+          type: boolean
+        has_chargeable_work:
+          default: false
+          description: The asset has a billable service-order line that is field-completed or completed, and no charge on it under any of the project's sales orders
+          title: Has Chargeable Work
+          type: boolean
+        has_completed_sol:
+          default: false
+          description: A service-order line for this asset is field-completed or completed, regardless of billability or charges
+          title: Has Completed Sol
+          type: boolean
+        charged_on_other_sales_order:
+          default: false
+          description: The asset has no charge under this sales order but is charged under another sales order of the project
+          title: Charged On Other Sales Order
+          type: boolean
+        all_sols_cancelled:
+          default: false
+          description: The asset has service-order lines and every one of them is cancelled — no active or delivered work remains
+          title: All Sols Cancelled
+          type: boolean
+        has_active_sol:
+          default: false
+          description: A service-order line for this asset is not started or in progress — work is still planned or underway
+          title: Has Active Sol
+          type: boolean
+        charge_dates:
+          description: Dates of charges
+          items:
+            format: date
+            type: string
+          title: Charge Dates
+          type: array
+        charge_groups:
+          description: Charges grouped by charge type
+          items:
+            $ref: '#/components/schemas/TurbineProgressChargeGroup'
+          title: Charge Groups
+          type: array
+      required:
+      - id
+      title: TurbineProgressAsset
+      type: object
+    ChargeBulkPATCHItem:
+      additionalProperties: false
+      description: Schema for bulk PATCH charge item.
+      properties:
+        id:
+          description: Charge ID
+          title: Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/ChargeStatusName'
+          description: New status for the charge
+      required:
+      - id
+      - status
+      title: ChargeBulkPATCHItem
+      type: object
+    AssetPatchPATCH:
+      additionalProperties: false
+      description: Asset patch PATCH
+      properties:
+        patch_id:
+          title: Patch Id
+          type: string
+      required:
+      - patch_id
+      title: AssetPatchPATCH
+      type: object
+    SalesOrderSourceSystem:
+      description: Source system for sales order creation.
+      enum:
+      - 1
+      - 2
+      title: SalesOrderSourceSystem
+      type: integer
+    CreateSalesOrderInvoicePOST:
+      additionalProperties: false
+      description: Schema for creating an invoice from a sales order.
+      properties:
+        charge_ids:
+          description: List of NetSuite Charge IDs to include in the invoice
+          items:
+            type: integer
+          title: Charge Ids
+          type: array
+        subsidiary_id:
+          description: NetSuite subsidiary ID
+          title: Subsidiary Id
+          type: integer
+      required:
+      - charge_ids
+      - subsidiary_id
+      title: CreateSalesOrderInvoicePOST
+      type: object
+    ServiceRate:
+      additionalProperties: false
+      description: Service and rate mapping schema.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for service
+          title: Service Id
+        service_name:
+          description: Service name
+          title: Service Name
+          type: string
+        rate:
+          description: Service rate
+          title: Rate
+          type: number
+        is_disabled:
+          default: false
+          description: True when underlying line-item/asset is disabled
+          title: Is Disabled
+          type: boolean
+      required:
+      - service_name
+      - rate
+      title: ServiceRate
+      type: object
+    TurbineProgressCharge:
+      additionalProperties: false
+      description: One charge inside a charge-type group on an asset.
+      properties:
+        charge_date:
+          description: Date the charge was made for
+          format: date
+          title: Charge Date
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full name of the OpsHub user who created the charge; None for NetSuite-synced charges
+          title: Created By Name
+      required:
+      - charge_date
+      title: TurbineProgressCharge
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,181 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Talentlms.users API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: talentlms.users
+paths:
+  /api/talentlms/v1/users:
+    get:
+      operationId: list_talentlms_users
+      summary: List TalentLMS Users
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by full name, first/last name, or email (case-insensitive).
+          title: Search
+        required: false
+        description: Search by full name, first/last name, or email (case-insensitive).
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by user status (ACTIVE, INACTIVE)
+          title: Status
+        required: false
+        description: Filter by user status (ACTIVE, INACTIVE)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TalentLMSUserResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - talentlms.users
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    TalentLMSUserResponse:
+      additionalProperties: false
+      description: Row in the TalentLMS users list endpoint.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Internal TalentLMSUser PK
+          title: Id
+          type: integer
+        talentlms_user_id:
+          description: External TalentLMS user ID (string)
+          title: Talentlms User Id
+          type: string
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full name
+          title: Full Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email
+          title: Email
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User status (ACTIVE / INACTIVE)
+          title: Status
+        linked_resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ID of the core.Resource currently linked to this TalentLMS user, or null if unlinked. Frontends use this to disable already-linked options in the user selector.
+          title: Linked Resource Id
+      required:
+      - updated_at
+      - id
+      - talentlms_user_id
+      title: TalentLMSUserResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

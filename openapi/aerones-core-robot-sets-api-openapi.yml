@@ -1,0 +1,446 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.robot Sets API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.robot-sets
+paths:
+  /api/core/v1/robot-sets:
+    get:
+      operationId: core_endpoints_robot_sets_list_robot_sets
+      summary: List Robot Sets
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: services
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service IDs (comma-separated, e.g., '1,2,3')
+          title: Services
+        required: false
+        description: Filter by service IDs (comma-separated, e.g., '1,2,3')
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RobotSetResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all robot sets with optional search, sorting, and filtering by services.
+      tags:
+      - core.robot-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_robot_sets_create_robot_set
+      summary: Create Robot Set
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSetResponse'
+      description: Create a new robot set with optional services.
+      tags:
+      - core.robot-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RobotSetCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/robot-sets/{id}:
+    get:
+      operationId: core_endpoints_robot_sets_get_robot_set
+      summary: Get Robot Set
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSetResponse'
+      description: Get a single robot set by ID.
+      tags:
+      - core.robot-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: core_endpoints_robot_sets_update_robot_set
+      summary: Update Robot Set
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSetResponse'
+      description: Update a robot set with optional services.
+      tags:
+      - core.robot-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RobotSetUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_robot_sets_delete_robot_set
+      summary: Delete Robot Set
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a robot set.
+      tags:
+      - core.robot-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/robot-sets/{id}/netsuite-sync:
+    post:
+      operationId: core_endpoints_robot_sets_sync_robot_set_to_netsuite
+      summary: Sync this robot set to NetSuite — creates if missing, patches name if already…
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSetResponse'
+      description: 'Push a robot set to NetSuite.
+
+
+        - No netsuite_id: creates the record in NS and saves the returned ID.
+
+        - Has netsuite_id: patches the name in NS to match Ops Hub.'
+      tags:
+      - core.robot-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    RobotSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a RobotSet.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - maxLength: 30
+            type: string
+          - type: 'null'
+          description: Robot set code (unique among active sets)
+          title: Code
+        description:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          description: Robot set description (unique among active sets)
+          title: Description
+        status:
+          anyOf:
+          - enum:
+            - REQUESTED
+            - IN_PRODUCTION
+            - IN_USE
+            - RETIRED
+            type: string
+          - type: 'null'
+          description: 'Lifecycle: REQUESTED | IN_PRODUCTION | IN_USE | RETIRED'
+          title: Status
+        service_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: List of service IDs to associate with the robot set
+          title: Service Ids
+      title: RobotSetUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    RobotSetCreate:
+      additionalProperties: false
+      description: Schema for creating a RobotSet.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - maxLength: 30
+            type: string
+          - type: 'null'
+          description: Robot set code (unique among active sets)
+          title: Code
+        description:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          description: Robot set description (unique among active sets)
+          title: Description
+        status:
+          anyOf:
+          - enum:
+            - REQUESTED
+            - IN_PRODUCTION
+            - IN_USE
+            - RETIRED
+            type: string
+          - type: 'null'
+          description: 'Lifecycle: REQUESTED | IN_PRODUCTION | IN_USE | RETIRED'
+          title: Status
+        service_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: List of service IDs to associate with the robot set
+          title: Service Ids
+      required:
+      - name
+      title: RobotSetCreate
+      type: object
+    RobotSetResponse:
+      additionalProperties: false
+      description: Schema for RobotSet response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Robot set ID
+          title: Id
+          type: integer
+        name:
+          description: Robot set name
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set description
+          title: Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Lifecycle: REQUESTED | IN_PRODUCTION | IN_USE | RETIRED'
+          title: Status
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID
+          title: Netsuite Id
+        maintainx_asset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: MaintainX asset ID (read-only; the link is owned by maintainx.Asset)
+          title: Maintainx Asset Id
+        services:
+          description: Associated services
+          items:
+            $ref: '#/components/schemas/RobotSetServiceNestedResponse'
+          title: Services
+          type: array
+      required:
+      - updated_at
+      - id
+      - name
+      title: RobotSetResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RobotSetServiceNestedResponse:
+      additionalProperties: false
+      description: Nested response for service in robot set response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: RobotSetServiceNestedResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

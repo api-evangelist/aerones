@@ -1,0 +1,684 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Reporting Requirements.cru API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: reporting-requirements.cru
+paths:
+  /api/reporting-requirements/familiarity/check:
+    get:
+      operationId: projects_api_reporting_requirements_cru_familiarity_check
+      summary: Familiarity Check
+      parameters:
+      - in: query
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      - in: query
+        name: operator_sub
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operator Sub
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateCheckResponse'
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/familiarity:
+    post:
+      operationId: projects_api_reporting_requirements_cru_mark_familiar
+      summary: Mark Familiar
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamiliarityResponse'
+      tags:
+      - reporting-requirements.cru
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamiliarityCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements:
+    get:
+      operationId: projects_api_reporting_requirements_cru_list_requirements
+      summary: List Requirements
+      parameters:
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - enum:
+            - DRAFT
+            - PENDING
+            - ACTIVE
+            - INACTIVE
+            - DECLINED
+            type: string
+          - type: 'null'
+          title: Status
+        required: false
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectRequirementResponse'
+                title: Response
+                type: array
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_reporting_requirements_cru_create_requirement
+      summary: Create Requirement
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CruProjectRequirementCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/{requirement_id}:
+    get:
+      operationId: projects_api_reporting_requirements_cru_get_requirement
+      summary: Get Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_reporting_requirements_cru_update_requirement
+      summary: Update Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequirementUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_reporting_requirements_cru_delete_requirement
+      summary: Delete Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/{requirement_id}/accept:
+    patch:
+      operationId: projects_api_reporting_requirements_cru_accept_requirement
+      summary: Accept Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/{requirement_id}/decline:
+    patch:
+      operationId: projects_api_reporting_requirements_cru_decline_requirement
+      summary: Decline Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      - in: query
+        name: reason
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/{requirement_id}/deactivate:
+    patch:
+      operationId: projects_api_reporting_requirements_cru_deactivate_requirement
+      summary: Deactivate Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/{requirement_id}/restore:
+    patch:
+      operationId: projects_api_reporting_requirements_cru_restore_requirement
+      summary: Restore Requirement
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRequirementResponse'
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/reporting-requirements/{requirement_id}/history:
+    get:
+      operationId: projects_api_reporting_requirements_cru_requirement_history
+      summary: Requirement History
+      parameters:
+      - in: path
+        name: requirement_id
+        schema:
+          title: Requirement Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RequirementVersionResponse'
+                title: Response
+                type: array
+      tags:
+      - reporting-requirements.cru
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    FamiliarityCreate:
+      additionalProperties: false
+      properties:
+        requirement_id:
+          title: Requirement Id
+          type: integer
+        operator_sub:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Keycloak sub; defaults to the caller's.
+          title: Operator Sub
+      required:
+      - requirement_id
+      title: FamiliarityCreate
+      type: object
+    ApplicabilityInput:
+      additionalProperties: false
+      description: 'Typed-FK applicability row. Scope is read from the populated columns; at
+
+        most one of {project_id, turbine_id}; project rows never carry customer_id.'
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      title: ApplicabilityInput
+      type: object
+    FamiliarityResponse:
+      additionalProperties: false
+      properties:
+        requirement_id:
+          title: Requirement Id
+          type: integer
+        user_sub:
+          title: User Sub
+          type: string
+        version:
+          title: Version
+          type: integer
+        familiarized_at:
+          format: date-time
+          title: Familiarized At
+          type: string
+      required:
+      - requirement_id
+      - user_sub
+      - version
+      - familiarized_at
+      title: FamiliarityResponse
+      type: object
+    ApplicabilityResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      required:
+      - id
+      title: ApplicabilityResponse
+      type: object
+    RequirementVersionResponse:
+      additionalProperties: false
+      properties:
+        version:
+          title: Version
+          type: integer
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+      required:
+      - version
+      - created_at
+      title: RequirementVersionResponse
+      type: object
+    ProjectRequirementResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        title:
+          title: Title
+          type: string
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        current_version:
+          title: Current Version
+          type: integer
+        required_baseline_version:
+          title: Required Baseline Version
+          type: integer
+        status:
+          title: Status
+          type: string
+        decline_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Decline Reason
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        applicabilities:
+          items:
+            $ref: '#/components/schemas/ApplicabilityResponse'
+          title: Applicabilities
+          type: array
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+        updated_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated By Name
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - title
+      - current_version
+      - required_baseline_version
+      - status
+      - created_at
+      - updated_at
+      title: ProjectRequirementResponse
+      type: object
+    ProjectRequirementUpdate:
+      additionalProperties: false
+      properties:
+        title:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          title: Title
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        attachment_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Attachment File Ids
+        applicabilities:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ApplicabilityInput'
+            type: array
+          - type: 'null'
+          title: Applicabilities
+        re_familiarize:
+          default: true
+          description: 'true (default): invalidate operator familiarity — live acks are tombstoned, operators must re-acknowledge. false: carry acks forward. Applies to any edit, body or scope.'
+          title: Re Familiarize
+          type: boolean
+      title: ProjectRequirementUpdate
+      type: object
+    CruProjectRequirementCreate:
+      additionalProperties: false
+      description: 'cru data-operator create. customer_id is the requirement''s owning (root)
+
+        customer; null for Aerones-owned / project / turbine-general requirements.'
+      properties:
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        title:
+          maxLength: 255
+          title: Title
+          type: string
+        body:
+          title: Body
+          type: string
+        status:
+          anyOf:
+          - enum:
+            - DRAFT
+            - PENDING
+            - ACTIVE
+            - INACTIVE
+            type: string
+          - type: 'null'
+          description: Defaults to ACTIVE. DECLINED is reachable only via /decline.
+          title: Status
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        applicabilities:
+          description: Explicit applicability rows; empty = whole customer.
+          items:
+            $ref: '#/components/schemas/ApplicabilityInput'
+          title: Applicabilities
+          type: array
+      required:
+      - title
+      - body
+      title: CruProjectRequirementCreate
+      type: object
+    GateCheckResponse:
+      additionalProperties: false
+      properties:
+        familiar:
+          title: Familiar
+          type: boolean
+        missing_requirements:
+          items:
+            $ref: '#/components/schemas/GateMissingRequirement'
+          title: Missing Requirements
+          type: array
+      required:
+      - familiar
+      title: GateCheckResponse
+      type: object
+    GateMissingRequirement:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        title:
+          title: Title
+          type: string
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        current_version:
+          title: Current Version
+          type: integer
+      required:
+      - id
+      - title
+      - current_version
+      title: GateMissingRequirement
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

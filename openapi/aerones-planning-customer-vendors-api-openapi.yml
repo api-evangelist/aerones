@@ -1,0 +1,331 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Planning.customer Vendors API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: planning.customer-vendors
+paths:
+  /api/planning/v1/customer-vendors:
+    get:
+      operationId: list_customervendors
+      summary: List CustomerVendors
+      parameters:
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: vendor_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlanningCustomerVendorResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - planning.customer-vendors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_customervendor
+      summary: Create CustomerVendor
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningCustomerVendorResponse'
+      description: Create a new item.
+      tags:
+      - planning.customer-vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningCustomerVendorCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/planning/v1/customer-vendors/{id}:
+    get:
+      operationId: get_customervendor
+      summary: Get CustomerVendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningCustomerVendorResponse'
+      description: Get a single item by ID.
+      tags:
+      - planning.customer-vendors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_customervendor
+      summary: Update CustomerVendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningCustomerVendorResponse'
+      description: Update an item.
+      tags:
+      - planning.customer-vendors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningCustomerVendorUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_customervendor
+      summary: Delete CustomerVendor
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - planning.customer-vendors
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
+      type: object
+    PlanningCustomerVendorCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        vendor_id:
+          title: Vendor Id
+          type: integer
+      required:
+      - customer_id
+      - vendor_id
+      title: PlanningCustomerVendorCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningCustomerVendorUpdate:
+      properties:
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+      title: PlanningCustomerVendorUpdate
+      type: object
+    PlanningCustomerVendorResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          title: Customer Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCustomer'
+          - type: 'null'
+        vendor_id:
+          title: Vendor Id
+          type: integer
+        vendor:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedVendor'
+          - type: 'null'
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - customer_id
+      - vendor_id
+      - created_at
+      - updated_at
+      title: PlanningCustomerVendorResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PlanningNestedVendor:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedVendor
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

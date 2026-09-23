@@ -1,0 +1,887 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.turbines API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.turbines
+paths:
+  /api/core/v1/turbines/import-template:
+    get:
+      operationId: download_turbine_import_template
+      summary: Download turbine import CSV template
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Return an empty CSV file with all import column headers.
+      tags:
+      - core.turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbines/import:
+    post:
+      operationId: import_turbines_csv
+      summary: Import turbines from CSV
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineImportResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Parse a CSV file, validate all rows, and create turbines atomically.
+      tags:
+      - core.turbines
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbines:
+    get:
+      operationId: list_turbines
+      summary: List Turbines
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: manufacturer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by manufacturer ID
+          title: Manufacturer Id
+        required: false
+        description: Filter by manufacturer ID
+      - in: query
+        name: manufacturer_turbine_model_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine model ID
+          title: Manufacturer Turbine Model Id
+        required: false
+        description: Filter by turbine model ID
+      - in: query
+        name: is_virtual
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by virtual turbine
+          title: Is Virtual
+        required: false
+        description: Filter by virtual turbine
+      - in: query
+        name: health
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated health levels (0=NO_DATA, 100=HEALTHY, 20=ATTENTION_NEEDED, 30=ACTION_REQUIRED)
+          title: Health
+        required: false
+        description: Comma-separated health levels (0=NO_DATA, 100=HEALTHY, 20=ATTENTION_NEEDED, 30=ACTION_REQUIRED)
+      - in: query
+        name: ids
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated turbine IDs — returns only turbines whose id is in the list (batch fetch by id)
+          title: Ids
+        required: false
+        description: Comma-separated turbine IDs — returns only turbines whose id is in the list (batch fetch by id)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TurbineResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_turbine
+      summary: Create Turbine
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineResponse'
+      description: Create a new item.
+      tags:
+      - core.turbines
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurbineCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbines/{id}:
+    get:
+      operationId: get_turbine
+      summary: Get Turbine
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_turbine
+      summary: Update Turbine
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineResponse'
+      description: Update an item.
+      tags:
+      - core.turbines
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurbineUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_turbine
+      summary: Delete Turbine
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.turbines
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    TurbineComponentInput:
+      additionalProperties: false
+      description: 'Schema for creating a TurbineComponent as part of Turbine creation.
+
+
+        Note: turbine_id and location_id are automatically set from the parent turbine.'
+      properties:
+        component_type_id:
+          description: Component type ID
+          title: Component Type Id
+          type: integer
+        serial_number:
+          description: Serial number
+          minLength: 1
+          title: Serial Number
+          type: string
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component model ID
+          title: Model Id
+        length:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component length in meters
+          title: Length
+        position:
+          anyOf:
+          - $ref: '#/components/schemas/PositionEnum'
+          - type: 'null'
+          description: Component position (A, B, or C). Must be NULL when the selected turbine has is_virtual=true; required when is_virtual=false.
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors; NULL for non-paired components.
+          title: Pair Index
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      required:
+      - component_type_id
+      - serial_number
+      title: TurbineComponentInput
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    TurbineResponse:
+      additionalProperties: false
+      description: Schema for Turbine response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Turbine ID
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine name
+          title: Name
+        location:
+          $ref: '#/components/schemas/LocationObject'
+          description: Location information
+        manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerObject'
+          - type: 'null'
+          description: Manufacturer information
+        model:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineModelObject'
+          - type: 'null'
+          description: Turbine model information
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        pad_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Pad number
+          title: Pad Number
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        efficiency:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine efficiency
+          title: Efficiency
+        commissioning_year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Year of commissioning
+          title: Commissioning Year
+        output:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine output
+          title: Output
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Coordinates string
+          title: Coordinates
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        double_receptors:
+          description: Has double receptors
+          title: Double Receptors
+          type: boolean
+        hv_double_receptors:
+          description: Has HV double receptors
+          title: Hv Double Receptors
+          type: boolean
+        manufacturer_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer number
+          title: Manufacturer Number
+        is_virtual:
+          description: Is virtual turbine
+          title: Is Virtual
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - location
+      - double_receptors
+      - hv_double_receptors
+      - is_virtual
+      title: TurbineResponse
+      type: object
+    TurbineImportRowError:
+      additionalProperties: false
+      properties:
+        row:
+          title: Row
+          type: integer
+        errors:
+          items:
+            type: string
+          title: Errors
+          type: array
+      required:
+      - row
+      - errors
+      title: TurbineImportRowError
+      type: object
+    TurbineUpdate:
+      additionalProperties: false
+      description: Schema for updating a Turbine.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Turbine name
+          title: Name
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID
+          title: Location Id
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Manufacturer Turbine Model Id
+        pad_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Pad number
+          title: Pad Number
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        efficiency:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine efficiency
+          title: Efficiency
+        commissioning_year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Year of commissioning
+          title: Commissioning Year
+        output:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine output
+          title: Output
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Coordinates string
+          title: Coordinates
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        manufacturer_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer number
+          title: Manufacturer Number
+        is_virtual:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is virtual turbine
+          title: Is Virtual
+      title: TurbineUpdate
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    TurbineCustomerInput:
+      additionalProperties: false
+      description: Customer assignment payload entry for Turbine creation.
+      properties:
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        relationship_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Relationship type ID. If null, defaults to the relationship the customer has with the turbine's location (customer_locations.relationship_id).
+          title: Relationship Id
+      required:
+      - customer_id
+      title: TurbineCustomerInput
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    TurbineImportResponse:
+      additionalProperties: false
+      properties:
+        created_count:
+          default: 0
+          title: Created Count
+          type: integer
+        errors:
+          default: []
+          items:
+            $ref: '#/components/schemas/TurbineImportRowError'
+          title: Errors
+          type: array
+      title: TurbineImportResponse
+      type: object
+    TurbineModelObject:
+      additionalProperties: false
+      description: Nested turbine model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineModelObject
+      type: object
+    TurbineCreate:
+      additionalProperties: false
+      description: Schema for creating a Turbine.
+      properties:
+        name:
+          description: Turbine name
+          minLength: 1
+          title: Name
+          type: string
+        location_id:
+          description: Location ID
+          title: Location Id
+          type: integer
+        latitude:
+          description: Latitude coordinate
+          title: Latitude
+          type: number
+        longitude:
+          description: Longitude coordinate
+          title: Longitude
+          type: number
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Manufacturer Turbine Model Id
+        pad_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Pad number
+          title: Pad Number
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        efficiency:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine efficiency
+          title: Efficiency
+        commissioning_year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Year of commissioning
+          title: Commissioning Year
+        output:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine output
+          title: Output
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Coordinates string
+          title: Coordinates
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        components:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/TurbineComponentInput'
+            type: array
+          - type: 'null'
+          description: Optional list of turbine components to create
+          title: Components
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        manufacturer_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer number
+          title: Manufacturer Number
+        is_virtual:
+          default: false
+          description: Is virtual turbine
+          title: Is Virtual
+          type: boolean
+        customers:
+          description: Customer assignments. At least one is required; each entry creates a corresponding row in core.customer_turbines.
+          items:
+            $ref: '#/components/schemas/TurbineCustomerInput'
+          minItems: 1
+          title: Customers
+          type: array
+      required:
+      - name
+      - location_id
+      - latitude
+      - longitude
+      - customers
+      title: TurbineCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

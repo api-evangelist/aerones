@@ -1,0 +1,709 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Dispatch.board Annotations API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: dispatch.board-annotations
+paths:
+  /api/dispatch/v1/projects/{project_id}/dispatch/day-commentary:
+    post:
+      operationId: create_day_commentary_v1
+      summary: Add a dispatcher's day-commentary note to a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DayCommentaryResponse'
+      description: 'Record a free-form dispatcher note about one day on a project
+
+        (DISP-2285). Internal-only: no GraphQL field exposes this, so it never
+
+        reaches AeroTask.'
+      tags:
+      - dispatch.board-annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DayCommentaryPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: list_day_commentary_v1
+      summary: List a project's day-commentary notes for one day
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: date
+        schema:
+          format: date
+          title: Date
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DayCommentaryResponse'
+                title: Response
+                type: array
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/service-kpis:
+    get:
+      operationId: list_service_kpis_v1
+      summary: List KPI (benchmark duration) settings for every service used on a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceKpiResponse'
+                title: Response
+                type: array
+      description: 'Every service this project''s scope references, with its effective KPI
+
+        duration -- this project''s own override (DISP-2988) if one is set, else
+
+        the flat `Service.default_kpi_minutes` (DISP-2925). Feeds the board''s
+
+        "Service KPIs" settings pane.'
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/service-kpis/{service_id}:
+    put:
+      operationId: set_service_kpi_v1
+      summary: Set a project's KPI override for one service
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceKpiResponse'
+      description: 'Set (or replace) this project''s KPI duration override for a service
+
+        (DISP-2988) -- the value the dispatching board uses instead of the flat
+
+        `Service.default_kpi_minutes` for every scope-based dispatch of this
+
+        service on this project.'
+      tags:
+      - dispatch.board-annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetServiceKpiPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_service_kpi_v1
+      summary: Clear a project's KPI override for one service, reverting to the global default
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceKpiResponse'
+      description: 'Remove this project''s KPI override for a service (DISP-2988), reverting
+
+        the board back to `Service.default_kpi_minutes` (or a `ServiceComponent`
+
+        override, if one applies to the bucket).'
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/team-messages:
+    post:
+      operationId: create_team_message_v1
+      summary: Send a dispatcher message to a team
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMessageResponse'
+      description: 'Create a dated free-form note from the dispatcher to one team
+
+        (DISP-2288). Answered once from AeroTask via the ``respondToTeamMessage``
+
+        GraphQL mutation -- this endpoint only creates the message.'
+      tags:
+      - dispatch.board-annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamMessagePayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: list_team_messages_v1
+      summary: List dispatcher messages to teams for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: since
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Since
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TeamMessageResponse'
+                title: Response
+                type: array
+      description: Team messages for the project, oldest first (DISP-2288).
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/day-commentary:
+    post:
+      operationId: dispatch_api_board_annotations_create_day_commentary
+      summary: Add a dispatcher's day-commentary note to a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DayCommentaryResponse'
+      description: 'Record a free-form dispatcher note about one day on a project
+
+        (DISP-2285). Internal-only: no GraphQL field exposes this, so it never
+
+        reaches AeroTask.'
+      tags:
+      - dispatch.board-annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DayCommentaryPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: dispatch_api_board_annotations_list_day_commentary
+      summary: List a project's day-commentary notes for one day
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: date
+        schema:
+          format: date
+          title: Date
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DayCommentaryResponse'
+                title: Response
+                type: array
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/service-kpis:
+    get:
+      operationId: dispatch_api_board_annotations_list_service_kpis
+      summary: List KPI (benchmark duration) settings for every service used on a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceKpiResponse'
+                title: Response
+                type: array
+      description: 'Every service this project''s scope references, with its effective KPI
+
+        duration -- this project''s own override (DISP-2988) if one is set, else
+
+        the flat `Service.default_kpi_minutes` (DISP-2925). Feeds the board''s
+
+        "Service KPIs" settings pane.'
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/service-kpis/{service_id}:
+    put:
+      operationId: dispatch_api_board_annotations_set_service_kpi
+      summary: Set a project's KPI override for one service
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceKpiResponse'
+      description: 'Set (or replace) this project''s KPI duration override for a service
+
+        (DISP-2988) -- the value the dispatching board uses instead of the flat
+
+        `Service.default_kpi_minutes` for every scope-based dispatch of this
+
+        service on this project.'
+      tags:
+      - dispatch.board-annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetServiceKpiPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_board_annotations_delete_service_kpi
+      summary: Clear a project's KPI override for one service, reverting to the global default
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceKpiResponse'
+      description: 'Remove this project''s KPI override for a service (DISP-2988), reverting
+
+        the board back to `Service.default_kpi_minutes` (or a `ServiceComponent`
+
+        override, if one applies to the bucket).'
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/team-messages:
+    post:
+      operationId: dispatch_api_board_annotations_create_team_message
+      summary: Send a dispatcher message to a team
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMessageResponse'
+      description: 'Create a dated free-form note from the dispatcher to one team
+
+        (DISP-2288). Answered once from AeroTask via the ``respondToTeamMessage``
+
+        GraphQL mutation -- this endpoint only creates the message.'
+      tags:
+      - dispatch.board-annotations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamMessagePayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: dispatch_api_board_annotations_list_team_messages
+      summary: List dispatcher messages to teams for a project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: since
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Since
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TeamMessageResponse'
+                title: Response
+                type: array
+      description: Team messages for the project, oldest first (DISP-2288).
+      tags:
+      - dispatch.board-annotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    TeamMessageResponse:
+      additionalProperties: false
+      description: A team message with its current (possibly still-pending) reaction.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        date:
+          format: date
+          title: Date
+          type: string
+        text:
+          title: Text
+          type: string
+        reaction:
+          title: Reaction
+          type: string
+        reaction_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reaction Comment
+        reacted_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Reacted At
+        sent_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sent By
+        sent_at:
+          format: date-time
+          title: Sent At
+          type: string
+        attachments:
+          items:
+            $ref: '#/components/schemas/TeamMessageAttachmentResponse'
+          title: Attachments
+          type: array
+      required:
+      - id
+      - project_resource_set_id
+      - date
+      - text
+      - reaction
+      - sent_at
+      - attachments
+      title: TeamMessageResponse
+      type: object
+    TeamMessageAttachmentResponse:
+      additionalProperties: false
+      description: One image attached to a team message.
+      properties:
+        id:
+          title: Id
+          type: integer
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      required:
+      - id
+      title: TeamMessageAttachmentResponse
+      type: object
+    CreateTeamMessagePayload:
+      additionalProperties: false
+      description: 'Payload for a dispatcher message to a team, dated today or later
+
+        (DISP-2288). Images are pre-uploaded via ``POST /core/v1/files/`` (bare);
+
+        their ids are passed here to be linked in the same transaction.'
+      properties:
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        date:
+          format: date
+          title: Date
+          type: string
+        text:
+          title: Text
+          type: string
+        image_file_ids:
+          items:
+            type: integer
+          title: Image File Ids
+          type: array
+      required:
+      - project_resource_set_id
+      - date
+      - text
+      title: CreateTeamMessagePayload
+      type: object
+    SetServiceKpiPayload:
+      additionalProperties: false
+      description: Payload to set a project's KPI override for one service (DISP-2988).
+      properties:
+        kpi_minutes:
+          title: Kpi Minutes
+          type: integer
+      required:
+      - kpi_minutes
+      title: SetServiceKpiPayload
+      type: object
+    ServiceKpiResponse:
+      additionalProperties: false
+      description: 'One service''s KPI (benchmark duration) setting for a project (DISP-2988).
+
+
+        `kpi_minutes` is what the dispatching board actually uses for this
+
+        service on this project today -- the project override when
+
+        `has_override` is true, else the flat `Service.default_kpi_minutes`.'
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        kpi_minutes:
+          title: Kpi Minutes
+          type: integer
+        default_kpi_minutes:
+          title: Default Kpi Minutes
+          type: integer
+        has_override:
+          title: Has Override
+          type: boolean
+      required:
+      - service_id
+      - service_code
+      - kpi_minutes
+      - default_kpi_minutes
+      - has_override
+      title: ServiceKpiResponse
+      type: object
+    DayCommentaryResponse:
+      additionalProperties: false
+      description: One day-commentary entry.
+      properties:
+        id:
+          title: Id
+          type: integer
+        date:
+          format: date
+          title: Date
+          type: string
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        text:
+          title: Text
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+      required:
+      - id
+      - date
+      - text
+      - created_at
+      title: DayCommentaryResponse
+      type: object
+    DayCommentaryPayload:
+      additionalProperties: false
+      description: Payload for a dispatcher's free-form note about one day (DISP-2285).
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        text:
+          title: Text
+          type: string
+      required:
+      - date
+      - text
+      title: DayCommentaryPayload
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

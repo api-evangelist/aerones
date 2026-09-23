@@ -1,0 +1,467 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.customers.anomaly Client Fields API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.customers.anomaly-client-fields
+paths:
+  /api/core/v1/customers/{customer_id}/anomaly-client-fields:
+    get:
+      operationId: list_customer_anomaly_client_fields
+      summary: List Anomaly Client Fields for Customer
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search in name
+          title: Search
+        required: false
+        description: Search in name
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort field
+          title: Sort
+        required: false
+        description: Sort field
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by field type
+          title: Type
+        required: false
+        description: Filter by field type
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AnomalyClientFieldResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.customers.anomaly-client-fields
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_customer_anomaly_client_field
+      summary: Create Anomaly Client Field
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyClientFieldResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.customers.anomaly-client-fields
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyClientFieldCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/customers/{customer_id}/anomaly-client-fields/{field_id}:
+    get:
+      operationId: get_customer_anomaly_client_field
+      summary: Get Anomaly Client Field
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: field_id
+        schema:
+          title: Field Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyClientFieldResponse'
+      description: Get a single child item.
+      tags:
+      - core.customers.anomaly-client-fields
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_customer_anomaly_client_field
+      summary: Update Anomaly Client Field
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: field_id
+        schema:
+          title: Field Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyClientFieldResponse'
+      description: Update a child item.
+      tags:
+      - core.customers.anomaly-client-fields
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyClientFieldUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_customer_anomaly_client_field
+      summary: Delete Anomaly Client Field
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: field_id
+        schema:
+          title: Field Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.customers.anomaly-client-fields
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/anomaly-client-fields/applicable:
+    get:
+      operationId: list_applicable_anomaly_client_fields
+      summary: List Applicable Anomaly Client Fields
+      parameters:
+      - in: query
+        name: service_order_line_id
+        schema:
+          title: Service Order Line Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AnomalyClientFieldResponse'
+                title: Response
+                type: array
+      description: 'Client fields an anomaly on this service order line may record.
+
+
+        Resolves the line''s customer and turbine model, then keeps only the fields
+
+        the caller is allowed to see under each field''s ``access_rules``. An empty
+
+        list means the form shows no custom fields. Shares the manager helper with
+
+        ``anomalyClientFieldsForServiceOrderLine``, so REST and GraphQL offer the
+
+        same set.'
+      tags:
+      - core.customers.anomaly-client-fields
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    AnomalyClientFieldUpdate:
+      additionalProperties: false
+      description: Schema for updating an AnomalyClientField.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Field name
+          title: Name
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Field data type
+          title: Type
+        options:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AnomalyClientFieldOption'
+            type: array
+          - type: 'null'
+          description: Allowed options for SELECT-type fields
+          title: Options
+      title: AnomalyClientFieldUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    AnomalyClientFieldOption:
+      additionalProperties: false
+      description: One allowed option for a SELECT-type client field.
+      properties:
+        value:
+          description: Stored option value
+          title: Value
+          type: string
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable option label
+          title: Label
+      required:
+      - value
+      title: AnomalyClientFieldOption
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    AnomalyClientFieldResponse:
+      additionalProperties: false
+      description: Schema for AnomalyClientField response (customer custom-field definition).
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Custom field ID
+          title: Id
+          type: integer
+        customer_id:
+          description: Owning customer ID
+          title: Customer Id
+          type: integer
+        customer_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Owning customer display name, for labelling the field group
+          title: Customer Display Name
+        name:
+          description: Field name
+          title: Name
+          type: string
+        type:
+          description: Field data type
+          title: Type
+          type: string
+        options:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/CustomerCustomFieldOption'
+            type: array
+          - type: 'null'
+          description: Allowed options for SELECT-type fields. A field reading its options from a live list carries the list resolved for this record.
+          title: Options
+        options_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The live list a SELECT field reads its options from, or null for a field storing its own. When set, an empty options list means no value is allowed; when null, an empty list leaves the field unrestricted.
+          title: Options Source
+        validation:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Limits the value must satisfy, as {min, max, decimals}. Applies to NUMBER fields; decimals 0 means whole numbers only.
+          title: Validation
+      required:
+      - updated_at
+      - id
+      - customer_id
+      - name
+      - type
+      title: AnomalyClientFieldResponse
+      type: object
+    CustomerCustomFieldOption:
+      additionalProperties: false
+      description: One allowed option for a SELECT-type customer custom field.
+      properties:
+        value:
+          description: Stored option value
+          title: Value
+          type: string
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable option label
+          title: Label
+      required:
+      - value
+      title: CustomerCustomFieldOption
+      type: object
+    AnomalyClientFieldCreate:
+      additionalProperties: false
+      description: Schema for creating an AnomalyClientField.
+      properties:
+        name:
+          description: Field name
+          title: Name
+          type: string
+        type:
+          default: TEXT
+          description: Field data type
+          title: Type
+          type: string
+        options:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AnomalyClientFieldOption'
+            type: array
+          - type: 'null'
+          description: Allowed options for SELECT-type fields
+          title: Options
+      required:
+      - name
+      title: AnomalyClientFieldCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

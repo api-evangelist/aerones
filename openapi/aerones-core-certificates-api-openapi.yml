@@ -1,0 +1,448 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.certificates API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.certificates
+paths:
+  /api/core/v1/certificates:
+    get:
+      operationId: list_certificates
+      summary: List Certificates
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: category_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by category
+          title: Category Id
+        required: false
+        description: Filter by category
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country
+          title: Country Id
+        required: false
+        description: Filter by country
+      - in: query
+        name: is_active
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by active flag
+          title: Is Active
+        required: false
+        description: Filter by active flag
+      - in: query
+        name: source
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by origin system
+          title: Source
+        required: false
+        description: Filter by origin system
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CertificateResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.certificates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_certificate
+      summary: Create Certificate
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+      description: Create a new item.
+      tags:
+      - core.certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/certificates/{id}:
+    get:
+      operationId: get_certificate
+      summary: Get Certificate
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.certificates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_certificate
+      summary: Update Certificate
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+      description: Update an item.
+      tags:
+      - core.certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_certificate
+      summary: Delete Certificate
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.certificates
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CertificateUpdate:
+      additionalProperties: false
+      description: Schema for updating a Certificate (partial).
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          title: Name
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        default_validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Default Validity Months
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      title: CertificateUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CertificateCreate:
+      additionalProperties: false
+      description: Schema for creating a Certificate.
+      properties:
+        name:
+          description: Certificate name
+          minLength: 1
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Unique short code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        default_validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Default expiry window in months. Omit / null for non-expiring certificates.
+          title: Default Validity Months
+        is_active:
+          default: true
+          description: Whether the certificate is active
+          title: Is Active
+          type: boolean
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country the certificate is intrinsic to. Omit for global.
+          title: Country Id
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Category FK
+          title: Category Id
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Origin system (e.g. "bamboohr")
+          title: Source
+      required:
+      - name
+      title: CertificateCreate
+      type: object
+    CertificateResponse:
+      additionalProperties: false
+      description: Schema for Certificate response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Certificate ID
+          title: Id
+          type: integer
+        name:
+          description: Certificate name
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Unique short code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        default_validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Default expiry window in months
+          title: Default Validity Months
+        is_active:
+          description: Whether the certificate is active
+          title: Is Active
+          type: boolean
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country FK
+          title: Country Id
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Category FK
+          title: Category Id
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Origin system
+          title: Source
+      required:
+      - updated_at
+      - id
+      - name
+      - is_active
+      title: CertificateResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

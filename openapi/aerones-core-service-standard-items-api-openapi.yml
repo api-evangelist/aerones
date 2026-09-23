@@ -1,0 +1,481 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.service Standard Items API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.service-standard-items
+paths:
+  /api/core/v1/service-standard-items:
+    get:
+      operationId: list_service_standard_items
+      summary: List Service Standard Items
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        required: false
+      - in: query
+        name: region
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        required: false
+      - in: query
+        name: part_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Part Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceStandardItemResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.service-standard-items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_service_standard_item
+      summary: Create Service Standard Item
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStandardItemResponse'
+      description: Create a new item.
+      tags:
+      - core.service-standard-items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceStandardItemCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/service-standard-items/{id}:
+    get:
+      operationId: get_service_standard_item
+      summary: Get Service Standard Item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStandardItemResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.service-standard-items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_service_standard_item
+      summary: Update Service Standard Item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceStandardItemResponse'
+      description: Update an item.
+      tags:
+      - core.service-standard-items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceStandardItemUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_service_standard_item
+      summary: Delete Service Standard Item
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.service-standard-items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ServiceStandardItemCreate:
+      additionalProperties: false
+      description: Schema for creating a standard-set line.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service; omit for a region-common line
+          title: Service Id
+        region:
+          default: EU
+          description: Region
+          enum:
+          - EU
+          - NA
+          title: Region
+          type: string
+        part_id:
+          description: ERP part ID (Ops Hub id)
+          title: Part Id
+          type: integer
+        quantity:
+          default: 1
+          description: Quantity per scope
+          exclusiveMinimum: 0.0
+          title: Quantity
+          type: number
+        unit:
+          description: Unit (pcs, pair, set, ...)
+          minLength: 1
+          title: Unit
+          type: string
+        scope:
+          default: PER_SET
+          description: Whether quantity is per set, per person, per wind turbine, or per blade
+          enum:
+          - PER_SET
+          - PER_PERSON
+          - PER_WTG
+          - PER_BLADE
+          title: Scope
+          type: string
+      required:
+      - part_id
+      - unit
+      title: ServiceStandardItemCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    ErpPartObject:
+      additionalProperties: false
+      description: Nested ERP part object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        part_number:
+          title: Part Number
+          type: string
+        description:
+          default: ''
+          title: Description
+          type: string
+        unit:
+          default: ''
+          title: Unit
+          type: string
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/ErpPartCategoryObject'
+          - type: 'null'
+      required:
+      - id
+      - part_number
+      title: ErpPartObject
+      type: object
+    ServiceStandardItemUpdate:
+      additionalProperties: false
+      description: Schema for updating a standard-set line.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service
+          title: Service Id
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Region
+          title: Region
+        part_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ERP part ID
+          title: Part Id
+        quantity:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        unit:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Unit
+          title: Unit
+        scope:
+          anyOf:
+          - enum:
+            - PER_SET
+            - PER_PERSON
+            - PER_WTG
+            - PER_BLADE
+            type: string
+          - type: 'null'
+          description: Scope
+          title: Scope
+      title: ServiceStandardItemUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceStandardItemResponse:
+      additionalProperties: false
+      description: Schema for one standard-set line of a service.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Standard item ID
+          title: Id
+          type: integer
+        region:
+          description: Region the line applies to (EU/NA)
+          title: Region
+          type: string
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+          description: Service; null = applies to all services in the region
+        part:
+          $ref: '#/components/schemas/ErpPartObject'
+          description: Monitor ERP part
+        quantity:
+          description: Quantity per scope
+          title: Quantity
+          type: number
+        unit:
+          description: Unit (pcs, pair, set, ...)
+          title: Unit
+          type: string
+        scope:
+          description: PER_SET, PER_PERSON, PER_WTG or PER_BLADE
+          title: Scope
+          type: string
+      required:
+      - updated_at
+      - id
+      - region
+      - part
+      - quantity
+      - unit
+      - scope
+      title: ServiceStandardItemResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErpPartCategoryObject:
+      additionalProperties: false
+      description: Nested item-category object for ERP part responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ErpPartCategoryObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

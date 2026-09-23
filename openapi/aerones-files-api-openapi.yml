@@ -1,0 +1,272 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Files API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Files
+paths:
+  /api/files:
+    post:
+      operationId: fileupload_api_upload_file
+      summary: Upload File
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileAttachment'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Upload a new file and retrieve it's storage id.
+      tags:
+      - Files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: fileupload_api_list_files
+      summary: List Files
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get a list of all files in the system.
+      tags:
+      - Files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/files/{storage_id}/download:
+    get:
+      operationId: fileupload_api_download_file
+      summary: Download File
+      parameters:
+      - in: path
+        name: storage_id
+        schema:
+          title: Storage Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download a file.
+      tags:
+      - Files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/files/{storage_id}/inline:
+    get:
+      operationId: fileupload_api_get_inline_file
+      summary: Get Inline File
+      parameters:
+      - in: path
+        name: storage_id
+        schema:
+          title: Storage Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Serve a file for inline display, e.g. an image embedded in a comment.
+      tags:
+      - Files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/files/{storage_id}:
+    get:
+      operationId: fileupload_api_get_file_details
+      summary: Get File Details
+      parameters:
+      - in: path
+        name: storage_id
+        schema:
+          title: Storage Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get details about specific file(s).
+
+
+        If storage_id contains comma-separated values, returns details for multiple files.
+
+        Otherwise returns details for a single file wrapped in a list.'
+      tags:
+      - Files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: fileupload_api_delete_file
+      summary: Delete File
+      parameters:
+      - in: path
+        name: storage_id
+        schema:
+          title: Storage Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a file.
+      tags:
+      - Files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    FileList:
+      additionalProperties: false
+      description: Response schema for listing all files.
+      properties:
+        files:
+          description: List of all files in the system.
+          items:
+            $ref: '#/components/schemas/FileAttachment'
+          title: Files
+          type: array
+      required:
+      - files
+      title: FileList
+      type: object
+    FileAttachment:
+      additionalProperties: false
+      description: 'File attachment response.
+
+
+        Defines the structure of a single file uploaded to the server.'
+      properties:
+        storage_id:
+          description: Unique identifier of the file received when first uploading it.
+          format: uuid
+          title: Storage Id
+          type: string
+        file_name:
+          description: The name of the file.
+          title: File Name
+          type: string
+        file_type:
+          description: MIME file type (e.g. 'application/pdf').
+          title: File Type
+          type: string
+      required:
+      - storage_id
+      - file_name
+      - file_type
+      title: FileAttachment
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

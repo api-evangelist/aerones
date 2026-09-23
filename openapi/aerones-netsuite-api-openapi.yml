@@ -1,0 +1,363 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Netsuite API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: netsuite
+paths:
+  /api/netsuite/projects/{netsuite_project_id}:
+    delete:
+      operationId: integrations_netsuite_api_delete_project
+      summary: Delete Project
+      parameters:
+      - in: path
+        name: netsuite_project_id
+        schema:
+          title: Netsuite Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a NetSuite project.
+      tags:
+      - netsuite
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/netsuite/assets/{asset_id}:
+    delete:
+      operationId: integrations_netsuite_api_delete_asset
+      summary: Delete Asset
+      parameters:
+      - in: path
+        name: asset_id
+        schema:
+          title: Asset Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a NetSuite asset.
+      tags:
+      - netsuite
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/netsuite/customers/{customer_id}:
+    delete:
+      operationId: integrations_netsuite_api_delete_customer
+      summary: Delete Customer
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a NetSuite customer.
+      tags:
+      - netsuite
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/netsuite/sales-orders/by-project-code:
+    get:
+      operationId: integrations_netsuite_api_get_all_sales_order_by_project_code
+      summary: Get All Sales Order By Project Code
+      parameters:
+      - in: query
+        name: project_code
+        schema:
+          title: Project Code
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SalesOrder'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get all sales order by project code.
+      tags:
+      - netsuite
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/netsuite/subsidiaries:
+    get:
+      operationId: integrations_netsuite_api_get_subsidiaries
+      summary: Get Subsidiaries
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Subsidiary'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get all Aerones billing entities from NetSuite, each annotated with the
+
+        customer countries it is the billing default for.'
+      tags:
+      - netsuite
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/netsuite/refresh-master-data:
+    post:
+      operationId: integrations_netsuite_api_refresh_master_data
+      summary: Refresh Master Data
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Refresh master data from NetSuite.
+
+
+        This syncs:
+
+        - Units of measure to ServicePricingUnit
+
+        - Service items with their unit relations'
+      tags:
+      - netsuite
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Subsidiary:
+      additionalProperties: false
+      description: Subsidiary
+      properties:
+        id:
+          description: NetSuite ID of the subsidiary
+          title: Id
+          type: integer
+        name:
+          description: Name of the subsidiary
+          title: Name
+          type: string
+        country:
+          description: Country of the subsidiary
+          title: Country
+          type: string
+        iselimination:
+          description: Is elimination
+          title: Iselimination
+          type: boolean
+        currency:
+          description: Currency of the subsidiary
+          title: Currency
+          type: string
+        parent:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent subsidiary of this subsidiary
+          title: Parent
+      required:
+      - id
+      - name
+      - country
+      - iselimination
+      - currency
+      title: Subsidiary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    SalesOrderSourceSystem:
+      description: Source system for sales order creation.
+      enum:
+      - 1
+      - 2
+      title: SalesOrderSourceSystem
+      type: integer
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    SalesOrder:
+      additionalProperties: false
+      description: Schema for sales order.
+      properties:
+        id:
+          description: NetSuite ID for the sales order
+          title: Id
+          type: integer
+        name:
+          description: Sales order name
+          title: Name
+          type: string
+        ns_project_id:
+          description: NetSuite ID for (NS) project
+          title: Ns Project Id
+          type: integer
+        customer_id:
+          description: NetSuite ID for customer
+          title: Customer Id
+          type: integer
+        customer_name:
+          description: Customer name
+          title: Customer Name
+          type: string
+        status_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status name
+          title: Status Name
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite ID for currency
+          title: Currency Id
+        currency_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency name
+          title: Currency Name
+        offer_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Offer version
+          title: Offer Version
+        created_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Sales order transaction date
+          title: Created Date
+        source_system:
+          anyOf:
+          - $ref: '#/components/schemas/SalesOrderSourceSystem'
+          - type: 'null'
+          description: Source system for sales order (legacy, ops_hub)
+      required:
+      - id
+      - name
+      - ns_project_id
+      - customer_id
+      - customer_name
+      title: SalesOrder
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

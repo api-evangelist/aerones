@@ -1,0 +1,638 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.communication API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.communication
+paths:
+  /api/core/v1/projects/{project_id}/communication/messages:
+    get:
+      operationId: list_project_communication_messages
+      summary: List Messages
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          title: Page Size
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectCommentResponse'
+                title: Response
+                type: array
+      description: List project communication notes, newest first.
+      tags:
+      - core.projects.communication
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_communication_message
+      summary: Create Message
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCommentResponse'
+      description: Post a new project communication note.
+      tags:
+      - core.projects.communication
+      deprecated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCommentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/communication/messages/{comment_id}:
+    patch:
+      operationId: update_project_communication_message
+      summary: Update Message
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCommentResponse'
+      description: Edit a project communication note (author only).
+      tags:
+      - core.projects.communication
+      deprecated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCommentUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_communication_message
+      summary: Delete Message
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a project communication note (author only).
+      tags:
+      - core.projects.communication
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/communication/feed:
+    get:
+      operationId: get_project_communication_feed
+      summary: Get Feed
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          title: Page Size
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CommunicationFeedEntry'
+                title: Response
+                type: array
+      description: 'Unified read-only feed: project notes + surfaced task comments.'
+      tags:
+      - core.projects.communication
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/roles/{role_id}/members:
+    get:
+      operationId: list_role_members
+      summary: Role Members
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      - in: query
+        name: limit
+        schema:
+          default: 25
+          title: Limit
+          type: integer
+        required: false
+      - in: query
+        name: offset
+        schema:
+          default: 0
+          title: Offset
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleMemberListResponse'
+      description: 'The people a role mention notifies, for the chip''s hover list.
+
+
+        Roles are global, so this takes no project. ``limit`` is capped at
+
+        ``ProjectCommentManager.MAX_MENTION_CANDIDATES`` (25) and ``offset`` pages
+
+        through the rest, which is what lets the hover list scroll a large role.'
+      tags:
+      - core.projects.communication
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/communication/mention-candidates:
+    get:
+      operationId: list_project_communication_mention_candidates
+      summary: Mention Candidates
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: q
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Q
+        required: false
+      - in: query
+        name: limit
+        schema:
+          default: 10
+          title: Limit
+          type: integer
+        required: false
+      - in: query
+        name: offset
+        schema:
+          default: 0
+          title: Offset
+          type: integer
+        required: false
+      - in: query
+        name: kind
+        schema:
+          default: user
+          enum:
+          - user
+          - role
+          title: Kind
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MentionCandidateListResponse'
+      description: 'Users or roles that can be @-mentioned in this project''s communication feed.
+
+
+        ``q`` filters by first name, last name, "first last", or email for users
+
+        (case/accent-insensitive), and by name for roles. ``limit`` defaults to 10
+
+        and is capped at ``ProjectCommentManager.MAX_MENTION_CANDIDATES`` (25).
+
+        ``offset`` pages through ``kind``''s results. The response always carries
+
+        ``user_count``/``role_count`` for both categories, so a single request
+
+        can fill the requested tab and both tab badges.'
+      tags:
+      - core.projects.communication
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectCommentUpdate:
+      additionalProperties: false
+      description: Edit a project communication note (author only).
+      properties:
+        body:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Note body.
+          title: Body
+        body_format:
+          anyOf:
+          - enum:
+            - text
+            - markdown
+            type: string
+          - type: 'null'
+          description: How `body` is encoded.
+          title: Body Format
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Replacement mention set. None leaves it untouched, [] clears. Ignored for body_format='markdown'.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Replacement attachment set. None leaves it untouched, [] clears.
+          title: Attachment File Ids
+      title: ProjectCommentUpdate
+      type: object
+    MentionCandidateListResponse:
+      additionalProperties: false
+      properties:
+        candidates:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Candidates
+          type: array
+      title: MentionCandidateListResponse
+      type: object
+    MentionCandidate:
+      additionalProperties: false
+      description: One user available for @-mention in a Set Request note.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: MentionCandidate
+      type: object
+    CommunicationAttachment:
+      additionalProperties: false
+      description: A file attached to a communication note or task comment.
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+      required:
+      - id
+      - file_name
+      - file_type
+      title: CommunicationAttachment
+      type: object
+    ProjectCommentResponse:
+      additionalProperties: false
+      description: A single project communication note.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        body_format:
+          default: text
+          title: Body Format
+          type: string
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+        edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: User who last updated the comment (domain rename of updated_by).
+        is_edited:
+          default: false
+          description: Whether the comment was edited after it was created.
+          title: Is Edited
+          type: boolean
+        mentioned_users:
+          items:
+            $ref: '#/components/schemas/CommunicationUser'
+          title: Mentioned Users
+          type: array
+        attachments:
+          items:
+            $ref: '#/components/schemas/CommunicationAttachment'
+          title: Attachments
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - updated_at
+      - id
+      - body
+      - created_at
+      title: ProjectCommentResponse
+      type: object
+    ProjectCommentCreate:
+      additionalProperties: false
+      description: Create a project communication note.
+      properties:
+        body:
+          description: Note body.
+          minLength: 1
+          title: Body
+          type: string
+        body_format:
+          default: text
+          description: How `body` is encoded.
+          enum:
+          - text
+          - markdown
+          title: Body Format
+          type: string
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: User ids @-mentioned in the note. Ignored for body_format='markdown' — mentions are parsed from the body instead.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Storage ids of files attached to the note.
+          title: Attachment File Ids
+      required:
+      - body
+      title: ProjectCommentCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CommunicationUser:
+      additionalProperties: false
+      description: Lightweight user reference used in communication payloads.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: CommunicationUser
+      type: object
+    RoleMemberListResponse:
+      additionalProperties: false
+      description: 'The people a role mention notifies, for the reader-facing role chip.
+
+
+        Reuses ``MentionCandidate`` so one shape describes a person in the picker
+
+        and in this list. ``total`` is the whole role; ``members`` is one page.'
+      properties:
+        members:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Members
+          type: array
+        total:
+          default: 0
+          title: Total
+          type: integer
+        has_more:
+          default: false
+          title: Has More
+          type: boolean
+      required:
+      - members
+      title: RoleMemberListResponse
+      type: object
+    CommunicationFeedEntry:
+      additionalProperties: false
+      description: A unified feed entry — a project note or a surfaced task comment.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        kind:
+          enum:
+          - message
+          - task_comment
+          title: Kind
+          type: string
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        body_format:
+          default: text
+          title: Body Format
+          type: string
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+        edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: User who last updated the comment (domain rename of updated_by).
+        is_edited:
+          default: false
+          description: Whether the comment was edited after it was created.
+          title: Is Edited
+          type: boolean
+        mentioned_users:
+          items:
+            $ref: '#/components/schemas/CommunicationUser'
+          title: Mentioned Users
+          type: array
+        attachments:
+          items:
+            $ref: '#/components/schemas/CommunicationAttachment'
+          title: Attachments
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        task_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Set for task_comment entries — the source task id.
+          title: Task Id
+        task_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set for task_comment entries — the source task title.
+          title: Task Title
+      required:
+      - updated_at
+      - kind
+      - id
+      - body
+      - created_at
+      title: CommunicationFeedEntry
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

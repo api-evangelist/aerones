@@ -1,0 +1,455 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Bto.crew API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: bto.crew
+paths:
+  /api/bto/v1/crew/{questionnaire_id}:
+    get:
+      operationId: bto_api_crew_get_crew_overview
+      summary: 'Crew magic-link: order overview + this member''s questionnaire'
+      parameters:
+      - in: path
+        name: questionnaire_id
+        schema:
+          title: Questionnaire Id
+          type: string
+        required: true
+      - in: query
+        name: track
+        schema:
+          default: opshub
+          title: Track
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrewOverviewResponse'
+      tags:
+      - bto.crew
+  /api/bto/v1/crew/{questionnaire_id}/pixel.gif:
+    get:
+      operationId: bto_api_crew_crew_tracking_pixel
+      summary: 'Crew email tracking pixel: records the first email open'
+      parameters:
+      - in: path
+        name: questionnaire_id
+        schema:
+          title: Questionnaire Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Return a 1x1 GIF and record the first email open for this member.
+
+
+        The emailed BTO embeds this as ``; when the mail
+
+        client loads it we stamp `opened_at` + one `email_opened` event (repeat
+
+        loads are ignored). Distinct from a questionnaire-page open, which is
+
+        tracked separately via `?track=` on the crew link. Always returns the
+
+        pixel, even for an unknown or malformed id, so a broken link never shows a
+
+        broken image. Only active (non-soft-deleted) questionnaires are recorded.'
+      tags:
+      - bto.crew
+  /api/bto/v1/crew/{questionnaire_id}/pre-job-pdf:
+    get:
+      operationId: bto_api_crew_get_crew_pre_job_pdf
+      summary: 'Crew magic-link: download the project''s live Pre-job PDF'
+      parameters:
+      - in: path
+        name: questionnaire_id
+        schema:
+          title: Questionnaire Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Stream the project''s live Pre-job PDF for a crew magic link.
+
+
+        The crew has no session, so the auth-gated staff endpoint
+
+        (`GET /api/projects/{uuid}/pre-job/pdf`) is unreachable for them. This
+
+        token-gated public route resolves the questionnaire UUID -> travel order ->
+
+        project, then reuses the same `generate_prejob_pdf` generator keyed by the
+
+        legacy project UUID (`core.Project.project_builder_id`). Mirrors the staff
+
+        endpoint''s response shape (application/pdf + attachment filename).'
+      tags:
+      - bto.crew
+  /api/bto/v1/crew/{questionnaire_id}/questionnaire/{question_key}:
+    put:
+      operationId: bto_api_crew_submit_crew_answer
+      summary: 'Crew magic-link: submit (autosave) one answer'
+      parameters:
+      - in: path
+        name: questionnaire_id
+        schema:
+          title: Questionnaire Id
+          type: string
+        required: true
+      - in: path
+        name: question_key
+        schema:
+          title: Question Key
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrewAnswerSchema'
+      tags:
+      - bto.crew
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrewSubmitAnswerSchema'
+        required: true
+components:
+  schemas:
+    CrewAnswerSchema:
+      additionalProperties: false
+      properties:
+        key:
+          title: Key
+          type: string
+        category_name:
+          title: Category Name
+          type: string
+        text:
+          title: Text
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - key
+      - category_name
+      - text
+      title: CrewAnswerSchema
+      type: object
+    TravelOrderAnswerValue:
+      description: 'Canonical answer values, stored lowercase in the answers JSONB to match
+
+        the design ids (`yes` | `no` | `need_info`).'
+      enum:
+      - 'yes'
+      - 'no'
+      - need_info
+      title: TravelOrderAnswerValue
+      type: string
+    CrewContactSchema:
+      additionalProperties: false
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+      title: CrewContactSchema
+      type: object
+    CrewOverviewResponse:
+      additionalProperties: false
+      description: 'Self-contained payload the crew page renders from a single UUID GET.
+
+
+        Order essentials + the visitor''s own identity + their questionnaire +
+
+        read-only overview (site contacts, the frozen team roster). No staff-only
+
+        data, no project-scoped IDs the crew could edit.
+
+
+        The overview-card fields below are the crew-safe, read-only projection of
+
+        the same sources the staff detail (`bto/api/travel_orders.py`) uses -- so
+
+        the crew page''s six overview cards match the staff view 1-to-1 rather than
+
+        degrading to "Not set". Every field is null-safe: a source with no Core
+
+        home yet returns null and the UI renders "Not set".'
+      properties:
+        questionnaire_id:
+          title: Questionnaire Id
+          type: string
+        travel_order_id:
+          title: Travel Order Id
+          type: integer
+        member_removed:
+          default: false
+          title: Member Removed
+          type: boolean
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        service_code:
+          title: Service Code
+          type: string
+        location_name:
+          title: Location Name
+          type: string
+        location_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Location Latitude
+        location_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Location Longitude
+        location_country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Country
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planned End Date
+        mobilization_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mobilization Date
+        drive_folder_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Folder Url
+        member:
+          $ref: '#/components/schemas/CrewMemberSchema'
+        team_members:
+          default: []
+          items:
+            $ref: '#/components/schemas/CrewMemberSchema'
+          title: Team Members
+          type: array
+        site_contacts:
+          default: []
+          items:
+            $ref: '#/components/schemas/CrewContactSchema'
+          title: Site Contacts
+          type: array
+        questionnaire:
+          default: []
+          items:
+            $ref: '#/components/schemas/CrewAnswerSchema'
+          title: Questionnaire
+          type: array
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Name
+        project_manager:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Manager
+        sales_account_executive:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sales Account Executive
+        bto_creator:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bto Creator
+        bto_sender:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bto Sender
+        set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Set Name
+        units_turbines:
+          default: 0
+          title: Units Turbines
+          type: integer
+        units_blades:
+          default: 0
+          title: Units Blades
+          type: integer
+        units_total:
+          default: 0
+          title: Units Total
+          type: integer
+        supervisor_names:
+          default: []
+          items:
+            type: string
+          title: Supervisor Names
+          type: array
+        actual_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actual End Date
+        scope_change_contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scope Change Contact
+        reinspection:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Reinspection
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        om_building_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Om Building Address
+        om_building_latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Om Building Latitude
+        om_building_longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Om Building Longitude
+        allowed_six_days:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Allowed Six Days
+        compensate_idle_sundays:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Compensate Idle Sundays
+        regional_regulations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Regional Regulations
+        operational_limitations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operational Limitations
+      required:
+      - questionnaire_id
+      - travel_order_id
+      - service_code
+      - location_name
+      - member
+      title: CrewOverviewResponse
+      type: object
+    CrewMemberSchema:
+      additionalProperties: false
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - resource_id
+      title: CrewMemberSchema
+      type: object
+    CrewSubmitAnswerSchema:
+      additionalProperties: false
+      properties:
+        value:
+          $ref: '#/components/schemas/TravelOrderAnswerValue'
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - value
+      title: CrewSubmitAnswerSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

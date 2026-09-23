@@ -1,0 +1,97 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.upcoming Rotations API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.upcoming-rotations
+paths:
+  /api/projects/{code}/upcoming-rotations:
+    get:
+      operationId: projects_api_upcoming_rotations_list_upcoming_rotations
+      summary: List Upcoming Rotations
+      parameters:
+      - in: path
+        name: code
+        schema:
+          title: Code
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UpcomingRotationResponse'
+                title: Response
+                type: array
+      description: 'List the project''s WMS rotations (pending/confirmed/cancelled).
+
+
+        Read-only and informational. Degrades to an empty list when WMS is
+
+        unconfigured or unreachable — the client never raises.'
+      tags:
+      - projects.upcoming-rotations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    UpcomingRotationResponse:
+      additionalProperties: false
+      description: 'One upcoming rotation, mapped for the frontend list.
+
+
+        ``status`` is passed through from WMS unchanged (already normalized to
+
+        ``pending`` / ``confirmed`` / ``cancelled``); the frontend renders the
+
+        3-state chip and treats anything else as a neutral fallback.'
+      properties:
+        external_id:
+          title: External Id
+          type: string
+        technician_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Technician Name
+        first_work_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Work Date
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        set_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Set Code
+        roster_diverged:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Roster Diverged
+      required:
+      - external_id
+      title: UpcomingRotationResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

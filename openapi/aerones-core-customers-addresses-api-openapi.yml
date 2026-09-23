@@ -1,0 +1,553 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.customers.addresses API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.customers.addresses
+paths:
+  /api/core/v1/customers/{customer_id}/addresses:
+    get:
+      operationId: list_customer_addresss
+      summary: List Addresses for Customer
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomerAddressResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.customers.addresses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_customer_address
+      summary: Create Address
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddressResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.customers.addresses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/customers/{customer_id}/addresses/{address_id}:
+    get:
+      operationId: get_customer_address
+      summary: Get Address
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: address_id
+        schema:
+          title: Address Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddressResponse'
+      description: Get a single child item.
+      tags:
+      - core.customers.addresses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_customer_address
+      summary: Update Address
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: address_id
+        schema:
+          title: Address Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAddressResponse'
+      description: Update a child item.
+      tags:
+      - core.customers.addresses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerAddressUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_customer_address
+      summary: Delete Address
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: address_id
+        schema:
+          title: Address Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.customers.addresses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerAddressCreate:
+      additionalProperties: false
+      description: Schema for creating a CustomerAddress.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address name
+          title: Name
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerAddressType'
+          - type: 'null'
+          description: Address type
+        address_line1:
+          description: Address line 1
+          minLength: 1
+          title: Address Line1
+          type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+      required:
+      - address_line1
+      title: CustomerAddressCreate
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    CustomerAddressUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerAddress.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address name
+          title: Name
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address type
+          title: Type
+        address_line1:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address line 1
+          title: Address Line1
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+      title: CustomerAddressUpdate
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerAddressResponse:
+      additionalProperties: false
+      description: Schema for CustomerAddress response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Address ID
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer ID
+          title: Customer Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address name
+          title: Name
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address type
+          title: Type
+        address_line1:
+          description: Address line 1
+          title: Address Line1
+          type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+          description: Country information
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+          description: Timezone information
+      required:
+      - updated_at
+      - id
+      - address_line1
+      title: CustomerAddressResponse
+      type: object
+    CustomerAddressType:
+      description: Enum for customer address types.
+      enum:
+      - PRIMARY
+      - BILLING
+      - LEGAL
+      - FACTUAL
+      - SHIPPING
+      - OM_BUILDING
+      title: CustomerAddressType
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

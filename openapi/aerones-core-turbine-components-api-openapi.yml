@@ -1,0 +1,828 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.turbine Components API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.turbine-components
+paths:
+  /api/core/v1/turbine-components/import-template:
+    get:
+      operationId: download_component_import_template
+      summary: Download turbine component import CSV template
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: Return an empty CSV file with all import column headers.
+      tags:
+      - core.turbine-components
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbine-components/import:
+    post:
+      operationId: import_turbine_components_csv
+      summary: Import turbine components from CSV
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentImportResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Parse a CSV file, validate all rows, and create components atomically.
+      tags:
+      - core.turbine-components
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbine-components/{id}/reassignment-history:
+    get:
+      operationId: list_turbine_component_reassignment_history
+      summary: List Turbine Component Reassignment History
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TurbineComponentReassignmentHistoryResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return paginated reassignment history for a blade component, newest first.
+      tags:
+      - core.turbine-components
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbine-components:
+    get:
+      operationId: list_turbine_components
+      summary: List Turbine Components
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by serial number (case-insensitive)
+          title: Search
+        required: false
+        description: Search by serial number (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: turbine_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine ID
+          title: Turbine Id
+        required: false
+        description: Filter by turbine ID
+      - in: query
+        name: component_type_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by component type ID
+          title: Component Type Id
+        required: false
+        description: Filter by component type ID
+      - in: query
+        name: manufacturer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by manufacturer ID
+          title: Manufacturer Id
+        required: false
+        description: Filter by manufacturer ID
+      - in: query
+        name: model_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by component model ID
+          title: Model Id
+        required: false
+        description: Filter by component model ID
+      - in: query
+        name: parent_turbine_component_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by parent turbine component ID
+          title: Parent Turbine Component Id
+        required: false
+        description: Filter by parent turbine component ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TurbineComponentResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.turbine-components
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_turbine_component
+      summary: Create Turbine Component
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineComponentResponse'
+      description: Create a new item.
+      tags:
+      - core.turbine-components
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurbineComponentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/turbine-components/{id}:
+    get:
+      operationId: get_turbine_component
+      summary: Get Turbine Component
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineComponentResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.turbine-components
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_turbine_component
+      summary: Update Turbine Component
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurbineComponentResponse'
+      description: Update an item.
+      tags:
+      - core.turbine-components
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurbineComponentUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_turbine_component
+      summary: Delete Turbine Component
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.turbine-components
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    TurbineComponentUpdate:
+      additionalProperties: false
+      description: Schema for updating a TurbineComponent.
+      properties:
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component type ID
+          title: Component Type Id
+        serial_number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Serial number
+          title: Serial Number
+        manufacturer_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer serial number
+          title: Manufacturer Serial Number
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine ID
+          title: Turbine Id
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component model ID
+          title: Model Id
+        parent_turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent turbine component ID
+          title: Parent Turbine Component Id
+        length:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component length in meters
+          title: Length
+        radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component radius in meters
+          title: Radius
+        blade_tip:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether this is a blade tip component
+          title: Blade Tip
+        position:
+          anyOf:
+          - $ref: '#/components/schemas/PositionEnum'
+          - type: 'null'
+          description: Component position (A, B, or C)
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors; NULL for non-paired components.
+          title: Pair Index
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      title: TurbineComponentUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ComponentImportResponse:
+      additionalProperties: false
+      properties:
+        created_count:
+          default: 0
+          title: Created Count
+          type: integer
+        errors:
+          default: []
+          items:
+            $ref: '#/components/schemas/ComponentImportRowError'
+          title: Errors
+          type: array
+      title: ComponentImportResponse
+      type: object
+    ManufacturerComponentModelObject:
+      additionalProperties: false
+      description: Nested manufacturer component model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerComponentModelObject
+      type: object
+    TurbineComponentReassignmentHistoryResponse:
+      additionalProperties: false
+      description: Response schema for a single blade component reassignment event.
+      properties:
+        reassigned_at:
+          format: date-time
+          title: Reassigned At
+          type: string
+        from_turbine:
+          $ref: '#/components/schemas/TurbineObject'
+        to_turbine:
+          $ref: '#/components/schemas/TurbineObject'
+        reassigned_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+      required:
+      - reassigned_at
+      - from_turbine
+      - to_turbine
+      - reassigned_by
+      title: TurbineComponentReassignmentHistoryResponse
+      type: object
+    TurbineObject:
+      additionalProperties: false
+      description: Nested turbine object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineObject
+      type: object
+    TurbineComponentResponse:
+      additionalProperties: false
+      description: Schema for TurbineComponent response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Turbine component ID
+          title: Id
+          type: integer
+        component_type:
+          $ref: '#/components/schemas/ComponentTypeObject'
+          description: Component type information
+        serial_number:
+          description: Serial number
+          title: Serial Number
+          type: string
+        manufacturer_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer serial number
+          title: Manufacturer Serial Number
+        manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerObject'
+          - type: 'null'
+          description: Manufacturer information
+        model:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerComponentModelObject'
+          - type: 'null'
+          description: Component model information
+        turbine:
+          $ref: '#/components/schemas/TurbineObject'
+          description: Turbine information
+        parent_turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent turbine component ID
+          title: Parent Turbine Component Id
+        length:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component length in meters
+          title: Length
+        radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component radius in meters
+          title: Radius
+        blade_tip:
+          description: Whether this is a blade tip component
+          title: Blade Tip
+          type: boolean
+        position:
+          anyOf:
+          - $ref: '#/components/schemas/PositionEnum'
+          - type: 'null'
+          description: Component position (A, B, or C)
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors; NULL for non-paired components.
+          title: Pair Index
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      required:
+      - updated_at
+      - id
+      - component_type
+      - serial_number
+      - turbine
+      - blade_tip
+      title: TurbineComponentResponse
+      type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+    TurbineComponentCreate:
+      additionalProperties: false
+      description: Schema for creating a TurbineComponent.
+      properties:
+        component_type_id:
+          description: Component type ID
+          title: Component Type Id
+          type: integer
+        serial_number:
+          description: Serial number
+          minLength: 1
+          title: Serial Number
+          type: string
+        manufacturer_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer serial number
+          title: Manufacturer Serial Number
+        turbine_id:
+          description: Turbine ID
+          title: Turbine Id
+          type: integer
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component model ID
+          title: Model Id
+        parent_turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent turbine component ID
+          title: Parent Turbine Component Id
+        length:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component length in meters
+          title: Length
+        radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component radius in meters
+          title: Radius
+        blade_tip:
+          default: false
+          description: Whether this is a blade tip component
+          title: Blade Tip
+          type: boolean
+        position:
+          anyOf:
+          - $ref: '#/components/schemas/PositionEnum'
+          - type: 'null'
+          description: Component position (A, B, or C). Must be NULL when the selected turbine has is_virtual=true; required when is_virtual=false.
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors; NULL for non-paired components.
+          title: Pair Index
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      required:
+      - component_type_id
+      - serial_number
+      - turbine_id
+      title: TurbineComponentCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ComponentImportRowError:
+      additionalProperties: false
+      properties:
+        row:
+          title: Row
+          type: integer
+        errors:
+          items:
+            type: string
+          title: Errors
+          type: array
+      required:
+      - row
+      - errors
+      title: ComponentImportRowError
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

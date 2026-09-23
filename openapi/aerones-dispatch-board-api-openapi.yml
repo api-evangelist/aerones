@@ -1,0 +1,1922 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Dispatch.board API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: dispatch.board
+paths:
+  /api/dispatch/v1/projects/{project_id}/dispatch/board-data:
+    get:
+      operationId: get_board_data_v1
+      summary: Get dispatching board data
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: since
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Since
+        required: false
+      - in: query
+        name: until
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Until
+        required: false
+      - in: query
+        name: include_backlog
+        schema:
+          default: true
+          title: Include Backlog
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardDataResponse'
+      description: 'Return all data needed for the dispatching board.
+
+
+        Aggregates:
+
+        - Project resource sets with their members
+
+        - All project workorders (service + admin) with resource assignments
+
+        - Service order lines grouped for the panel
+
+
+        When both ``since`` and ``until`` are supplied, the workorders list is
+
+        filtered to a date window — useful for the dispatching console where
+
+        only the relevant working set should be returned. The five filter
+
+        clauses are: scheduled in window, mandatory in window,
+
+        assigned-but-unscheduled, due-dated backlog within
+
+        ``dispatch.managers.board_reads.BACKLOG_HORIZON_DAYS``, and unassigned
+
+        WOs from PLANNING/EXECUTION projects (regardless of due date). Without
+
+        the params, the legacy behaviour is preserved (returns all non-cancelled
+
+        workorders).
+
+
+        The windowed result also folds in real work that was logged but never
+
+        formally dispatched (DISP-4368, see
+
+        ``dispatch.managers.logged_unplanned._get_logged_unplanned_workorders``)
+
+        -- those rows carry ``is_logged_unplanned=True`` with a planned window
+
+        derived from the actual logged activity times, and are dropped entirely
+
+        if that derived window clashes with a genuinely planned entry for one of
+
+        the same resources.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/board-turbines:
+    get:
+      operationId: get_board_turbines_v1
+      summary: Get per-turbine status rollup for the dispatching board
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardTurbinesResponse'
+      description: 'Per-turbine status + activity-group completion for the whole project,
+
+        regardless of the board''s date window (see
+
+        ``dispatch.managers.board_reads._get_project_turbines``).
+
+
+        Kept on its own query, decoupled from ``board-data``''s per-mutation
+
+        refetch cycle, since this scan covers every non-cancelled workorder in
+
+        the project and dominates payload size.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/backlog:
+    get:
+      operationId: get_backlog_v1
+      summary: Server-filtered, paginated work-order list for the dispatch sidebar
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: q
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Q
+        required: false
+      - in: query
+        name: assignment
+        schema:
+          default: open
+          title: Assignment
+          type: string
+        required: false
+      - in: query
+        name: statuses
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Statuses
+        required: false
+      - in: query
+        name: kinds
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kinds
+        required: false
+      - in: query
+        name: service_codes
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Codes
+        required: false
+      - in: query
+        name: turbine_ids
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Ids
+        required: false
+      - in: query
+        name: logged_unplanned
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Logged Unplanned
+        required: false
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 300
+          title: Page Size
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogPageResponse'
+      description: 'Sidebar work-order list with server-side filtering and pagination.
+
+
+        A large project can hold thousands of unassigned workorders — shipping
+
+        them all inside ``board-data`` made the board slow and the browser
+
+        unstable, so the sidebar reads this endpoint instead (and ``board-data``
+
+        is called with ``include_backlog=false``).
+
+
+        Filters: ``q`` full-text-ish search (name, description, service code,
+
+        turbine name, SO number); ``assignment`` open|unassigned|assigned, where
+
+        ``assigned`` means an active resource-set link EXISTS, ``unassigned`` means
+
+        none does, and ``open`` (the default, what the sidebar shows) is
+
+        unassigned work PLUS any ``IN_PROGRESS`` workorder regardless of its team
+
+        link -- running work that was dispatched earlier still has to be found
+
+        and moved to the next day when it does not finish, and it normally still
+
+        carries its team; ``statuses``/``kinds``/``service_codes`` as
+
+        comma-separated lists; ``logged_unplanned`` narrows to (``true``) or
+
+        excludes (``false``) real work logged with no formal dispatch (DISP-4368)
+
+        -- these rows are already part of the unassigned scope and otherwise
+
+        indistinguishable by status from any untouched backlog WO, so this is
+
+        what makes them findable across a project''s full backlog rather than only
+
+        on whichever board day/week they happen to be scrolled to. ``counts`` in
+
+        the response carries facet totals for the filter chips, each computed
+
+        before its own facet filter (standard faceting), over the search +
+
+        assignment scope.
+
+
+        See ``dispatch.managers.backlog._get_backlog_sync`` for the query shape:
+
+        the assignment counts come from one query (grouping on a ``has_team``
+
+        annotation rather than filtering `base` twice), and the three facet
+
+        breakdowns (statuses/kinds/services) come from one grouped query across
+
+        all three dimensions at once, summed per dimension in Python.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/board-weather:
+    get:
+      operationId: get_board_weather_v1
+      summary: Get dispatching board weather
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: date
+        schema:
+          format: date
+          title: Date
+          type: string
+        required: true
+      - in: query
+        name: project_location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardWeatherResponse'
+      description: 'Hourly weather forecast for a project location on ``date``.
+
+
+        The whole UTC day, read from the ``weather_forecast`` cache (kept warm by the scheduled Gust sync). On a
+
+        cache miss for an in-horizon day, the location''s bucket is backfilled from
+
+        Gust on the fly (one query) and re-read. Fail-soft: returns
+
+        ``available=false`` with no hours when the location has no coordinates or no
+
+        forecast is available, so the board always renders.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/coverage:
+    get:
+      operationId: dispatch_coverage_v1
+      summary: Per-project resource-set coverage by day
+      parameters:
+      - in: query
+        name: since
+        schema:
+          format: date
+          title: Since
+          type: string
+        required: true
+      - in: query
+        name: until
+        schema:
+          format: date
+          title: Until
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectCoverageResponse'
+                title: Response
+                type: array
+      description: 'For each project active in the window, return the total active resource
+
+        sets and the per-day count of resource sets with at least one workorder
+
+        planned to start on that day. Coverage % is computed client-side.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/adoption:
+    get:
+      operationId: dispatch_adoption_v1
+      summary: Teams x dates table of what the board dispatched (OH-4167)
+      parameters:
+      - in: query
+        name: since
+        schema:
+          format: date
+          title: Since
+          type: string
+        required: true
+      - in: query
+        name: until
+        schema:
+          format: date
+          title: Until
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdoptionTableResponse'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/supervisor-options:
+    get:
+      operationId: list_supervisor_options_v1
+      summary: List BTO supervisors and the core projects they supervise
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SupervisorOption'
+                title: Response
+                type: array
+      description: 'Supervisors exist only on BTO rosters (``team_members`` entries with
+
+        role "Supervisor") — there is no core-project supervisor field yet
+
+        (OH-2774).'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/board-data:
+    get:
+      operationId: dispatch_api_board_get_board_data
+      summary: Get dispatching board data
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: since
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Since
+        required: false
+      - in: query
+        name: until
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Until
+        required: false
+      - in: query
+        name: include_backlog
+        schema:
+          default: true
+          title: Include Backlog
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardDataResponse'
+      description: 'Return all data needed for the dispatching board.
+
+
+        Aggregates:
+
+        - Project resource sets with their members
+
+        - All project workorders (service + admin) with resource assignments
+
+        - Service order lines grouped for the panel
+
+
+        When both ``since`` and ``until`` are supplied, the workorders list is
+
+        filtered to a date window — useful for the dispatching console where
+
+        only the relevant working set should be returned. The five filter
+
+        clauses are: scheduled in window, mandatory in window,
+
+        assigned-but-unscheduled, due-dated backlog within
+
+        ``dispatch.managers.board_reads.BACKLOG_HORIZON_DAYS``, and unassigned
+
+        WOs from PLANNING/EXECUTION projects (regardless of due date). Without
+
+        the params, the legacy behaviour is preserved (returns all non-cancelled
+
+        workorders).
+
+
+        The windowed result also folds in real work that was logged but never
+
+        formally dispatched (DISP-4368, see
+
+        ``dispatch.managers.logged_unplanned._get_logged_unplanned_workorders``)
+
+        -- those rows carry ``is_logged_unplanned=True`` with a planned window
+
+        derived from the actual logged activity times, and are dropped entirely
+
+        if that derived window clashes with a genuinely planned entry for one of
+
+        the same resources.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/board-turbines:
+    get:
+      operationId: dispatch_api_board_get_board_turbines
+      summary: Get per-turbine status rollup for the dispatching board
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardTurbinesResponse'
+      description: 'Per-turbine status + activity-group completion for the whole project,
+
+        regardless of the board''s date window (see
+
+        ``dispatch.managers.board_reads._get_project_turbines``).
+
+
+        Kept on its own query, decoupled from ``board-data``''s per-mutation
+
+        refetch cycle, since this scan covers every non-cancelled workorder in
+
+        the project and dominates payload size.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/backlog:
+    get:
+      operationId: dispatch_api_board_get_backlog
+      summary: Server-filtered, paginated work-order list for the dispatch sidebar
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: q
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Q
+        required: false
+      - in: query
+        name: assignment
+        schema:
+          default: open
+          title: Assignment
+          type: string
+        required: false
+      - in: query
+        name: statuses
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Statuses
+        required: false
+      - in: query
+        name: kinds
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Kinds
+        required: false
+      - in: query
+        name: service_codes
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Codes
+        required: false
+      - in: query
+        name: turbine_ids
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Ids
+        required: false
+      - in: query
+        name: logged_unplanned
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Logged Unplanned
+        required: false
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 300
+          title: Page Size
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BacklogPageResponse'
+      description: 'Sidebar work-order list with server-side filtering and pagination.
+
+
+        A large project can hold thousands of unassigned workorders — shipping
+
+        them all inside ``board-data`` made the board slow and the browser
+
+        unstable, so the sidebar reads this endpoint instead (and ``board-data``
+
+        is called with ``include_backlog=false``).
+
+
+        Filters: ``q`` full-text-ish search (name, description, service code,
+
+        turbine name, SO number); ``assignment`` open|unassigned|assigned, where
+
+        ``assigned`` means an active resource-set link EXISTS, ``unassigned`` means
+
+        none does, and ``open`` (the default, what the sidebar shows) is
+
+        unassigned work PLUS any ``IN_PROGRESS`` workorder regardless of its team
+
+        link -- running work that was dispatched earlier still has to be found
+
+        and moved to the next day when it does not finish, and it normally still
+
+        carries its team; ``statuses``/``kinds``/``service_codes`` as
+
+        comma-separated lists; ``logged_unplanned`` narrows to (``true``) or
+
+        excludes (``false``) real work logged with no formal dispatch (DISP-4368)
+
+        -- these rows are already part of the unassigned scope and otherwise
+
+        indistinguishable by status from any untouched backlog WO, so this is
+
+        what makes them findable across a project''s full backlog rather than only
+
+        on whichever board day/week they happen to be scrolled to. ``counts`` in
+
+        the response carries facet totals for the filter chips, each computed
+
+        before its own facet filter (standard faceting), over the search +
+
+        assignment scope.
+
+
+        See ``dispatch.managers.backlog._get_backlog_sync`` for the query shape:
+
+        the assignment counts come from one query (grouping on a ``has_team``
+
+        annotation rather than filtering `base` twice), and the three facet
+
+        breakdowns (statuses/kinds/services) come from one grouped query across
+
+        all three dimensions at once, summed per dimension in Python.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/dispatch/board-weather:
+    get:
+      operationId: dispatch_api_board_get_board_weather
+      summary: Get dispatching board weather
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: date
+        schema:
+          format: date
+          title: Date
+          type: string
+        required: true
+      - in: query
+        name: project_location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardWeatherResponse'
+      description: 'Hourly weather forecast for a project location on ``date``.
+
+
+        The whole UTC day, read from the ``weather_forecast`` cache (kept warm by the scheduled Gust sync). On a
+
+        cache miss for an in-horizon day, the location''s bucket is backfilled from
+
+        Gust on the fly (one query) and re-read. Fail-soft: returns
+
+        ``available=false`` with no hours when the location has no coordinates or no
+
+        forecast is available, so the board always renders.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/dispatch/coverage:
+    get:
+      operationId: dispatch_api_board_dispatch_coverage
+      summary: Per-project resource-set coverage by day
+      parameters:
+      - in: query
+        name: since
+        schema:
+          format: date
+          title: Since
+          type: string
+        required: true
+      - in: query
+        name: until
+        schema:
+          format: date
+          title: Until
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectCoverageResponse'
+                title: Response
+                type: array
+      description: 'For each project active in the window, return the total active resource
+
+        sets and the per-day count of resource sets with at least one workorder
+
+        planned to start on that day. Coverage % is computed client-side.'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/dispatch/adoption:
+    get:
+      operationId: dispatch_api_board_dispatch_adoption
+      summary: Teams x dates table of what the board dispatched (OH-4167)
+      parameters:
+      - in: query
+        name: since
+        schema:
+          format: date
+          title: Since
+          type: string
+        required: true
+      - in: query
+        name: until
+        schema:
+          format: date
+          title: Until
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdoptionTableResponse'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/dispatch/supervisor-options:
+    get:
+      operationId: dispatch_api_board_list_supervisor_options
+      summary: List BTO supervisors and the core projects they supervise
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SupervisorOption'
+                title: Response
+                type: array
+      description: 'Supervisors exist only on BTO rosters (``team_members`` entries with
+
+        role "Supervisor") — there is no core-project supervisor field yet
+
+        (OH-2774).'
+      tags:
+      - dispatch.board
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    BacklogPageResponse:
+      additionalProperties: false
+      description: One page of the server-filtered sidebar work-order list.
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/BoardWorkorderResponse'
+          title: Items
+          type: array
+        service_order_lines:
+          items:
+            $ref: '#/components/schemas/ServiceOrderLineGroup'
+          title: Service Order Lines
+          type: array
+        total_count:
+          title: Total Count
+          type: integer
+        counts:
+          $ref: '#/components/schemas/BacklogCounts'
+      required:
+      - items
+      - service_order_lines
+      - total_count
+      - counts
+      title: BacklogPageResponse
+      type: object
+    SupervisorOption:
+      additionalProperties: false
+      description: A BTO supervisor and the core projects they supervise (DISP-2905).
+      properties:
+        name:
+          title: Name
+          type: string
+        project_ids:
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+      required:
+      - name
+      - project_ids
+      title: SupervisorOption
+      type: object
+    PendingScopeCommitmentResponse:
+      additionalProperties: false
+      description: One PENDING scope-dispatch commitment (DISP-3249) -- no SOL/Workorder yet.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+      required:
+      - id
+      - service_id
+      - project_resource_set_id
+      - planned_start_datetime
+      - planned_end_datetime
+      title: PendingScopeCommitmentResponse
+      type: object
+    WorkorderResourceResponse:
+      additionalProperties: false
+      description: A resource assigned to a workorder.
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_name:
+          title: Resource Name
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+      required:
+      - resource_id
+      - resource_name
+      title: WorkorderResourceResponse
+      type: object
+    AdoptionPerson:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - first_name
+      - last_name
+      title: AdoptionPerson
+      type: object
+    BoardWeatherResponse:
+      additionalProperties: false
+      description: 'Hourly weather for the dispatching day-Gantt.
+
+
+        ``available`` is False (with an empty ``hours`` list) when the project''s
+
+        primary location has no coordinates or the forecast cache has no data for
+
+        that day — the board renders regardless.'
+      properties:
+        available:
+          title: Available
+          type: boolean
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        hours:
+          items:
+            $ref: '#/components/schemas/WeatherHourResponse'
+          title: Hours
+          type: array
+      required:
+      - available
+      - hours
+      title: BoardWeatherResponse
+      type: object
+    BoardWorkorderResponse:
+      additionalProperties: false
+      description: 'A workorder for the dispatching board. ``actual_start_datetime`` is
+
+        the earliest non-cancelled activity''s own start_datetime -- null until
+
+        the team actually starts work, distinct from the length carried by
+
+        ``estimated_duration_minutes``. Lets the board flag a planned-vs-actual
+
+        start discrepancy.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        planned_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned Start Datetime
+        planned_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End Datetime
+        actual_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Actual Start Datetime
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
+        service_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Order Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Id
+        component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Position
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        estimated_duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration Minutes
+        assigned_resources:
+          items:
+            $ref: '#/components/schemas/WorkorderResourceResponse'
+          title: Assigned Resources
+          type: array
+        assignee_resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee Resource Id
+        activities:
+          default: []
+          items:
+            $ref: '#/components/schemas/BoardWorkorderActivityResponse'
+          title: Activities
+          type: array
+        is_logged_unplanned:
+          default: false
+          title: Is Logged Unplanned
+          type: boolean
+      required:
+      - id
+      - assigned_resources
+      title: BoardWorkorderResponse
+      type: object
+    AdoptionLoggedItem:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+      required:
+      - id
+      - name
+      title: AdoptionLoggedItem
+      type: object
+    BacklogCounts:
+      additionalProperties: false
+      description: 'Facet counts for the sidebar filter chips.
+
+
+        Each facet is counted over the search + assignment scope BEFORE that
+
+        facet''s own filter is applied (standard faceting), matching how the board
+
+        previously derived counts client-side.
+
+
+        ``logged_unplanned`` counts real work logged with no formal dispatch
+
+        (DISP-4368) -- those workorders are already part of the unassigned scope
+
+        above, indistinguishable by status from any other untouched backlog row,
+
+        so this facet is what makes them findable rather than buried among
+
+        hundreds of genuinely untouched ones.'
+      properties:
+        assignment:
+          $ref: '#/components/schemas/BacklogAssignmentCounts'
+        statuses:
+          items:
+            $ref: '#/components/schemas/BacklogFacetCount'
+          title: Statuses
+          type: array
+        kinds:
+          items:
+            $ref: '#/components/schemas/BacklogFacetCount'
+          title: Kinds
+          type: array
+        services:
+          items:
+            $ref: '#/components/schemas/BacklogFacetCount'
+          title: Services
+          type: array
+        logged_unplanned:
+          default: 0
+          title: Logged Unplanned
+          type: integer
+      required:
+      - assignment
+      - statuses
+      - kinds
+      - services
+      title: BacklogCounts
+      type: object
+    ProjectCoverageResponse:
+      additionalProperties: false
+      description: 'Per-project resource-set coverage for a date window.
+
+
+        `daily_filled` is a list of {date, filled} entries — list-of-objects rather
+
+        than a date-keyed dict so the axios camel/snake interceptor on the
+
+        frontend doesn''t strip dashes from the date keys.
+
+        Coverage % per day = filled / total_resource_sets.'
+      properties:
+        project_id:
+          title: Project Id
+          type: integer
+        total_resource_sets:
+          title: Total Resource Sets
+          type: integer
+        daily_filled:
+          items:
+            $ref: '#/components/schemas/ProjectCoverageDay'
+          title: Daily Filled
+          type: array
+      required:
+      - project_id
+      - total_resource_sets
+      - daily_filled
+      title: ProjectCoverageResponse
+      type: object
+    AdoptionCell:
+      additionalProperties: false
+      description: 'One non-empty team-day. ``date`` is ISO ``YYYY-MM-DD`` in the project''s
+
+        local timezone; cells are a list, not a date-keyed dict, so the frontend
+
+        camel-case interceptor leaves the dates alone.'
+      properties:
+        date:
+          title: Date
+          type: string
+        workorders:
+          items:
+            $ref: '#/components/schemas/AdoptionWorkorderItem'
+          title: Workorders
+          type: array
+        pending:
+          items:
+            $ref: '#/components/schemas/AdoptionPendingItem'
+          title: Pending
+          type: array
+        missed:
+          items:
+            $ref: '#/components/schemas/AdoptionMissedItem'
+          title: Missed
+          type: array
+        logged_unplanned:
+          items:
+            $ref: '#/components/schemas/AdoptionLoggedItem'
+          title: Logged Unplanned
+          type: array
+      required:
+      - date
+      - workorders
+      - pending
+      - missed
+      - logged_unplanned
+      title: AdoptionCell
+      type: object
+    ResourceSetMemberResponse:
+      additionalProperties: false
+      description: A member (resource) within a project resource set.
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_name:
+          title: Resource Name
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+      required:
+      - id
+      - resource_id
+      - resource_name
+      title: ResourceSetMemberResponse
+      type: object
+    BoardTurbineResponse:
+      additionalProperties: false
+      description: 'A project-scope turbine (WTG) with its combined status.
+
+
+        ``status`` is a rollup of the turbine''s non-cancelled workorders across the
+
+        whole project (any date), independent of the board''s date window:
+
+        ``NO_WORK`` (no non-cancelled workorders), ``NOT_STARTED``, ``IN_PROGRESS``
+
+        (any WO in progress), or ``COMPLETED`` (all WOs completed).
+
+
+        ``activity_groups`` breaks that rollup down per activity group (ServiceItem
+
+        phase) so the board can show which groups are done: each entry carries the
+
+        completed vs total non-cancelled ``WorkorderActivity`` count for that group
+
+        on this turbine, across the whole project.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          title: Status
+          type: string
+        activity_groups:
+          default: []
+          items:
+            $ref: '#/components/schemas/BoardTurbineActivityGroupResponse'
+          title: Activity Groups
+          type: array
+      required:
+      - id
+      - status
+      title: BoardTurbineResponse
+      type: object
+    AdoptionRow:
+      additionalProperties: false
+      properties:
+        team_id:
+          title: Team Id
+          type: integer
+        team_name:
+          title: Team Name
+          type: string
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        project_id:
+          title: Project Id
+          type: integer
+        project_code:
+          title: Project Code
+          type: string
+        project_manager:
+          anyOf:
+          - $ref: '#/components/schemas/AdoptionPerson'
+          - type: 'null'
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+        supervisors:
+          items:
+            type: string
+          title: Supervisors
+          type: array
+        cells:
+          items:
+            $ref: '#/components/schemas/AdoptionCell'
+          title: Cells
+          type: array
+      required:
+      - team_id
+      - team_name
+      - project_id
+      - project_code
+      - supervisors
+      - cells
+      title: AdoptionRow
+      type: object
+    BacklogAssignmentCounts:
+      additionalProperties: false
+      description: Unassigned/assigned totals for the sidebar toggle (search scope only).
+      properties:
+        unassigned:
+          title: Unassigned
+          type: integer
+        assigned:
+          title: Assigned
+          type: integer
+      required:
+      - unassigned
+      - assigned
+      title: BacklogAssignmentCounts
+      type: object
+    BoardDataResponse:
+      additionalProperties: false
+      description: Full response for the dispatching board.
+      properties:
+        resource_sets:
+          items:
+            $ref: '#/components/schemas/DispatchResourceSetResponse'
+          title: Resource Sets
+          type: array
+        workorders:
+          items:
+            $ref: '#/components/schemas/BoardWorkorderResponse'
+          title: Workorders
+          type: array
+        service_order_lines:
+          items:
+            $ref: '#/components/schemas/ServiceOrderLineGroup'
+          title: Service Order Lines
+          type: array
+        pending_scope_commitments:
+          default: []
+          items:
+            $ref: '#/components/schemas/PendingScopeCommitmentResponse'
+          title: Pending Scope Commitments
+          type: array
+        missed_plans:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissedPlanResponse'
+          title: Missed Plans
+          type: array
+        earliest_planned_start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Earliest Planned Start
+      required:
+      - resource_sets
+      - workorders
+      - service_order_lines
+      title: BoardDataResponse
+      type: object
+    AdoptionTableResponse:
+      additionalProperties: false
+      properties:
+        since:
+          title: Since
+          type: string
+        until:
+          title: Until
+          type: string
+        days:
+          items:
+            type: string
+          title: Days
+          type: array
+        rows:
+          items:
+            $ref: '#/components/schemas/AdoptionRow'
+          title: Rows
+          type: array
+      required:
+      - since
+      - until
+      - days
+      - rows
+      title: AdoptionTableResponse
+      type: object
+    BoardWorkorderActivityResponse:
+      additionalProperties: false
+      description: 'A workorder activity surfaced on the board.
+
+
+        ``status`` / ``duration_minutes`` drive the card''s activity strip (a
+
+        proportional coloured segment per activity). ``custom_fields`` is the raw
+
+        activity custom-fields JSON and rides along for ADMIN workorders only — the
+
+        board popover extracts image attachments from it to show photo evidence.
+
+        ``start_datetime`` / ``end_datetime`` / ``resource_ids`` (FEAT-4909) let the
+
+        frontend group a multi-day workorder''s activities by the day each one was
+
+        actually worked, independent of the workorder''s own planned window.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Minutes
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        resource_ids:
+          default: []
+          items:
+            type: integer
+          title: Resource Ids
+          type: array
+      required:
+      - id
+      title: BoardWorkorderActivityResponse
+      type: object
+    MissedPlanResponse:
+      additionalProperties: false
+      description: 'A planned slot the board still shows on its original day -- a
+
+        historical, non-interactive record. ``kind`` ``MISSED``: not completed by
+
+        its planned day and returned to the backlog / cancelled. ``MOVED``: an
+
+        in-progress workorder dragged to another day; ``source_workorder_id``
+
+        lets the board say where it went.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        label:
+          title: Label
+          type: string
+        kind:
+          title: Kind
+          type: string
+        source_workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Workorder Id
+      required:
+      - id
+      - project_resource_set_id
+      - planned_start_datetime
+      - planned_end_datetime
+      - label
+      - kind
+      title: MissedPlanResponse
+      type: object
+    ServiceOrderLineGroup:
+      additionalProperties: false
+      description: A service order line with its child workorders.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        service_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Order Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Id
+        component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Position
+        workorder_ids:
+          items:
+            type: integer
+          title: Workorder Ids
+          type: array
+      required:
+      - id
+      - workorder_ids
+      title: ServiceOrderLineGroup
+      type: object
+    AdoptionWorkorderItem:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        status:
+          title: Status
+          type: string
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+      required:
+      - id
+      - name
+      - status
+      title: AdoptionWorkorderItem
+      type: object
+    AdoptionPendingItem:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        component_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Type
+      required:
+      - id
+      title: AdoptionPendingItem
+      type: object
+    WeatherHourResponse:
+      additionalProperties: false
+      description: 'One hour of forecast weather for the project''s location.
+
+
+        Units reflect what the Gust gateway returns (assumed m/s for wind,
+
+        degrees C for temperature/dew point, mm for precipitation, degrees for
+
+        direction) — see the units open point on Wrike 4506011329.'
+      properties:
+        time:
+          title: Time
+          type: string
+        temperature_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature C
+        humidity_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Pct
+        dew_point_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Dew Point C
+        wind_speed_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wind Speed Ms
+        wind_gust_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wind Gust Ms
+        wind_direction_deg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wind Direction Deg
+        precipitation_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Precipitation Mm
+      required:
+      - time
+      title: WeatherHourResponse
+      type: object
+    BoardTurbineActivityGroupResponse:
+      additionalProperties: false
+      description: 'One activity group (ServiceItem phase) on a turbine, with how many of
+
+        its activities are completed vs the total (excludes CANCELLED activities).'
+      properties:
+        name:
+          title: Name
+          type: string
+        completed:
+          title: Completed
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - name
+      - completed
+      - total
+      title: BoardTurbineActivityGroupResponse
+      type: object
+    BacklogFacetCount:
+      additionalProperties: false
+      description: 'One facet value with its count.
+
+
+        List-of-objects rather than a value-keyed dict so the frontend''s
+
+        camel/snake response transform can''t mangle enum-ish keys like
+
+        ``NOT_STARTED``.'
+      properties:
+        key:
+          title: Key
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - key
+      - count
+      title: BacklogFacetCount
+      type: object
+    BoardTurbinesResponse:
+      additionalProperties: false
+      properties:
+        turbines:
+          items:
+            $ref: '#/components/schemas/BoardTurbineResponse'
+          title: Turbines
+          type: array
+      required:
+      - turbines
+      title: BoardTurbinesResponse
+      type: object
+    DispatchResourceSetResponse:
+      additionalProperties: false
+      description: A project resource set with its members.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        project_location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Location Name
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        members:
+          items:
+            $ref: '#/components/schemas/ResourceSetMemberResponse'
+          title: Members
+          type: array
+      required:
+      - id
+      - name
+      - members
+      title: DispatchResourceSetResponse
+      type: object
+    ProjectCoverageDay:
+      additionalProperties: false
+      description: One day's worth of resource-set coverage for a project.
+      properties:
+        date:
+          title: Date
+          type: string
+        filled:
+          title: Filled
+          type: integer
+      required:
+      - date
+      - filled
+      title: ProjectCoverageDay
+      type: object
+    AdoptionMissedItem:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        label:
+          title: Label
+          type: string
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+      required:
+      - id
+      - label
+      title: AdoptionMissedItem
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

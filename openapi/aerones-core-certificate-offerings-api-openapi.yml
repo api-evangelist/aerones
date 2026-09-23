@@ -1,0 +1,483 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.certificate Offerings API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.certificate-offerings
+paths:
+  /api/core/v1/certificate-offerings:
+    get:
+      operationId: list_certificateofferings
+      summary: List CertificateOfferings
+      parameters:
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: certificate_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by certificate
+          title: Certificate Id
+        required: false
+        description: Filter by certificate
+      - in: query
+        name: issuer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by issuer
+          title: Issuer Id
+        required: false
+        description: Filter by issuer
+      - in: query
+        name: country_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by country
+          title: Country Id
+        required: false
+        description: Filter by country
+      - in: query
+        name: is_active
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by active flag
+          title: Is Active
+        required: false
+        description: Filter by active flag
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CertificateOfferingResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.certificate-offerings
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_certificateoffering
+      summary: Create CertificateOffering
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateOfferingResponse'
+      description: Create a new item.
+      tags:
+      - core.certificate-offerings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateOfferingCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/certificate-offerings/{id}:
+    get:
+      operationId: get_certificateoffering
+      summary: Get CertificateOffering
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateOfferingResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.certificate-offerings
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_certificateoffering
+      summary: Update CertificateOffering
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateOfferingResponse'
+      description: Update an item.
+      tags:
+      - core.certificate-offerings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateOfferingUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_certificateoffering
+      summary: Delete CertificateOffering
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.certificate-offerings
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CertificateOfferingResponse:
+      additionalProperties: false
+      description: Schema for CertificateOffering response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        certificate_id:
+          title: Certificate Id
+          type: integer
+        issuer_id:
+          title: Issuer Id
+          type: integer
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Validity Months
+        format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Format
+        duration:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Duration
+        how_to_acquire:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: How To Acquire
+        booking_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Booking Url
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          title: Is Active
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - certificate_id
+      - issuer_id
+      - is_active
+      title: CertificateOfferingResponse
+      type: object
+    CertificateOfferingUpdate:
+      additionalProperties: false
+      description: Schema for updating a CertificateOffering (partial).
+      properties:
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Issuer Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Validity Months
+        format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Format
+        duration:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Duration
+        how_to_acquire:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: How To Acquire
+        booking_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Booking Url
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      title: CertificateOfferingUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CertificateOfferingCreate:
+      additionalProperties: false
+      description: Schema for creating a CertificateOffering.
+      properties:
+        certificate_id:
+          description: Certificate FK
+          title: Certificate Id
+          type: integer
+        issuer_id:
+          description: Issuer FK
+          title: Issuer Id
+          type: integer
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Overrides Certificate.default_validity_months
+          title: Validity Months
+        format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Format
+        duration:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Duration
+        how_to_acquire:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: How To Acquire
+        booking_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Booking Url
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+      required:
+      - certificate_id
+      - issuer_id
+      title: CertificateOfferingCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

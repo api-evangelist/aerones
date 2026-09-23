@@ -1,0 +1,1101 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.core API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.core
+paths:
+  /api/projects:
+    get:
+      operationId: projects_api_core_get_projects
+      summary: Get Projects
+      parameters:
+      - in: query
+        name: code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: not_null
+          description: 'Filter by code: ''all'' to show all projects, ''not_null'' to show only projects with code'
+          title: Code
+        required: false
+        description: 'Filter by code: ''all'' to show all projects, ''not_null'' to show only projects with code'
+      - in: query
+        name: hasBuilderId
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: true
+          title: Hasbuilderid
+        required: false
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search projects by code
+          title: Search
+        required: false
+        description: Search projects by code
+      - in: query
+        name: filter[name]
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Exact project title filter
+          title: Filter[Name]
+        required: false
+        description: Exact project title filter
+      - in: query
+        name: filter[name][like]
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Case-insensitive partial project title filter
+          title: Filter[Name][Like]
+        required: false
+        description: Case-insensitive partial project title filter
+      - in: query
+        name: page
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 1
+          title: Page
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 1000
+          title: Page Size
+        required: false
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectList'
+                title: Response
+                type: array
+      description: 'Retrieve projects.
+
+
+        Projects are sourced from Pipedrive deals and from core projects. By default
+
+        (hasBuilderId omitted) only projects that have a builder ID are returned, so
+
+        Pipedrive deals not yet linked to a project are excluded; pass hasBuilderId=false
+
+        to list only projects without a builder ID. By default, if code is not provided
+
+        ''not_null'' projects are fetched.
+
+
+        Query Parameters:
+
+        code: Optional[str] - Filter by code: ''all'' to show all projects, ''not_null'' to show only projects with code. This parameter is mutually exclusive with status.
+
+        hasBuilderId: Optional[bool] - Filter by builder ID (default: true): true to show only projects with builder ID, false to show only projects without builder ID
+
+        filter[name]: Optional[str] - Filter by exact project title (case-insensitive)
+
+        filter[name][like]: Optional[str] - Filter by partial project title (case-insensitive)
+
+        page: Optional[int] - Page number for pagination (default: 1)
+
+        page_size: Optional[int] - Number of items per page (default: 100)
+
+        status: Optional[str] - Filter by status (Not Started, In RFI, Price Calculation)'
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_core_create_project
+      summary: Create Project
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Create a project with dual-write to Core tables.
+
+
+        Two paths:
+
+        1. Pipedrive path (origin_id provided) — fetches deal from Pipedrive, creates
+
+        legacy + core records.
+
+        2. Platform path (origin_id is None, code provided) — links an existing core
+
+        project to a new legacy record.'
+      tags:
+      - projects.core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPOST'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}:
+    get:
+      operationId: projects_api_core_get_project
+      summary: Get Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Retrieve project by id.
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/service-codes:
+    get:
+      operationId: projects_api_core_get_project_service_codes
+      summary: Get Project Service Codes
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectServiceCode'
+                title: Response
+                type: array
+      description: Return flat list of service codes with group and unit type context.
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/password:
+    get:
+      operationId: projects_api_core_get_project_password
+      summary: Get Project Password
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPassword'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get and decrypt project password.
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: projects_api_core_create_project_password
+      summary: Create Project Password
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPassword'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create/regenerate password, encrypt it, delete tokens, return original password.
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_core_delete_project_password
+      summary: Delete Project Password
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          format: uuid
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete project password and any associated PWT tokens.
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/send-email:
+    post:
+      operationId: projects_api_core_send_project_email
+      summary: Send Project Email
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectEmailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Send an email for a project.
+
+
+        The email subject will be {project_id}+"SUBJECT" and content will be {project_id}+"CONTENT".
+
+        If project has a password, it will be included in the email content.
+
+        Uses SMTP to send the email.
+
+
+        Args:
+
+        request: The HTTP request object
+
+        project_id: The project ID from URL path to include in the email
+
+        body: The email request body containing recipient email
+
+
+        Raises:
+
+        GenericError: If project has no password or if email sending fails'
+      tags:
+      - projects.core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectEmailRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/user-status:
+    put:
+      operationId: projects_api_core_update_project_user_status
+      summary: Update Project User Status
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Update the user_status of a project; ``Cancelled`` requires a reason.
+      tags:
+      - projects.core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserStatusPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_core_delete_project_user_status
+      summary: Delete Project User Status
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete the user_status of a project (sets it to None).
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/customers:
+    get:
+      operationId: projects_api_core_get_customer_for_project
+      summary: Get Customer For Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Customer'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get customers for project based on project's currency.
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/related:
+    get:
+      operationId: projects_api_core_get_related_projects
+      summary: Get Related Projects
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: match
+        schema:
+          anyOf:
+          - maximum: 100
+            minimum: 1
+            type: integer
+          - type: 'null'
+          default: 60
+          description: Minimum fuzzy match score percentage (1-100, default 60)
+          title: Match
+        required: false
+        description: Minimum fuzzy match score percentage (1-100, default 60)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatedProjectsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get related projects for a project by client/company name.
+
+
+        Related projects are projects that share similar client/company names using fuzzy matching.
+
+        Returns project code, id, client name and match score for each related project, ordered by project code.
+
+
+        Query Parameters:
+
+        match: Optional[int] - Minimum fuzzy match score percentage (1-100, default 60)'
+      tags:
+      - projects.core
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectPOST:
+      additionalProperties: false
+      description: Schema for project creation.
+      properties:
+        origin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project origin identifier (Pipedrive deal ID). Required for Pipedrive path.
+          title: Origin Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Core project code. Required when origin_id is not provided (platform path).
+          title: Code
+      title: ProjectPOST
+      type: object
+    ProjectServiceCode:
+      additionalProperties: false
+      description: Schema for a project service code entry with manufacturer/model context.
+      properties:
+        full_code:
+          description: Full service code like 'IIN-ONS'
+          title: Full Code
+          type: string
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full service name like 'Internal Inspection - Onshore'
+          title: Full Name
+        group_id:
+          description: Asset group ID this service belongs to
+          title: Group Id
+          type: integer
+        manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Main manufacturer for the unit type
+          title: Manufacturer
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Main model for the unit type
+          title: Model
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site ID this service is associated with
+          title: Site Id
+        site_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Site name this service is associated with
+          title: Site Name
+      required:
+      - full_code
+      - group_id
+      title: ProjectServiceCode
+      type: object
+    ProjectSiteSimple:
+      additionalProperties: false
+      description: Schema for project site information.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Site name
+          title: Name
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site longitude
+          title: Longitude
+      title: ProjectSiteSimple
+      type: object
+    WindparkProjectList:
+      additionalProperties: false
+      description: Schema for windpark in project list.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Windpark identifier in project builder, may not exist.
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Windpark name.
+          title: Name
+      title: WindparkProjectList
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectList:
+      additionalProperties: false
+      description: Schema for project list.
+      properties:
+        origin_id:
+          description: Project origin identifier, e.g. pipedrive id.
+          title: Origin Id
+          type: string
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project unique identifier in project builder.
+          title: Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project unique code shared with Pipedrive.
+          title: Code
+        title:
+          description: Project title.
+          title: Title
+          type: string
+        client:
+          anyOf:
+          - $ref: '#/components/schemas/Client'
+          - type: 'null'
+          description: Client information.
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/Country'
+          - type: 'null'
+          description: Country information.
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
+        windparks:
+          items:
+            $ref: '#/components/schemas/WindparkProjectList'
+          title: Windparks
+          type: array
+        status:
+          title: Status
+          type: string
+        user_status:
+          anyOf:
+          - $ref: '#/components/schemas/UserStatus'
+          - type: 'null'
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        services:
+          default: []
+          items:
+            type: string
+          title: Services
+          type: array
+        sales_executives:
+          default: []
+          items:
+            type: string
+          title: Sales Executives
+          type: array
+        potential_start_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Potential Start Date
+      required:
+      - origin_id
+      - title
+      - windparks
+      - status
+      - created_at
+      - updated_at
+      title: ProjectList
+      type: object
+    ProjectOfferStatus:
+      description: Project level Offer status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      - Changed
+      title: ProjectOfferStatus
+      type: string
+    ProjectPassword:
+      additionalProperties: false
+      description: Schema for project password.
+      properties:
+        password:
+          description: Project password
+          title: Password
+          type: string
+      required:
+      - password
+      title: ProjectPassword
+      type: object
+    Client:
+      additionalProperties: false
+      description: Schema for client.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Client name.
+          title: Name
+      title: Client
+      type: object
+    ProjectEmailRequest:
+      additionalProperties: false
+      description: Schema for project email request.
+      properties:
+        recipient_email:
+          description: Email address of the recipient
+          format: email
+          title: Recipient Email
+          type: string
+      required:
+      - recipient_email
+      title: ProjectEmailRequest
+      type: object
+    UserStatus:
+      description: Enum for user-defined project statuses.
+      enum:
+      - Cancelled
+      - Completed
+      - Customer PJ in progress
+      - Customer PJ in review
+      - Customer PJ done
+      - Customer PJ rejected
+      title: UserStatus
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    RelatedProject:
+      additionalProperties: false
+      description: Schema for related project with code, id, client name and match score.
+      properties:
+        id:
+          description: Project unique identifier.
+          title: Id
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project unique code shared with Pipedrive.
+          title: Code
+        client_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Client/company name.
+          title: Client Name
+        match_score:
+          description: Fuzzy match score as percentage (0-100).
+          title: Match Score
+          type: number
+      required:
+      - id
+      - match_score
+      title: RelatedProject
+      type: object
+    Country:
+      additionalProperties: false
+      description: Schema for Country.
+      properties:
+        code:
+          description: Country code in alpha-2.
+          title: Code
+          type: string
+        name:
+          description: Human readable country name.
+          title: Name
+          type: string
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom region name a country belongs to.
+          title: Region
+      required:
+      - code
+      - name
+      title: Country
+      type: object
+    RelatedProjectsResponse:
+      additionalProperties: false
+      description: Schema for related projects response.
+      properties:
+        related_projects:
+          default: []
+          description: List of related projects with their code and id.
+          items:
+            $ref: '#/components/schemas/RelatedProject'
+          title: Related Projects
+          type: array
+      title: RelatedProjectsResponse
+      type: object
+    UserStatusPayload:
+      additionalProperties: false
+      description: Schema for updating user_status.
+      properties:
+        user_status:
+          $ref: '#/components/schemas/UserStatus'
+          description: The new user status for the project.
+        reason:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Required when user_status is Cancelled; stored as the status-history note.
+          title: Reason
+      required:
+      - user_status
+      title: UserStatusPayload
+      type: object
+    ProjectEmailResponse:
+      additionalProperties: false
+      description: Schema for project email response.
+      properties:
+        success:
+          description: Whether the email was sent successfully
+          title: Success
+          type: boolean
+        message:
+          description: Response message
+          title: Message
+          type: string
+      required:
+      - success
+      - message
+      title: ProjectEmailResponse
+      type: object
+    Customer:
+      additionalProperties: false
+      description: Schema for customer.
+      properties:
+        id:
+          description: NetSuite ID for customer
+          title: Id
+          type: integer
+        alt_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
+          title: Alt Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name
+          title: Name
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency
+          title: Currency
+        business_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Business ID
+          title: Business Id
+        address_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full address in single text/string
+          title: Address Text
+      required:
+      - id
+      title: Customer
+      type: object
+    Project:
+      additionalProperties: false
+      description: Schema for project.
+      properties:
+        id:
+          description: Project unique identifier.
+          title: Id
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project unique code shared with Pipedrive.
+          title: Code
+        client:
+          anyOf:
+          - $ref: '#/components/schemas/Client'
+          - type: 'null'
+          description: Client information.
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/Country'
+          - type: 'null'
+          description: Country information.
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IANA Timezone name.
+          title: Timezone
+        sites:
+          default: []
+          description: List of project sites with location information.
+          items:
+            $ref: '#/components/schemas/ProjectSiteSimple'
+          title: Sites
+          type: array
+        status:
+          description: Project current status.
+          title: Status
+          type: string
+        user_status:
+          anyOf:
+          - $ref: '#/components/schemas/UserStatus'
+          - type: 'null'
+        offer_status:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectOfferStatus'
+          - type: 'null'
+        offer_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: CO version number, only returned when offer_status is 'Approved'
+          title: Offer Version
+        created_at:
+          description: Project creation timestamp.
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          description: Project last update timestamp.
+          format: date-time
+          title: Updated At
+          type: string
+        origin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project origin identifier, e.g.pipedrive id.
+          title: Origin Id
+        sales_executives:
+          default: []
+          items:
+            type: string
+          title: Sales Executives
+          type: array
+        services:
+          default: []
+          items:
+            type: string
+          title: Services
+          type: array
+        related_projects:
+          default: []
+          description: Other projects that share client and site with this project.
+          items:
+            type: string
+          title: Related Projects
+          type: array
+        platform_sent:
+          default: false
+          description: Whether the project was sent to the platform.
+          title: Platform Sent
+          type: boolean
+        rfi_completion:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: RFI overall completion percentage (0-100)
+          title: Rfi Completion
+        prejob_completion:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pre-job overall completion percentage (0-100)
+          title: Prejob Completion
+      required:
+      - id
+      - status
+      - created_at
+      - updated_at
+      - origin_id
+      title: Project
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

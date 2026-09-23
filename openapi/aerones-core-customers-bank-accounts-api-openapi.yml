@@ -1,0 +1,435 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.customers.bank Accounts API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.customers.bank-accounts
+paths:
+  /api/core/v1/customers/{customer_id}/bank-accounts:
+    get:
+      operationId: list_customer_bank_accounts
+      summary: List Bank Accounts for Customer
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomerBankAccountResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.customers.bank-accounts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_customer_bank_account
+      summary: Create Bank Account
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerBankAccountResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.customers.bank-accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerBankAccountCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/customers/{customer_id}/bank-accounts/{bank_account_id}:
+    get:
+      operationId: get_customer_bank_account
+      summary: Get Bank Account
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: bank_account_id
+        schema:
+          title: Bank Account Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerBankAccountResponse'
+      description: Get a single child item.
+      tags:
+      - core.customers.bank-accounts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_customer_bank_account
+      summary: Update Bank Account
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: bank_account_id
+        schema:
+          title: Bank Account Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerBankAccountResponse'
+      description: Update a child item.
+      tags:
+      - core.customers.bank-accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerBankAccountUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_customer_bank_account
+      summary: Delete Bank Account
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: bank_account_id
+        schema:
+          title: Bank Account Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.customers.bank-accounts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    CustomerBankAccountUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerBankAccount.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank account name
+          title: Name
+        iban:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IBAN number
+          title: Iban
+        account_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Account number
+          title: Account Number
+        bank_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank name
+          title: Bank Name
+        swift_bic:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SWIFT/BIC code
+          title: Swift Bic
+        currency_code:
+          anyOf:
+          - maxLength: 3
+            type: string
+          - type: 'null'
+          description: Currency code (ISO 4217)
+          title: Currency Code
+        is_primary:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is primary bank account
+          title: Is Primary
+      title: CustomerBankAccountUpdate
+      type: object
+    CustomerBankAccountCreate:
+      additionalProperties: false
+      description: Schema for creating a CustomerBankAccount.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank account name
+          title: Name
+        iban:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IBAN number
+          title: Iban
+        account_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Account number
+          title: Account Number
+        bank_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank name
+          title: Bank Name
+        swift_bic:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SWIFT/BIC code
+          title: Swift Bic
+        currency_code:
+          anyOf:
+          - maxLength: 3
+            type: string
+          - type: 'null'
+          description: Currency code (ISO 4217)
+          title: Currency Code
+        is_primary:
+          default: false
+          description: Is primary bank account
+          title: Is Primary
+          type: boolean
+      title: CustomerBankAccountCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerBankAccountResponse:
+      additionalProperties: false
+      description: Schema for CustomerBankAccount response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Bank account ID
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer ID
+          title: Customer Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank account name
+          title: Name
+        iban:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IBAN number
+          title: Iban
+        account_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Account number
+          title: Account Number
+        bank_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank name
+          title: Bank Name
+        swift_bic:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SWIFT/BIC code
+          title: Swift Bic
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency code (ISO 4217)
+          title: Currency Code
+        is_primary:
+          description: Is primary bank account
+          title: Is Primary
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - is_primary
+      title: CustomerBankAccountResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

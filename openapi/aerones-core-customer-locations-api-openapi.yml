@@ -1,0 +1,239 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.customer Locations API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.customer-locations
+paths:
+  /api/core/v1/customer-locations:
+    get:
+      operationId: list_customer_locations
+      summary: List Customer Locations
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by customer ID
+          title: Customer Id
+        required: false
+        description: Filter by customer ID
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: relationship_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by relationship type ID
+          title: Relationship Id
+        required: false
+        description: Filter by relationship type ID
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomerLocationResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - core.customer-locations
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerLocationResponse:
+      additionalProperties: false
+      description: Schema for CustomerLocation response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Customer location ID
+          title: Id
+          type: integer
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/LocationObjectWithType'
+          description: Location information
+        relationship:
+          anyOf:
+          - $ref: '#/components/schemas/RelationshipTypeObject'
+          - type: 'null'
+          description: Relationship type information
+      required:
+      - updated_at
+      - id
+      - customer_id
+      - location
+      title: CustomerLocationResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RelationshipTypeObject:
+      additionalProperties: false
+      description: Nested relationship type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: RelationshipTypeObject
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    LocationObjectWithType:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps), including type.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+          description: Location type
+      required:
+      - id
+      title: LocationObjectWithType
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

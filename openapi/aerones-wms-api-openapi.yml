@@ -1,0 +1,250 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Wms API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: WMS
+paths:
+  /api/wms/team-requests:
+    get:
+      operationId: projects_api_wms_team_requests_list_team_requests
+      summary: List Team Requests
+      parameters:
+      - in: query
+        name: project_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: List active TRs visible to WMS, optionally scoped to one project_code.
+      tags:
+      - WMS
+  /api/wms/team-requests/{external_id}:
+    get:
+      operationId: projects_api_wms_team_requests_get_team_request
+      summary: Get Team Request
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: 'Fetch one TR by stable external_id (``opshub-tr-{id}``).
+
+
+        404 when the id is malformed, the TR is soft-deleted, or its status is
+
+        outside the WMS-visible window — same observable behaviour as the list
+
+        endpoint omitting the row.'
+      tags:
+      - WMS
+  /api/wms/team-requests/{external_id}/approve:
+    post:
+      operationId: projects_api_wms_team_requests_approve_team_request
+      summary: Approve Team Request
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: 'Approve every actionable slot of a TR — WMS-initiated team approval.
+
+
+        Mirrors the planner''s per-slot approval, but for the whole TR at once.
+
+        The API key''s user must hold ``approve_team_request_slot``; the approval
+
+        is attributed to that user in the activity log.'
+      tags:
+      - WMS
+  /api/wms/team-requests/{external_id}/slots/{slot_id}/approve:
+    post:
+      operationId: projects_api_wms_team_requests_approve_team_request_slot
+      summary: Approve Team Request Slot
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      - in: path
+        name: slot_id
+        schema:
+          title: Slot Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: Approve a single slot of a TR — WMS-initiated per-slot confirmation.
+      tags:
+      - WMS
+  /api/wms/team-requests/{external_id}/notes:
+    get:
+      operationId: projects_api_wms_team_requests_list_team_request_notes
+      summary: List Team Request Notes
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: Manual notes on a TR's timeline (newest first).
+      tags:
+      - WMS
+    post:
+      operationId: projects_api_wms_team_requests_create_team_request_note
+      summary: Create Team Request Note
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: Append a manual note to a TR (WMS-initiated).
+      tags:
+      - WMS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_NotePayload'
+        required: true
+  /api/wms/vehicle-assignments:
+    get:
+      operationId: projects_api_wms_vehicle_assignments_list_vehicle_assignments
+      summary: List Vehicle Assignments
+      parameters:
+      - in: query
+        name: project_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: List ACCEPTED vehicle assignments, optionally scoped to one project_code.
+      tags:
+      - WMS
+components:
+  schemas:
+    _NotePayload:
+      additionalProperties: false
+      properties:
+        text:
+          title: Text
+          type: string
+      required:
+      - text
+      title: _NotePayload
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

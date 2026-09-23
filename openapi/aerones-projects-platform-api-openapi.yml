@@ -1,0 +1,69 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.platform API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.platform
+paths:
+  /api/projects/{project_id}/platform:
+    post:
+      operationId: projects_api_platform_send_project_to_platform
+      summary: Send Project To Platform
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Creates a corresponding project in Platform based on the current project''s data.
+
+
+        Endpoint will silently accept recurring requests to create the same project.'
+      tags:
+      - projects.platform
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

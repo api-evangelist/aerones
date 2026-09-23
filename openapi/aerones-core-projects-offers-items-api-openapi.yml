@@ -1,0 +1,902 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.offers.items API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.offers.items
+paths:
+  /api/core/v1/offers/{offer_id}/items:
+    get:
+      operationId: list_offer_items
+      summary: List Items for Offer
+      parameters:
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by description
+          title: Search
+        required: false
+        description: Search by description
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by service ID
+          title: Service Id
+        required: false
+        description: Filter by service ID
+      - in: query
+        name: is_service
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by whether item's service is a service (vs addon/material)
+          title: Is Service
+        required: false
+        description: Filter by whether item's service is a service (vs addon/material)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectOfferItemResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.projects.offers.items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_offer_item
+      summary: Create Item
+      parameters:
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferItemResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.projects.offers.items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectOfferItemCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/offers/{offer_id}/items/{item_id}:
+    get:
+      operationId: get_offer_item
+      summary: Get Item
+      parameters:
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      - in: path
+        name: item_id
+        schema:
+          title: Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferItemResponse'
+      description: Get a single child item.
+      tags:
+      - core.projects.offers.items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_offer_item
+      summary: Update Item
+      parameters:
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      - in: path
+        name: item_id
+        schema:
+          title: Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferItemResponse'
+      description: Update a child item.
+      tags:
+      - core.projects.offers.items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectOfferItemUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_offer_item
+      summary: Delete Item
+      parameters:
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      - in: path
+        name: item_id
+        schema:
+          title: Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.projects.offers.items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/{offer_id}/items:
+    get:
+      operationId: core_endpoints_project_offer_items_list_project_offer_items
+      summary: List Offer Items for Project Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by description
+          title: Search
+        required: false
+        description: Search by description
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: location_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by location ID
+          title: Location Id
+        required: false
+        description: Filter by location ID
+      - in: query
+        name: service_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by service ID
+          title: Service Id
+        required: false
+        description: Filter by service ID
+      - in: query
+        name: is_service
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by whether item's service is a service (vs addon/material)
+          title: Is Service
+        required: false
+        description: Filter by whether item's service is a service (vs addon/material)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectOfferItemResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'List offer items for an offer, validating offer belongs to project.
+
+
+        This endpoint is project-scoped so it is safe for PWT (project password) sessions
+
+        and avoids cross-project data exposure that would be possible with non-scoped
+
+        /core/v1/offers/{offer_id}/items.'
+      tags:
+      - core.projects.offers.items
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectOfferItemCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectOfferItem.
+      properties:
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          title: Price
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjustment
+          title: Adjustment
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount
+          title: Amount
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer component model ID
+          title: Manufacturer Component Model Id
+        coefficients:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Coefficients as JSON (object or array)
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Group ID
+          title: Group Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Item description
+          title: Description
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Ignored if provided.
+          title: Type
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Use pricing_unit_id.
+          title: Unit Type
+        initial_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Initial offer item ID (self-reference)
+          title: Initial Offer Item Id
+      title: ProjectOfferItemCreate
+      type: object
+    ProjectOfferItemResponse:
+      additionalProperties: false
+      description: Schema for ProjectOfferItem response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project offer item ID
+          title: Id
+          type: integer
+        offer_id:
+          description: Offer ID
+          title: Offer Id
+          type: integer
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationObject'
+          - type: 'null'
+          description: Location information (from project_location.location)
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+          description: Service information
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          title: Price
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjustment
+          title: Adjustment
+        unit_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Calculated unit price
+          title: Unit Price
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount
+          title: Amount
+        turbine_manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerObject'
+          - type: 'null'
+          description: Turbine manufacturer information
+        turbine_model:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineModelObject'
+          - type: 'null'
+          description: Turbine model information
+        component_manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerObject'
+          - type: 'null'
+          description: Component manufacturer information
+        component_model:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerComponentModelObject'
+          - type: 'null'
+          description: Component model information
+        coefficients:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Coefficients as JSON (object or array)
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Group ID
+          title: Group Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Item description
+          title: Description
+        pricing_unit:
+          anyOf:
+          - $ref: '#/components/schemas/PricingUnitNestedResponse'
+          - type: 'null'
+          description: Pricing unit information
+        initial_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Initial offer item ID (self-reference)
+          title: Initial Offer Item Id
+      required:
+      - updated_at
+      - id
+      - offer_id
+      title: ProjectOfferItemResponse
+      type: object
+    ManufacturerComponentModelObject:
+      additionalProperties: false
+      description: Nested manufacturer component model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerComponentModelObject
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    ProjectOfferItemUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectOfferItem.
+      properties:
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          title: Price
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjustment
+          title: Adjustment
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount
+          title: Amount
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer component model ID
+          title: Manufacturer Component Model Id
+        coefficients:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Coefficients as JSON (object or array)
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Group ID
+          title: Group Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Item description
+          title: Description
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Ignored if provided.
+          title: Type
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Use pricing_unit_id.
+          title: Unit Type
+        initial_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Initial offer item ID (self-reference)
+          title: Initial Offer Item Id
+      title: ProjectOfferItemUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
+    TurbineModelObject:
+      additionalProperties: false
+      description: Nested turbine model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineModelObject
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

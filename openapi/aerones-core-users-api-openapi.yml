@@ -1,0 +1,491 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.users API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.users
+paths:
+  /api/core/v1/users:
+    get:
+      operationId: core_endpoints_users_list_users
+      summary: List Users
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by first name, last name, or email (case-insensitive)
+          title: Search
+        required: false
+        description: Search by first name, last name, or email (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by first_name, last_name, or email (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by first_name, last_name, or email (prefix with - for descending)
+      - in: query
+        name: roles
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by role names (comma-separated)
+          title: Roles
+        required: false
+        description: Filter by role names (comma-separated)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List active users.
+      tags:
+      - core.users
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_user
+      summary: Create User
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      description: Create a new user.
+      tags:
+      - core.users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/users/{id}:
+    get:
+      operationId: get_user
+      summary: Get User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      description: Get a single user by ID.
+      tags:
+      - core.users
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_user
+      summary: Update User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+      description: Update an existing user.
+      tags:
+      - core.users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_user
+      summary: Delete User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a user (set is_active=False).
+      tags:
+      - core.users
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/users/{id}/reset-password:
+    post:
+      operationId: reset_user_password
+      summary: Reset User Password
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Send a one-time password-reset link to the user's email.
+      tags:
+      - core.users
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/roles:
+    get:
+      operationId: core_endpoints_roles_get_roles
+      summary: Get Roles
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/IDWithName'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return all available roles.
+      tags:
+      - core.users
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    IDWithName:
+      additionalProperties: false
+      description: Schema for ID with name.
+      properties:
+        id:
+          description: Identifier.
+          title: Id
+          type: integer
+        name:
+          description: Name.
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: IDWithName
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    UserCustomerObject:
+      additionalProperties: false
+      description: Nested customer reference for user responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: UserCustomerObject
+      type: object
+    UserCreate:
+      additionalProperties: false
+      description: Schema for creating a user.
+      properties:
+        first_name:
+          description: User first name
+          title: First Name
+          type: string
+        last_name:
+          description: User last name
+          title: Last Name
+          type: string
+        email:
+          description: User email (used as username)
+          format: email
+          title: Email
+          type: string
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User phone number
+          title: Phone
+        group_ids:
+          description: List of group/role IDs to assign
+          items:
+            type: integer
+          title: Group Ids
+          type: array
+        customer_ids:
+          description: List of customer IDs to link
+          items:
+            type: integer
+          title: Customer Ids
+          type: array
+      required:
+      - first_name
+      - last_name
+      - email
+      title: UserCreate
+      type: object
+    UserUpdate:
+      additionalProperties: false
+      description: Schema for updating a user.
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User first name
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User last name
+          title: Last Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User phone number
+          title: Phone
+        group_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: List of group/role IDs to assign
+          title: Group Ids
+        customer_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: List of customer IDs to link
+          title: Customer Ids
+      title: UserUpdate
+      type: object
+    UserResponse:
+      additionalProperties: false
+      description: Schema for user list response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: User ID
+          title: Id
+          type: integer
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User first name
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User last name
+          title: Last Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User email
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User phone number
+          title: Phone
+        roles:
+          description: Role names
+          items:
+            type: string
+          title: Roles
+          type: array
+        customers:
+          description: Assigned customers
+          items:
+            $ref: '#/components/schemas/UserCustomerObject'
+          title: Customers
+          type: array
+      required:
+      - updated_at
+      - id
+      title: UserResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,363 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Services API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Services
+paths:
+  /api/services:
+    get:
+      operationId: services_api_get_services
+      summary: Get Services
+      parameters:
+      - in: query
+        name: category
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service category.
+          title: Category
+        required: false
+        description: Service category.
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type (WTG, BLADE).
+          title: Type
+        required: false
+        description: Asset type (WTG, BLADE).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceList'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Retrieve service list.
+
+
+        DEPRECATED: Use /core/v1/services instead.'
+      tags:
+      - Services
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/services/pre-job/questions/{service_code}:
+    get:
+      operationId: services_api_get_pre_job_questions
+      summary: Get Pre Job Questions
+      parameters:
+      - in: path
+        name: service_code
+        schema:
+          title: Service Code
+          type: string
+        required: true
+      - in: query
+        name: addons
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional service codes that can/or are added to the service.
+          title: Addons
+        required: false
+        description: Additional service codes that can/or are added to the service.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServicePreJobQuestionDefinition'
+                title: Response
+                type: array
+      description: Retrieve pre-job questions for a specific service code and optional addons.
+      tags:
+      - Services
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/services/{service_code}:
+    get:
+      operationId: services_api_get_service
+      summary: Get Service
+      parameters:
+      - in: path
+        name: service_code
+        schema:
+          title: Service Code
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Retrieve service.
+
+
+        DEPRECATED: Use /core/v1/services instead.'
+      tags:
+      - Services
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ServicePreJobQuestionDefinition:
+      additionalProperties: false
+      description: Single definition of a pre job question that can be attached to service.
+      properties:
+        key:
+          description: Unique key for the question. This key is used to store the question answer, when referencing it in a project service questionnaire.
+          title: Key
+          type: string
+        title:
+          description: Human readable title of the question.
+          title: Title
+          type: string
+        type:
+          $ref: '#/components/schemas/ServicePreJobQuestionType'
+          description: Type of the value in the answer of the question.
+        required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is the question required to be answered.
+          title: Required
+        choices:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: []
+          description: List of possible choices for the question. Only used when type is select or multiselect.
+          title: Choices
+        tooltip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional tooltip text to provide additional information about the question.
+          title: Tooltip
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional unit for number type questions (e.g., kg, m, etc.).
+          title: Unit
+      required:
+      - key
+      - title
+      - type
+      title: ServicePreJobQuestionDefinition
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CodeWithName:
+      additionalProperties: false
+      description: Schema for code and name.
+      properties:
+        code:
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CodeWithName
+      type: object
+    ServiceCondition:
+      additionalProperties: false
+      description: Schema for service condition.
+      properties:
+        name:
+          description: Name of the condition specific to service.
+          title: Name
+          type: string
+        values:
+          description: List of possible values for the condition.
+          items:
+            $ref: '#/components/schemas/ServiceConditionValue'
+          title: Values
+          type: array
+      required:
+      - name
+      - values
+      title: ServiceCondition
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServicePreJobQuestionType:
+      description: Allowed type of the pre job question.
+      enum:
+      - text
+      - select
+      - multiselect
+      - boolean
+      - file
+      - number
+      title: ServicePreJobQuestionType
+      type: string
+    Service:
+      additionalProperties: false
+      description: Schema for unified service.
+      properties:
+        code:
+          description: Unique service base code.
+          title: Code
+          type: string
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Service category.
+        name:
+          description: Human readable service name.
+          title: Name
+          type: string
+        conditions:
+          default: []
+          description: List of conditions that describe the service, including RAT availability.
+          items:
+            $ref: '#/components/schemas/ServiceCondition'
+          title: Conditions
+          type: array
+        addons:
+          default: []
+          description: List of additional service codes that can/or are added to the service.
+          items:
+            $ref: '#/components/schemas/CodeWithName'
+          title: Addons
+          type: array
+        materials:
+          default: []
+          description: List of materials that are compatible with the service.
+          items:
+            $ref: '#/components/schemas/CodeWithName'
+          title: Materials
+          type: array
+        full_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full line item service code.
+          title: Full Code
+      required:
+      - code
+      - category
+      - name
+      title: Service
+      type: object
+    ServiceConditionValue:
+      additionalProperties: false
+      description: Schema for describing specific service condition/level.
+      properties:
+        code:
+          description: Unique condition value code.
+          title: Code
+          type: string
+        name:
+          description: Human readable condition value name.
+          title: Name
+          type: string
+        severity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Severity level for service object conditions.
+          title: Severity
+        selected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Selected condition by user.
+          title: Selected
+      required:
+      - code
+      - name
+      title: ServiceConditionValue
+      type: object
+    ServiceList:
+      additionalProperties: false
+      description: Schema for services on list.
+      properties:
+        code:
+          description: Unique service code.
+          title: Code
+          type: string
+        name:
+          description: Human readable service name.
+          title: Name
+          type: string
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Service category.
+      required:
+      - code
+      - name
+      - category
+      title: ServiceList
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

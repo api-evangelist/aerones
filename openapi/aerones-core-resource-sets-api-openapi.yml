@@ -1,0 +1,404 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.resource Sets API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.resource-sets
+paths:
+  /api/core/v1/resource-sets:
+    get:
+      operationId: list_resource_sets
+      summary: List Resource Sets
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResourceSetResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_resource_set
+      summary: Create Resource Set
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSetResponse'
+      description: Create a new item.
+      tags:
+      - core.resource-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceSetCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/resource-sets/{id}:
+    get:
+      operationId: get_resource_set
+      summary: Get Resource Set
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSetResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_resource_set
+      summary: Update Resource Set
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceSetResponse'
+      description: Update an item.
+      tags:
+      - core.resource-sets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceSetUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_resource_set
+      summary: Delete Resource Set
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.resource-sets
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResourceSetResponse:
+      additionalProperties: false
+      description: Schema for ResourceSet response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Resource set ID
+          title: Id
+          type: integer
+        name:
+          description: Resource set name
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource set description
+          title: Description
+        set_items:
+          description: Resource set items
+          items:
+            $ref: '#/components/schemas/ResourceSetItemOutput'
+          title: Set Items
+          type: array
+      required:
+      - updated_at
+      - id
+      - name
+      title: ResourceSetResponse
+      type: object
+    ResourceSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a ResourceSet.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource set description
+          title: Description
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
+          title: Set Items
+      title: ResourceSetUpdate
+      type: object
+    ResourceSetItemOutput:
+      additionalProperties: false
+      description: Output schema for resource set item in responses (no timestamps).
+      properties:
+        id:
+          description: ResourceSetItem ID
+          title: Id
+          type: integer
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is lead resource
+          title: Is Lead
+        is_active:
+          description: Is active
+          title: Is Active
+          type: boolean
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Resource Full Name
+      required:
+      - id
+      - resource_id
+      - resource_type
+      - is_active
+      title: ResourceSetItemOutput
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ResourceSetItemInput:
+      additionalProperties: false
+      description: Input schema for a resource set item (technician or robot from core.Resource).
+      properties:
+        resource_id:
+          description: Resource ID from core.Resource
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: 'Resource type: ROBOT or TECHNICIAN'
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead (sets is_lead in ProjectResourceSetItem)
+          title: Is Lead
+      required:
+      - resource_id
+      - resource_type
+      title: ResourceSetItemInput
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ResourceSetCreate:
+      additionalProperties: false
+      description: Schema for creating a ResourceSet.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource set description
+          title: Description
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items to create with the set
+          title: Set Items
+      required:
+      - name
+      title: ResourceSetCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

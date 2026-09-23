@@ -1,0 +1,287 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.weather API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.weather
+paths:
+  /api/projects/{project_id}/weather:
+    get:
+      operationId: projects_api_weather_get_weather
+      summary: Get Weather
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: year
+        schema:
+          title: Year
+          type: integer
+        required: true
+      - in: query
+        name: month
+        schema:
+          title: Month
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyWeatherListResponse'
+      description: Get weather data for a project's site for a given month.
+      tags:
+      - projects.weather
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/weather/refresh:
+    post:
+      operationId: projects_api_weather_refresh_weather
+      summary: Refresh Weather
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: year
+        schema:
+          title: Year
+          type: integer
+        required: true
+      - in: query
+        name: month
+        schema:
+          title: Month
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyWeatherListResponse'
+      description: 'Refresh weather data from external API.
+
+
+        This endpoint is a placeholder - weather integration is not yet implemented.'
+      tags:
+      - projects.weather
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/weather/{date_str}:
+    put:
+      operationId: projects_api_weather_update_weather_value
+      summary: Update Weather Value
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: date_str
+        schema:
+          title: Date Str
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyWeatherSchema'
+      description: Update a single weather value.
+      tags:
+      - projects.weather
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherValueUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/weather/{date_str}/reset:
+    post:
+      operationId: projects_api_weather_reset_weather_value
+      summary: Reset Weather Value
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: date_str
+        schema:
+          title: Date Str
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyWeatherSchema'
+      description: Reset weather values to original API values.
+      tags:
+      - projects.weather
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherResetRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    TimePeriodWeather:
+      additionalProperties: false
+      description: Weather values for a single time period.
+      properties:
+        morning:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Morning
+        day:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Day
+        afternoon:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Afternoon
+      title: TimePeriodWeather
+      type: object
+    WeatherResetRequest:
+      additionalProperties: false
+      description: Schema for resetting weather values to API values.
+      properties:
+        weather_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type to reset, or all if not specified
+          title: Weather Type
+        period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period to reset, or all if not specified
+          title: Period
+      title: WeatherResetRequest
+      type: object
+    WeatherValueUpdate:
+      additionalProperties: false
+      description: Schema for updating a single weather value.
+      properties:
+        weather_type:
+          description: 'Type: temperature, windSpeed, humidity, precipitation'
+          title: Weather Type
+          type: string
+        period:
+          description: 'Period: morning, day, afternoon'
+          title: Period
+          type: string
+        value:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: New value
+          title: Value
+      required:
+      - weather_type
+      - period
+      title: WeatherValueUpdate
+      type: object
+    DailyWeatherSchema:
+      additionalProperties: false
+      description: Schema for a single day's weather data.
+      properties:
+        date:
+          description: Date of weather data
+          format: date
+          title: Date
+          type: string
+        temperature:
+          $ref: '#/components/schemas/TimePeriodWeather'
+          description: Temperature in Celsius
+        windSpeed:
+          $ref: '#/components/schemas/TimePeriodWeather'
+          description: Wind speed in m/s at 80m
+        humidity:
+          $ref: '#/components/schemas/TimePeriodWeather'
+          description: Humidity percentage
+        precipitation:
+          $ref: '#/components/schemas/TimePeriodWeather'
+          description: Precipitation in mm/h
+        edited:
+          description: Which fields have been manually edited
+          title: Edited
+          type: object
+      required:
+      - date
+      - temperature
+      - windSpeed
+      - humidity
+      - precipitation
+      title: DailyWeatherSchema
+      type: object
+    DailyWeatherListResponse:
+      additionalProperties: false
+      description: Response schema for weather data list.
+      properties:
+        weather:
+          description: Weather data by date
+          items:
+            $ref: '#/components/schemas/DailyWeatherSchema'
+          title: Weather
+          type: array
+        hasCoordinates:
+          description: Whether project has site coordinates
+          title: Hascoordinates
+          type: boolean
+      required:
+      - weather
+      - hasCoordinates
+      title: DailyWeatherListResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

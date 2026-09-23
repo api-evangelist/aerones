@@ -1,0 +1,254 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Commercial Offers API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: commercial-offers
+paths:
+  /api/commercial-offers:
+    get:
+      operationId: projects_api_commercial_offers_list_commercial_offers
+      summary: List Commercial Offers
+      parameters:
+      - in: query
+        name: page
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+      - in: query
+        name: include_approved
+        schema:
+          default: false
+          title: Include Approved
+          type: boolean
+        required: false
+      - in: query
+        name: required_approver_role
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Required Approver Role
+        required: false
+      - in: query
+        name: ordering
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: -id
+          title: Ordering
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CommercialOfferRow'
+                title: Response
+                type: array
+      description: Return a paginated list of commercial offers filtered by status.
+      tags:
+      - commercial-offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/commercial-offers/approve:
+    post:
+      operationId: projects_api_commercial_offers_approve_commercial_offers
+      summary: Approve Commercial Offers
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommercialOfferBulkApproveResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Approve offers when the requester has the required authority.
+      tags:
+      - commercial-offers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommercialOfferApproveRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CommercialOfferBulkApproveResponse:
+      additionalProperties: false
+      description: Response describing which offers were approved or skipped.
+      properties:
+        approved:
+          items:
+            type: integer
+          title: Approved
+          type: array
+        skipped:
+          items:
+            type: integer
+          title: Skipped
+          type: array
+      required:
+      - approved
+      - skipped
+      title: CommercialOfferBulkApproveResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CommercialOfferRow:
+      additionalProperties: false
+      description: Commercial offer summary row for table responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          format: uuid
+          title: Project Id
+          type: string
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Version
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Currency
+        final_sum:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Final Sum
+        discount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Discount
+        status:
+          title: Status
+          type: string
+        creator_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Creator Email
+        reviewer_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewer Email
+        sales_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sales Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Required Approver Role
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        company_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Name
+      required:
+      - id
+      - project_id
+      - updated_at
+      - version
+      - currency
+      - final_sum
+      - discount
+      - status
+      title: CommercialOfferRow
+      type: object
+    CommercialOfferApproveRequest:
+      additionalProperties: false
+      description: Request payload for bulk commercial offer approval.
+      properties:
+        ids:
+          items:
+            type: integer
+          title: Ids
+          type: array
+      required:
+      - ids
+      title: CommercialOfferApproveRequest
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

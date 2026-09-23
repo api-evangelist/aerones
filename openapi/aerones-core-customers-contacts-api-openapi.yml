@@ -1,0 +1,452 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.customers.contacts API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.customers.contacts
+paths:
+  /api/core/v1/customers/{customer_id}/contacts:
+    get:
+      operationId: list_customer_contacts
+      summary: List Contacts for Customer
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CustomerContactResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.customers.contacts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_customer_contact
+      summary: Create Contact
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerContactResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.customers.contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerContactCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/customers/{customer_id}/contacts/{contact_id}:
+    get:
+      operationId: get_customer_contact
+      summary: Get Contact
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: contact_id
+        schema:
+          title: Contact Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerContactResponse'
+      description: Get a single child item.
+      tags:
+      - core.customers.contacts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_customer_contact
+      summary: Update Contact
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: contact_id
+        schema:
+          title: Contact Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerContactResponse'
+      description: Update a child item.
+      tags:
+      - core.customers.contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerContactUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_customer_contact
+      summary: Delete Contact
+      parameters:
+      - in: path
+        name: customer_id
+        schema:
+          title: Customer Id
+          type: integer
+        required: true
+      - in: path
+        name: contact_id
+        schema:
+          title: Contact Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.customers.contacts
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerContactCreate:
+      additionalProperties: false
+      description: Schema for creating a CustomerContact.
+      properties:
+        name:
+          description: Contact name
+          minLength: 1
+          title: Name
+          type: string
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Contact title
+          title: Title
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Department
+          title: Department
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        is_primary:
+          default: false
+          description: Is primary contact
+          title: Is Primary
+          type: boolean
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+      required:
+      - name
+      title: CustomerContactCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CustomerContactResponse:
+      additionalProperties: false
+      description: Schema for CustomerContact response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Contact ID
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer ID
+          title: Customer Id
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
+        name:
+          description: Contact name
+          title: Name
+          type: string
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Contact title
+          title: Title
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Department
+          title: Department
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        is_primary:
+          description: Is primary contact
+          title: Is Primary
+          type: boolean
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+      required:
+      - updated_at
+      - id
+      - name
+      - is_primary
+      title: CustomerContactResponse
+      type: object
+    CustomerContactUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerContact.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Contact name
+          title: Name
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Contact title
+          title: Title
+        department:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Department
+          title: Department
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        is_primary:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is primary contact
+          title: Is Primary
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+      title: CustomerContactUpdate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

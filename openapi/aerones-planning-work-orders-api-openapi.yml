@@ -1,0 +1,535 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Planning.work Orders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: planning.work-orders
+paths:
+  /api/planning/v1/work-orders:
+    get:
+      operationId: list_workorders
+      summary: List WorkOrders
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        required: false
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        required: false
+      - in: query
+        name: service_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        required: false
+      - in: query
+        name: type_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Type Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PlanningWorkOrderResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - planning.work-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_workorder
+      summary: Create WorkOrder
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningWorkOrderResponse'
+      description: Create a new item.
+      tags:
+      - planning.work-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningWorkOrderCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/planning/v1/work-orders/{id}:
+    get:
+      operationId: get_workorder
+      summary: Get WorkOrder
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningWorkOrderResponse'
+      description: Get a single item by ID.
+      tags:
+      - planning.work-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_workorder
+      summary: Update WorkOrder
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningWorkOrderResponse'
+      description: Update an item.
+      tags:
+      - planning.work-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningWorkOrderUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_workorder
+      summary: Delete WorkOrder
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - planning.work-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningWorkOrderResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          default: []
+          items: {}
+          title: Custom Fields
+          type: array
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+        customer_id:
+          title: Customer Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedCustomer'
+          - type: 'null'
+        service_order_id:
+          title: Service Order Id
+          type: integer
+        service_order:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedServiceOrder'
+          - type: 'null'
+        type_id:
+          title: Type Id
+          type: integer
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedWorkOrderType'
+          - type: 'null'
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - status
+      - customer_id
+      - service_order_id
+      - type_id
+      - created_at
+      - updated_at
+      title: PlanningWorkOrderResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PlanningWorkOrderUpdate:
+      properties:
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Type Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      title: PlanningWorkOrderUpdate
+      type: object
+    PlanningNestedWorkOrderType:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedWorkOrderType
+      type: object
+    PlanningWorkOrderCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        service_order_id:
+          title: Service Order Id
+          type: integer
+        type_id:
+          title: Type Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: PLANNED
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      required:
+      - customer_id
+      - service_order_id
+      - type_id
+      - name
+      title: PlanningWorkOrderCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PlanningNestedServiceOrder:
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      title: PlanningNestedServiceOrder
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

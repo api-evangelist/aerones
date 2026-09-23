@@ -1,0 +1,323 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Platform API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Platform
+paths:
+  /api/platform/clients:
+    get:
+      operationId: adminplatform_api_get_clients
+      summary: Get Clients
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformClients'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return list of clients from Platform.
+      tags:
+      - Platform
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/platform/daily-reports/{project_id}:
+    get:
+      operationId: adminplatform_api_get_daily_reports
+      summary: Get Daily Reports
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        required: false
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyReportsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get daily reports for a project.
+      tags:
+      - Platform
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    MissingReportWorkorder:
+      additionalProperties: false
+      description: Schema for workorder in missing report.
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+        workorder_name:
+          title: Workorder Name
+          type: string
+      required:
+      - workorder_id
+      - workorder_name
+      title: MissingReportWorkorder
+      type: object
+    PlatformClient:
+      additionalProperties: false
+      description: Definition of a client in the platform.
+      properties:
+        id:
+          description: platform id of particular client
+          title: Id
+          type: integer
+        name:
+          description: Name of the client as in platform
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PlatformClient
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    DailyReportDay:
+      additionalProperties: false
+      description: Schema for a day's daily reports from Platform.
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        reports:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReport'
+          title: Reports
+          type: array
+        missing_reports:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissingReport'
+          title: Missing Reports
+          type: array
+      required:
+      - date
+      title: DailyReportDay
+      type: object
+    DailyReportsResponse:
+      additionalProperties: false
+      description: Schema for daily reports response.
+      properties:
+        days:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReportDay'
+          title: Days
+          type: array
+      title: DailyReportsResponse
+      type: object
+    MissingReport:
+      additionalProperties: false
+      description: Schema for missing daily report from Platform.
+      properties:
+        winch_set_id:
+          title: Winch Set Id
+          type: integer
+        winch_set_name:
+          title: Winch Set Name
+          type: string
+        status:
+          default: MISSING
+          title: Status
+          type: string
+        workorders:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissingReportWorkorder'
+          title: Workorders
+          type: array
+      required:
+      - winch_set_id
+      - winch_set_name
+      title: MissingReport
+      type: object
+    DailyReportService:
+      additionalProperties: false
+      description: Schema for service in daily report.
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_type_code:
+          title: Service Type Code
+          type: string
+      required:
+      - service_id
+      - service_code
+      - service_type_code
+      title: DailyReportService
+      type: object
+    DailyReportWinchSet:
+      additionalProperties: false
+      description: Schema for winch set in daily report.
+      properties:
+        winch_set_id:
+          title: Winch Set Id
+          type: integer
+        winch_set_name:
+          title: Winch Set Name
+          type: string
+      required:
+      - winch_set_id
+      - winch_set_name
+      title: DailyReportWinchSet
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PlatformClients:
+      additionalProperties: false
+      description: Definition of a list of clients in the platform.
+      properties:
+        items:
+          description: List of clients in the platform
+          items:
+            $ref: '#/components/schemas/PlatformClient'
+          title: Items
+          type: array
+      required:
+      - items
+      title: PlatformClients
+      type: object
+    DailyReport:
+      additionalProperties: false
+      description: Schema for daily report from Platform.
+      properties:
+        report_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Report Id
+        report_type:
+          title: Report Type
+          type: string
+        report_token:
+          title: Report Token
+          type: string
+        url:
+          title: Url
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        report_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Report Date
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        archived:
+          title: Archived
+          type: boolean
+        winch_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReportWinchSet'
+          title: Winch Sets
+          type: array
+        services:
+          default: []
+          items:
+            $ref: '#/components/schemas/DailyReportService'
+          title: Services
+          type: array
+      required:
+      - report_type
+      - report_token
+      - url
+      - created_at
+      - updated_at
+      - archived
+      title: DailyReport
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,1227 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.offer API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.offer
+paths:
+  /api/projects/{project_id}/offer:
+    get:
+      operationId: projects_api_offer_get_project_offer
+      summary: Get Project Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOffer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get the current offer.
+
+
+        Current offer may be either a draft version or latest approved version. Latest
+
+        approved version would be returned only if there is no draft. There can never be
+
+        more than one draft version.
+
+
+        For moving offer to approve or reject stage there must be a draft offer. One sends
+
+        first the draft offer for approval and then approves or rejects it.
+
+
+        If draft version was approved, to make new changes to the offer new draft must be
+
+        created.'
+      tags:
+      - projects.offer
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_offer_update_offer
+      summary: Update Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Set margins and quoted crew / duration on the current draft offer.
+
+
+        Sets the values without changing the offer status, so they can be populated
+
+        at deal-create time (e.g. by sales-form) rather than only when sending for
+
+        approval. Fields left out of the payload are untouched.'
+      tags:
+      - projects.offer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/download-v2:
+    post:
+      operationId: projects_api_offer_download_offer_v2
+      summary: Download Offer V2
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: 'Download commercial offer for a project using offerv2.
+
+
+        The downloaded commercial offer is delivered as a PDF file generated using the offerv2 module.
+
+        This version uses docx templates for generating the PDF.'
+      tags:
+      - projects.offer
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/download-v2-docx:
+    post:
+      operationId: projects_api_offer_download_offer_v2_docx
+      summary: Download Offer V2 Docx
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download commercial offer for a project as DOCX using offerv2.
+      tags:
+      - projects.offer
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/line-items:
+    post:
+      operationId: projects_api_offer_create_line_item
+      summary: Create Line Item
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOffer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a new commercial offer line item.
+      tags:
+      - projects.offer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceLineItemCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: projects_api_offer_update_line_items
+      summary: Update Line Items
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOffer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Update line items in the offer.
+
+
+        Bulk updates are service-line-item only and identified by row_id.
+
+        Support-item code-based mutation path has been removed.'
+      tags:
+      - projects.offer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineItemsUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/offer/line-items/{line_item_id}:
+    patch:
+      operationId: projects_api_offer_update_line_item
+      summary: Update Line Item
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: line_item_id
+        schema:
+          title: Line Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOffer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Update a single commercial offer line item.
+      tags:
+      - projects.offer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceLineItemEdit'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: projects_api_offer_delete_line_item
+      summary: Delete Line Item
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: line_item_id
+        schema:
+          title: Line Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOffer'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Delete a single commercial offer line item.
+      tags:
+      - projects.offer
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    IDWithName:
+      additionalProperties: false
+      description: Schema for ID with name.
+      properties:
+        id:
+          description: Identifier.
+          title: Id
+          type: integer
+        name:
+          description: Name.
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: IDWithName
+      type: object
+    LineItem:
+      additionalProperties: false
+      description: Schema for offer line item.
+      properties:
+        persistent_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated lineage identifier alias. Use `original_item_id`.
+          title: Persistent Id
+        row_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Unique identified of line item. Can be used to update specific line items.
+          examples:
+          - 1
+          title: Row Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated duplicated line item code. Use service.code.
+          examples:
+          - ACC
+          title: Code
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Line item category with code and name
+          examples:
+          - code: 01INS
+            name: Inspections
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the line item
+          examples:
+          - Emergency Mobilization Fee
+          title: Description
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          examples:
+          - 100.5
+          title: Price
+        turbine_manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Turbine manufacturer object
+        turbine_model:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Turbine model object
+        component_manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Component manufacturer object
+        manufacturer_component_model:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Component model object
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          examples:
+          - 5
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount percentage
+          examples:
+          - 10.5
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price adjustment (positive or negative)
+          examples:
+          - 100.5
+          - -50.25
+          title: Adjustment
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component type name for the line item
+          examples:
+          - Blade
+          - Nacelle
+          title: Type
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Location object with id and name
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceRef'
+          - type: 'null'
+          description: Service object with id/code/name
+        pricing_unit:
+          anyOf:
+          - $ref: '#/components/schemas/PricingUnitRef'
+          - type: 'null'
+          description: Pricing unit object with id and name
+        coefficients:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ItemCoefficient'
+            type: array
+          - type: 'null'
+          description: List of coefficients applied to this line item (for services and addons only)
+          examples:
+          - - name: Latvia
+              type: Country
+              value: 1.1
+            - name: January
+              type: Month
+              value: 1.2
+            - name: Offshore
+              type: Special Conditions
+              value: 1.15
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Asset group ID a line item belongs to.
+          title: Group Id
+        total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: Total price of the line item
+          title: Total
+        unit_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          default: Unit price per asset
+          title: Unit Price
+        original_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version lineage pointer to version 1 ancestor item
+          title: Original Item Id
+        parent_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Deprecated parent service row id for addon/material hierarchy.
+          title: Parent Id
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated pricing unit name alias. Use `pricing_unit_id` in requests.
+          examples:
+          - WTG
+          - BLADE
+          - MONTHLY
+          title: Unit Type
+        is_optional:
+          default: false
+          description: Line quotes a price without a committed quantity
+          examples:
+          - true
+          title: Is Optional
+          type: boolean
+        ler_repair_meters:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Leading edge repair length in metres
+          examples:
+          - 7
+          title: Ler Repair Meters
+      required:
+      - category
+      title: LineItem
+      type: object
+    ItemCoefficient:
+      additionalProperties: false
+      description: Schema for item coefficient information.
+      properties:
+        type:
+          description: Type of coefficient (Country, Month, or Special Conditions)
+          examples:
+          - Country
+          - Month
+          - Special Conditions
+          title: Type
+          type: string
+        name:
+          description: Name of the coefficient (e.g. country name, month name, or condition name)
+          examples:
+          - Germany
+          - February
+          - Unavailable Technicians
+          title: Name
+          type: string
+        value:
+          description: Value of the coefficient
+          examples:
+          - 1.1
+          - 1.2
+          - 1.5
+          title: Value
+          type: number
+      required:
+      - type
+      - name
+      - value
+      title: ItemCoefficient
+      type: object
+    Offer:
+      additionalProperties: false
+      description: Schema for project offer.
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyRef'
+          description: Offer currency object
+          examples:
+          - code: EUR
+            id: 1
+        line_items:
+          description: List of line items
+          items:
+            $ref: '#/components/schemas/LineItem'
+          title: Line Items
+          type: array
+        final_sum:
+          description: Final sum of the offer, including all line items and adjustments
+          title: Final Sum
+          type: number
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Overall discount amount applied to the original sum
+          title: Discount
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 2
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 2
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        status:
+          $ref: '#/components/schemas/OfferStatus'
+          description: Status of the offer version
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Message/reason for the offer status change (e.g., rejection reason)
+          title: Message
+      required:
+      - currency
+      - line_items
+      - final_sum
+      - discount
+      - status
+      title: Offer
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceLineItemCreate:
+      additionalProperties: false
+      description: Schema for creating a new commercial offer line item.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          examples:
+          - 123
+          title: Service Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated service code field
+          title: Code
+        parent_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Deprecated parent row id for addon/material hierarchy.
+          title: Parent Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          examples:
+          - 10
+          title: Location Id
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        quantity:
+          description: Quantity for the line item
+          examples:
+          - 2
+          title: Quantity
+          type: integer
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated pricing unit name alias. Use `pricing_unit_id`.
+          examples:
+          - WTG
+          - BLADE
+          - MONTHlY
+          title: Unit Type
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount percentage for the line item
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price adjustment for the line item
+          title: Adjustment
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Absolute price for the line item
+          title: Price
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component model ID
+          title: Manufacturer Component Model Id
+        original_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version lineage pointer to version 1 ancestor item
+          title: Original Item Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the line item
+          title: Description
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Quote a price without committing a quantity. The offer document keeps the line and prints its units and total as 'TBD'.
+          examples:
+          - true
+          title: Is Optional
+        ler_repair_meters:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Leading edge repair length in metres
+          examples:
+          - 7
+          title: Ler Repair Meters
+      required:
+      - quantity
+      title: ServiceLineItemCreate
+      type: object
+    OfferUpdate:
+      additionalProperties: false
+      description: Schema to set commercial values on the current draft offer.
+      properties:
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 2
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 2
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+      title: OfferUpdate
+      type: object
+    OfferStatus:
+      description: Individual offer level status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      title: OfferStatus
+      type: string
+    CodeWithName:
+      additionalProperties: false
+      description: Schema for code and name.
+      properties:
+        code:
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CodeWithName
+      type: object
+    CurrencyRef:
+      additionalProperties: false
+      description: Nested currency reference.
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyRef
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectOffer:
+      additionalProperties: false
+      description: Schema for project offer response.
+      properties:
+        offer:
+          $ref: '#/components/schemas/Offer'
+          description: Project offer
+          examples:
+          - currency:
+              code: EUR
+              id: 1
+            line_items:
+            - category:
+                code: 01INS
+                name: Inspections
+              code: IIN-ONS
+              discount: 10.0
+              location:
+                id: 10
+                name: Site A
+              price: 100.5
+              quantity: 5
+              row_id: 1
+              service:
+                code: IIN-ONS
+                id: 123
+                name: Internal inspection
+              turbine_manufacturer:
+                id: 2
+                name: Vestas
+              turbine_model:
+                id: 5
+                name: V150
+      required:
+      - offer
+      title: ProjectOffer
+      type: object
+    ServiceLineItemEdit:
+      additionalProperties: false
+      description: Schema for editable fields on service line items.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          examples:
+          - 123
+          title: Service Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated service code field
+          title: Code
+        parent_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Deprecated parent row id for addon/material hierarchy.
+          title: Parent Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          examples:
+          - 10
+          title: Location Id
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity for the line item
+          examples:
+          - 2
+          title: Quantity
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated pricing unit name alias. Use `pricing_unit_id`.
+          examples:
+          - WTG
+          - BLADE
+          - MONTHlY
+          title: Unit Type
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount percentage for the line item
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price adjustment for the line item
+          title: Adjustment
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Absolute price for the line item
+          title: Price
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component model ID
+          title: Manufacturer Component Model Id
+        original_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version lineage pointer to version 1 ancestor item
+          title: Original Item Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the line item
+          title: Description
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Quote a price without committing a quantity. The offer document keeps the line and prints its units and total as 'TBD'.
+          examples:
+          - true
+          title: Is Optional
+        ler_repair_meters:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Leading edge repair length in metres
+          examples:
+          - 7
+          title: Ler Repair Meters
+      title: ServiceLineItemEdit
+      type: object
+    LineItemsUpdate:
+      additionalProperties: false
+      description: Schema for updating multiple line items.
+      properties:
+        line_items:
+          description: List of line items to update
+          items:
+            $ref: '#/components/schemas/LineItemUpdate'
+          title: Line Items
+          type: array
+      required:
+      - line_items
+      title: LineItemsUpdate
+      type: object
+    ServiceRef:
+      additionalProperties: false
+      description: Nested service reference.
+      properties:
+        id:
+          description: Service ID
+          title: Id
+          type: integer
+        code:
+          description: Service code
+          title: Code
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service description
+          title: Name
+      required:
+      - id
+      - code
+      title: ServiceRef
+      type: object
+    LineItemUpdate:
+      additionalProperties: false
+      description: 'Schema for updating a line item.
+
+
+        Bulk update is service-line-item only and row_id-based.'
+      properties:
+        row_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Line item row_id
+          title: Row Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legacy support-item identifier used for code-based updates
+          title: Code
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Location Id
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated pricing unit name alias. Use `pricing_unit_id`.
+          examples:
+          - WTG
+          - BLADE
+          - MONTHLY
+          title: Unit Type
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount percentage for the line item
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price adjustment (positive or negative) for the line item
+          title: Adjustment
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Absolute price for the line item
+          title: Price
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity for the line item
+          title: Quantity
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component model ID
+          title: Manufacturer Component Model Id
+        original_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version lineage pointer to version 1 ancestor item
+          title: Original Item Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom description for the line item
+          examples:
+          - Emergency Mobilization Fee
+          title: Description
+        parent_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Deprecated parent row id for addon/material hierarchy.
+          title: Parent Id
+      title: LineItemUpdate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PricingUnitRef:
+      additionalProperties: false
+      description: Nested pricing unit reference.
+      properties:
+        id:
+          description: Pricing unit ID
+          title: Id
+          type: integer
+        name:
+          description: Pricing unit name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PricingUnitRef
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

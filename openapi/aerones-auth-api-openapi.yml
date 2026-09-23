@@ -1,0 +1,416 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Auth API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Auth
+paths:
+  /api/auth:
+    post:
+      operationId: aeroauth_api_authenticate
+      summary: Authenticate
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Authenticate the user.
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Authenticate'
+        required: true
+  /api/clients/login:
+    post:
+      operationId: aeroauth_api_client_login
+      summary: Client Login
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientLoginResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Authenticate by checking provided password against ALL decrypted project passwords.
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientLoginRequest'
+        required: true
+  /api/logout:
+    post:
+      operationId: aeroauth_api_do_logout
+      summary: Do Logout
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Logout the user (JWT or PWT).
+      tags:
+      - Auth
+  /api/me:
+    get:
+      operationId: aeroauth_api_get_user
+      summary: Get User
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      description: Get the user details.
+      tags:
+      - Auth
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    TokenType:
+      description: Token type enum.
+      enum:
+      - Bearer
+      - JWT
+      - PWT
+      title: TokenType
+      type: string
+    User:
+      additionalProperties: false
+      description: Schema for user details.
+      properties:
+        id:
+          title: Id
+          type: integer
+        sso_uuid:
+          title: Sso Uuid
+          type: string
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        picture_url:
+          title: Picture Url
+          type: string
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        customers:
+          default: []
+          items:
+            $ref: '#/components/schemas/UserCustomer'
+          title: Customers
+          type: array
+        phone:
+          default: ''
+          title: Phone
+          type: string
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        roles:
+          items:
+            type: string
+          title: Roles
+          type: array
+        permissions:
+          items:
+            $ref: '#/components/schemas/PermissionCodename'
+          title: Permissions
+          type: array
+        impersonate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impersonate Id
+        date_joined:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Account creation timestamp (Django auth user date_joined).
+          title: Date Joined
+      required:
+      - id
+      - sso_uuid
+      - email
+      - first_name
+      - last_name
+      - picture_url
+      - user_type
+      - roles
+      - permissions
+      title: User
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PermissionCodename:
+      description: All supported permission codenames in the system.
+      enum:
+      - auth.admin
+      - auth.impersonate
+      - auth.project_manager
+      - auth.regular_user
+      - auth.query_basic_graphql
+      - auth.mutate_basic_graphql
+      - auth.sales_manager_usa
+      - auth.sales_manager_eu
+      - auth.cco
+      - auth.co_watcher
+      - permissions.hse_reviewer
+      - permissions.rams_template_manage
+      - permissions.manage_customer_custom_field_values
+      - permissions.announce_notification_event
+      - permissions.send_team_request_to_planner
+      - permissions.approve_team_request_slot
+      - permissions.approve_set_request
+      - permissions.mark_ready_set_request
+      - permissions.mark_picked_up_set_request
+      - permissions.receive_set_request_mro_notification
+      - permissions.receive_set_request_it_notification
+      - permissions.confirm_set_request_it
+      - permissions.confirm_set_request_ppe
+      - permissions.receive_set_request_ppe_notification
+      - permissions.manage_set_demob
+      - permissions.receive_set_demob_it_notification
+      - permissions.receive_set_demob_mro_notification
+      - permissions.receive_planner_handoff_notification
+      - permissions.approve_scope_change_qc
+      - permissions.approve_scope_change_sales
+      - permissions.approve_scope_change_pm
+      - auth.bto_viewer
+      - auth.bto_supervisor
+      - projects.is_bto_watcher
+      - permissions.pwt_access
+      - auth.technician_user
+      - auth.vis_qc
+      - permissions.view_all
+      - permissions.view_all_vehicle_fleet_assignments
+      - permissions.manage_all_vehicle_fleet_assignments
+      - auth.payroll_manager
+      - permissions.manage_customer_users
+      - permissions.customer_basic_access
+      - permissions.customer_manage_access_control
+      - permissions.customer_view_fleet
+      - permissions.customer_view_services
+      - permissions.customer_manage_services
+      - permissions.customer_view_anomalies
+      - permissions.customer_manage_anomalies
+      - permissions.customer_view_vis
+      - permissions.customer_manage_vis
+      - permissions.customer_view_projects
+      - permissions.customer_view_reports
+      - permissions.customer_manage_reports
+      - permissions.customer_view_analytics
+      - permissions.customer_view_scope_changes
+      - permissions.customer_manage_scope_changes
+      - permissions.customer_view_work_management
+      - permissions.customer_manage_work_management
+      - permissions.customer_manage_terms_of_service
+      - permissions.customer_view_workorders
+      - permissions.customer_manage_workorders
+      - permissions.customer_cir_submit
+      - permissions.sales_form_app
+      - permissions.sales_pipeline_app
+      - permissions.project_tasks_dashboard_app
+      - permissions.aeroplan_app
+      - permissions.price_matrix_app
+      - permissions.data_operations_app
+      - permissions.mobilisation_app
+      - permissions.execution_app
+      - permissions.my_projects_app
+      - permissions.aeromro_app
+      - permissions.cru_qc
+      - permissions.manage_logistics
+      - permissions.manage_reporting_requirements
+      - permissions.force_complete_project
+      - permissions.remove_prejob_certificates
+      - permissions.xapp_data_operations_perform_qc
+      - permissions.xapp_data_operations_operate
+      - auth.broe
+      title: PermissionCodename
+      type: string
+    Authenticate:
+      additionalProperties: false
+      description: Schema for authentication.
+      properties:
+        token:
+          description: Authentication token.
+          title: Token
+          type: string
+        token_type:
+          $ref: '#/components/schemas/TokenType'
+          description: Token type.
+        impersonate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional user id to impersonate. Only honored for JWT auth and requires the caller to hold `auth.impersonate`. Pass `null` (or omit) to clear an existing impersonation from the session.
+          title: Impersonate Id
+      required:
+      - token
+      - token_type
+      title: Authenticate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ClientLoginResponse:
+      additionalProperties: false
+      description: Response schema for client login, returning access token and project ID.
+      properties:
+        access_token:
+          description: Signed PWT access token
+          title: Access Token
+          type: string
+        project_id:
+          description: UUID of the authenticated project
+          title: Project Id
+          type: string
+      required:
+      - access_token
+      - project_id
+      title: ClientLoginResponse
+      type: object
+    ClientLoginRequest:
+      additionalProperties: false
+      description: Request schema for client login via project password.
+      properties:
+        password:
+          description: Project password
+          title: Password
+          type: string
+      required:
+      - password
+      title: ClientLoginRequest
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    UserType:
+      description: User classification based on customer relationships.
+      enum:
+      - INTERNAL
+      - CUSTOMER
+      title: UserType
+      type: string
+    UserCustomer:
+      additionalProperties: false
+      description: Customer the user has access to, with their roles at that customer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        organisation:
+          title: Organisation
+          type: string
+        role:
+          default: []
+          items:
+            type: string
+          title: Role
+          type: array
+        status:
+          default: ACTIVE
+          title: Status
+          type: string
+        invite_expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Invite Expires At
+      required:
+      - id
+      - organisation
+      title: UserCustomer
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

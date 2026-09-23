@@ -1,0 +1,1052 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.offers API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.offers
+paths:
+  /api/core/v1/projects/{project_id}/offers/current:
+    get:
+      operationId: get_project_offer_current
+      summary: Get Current Offer for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: 'Builder read route: the latest offer version for the project.
+
+
+        Returns the single draft when one exists (a draft always carries the
+
+        highest version number), otherwise the latest submitted version. When the
+
+        project has no offers at all, Draft v1 is auto-created — parity with the
+
+        legacy ``GET /projects/{id}/offer`` first-open behaviour. The generic
+
+        offers list stays read-only; only this route carries the side effect.'
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/draft:
+    post:
+      operationId: create_project_offer_draft
+      summary: Create Draft Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: 'Create a new draft offer version by copying the latest version''s items.
+
+
+        Idempotent: when a draft already exists it is returned unchanged. A new
+
+        draft gets ``version = latest + 1`` and copies line items with v1 lineage.'
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/{offer_id}/send-for-approval:
+    post:
+      operationId: send_project_offer_for_approval
+      summary: Send Offer for Approval
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: 'Send the draft offer for approval.
+
+
+        The required approver is routed from the deal value: offers of 100k and
+
+        above require CCO approval; below that, the regional sales manager by
+
+        project country (US/MX/CA -> USA, otherwise EU). Eligible approvers and
+
+        the sales owner are notified by email; notification failures never fail
+
+        the submission.'
+      tags:
+      - core.projects.offers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/ProjectOfferSendForApprovalRequest'
+        required: false
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/{offer_id}/approve:
+    post:
+      operationId: approve_project_offer
+      summary: Approve Pending Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: 'Approve the pending offer with a role-based authority check.
+
+
+        CCO can approve any offer; regional sales managers only offers routed to
+
+        their role (deals under 100k in their region). Approval cascades the core
+
+        project status to "Planning" and notifies the requestor and watchers.'
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/{offer_id}/reject:
+    post:
+      operationId: reject_project_offer
+      summary: Reject Pending Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: 'Reject the pending offer with a role-based authority check.
+
+
+        The rejection reason is stored in ``change_reason`` and included in the
+
+        status notification sent to the requestor and watchers.'
+      tags:
+      - core.projects.offers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectOfferRejectRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/history:
+    get:
+      operationId: get_project_offer_history
+      summary: Get Offer History for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectOfferHistoryResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Offer version history: every non-draft version, newest first.
+
+
+        Rows carry the requestor/reviewer emails for display. The ``discount``
+
+        field is deprecated (stored value with undefined business meaning; never
+
+        applied to totals) and is kept only for parity with the legacy history.'
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/download:
+    post:
+      operationId: download_project_offer_pdf
+      summary: Download Offer PDF
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download the commercial offer as a PDF generated by the offerv2 pipeline.
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/download-docx:
+    post:
+      operationId: download_project_offer_docx
+      summary: Download Offer DOCX
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download the commercial offer as a DOCX generated by the offerv2 pipeline.
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers:
+    get:
+      operationId: list_project_offers
+      summary: List Offers for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by status
+          title: Search
+        required: false
+        description: Search by status
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by offer status
+          title: Status
+        required: false
+        description: Filter by offer status
+      - in: query
+        name: version
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by version number
+          title: Version
+        required: false
+        description: Filter by version number
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectOfferResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_offer
+      summary: Create Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.projects.offers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectOfferCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/offers/{offer_id}:
+    get:
+      operationId: get_project_offer
+      summary: Get Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: Get a single child item.
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project_offer
+      summary: Update Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferResponse'
+      description: Update a child item.
+      tags:
+      - core.projects.offers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectOfferUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_offer
+      summary: Delete Offer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.projects.offers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectOfferSendForApprovalRequest:
+      additionalProperties: false
+      description: Body for sending a draft offer for approval.
+      properties:
+        sales_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales comment/context shown to the approver
+          title: Sales Comment
+      title: ProjectOfferSendForApprovalRequest
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    ProjectOfferResponse:
+      additionalProperties: false
+      description: Schema for ProjectOffer response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project offer ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyObject'
+          description: Currency information
+        discount:
+          description: Discount amount
+          title: Discount
+          type: number
+        total_amount:
+          description: Total amount (calculated from offer items)
+          title: Total Amount
+          type: number
+        status:
+          description: Offer status
+          title: Status
+          type: string
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+      required:
+      - updated_at
+      - id
+      - project_id
+      - currency
+      - discount
+      - total_amount
+      - status
+      title: ProjectOfferResponse
+      type: object
+    ProjectOfferUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectOffer.
+      properties:
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount amount
+          title: Discount
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer status
+          title: Status
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+      title: ProjectOfferUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectOfferRejectRequest:
+      additionalProperties: false
+      description: Body for rejecting a pending offer.
+      properties:
+        message:
+          description: Rejection reason (stored in change_reason)
+          title: Message
+          type: string
+      required:
+      - message
+      title: ProjectOfferRejectRequest
+      type: object
+    ProjectOfferHistoryResponse:
+      additionalProperties: false
+      description: Schema for an offer history row (a non-draft offer version).
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project offer ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyObject'
+          description: Currency information
+        discount:
+          deprecated: true
+          description: Deprecated — stored offer-level value with undefined business meaning; never applied to totals
+          title: Discount
+          type: number
+        total_amount:
+          description: Total amount (calculated from offer items)
+          title: Total Amount
+          type: number
+        status:
+          description: Offer status
+          title: Status
+          type: string
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+        date:
+          description: When this offer version was created
+          format: date-time
+          title: Date
+          type: string
+        requestor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Requestor user ID
+          title: Requestor Id
+        requestor_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email of the user who sent this version for approval
+          title: Requestor Email
+        reviewer_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email of the user who reviewed (approved/rejected) this version
+          title: Reviewer Email
+      required:
+      - updated_at
+      - id
+      - project_id
+      - currency
+      - discount
+      - total_amount
+      - status
+      - date
+      title: ProjectOfferHistoryResponse
+      type: object
+    ProjectOfferCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectOffer.
+      properties:
+        currency_id:
+          description: Currency ID
+          title: Currency Id
+          type: integer
+        discount:
+          default: 0
+          description: Discount amount
+          title: Discount
+          type: number
+        status:
+          default: Draft
+          description: Offer status
+          title: Status
+          type: string
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+      required:
+      - currency_id
+      title: ProjectOfferCreate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

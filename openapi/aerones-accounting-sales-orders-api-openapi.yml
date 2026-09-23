@@ -1,0 +1,441 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.sales Orders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.sales-orders
+paths:
+  /api/accounting/v2/sales-orders:
+    get:
+      operationId: list_sales_orders
+      summary: List Sales Orders
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search (case-insensitive)
+          title: Search
+        required: false
+        description: Search (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: customer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by customer ID
+          title: Customer Id
+        required: false
+        description: Filter by customer ID
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        required: false
+        description: Filter by status
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SalesOrderResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - accounting.sales-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_sales_order
+      summary: Create Sales Order
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesOrderResponse'
+      description: Create a new item.
+      tags:
+      - accounting.sales-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesOrderCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/accounting/v2/sales-orders/{id}:
+    get:
+      operationId: get_sales_order
+      summary: Get Sales Order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesOrderResponse'
+      description: Get a single item by ID.
+      tags:
+      - accounting.sales-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_sales_order
+      summary: Update Sales Order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesOrderResponse'
+      description: Update an item.
+      tags:
+      - accounting.sales-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesOrderUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_sales_order
+      summary: Delete Sales Order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - accounting.sales-orders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SalesOrderUpdate:
+      additionalProperties: false
+      description: Schema for updating a SalesOrder.
+      properties:
+        netsuite_sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite sales order ID
+          title: Netsuite Sales Order Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order status
+          title: Status
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: OpsHub customer ID
+          title: Customer Id
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        sales_order_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order date (YYYY-MM-DD)
+          title: Sales Order Date
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+      title: SalesOrderUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    SalesOrderCreate:
+      additionalProperties: false
+      description: Schema for creating a SalesOrder.
+      properties:
+        netsuite_sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite sales order ID
+          title: Netsuite Sales Order Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order status
+          title: Status
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: OpsHub customer ID
+          title: Customer Id
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Customer name
+          title: Customer Name
+        sales_order_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order date (YYYY-MM-DD)
+          title: Sales Order Date
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+      title: SalesOrderCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    SalesOrderResponse:
+      additionalProperties: false
+      description: Schema for SalesOrder response.
+      properties:
+        id:
+          description: Sales order ID
+          title: Id
+          type: integer
+        netsuite_sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite sales order ID
+          title: Netsuite Sales Order Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order status
+          title: Status
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: OpsHub customer ID
+          title: Customer Id
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Customer name
+          title: Customer Name
+        sales_order_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales order date
+          title: Sales Order Date
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - updated_at
+      title: SalesOrderResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

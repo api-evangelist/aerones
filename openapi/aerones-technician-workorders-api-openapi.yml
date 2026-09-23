@@ -1,0 +1,1234 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Technician.workorders API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: technician.workorders
+paths:
+  /api/technician/workorders:
+    get:
+      operationId: technician_api_workorders_list_workorders
+      summary: List Workorders
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by workorder name
+          title: Search
+        required: false
+        description: Search by workorder name
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Sort field, prefix ''-'' for desc. Allowed: name, status, planned_start_date, planned_end_date'
+          title: Sort
+        required: false
+        description: 'Sort field, prefix ''-'' for desc. Allowed: name, status, planned_start_date, planned_end_date'
+      - in: query
+        name: service_order_line_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by SOL ID
+          title: Service Order Line Id
+        required: false
+        description: Filter by SOL ID
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: turbine_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine ID
+          title: Turbine Id
+        required: false
+        description: Filter by turbine ID
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status (exact)
+          title: Status
+        required: false
+        description: Filter by status (exact)
+      - in: query
+        name: planned_start_date__gte
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter planned start date on or after this date
+          title: Planned Start Date  Gte
+        required: false
+        description: Filter planned start date on or after this date
+      - in: query
+        name: planned_start_date__lte
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter planned start date on or before this date
+          title: Planned Start Date  Lte
+        required: false
+        description: Filter planned start date on or before this date
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkorderResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List workorders for OpsHub admin UI with optional filters.
+      tags:
+      - technician.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/workorders/filters:
+    get:
+      operationId: technician_api_workorders_get_workorder_filters
+      summary: Get Workorder Filters
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkorderFiltersResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return distinct filter options for OpsHub admin UI workorder lists.
+      tags:
+      - technician.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/workorders/sol-activities:
+    get:
+      operationId: technician_api_workorders_list_sol_activities
+      summary: List Sol Activities
+      parameters:
+      - in: query
+        name: sol_id
+        schema:
+          description: Service Order Line ID (required)
+          title: Sol Id
+          type: integer
+        required: true
+        description: Service Order Line ID (required)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolActivitiesPageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'List all activities for a Service Order Line, grouped by the frontend.
+
+
+        Technicians (non-admin) see only FIELD-type workorders here so the mobile
+
+        activity feed is scoped to physical field work. PMs / Admins see every
+
+        type, since they need to triage office and data-upload workorders too.'
+      tags:
+      - technician.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/workorders/{workorder_id}:
+    get:
+      operationId: technician_api_workorders_get_workorder_detail
+      summary: Get Workorder Detail
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      - in: query
+        name: include_all_resources
+        schema:
+          default: false
+          title: Include All Resources
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkorderDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Get a single workorder with detail info.
+
+
+        By default, available assignment options are scoped to this workorder.
+
+        Set include_all_resources=true to request company-wide options.'
+      tags:
+      - technician.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/workorders/{workorder_id}/available-activities:
+    get:
+      operationId: technician_api_workorders_get_available_activities
+      summary: Get Available Activities
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AvailableActivityResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get available service item activities for a workorder.
+      tags:
+      - technician.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/workorders/{workorder_id}/resource-presets:
+    get:
+      operationId: technician_api_workorders_get_resource_presets
+      summary: Get available resource presets (ProjectResourceSets) for a workorder
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResourcePresetResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return ProjectResourceSet entries for the workorder's project.
+      tags:
+      - technician.workorders
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    SolActivityResponse:
+      additionalProperties: false
+      description: Response schema for a single activity in the SOL activities view.
+      properties:
+        id:
+          title: Id
+          type: integer
+        row_key:
+          title: Row Key
+          type: string
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        team_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Team Robot Set Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        workorder_id:
+          title: Workorder Id
+          type: integer
+        workorder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workorder Name
+        workorder_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workorder Status
+        workorder_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workorder Type
+        component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Serial
+        component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Position
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Type Name
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+        resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Resources
+        activity_resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/WorkorderActivityResourceLink'
+          title: Activity Resources
+          type: array
+        assigned_resources:
+          anyOf:
+          - $ref: '#/components/schemas/SolActivityAssignedResources'
+          - type: 'null'
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        overtime_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Overtime Reason
+        is_delay:
+          default: false
+          title: Is Delay
+          type: boolean
+        delay_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delay Type Name
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+      required:
+      - id
+      - row_key
+      - workorder_id
+      title: SolActivityResponse
+      type: object
+    ResourcePresetMember:
+      additionalProperties: false
+      description: A single member of a resource preset (ProjectResourceSet).
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_name:
+          title: Resource Name
+          type: string
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+      required:
+      - resource_id
+      - resource_name
+      title: ResourcePresetMember
+      type: object
+    AvailableActivityResponse:
+      additionalProperties: false
+      description: Response schema for an available service item activity.
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+      required:
+      - id
+      - description
+      title: AvailableActivityResponse
+      type: object
+    WorkorderDetailResponse:
+      additionalProperties: false
+      description: Response schema for a single workorder detail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Serial
+        component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Position
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Name
+        resource_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Set Name
+        resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/WorkorderResourceInfo'
+          title: Resources
+          type: array
+        available_robot_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/WorkorderRobotSetInfo'
+          title: Available Robot Sets
+          type: array
+        available_resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/AvailableResourceInfo'
+          title: Available Resources
+          type: array
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+        is_assigned:
+          default: false
+          title: Is Assigned
+          type: boolean
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        scope_change:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChange'
+          - type: 'null'
+      required:
+      - id
+      title: WorkorderDetailResponse
+      type: object
+    WorkorderRobotSetInfo:
+      additionalProperties: false
+      description: Available robot set option for workorder activity assignments.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: WorkorderRobotSetInfo
+      type: object
+    FilterSolOption:
+      additionalProperties: false
+      description: SOL option for workorder filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+      required:
+      - id
+      title: FilterSolOption
+      type: object
+    WorkorderActivityResourceLink:
+      additionalProperties: false
+      description: 'Resource assignment row on a workorder activity.
+
+
+        Mirrors the dict shape returned by
+
+        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
+
+        per row in the ``dispatch.workorder_activity_resources`` junction table).'
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      title: WorkorderActivityResourceLink
+      type: object
+    ResourcePresetResponse:
+      additionalProperties: false
+      description: A project resource set available as a team preset.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        members:
+          items:
+            $ref: '#/components/schemas/ResourcePresetMember'
+          title: Members
+          type: array
+      required:
+      - id
+      - name
+      - members
+      title: ResourcePresetResponse
+      type: object
+    SolScopeChange:
+      additionalProperties: false
+      description: 'Scope-change context for SOL/workorder header banners.
+
+
+        ``turbine_component`` is set for per-blade changes (the source line
+
+        stays active and only that blade''s work moved to the new SOL);
+
+        ``linked_sol`` may be null when the counterpart line is gone.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        role:
+          title: Role
+          type: string
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChangeComponent'
+          - type: 'null'
+        linked_sol:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChangeLinkedSol'
+          - type: 'null'
+      required:
+      - id
+      - role
+      title: SolScopeChange
+      type: object
+    WorkorderTurbineInfo:
+      additionalProperties: false
+      description: Nested turbine info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: WorkorderTurbineInfo
+      type: object
+    WorkorderResponse:
+      additionalProperties: false
+      description: Response schema for a single workorder.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderTurbineInfo'
+          - type: 'null'
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderProjectInfo'
+          - type: 'null'
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_item_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Item Description
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderComponentTypeInfo'
+          - type: 'null'
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderTurbineComponentInfo'
+          - type: 'null'
+        activities_total:
+          default: 0
+          title: Activities Total
+          type: integer
+        activities_completed:
+          default: 0
+          title: Activities Completed
+          type: integer
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
+      required:
+      - id
+      title: WorkorderResponse
+      type: object
+    WorkorderResourceInfo:
+      additionalProperties: false
+      description: Nested resource info for workorder detail response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+      required:
+      - id
+      title: WorkorderResourceInfo
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    SolInfo:
+      additionalProperties: false
+      description: SOL context info for the SOL activities page header.
+      properties:
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        scope_change:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChange'
+          - type: 'null'
+        scope_changes:
+          default: []
+          items:
+            $ref: '#/components/schemas/SolScopeChange'
+          title: Scope Changes
+          type: array
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        project_manager_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Manager Name
+        project_manager_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Manager Email
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        daily_report_robots:
+          default: []
+          items:
+            type: string
+          title: Daily Report Robots
+          type: array
+        daily_report_team_leads:
+          default: []
+          items:
+            type: string
+          title: Daily Report Team Leads
+          type: array
+        daily_report_technicians:
+          default: []
+          items:
+            type: string
+          title: Daily Report Technicians
+          type: array
+        daily_report_supervisors:
+          default: []
+          items:
+            type: string
+          title: Daily Report Supervisors
+          type: array
+        receive_daily_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Receive Daily Reports
+        draft_last_submitted_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Draft Last Submitted At
+        draft_last_submitted_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Draft Last Submitted By
+        draft_submissions_by_date:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                anyOf:
+                - type: string
+                - type: 'null'
+              type: object
+            type: object
+          - type: 'null'
+          title: Draft Submissions By Date
+      title: SolInfo
+      type: object
+    WorkorderTurbineComponentInfo:
+      additionalProperties: false
+      description: Nested turbine component info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: WorkorderTurbineComponentInfo
+      type: object
+    SolActivitiesPageResponse:
+      additionalProperties: false
+      description: Response schema for SOL activities page endpoint.
+      properties:
+        activities:
+          items:
+            $ref: '#/components/schemas/SolActivityResponse'
+          title: Activities
+          type: array
+        assigned_workorder_ids:
+          items:
+            type: integer
+          title: Assigned Workorder Ids
+          type: array
+        sol_info:
+          anyOf:
+          - $ref: '#/components/schemas/SolInfo'
+          - type: 'null'
+      required:
+      - activities
+      - assigned_workorder_ids
+      title: SolActivitiesPageResponse
+      type: object
+    WorkorderComponentTypeInfo:
+      additionalProperties: false
+      description: Nested component type info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: WorkorderComponentTypeInfo
+      type: object
+    WorkorderFiltersResponse:
+      additionalProperties: false
+      description: Response schema for workorder filters endpoint.
+      properties:
+        projects:
+          items:
+            $ref: '#/components/schemas/FilterProjectOption'
+          title: Projects
+          type: array
+        statuses:
+          items:
+            type: string
+          title: Statuses
+          type: array
+        service_order_lines:
+          items:
+            $ref: '#/components/schemas/FilterSolOption'
+          title: Service Order Lines
+          type: array
+        turbines:
+          items:
+            $ref: '#/components/schemas/FilterTurbineOption'
+          title: Turbines
+          type: array
+      required:
+      - projects
+      - statuses
+      - service_order_lines
+      - turbines
+      title: WorkorderFiltersResponse
+      type: object
+    WorkorderProjectInfo:
+      additionalProperties: false
+      description: Nested project info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: WorkorderProjectInfo
+      type: object
+    SolScopeChangeComponent:
+      additionalProperties: false
+      description: The blade a per-blade scope change applies to.
+      properties:
+        id:
+          title: Id
+          type: integer
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: SolScopeChangeComponent
+      type: object
+    FilterProjectOption:
+      additionalProperties: false
+      description: Project option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: FilterProjectOption
+      type: object
+    FilterTurbineOption:
+      additionalProperties: false
+      description: Turbine option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: FilterTurbineOption
+      type: object
+    SolActivityAssignedResources:
+      additionalProperties: false
+      description: Grouped assignment details for an activity.
+      properties:
+        robot_sets:
+          default: []
+          items:
+            type: string
+          title: Robot Sets
+          type: array
+        team_leads:
+          default: []
+          items:
+            type: string
+          title: Team Leads
+          type: array
+        team_members:
+          default: []
+          items:
+            type: string
+          title: Team Members
+          type: array
+        supervisors:
+          default: []
+          items:
+            type: string
+          title: Supervisors
+          type: array
+      title: SolActivityAssignedResources
+      type: object
+    SolScopeChangeLinkedSol:
+      additionalProperties: false
+      description: The counterpart SOL on the other side of a scope change.
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      title: SolScopeChangeLinkedSol
+      type: object
+    AvailableResourceInfo:
+      additionalProperties: false
+      description: Available resource option for activity assignment edit.
+      properties:
+        id:
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+      required:
+      - id
+      title: AvailableResourceInfo
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

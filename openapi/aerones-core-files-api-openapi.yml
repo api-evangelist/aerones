@@ -1,0 +1,452 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.files API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.files
+paths:
+  /api/core/v1/files/{entity_type}/{entity_id}/:
+    get:
+      operationId: core_endpoints_files_get_entity_files
+      summary: Fetch all files associated with a supported entity
+      parameters:
+      - in: path
+        name: entity_type
+        schema:
+          title: Entity Type
+          type: string
+        required: true
+      - in: path
+        name: entity_id
+        schema:
+          title: Entity Id
+          type: integer
+        required: true
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort field
+          title: Sort
+        required: false
+        description: Sort field
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by file type
+          title: Type
+        required: false
+        description: Filter by file type
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResponse'
+                title: Response
+                type: array
+      description: Fetch all files associated with a supported entity.
+      tags:
+      - core.files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_files_post_entity_file
+      summary: Upload one or more files for a supported entity
+      parameters:
+      - in: path
+        name: entity_type
+        schema:
+          title: Entity Type
+          type: string
+        required: true
+      - in: path
+        name: entity_id
+        schema:
+          title: Entity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResponse'
+                title: Response
+                type: array
+      description: Upload one or more files for a supported entity.
+      tags:
+      - core.files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  items:
+                    format: binary
+                    type: string
+                  title: File
+                  type: array
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/files/{entity_type}/{entity_id}/{file_id}/:
+    get:
+      operationId: core_endpoints_files_get_entity_file
+      summary: Fetch a specific file associated with a supported entity
+      parameters:
+      - in: path
+        name: entity_type
+        schema:
+          title: Entity Type
+          type: string
+        required: true
+      - in: path
+        name: entity_id
+        schema:
+          title: Entity Id
+          type: integer
+        required: true
+      - in: path
+        name: file_id
+        schema:
+          title: File Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+      description: Fetch a specific file associated with a supported entity.
+      tags:
+      - core.files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_files_delete_entity_file
+      summary: Delete a file associated with a supported entity
+      parameters:
+      - in: path
+        name: entity_type
+        schema:
+          title: Entity Type
+          type: string
+        required: true
+      - in: path
+        name: entity_id
+        schema:
+          title: Entity Id
+          type: integer
+        required: true
+      - in: path
+        name: file_id
+        schema:
+          title: File Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: Delete a file associated with a supported entity.
+      tags:
+      - core.files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/files/{entity_type}/{entity_id}/{file_id}/download/:
+    get:
+      operationId: core_endpoints_files_download_entity_file
+      summary: Resolve and download an entity file
+      parameters:
+      - in: path
+        name: entity_type
+        schema:
+          title: Entity Type
+          type: string
+        required: true
+      - in: path
+        name: entity_id
+        schema:
+          title: Entity Id
+          type: integer
+        required: true
+      - in: path
+        name: file_id
+        schema:
+          title: File Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Resolve and serve an entity file. Use ?variant=preview for thumbnail if available.
+      tags:
+      - core.files
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/files:
+    post:
+      operationId: core_endpoints_files_post_bare_file
+      summary: Upload one or more files without binding them to an entity
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResponse'
+                title: Response
+                type: array
+      description: Bare upload — returns `core.File` records with integer ids that callers reference from subsequent entity-create payloads (e.g. `evidence_file_ids` on ProjectScopeChangeRequest create). The creating endpoint is responsible for writing the corresponding `FileEntityLink` rows in its own transaction.
+      tags:
+      - core.files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  items:
+                    format: binary
+                    type: string
+                  title: File
+                  type: array
+              required:
+              - file
+              title: FileParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/files/b64/:
+    post:
+      operationId: core_endpoints_files_post_bare_body_file
+      summary: Upload base64-encoded files without binding them to an entity
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResponse'
+                title: Response
+                type: array
+      description: 'Base64 counterpart of the bare upload endpoint.
+
+
+        Intentionally kept on the legacy flat-array body — bare uploads carry no
+
+        entity link and therefore no ``additional_information`` metadata.'
+      tags:
+      - core.files
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/BodyFile'
+              title: Files
+              type: array
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/files/{entity_type}/{entity_id}/b64/:
+    post:
+      operationId: core_endpoints_files_post_entity_body_file
+      summary: Upload base64-encoded files for a supported entity
+      parameters:
+      - in: path
+        name: entity_type
+        schema:
+          title: Entity Type
+          type: string
+        required: true
+      - in: path
+        name: entity_id
+        schema:
+          title: Entity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResponse'
+                title: Response
+                type: array
+      description: 'Accepts a JSON object `{"files": [...], "additional_information": {...}}` where `additional_information` is optional JSON metadata stored on each created file link. A legacy bare array `[...]` is still accepted for backward compatibility (no metadata).'
+      tags:
+      - core.files
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/BodyFileWrapper'
+              - items:
+                  $ref: '#/components/schemas/BodyFile'
+                type: array
+              title: Payload
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    BodyFileWrapper:
+      description: 'Object form of a base64 upload request body.
+
+
+        Wraps the file list together with optional batch-level
+
+        ``additional_information`` metadata that is persisted on every
+
+        ``FileEntityLink`` created for the batch (mirroring the multipart
+
+        ``additional_information`` form field).'
+      properties:
+        files:
+          items:
+            $ref: '#/components/schemas/BodyFile'
+          title: Files
+          type: array
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Additional Information
+      required:
+      - files
+      title: BodyFileWrapper
+      type: object
+    BodyFile:
+      properties:
+        b64data:
+          title: B64Data
+          type: string
+        name:
+          title: Name
+          type: string
+        content_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Type
+      required:
+      - b64data
+      - name
+      title: BodyFile
+      type: object
+    FileResponse:
+      additionalProperties: false
+      description: Schema for File response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: File ID
+          title: Id
+          type: integer
+        name:
+          description: File name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: File type
+          title: Type
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Extra metadata from the entity link
+          title: Additional Information
+      required:
+      - updated_at
+      - id
+      - name
+      title: FileResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,101 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Planning.statuses API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: planning.statuses
+paths:
+  /api/planning/v1/statuses:
+    get:
+      operationId: planning_endpoints_statuses_get_statuses
+      summary: Get planning status catalogue
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningStatusesResponse'
+      description: 'Return the authoritative planning status catalogue.
+
+
+        Campaign, Project, ServiceOrder and WorkOrder currently share the single
+
+        unified ``PlanningStatus`` enum, so every per-entity list is identical.'
+      tags:
+      - planning.statuses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PlanningStatusOption:
+      additionalProperties: false
+      properties:
+        value:
+          title: Value
+          type: string
+        label:
+          title: Label
+          type: string
+        color:
+          title: Color
+          type: string
+      required:
+      - value
+      - label
+      - color
+      title: PlanningStatusOption
+      type: object
+    PlanningStatusesResponse:
+      additionalProperties: false
+      description: 'Authoritative planning status catalogue, one list per entity.
+
+
+        Campaign, Project, ServiceOrder and WorkOrder all share the single unified
+
+        ``PlanningStatus`` enum today, so the four lists are identical. The per-entity
+
+        shape is kept so the contract can diverge later without a breaking change.'
+      properties:
+        campaign:
+          items:
+            $ref: '#/components/schemas/PlanningStatusOption'
+          title: Campaign
+          type: array
+        project:
+          items:
+            $ref: '#/components/schemas/PlanningStatusOption'
+          title: Project
+          type: array
+        service_order:
+          items:
+            $ref: '#/components/schemas/PlanningStatusOption'
+          title: Service Order
+          type: array
+        work_order:
+          items:
+            $ref: '#/components/schemas/PlanningStatusOption'
+          title: Work Order
+          type: array
+      required:
+      - campaign
+      - project
+      - service_order
+      - work_order
+      title: PlanningStatusesResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

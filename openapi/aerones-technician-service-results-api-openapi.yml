@@ -1,0 +1,1416 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Technician.service Results API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: technician.service_results
+paths:
+  /api/technician/dashboard/summary:
+    get:
+      operationId: technician_api_service_results_get_dashboard_summary
+      summary: Get Dashboard Summary
+      parameters:
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter results created on/after this date
+          title: Start Date
+        required: false
+        description: Filter results created on/after this date
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter results created on/before this date
+          title: End Date
+        required: false
+        description: Filter results created on/before this date
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service code
+          title: Service Code
+        required: false
+        description: Filter by service code
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return operations dashboard KPI summary for service results.
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/dashboard/queue:
+    get:
+      operationId: technician_api_service_results_get_dashboard_queue
+      summary: Get Dashboard Queue
+      parameters:
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter results created on/after this date
+          title: Start Date
+        required: false
+        description: Filter results created on/after this date
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter results created on/before this date
+          title: End Date
+        required: false
+        description: Filter results created on/before this date
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: service_code
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by service code
+          title: Service Code
+        required: false
+        description: Filter by service code
+      - in: query
+        name: validation_reason
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by validation reason: missing_required_fields, missing_standard, missing_threshold_match, invalid_value, condition_nok, multiple_readings'
+          title: Validation Reason
+        required: false
+        description: 'Filter by validation reason: missing_required_fields, missing_standard, missing_threshold_match, invalid_value, condition_nok, multiple_readings'
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by created_at or service_code. Prefix with '-' for descending.
+          title: Sort
+        required: false
+        description: Sort by created_at or service_code. Prefix with '-' for descending.
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DashboardQueueItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return operator queue with pending service result rows.
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/{sol_id}/service-results:
+    get:
+      operationId: technician_api_service_results_list_service_results_for_sol
+      summary: List Service Results For Sol
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter results created on/after this date
+          title: Start Date
+        required: false
+        description: Filter results created on/after this date
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter results created on/before this date
+          title: End Date
+        required: false
+        description: Filter results created on/before this date
+      - in: query
+        name: template_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by template ID
+          title: Template Id
+        required: false
+        description: Filter by template ID
+      - in: query
+        name: standard_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by standard ID
+          title: Standard Id
+        required: false
+        description: Filter by standard ID
+      - in: query
+        name: workorder_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by workorder ID
+          title: Workorder Id
+        required: false
+        description: Filter by workorder ID
+      - in: query
+        name: turbine_component_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by turbine component ID
+          title: Turbine Component Id
+        required: false
+        description: Filter by turbine component ID
+      - in: query
+        name: side
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by data.side (for example: SUCTION_SIDE, PRESSURE_SIDE)'
+          title: Side
+        required: false
+        description: 'Filter by data.side (for example: SUCTION_SIDE, PRESSURE_SIDE)'
+      - in: query
+        name: condition
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by data.condition (for example: OK, NOK)'
+          title: Condition
+        required: false
+        description: 'Filter by data.condition (for example: OK, NOK)'
+      - in: query
+        name: result_status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by data.status (for example: CLOGGED, CLEANED)'
+          title: Result Status
+        required: false
+        description: 'Filter by data.status (for example: CLOGGED, CLEANED)'
+      - in: query
+        name: comment
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by data.comment (case-insensitive contains)
+          title: Comment
+        required: false
+        description: Filter by data.comment (case-insensitive contains)
+      - in: query
+        name: open
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by data.open boolean value
+          title: Open
+        required: false
+        description: Filter by data.open boolean value
+      - in: query
+        name: no_reading
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by data.no_reading boolean value
+          title: No Reading
+        required: false
+        description: Filter by data.no_reading boolean value
+      - in: query
+        name: test_failed
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by data.test_failed boolean value
+          title: Test Failed
+        required: false
+        description: Filter by data.test_failed boolean value
+      - in: query
+        name: oxidation_removed
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by data.is_oxidation_removal boolean value
+          title: Oxidation Removed
+        required: false
+        description: Filter by data.is_oxidation_removal boolean value
+      - in: query
+        name: validation_state
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by validation state: AUTO_VERIFIED, PENDING_OPERATOR'
+          title: Validation State
+        required: false
+        description: 'Filter by validation state: AUTO_VERIFIED, PENDING_OPERATOR'
+      - in: query
+        name: validation_reason
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by validation reason: missing_required_fields, missing_standard, missing_threshold_match, invalid_value, condition_nok, multiple_readings'
+          title: Validation Reason
+        required: false
+        description: 'Filter by validation reason: missing_required_fields, missing_standard, missing_threshold_match, invalid_value, condition_nok, multiple_readings'
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by result id, template code, threshold name, or standard
+          title: Search
+        required: false
+        description: Search by result id, template code, threshold name, or standard
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by created_at, updated_at, id, template_code, standard_name, workorder_id, turbine_component_id, result_threshold_id, or reading. Prefix with '-' for descending.
+          title: Sort
+        required: false
+        description: Sort by created_at, updated_at, id, template_code, standard_name, workorder_id, turbine_component_id, result_threshold_id, or reading. Prefix with '-' for descending.
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceResultRecord'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List scoped service results for one service order line.
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: technician_api_service_results_create_service_result
+      summary: Create Service Result
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResultMutationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Create a service result row and classify it for operator workflow.
+      tags:
+      - technician.service_results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceResultCreateInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/{sol_id}/result-capture-context:
+    get:
+      operationId: technician_api_service_results_get_result_capture_context
+      summary: Get Result Capture Context
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultCaptureContextResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Return context payload for dynamic technician service result form.
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/{sol_id}/finalize:
+    post:
+      operationId: technician_api_service_results_finalize_service_order_line
+      summary: Finalize Service Order Line
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalizeServiceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Finalize a service order line by transitioning its status to COMPLETED.
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/{sol_id}/unfinalize:
+    post:
+      operationId: technician_api_service_results_unfinalize_service_order_line
+      summary: Unfinalize Service Order Line
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalizeServiceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Revert a finalized service order line back to FIELD_COMPLETED.
+
+
+        Uses SELECT FOR UPDATE inside a transaction to prevent race conditions
+
+        where two concurrent requests could both pass the status check.'
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-results/{result_id}:
+    get:
+      operationId: technician_api_service_results_get_service_result
+      summary: Get Service Result
+      parameters:
+      - in: path
+        name: result_id
+        schema:
+          title: Result Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResultRecord'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get a single scoped service result with validation metadata.
+      tags:
+      - technician.service_results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: technician_api_service_results_patch_service_result
+      summary: Patch Service Result
+      parameters:
+      - in: path
+        name: result_id
+        schema:
+          title: Result Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResultMutationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Patch a scoped service result and re-run threshold classification.
+      tags:
+      - technician.service_results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceResultUpdateInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/technician/service-order-lines/{sol_id}/cleaning-images:
+    get:
+      operationId: technician_api_service_results_get_sol_cleaning_images
+      summary: Get Sol Cleaning Images
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolCleaningImagesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'DEPRECATED — use ``GET /core/v1/files/service_order_line/{sol_id}/``.
+
+
+        Returns SOL-level cleaning image storage IDs grouped by category from the
+
+        legacy ``cleaning_images`` JSON column. Kept as a one-release fallback.'
+      tags:
+      - technician.service_results
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: technician_api_service_results_patch_sol_cleaning_images
+      summary: Patch Sol Cleaning Images
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolCleaningImagesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'DEPRECATED — use ``POST /core/v1/files/service_order_line/{sol_id}/``.
+
+
+        Merge cleaning image references into the SOL''s legacy ``cleaning_images``
+
+        JSON column. New uploads should go through the core file endpoint so each
+
+        image becomes a queryable ``FileEntityLink`` row.'
+      tags:
+      - technician.service_results
+      deprecated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolCleaningImagesInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceResultStandardInfo:
+      additionalProperties: false
+      description: Nested standard metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Key
+      required:
+      - id
+      title: ServiceResultStandardInfo
+      type: object
+    ServiceResultTurbineComponentInfo:
+      additionalProperties: false
+      description: Nested turbine component metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: ServiceResultTurbineComponentInfo
+      type: object
+    SolCleaningImagesResponse:
+      additionalProperties: false
+      description: SOL-level cleaning image references keyed by category.
+      properties:
+        cleaning_images:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          title: Cleaning Images
+          type: object
+      required:
+      - cleaning_images
+      title: SolCleaningImagesResponse
+      type: object
+    ResultCaptureContextResponse:
+      additionalProperties: false
+      description: Context payload for technician result capture drawer/form.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        turbine_component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Component Serial
+        blade_components:
+          default: []
+          items:
+            $ref: '#/components/schemas/BladeComponent'
+          title: Blade Components
+          type: array
+        templates:
+          items:
+            $ref: '#/components/schemas/ResultCaptureTemplate'
+          title: Templates
+          type: array
+        selected_template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Selected Template Id
+        latest_result:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceResultRecord'
+          - type: 'null'
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Name
+        completed_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Completed By
+        completed_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed Date
+        finalized_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Finalized By
+        finalized_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Finalized By Name
+        service_finalized_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Finalized Date
+      required:
+      - service_order_line_id
+      - templates
+      title: ResultCaptureContextResponse
+      type: object
+    ResultCaptureTemplate:
+      additionalProperties: false
+      description: Template definition for result capture context.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        fields:
+          items:
+            $ref: '#/components/schemas/ResultCaptureTemplateField'
+          title: Fields
+          type: array
+        standards:
+          items:
+            $ref: '#/components/schemas/ResultCaptureStandard'
+          title: Standards
+          type: array
+        thresholds:
+          items:
+            $ref: '#/components/schemas/ResultCaptureThreshold'
+          title: Thresholds
+          type: array
+      required:
+      - id
+      - code
+      - fields
+      - standards
+      - thresholds
+      title: ResultCaptureTemplate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceResultRecord:
+      additionalProperties: false
+      description: Normalized service result record for dashboard and detail endpoints.
+      properties:
+        id:
+          title: Id
+          type: integer
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        template_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Template Code
+        standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Standard Id
+        standard_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Standard Name
+        result_threshold_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Result Threshold Id
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        data:
+          title: Data
+          type: object
+        template:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceResultTemplateInfo'
+          - type: 'null'
+        standard:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceResultStandardInfo'
+          - type: 'null'
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceResultTurbineComponentInfo'
+          - type: 'null'
+        workorder:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceResultWorkorderInfo'
+          - type: 'null'
+        validation_state:
+          title: Validation State
+          type: string
+        validation_reasons:
+          items:
+            type: string
+          title: Validation Reasons
+          type: array
+      required:
+      - id
+      - turbine_id
+      - created_at
+      - updated_at
+      - data
+      - validation_state
+      - validation_reasons
+      title: ServiceResultRecord
+      type: object
+    ResultCaptureThreshold:
+      additionalProperties: false
+      description: Threshold definition exposed to frontend for transparency.
+      properties:
+        id:
+          title: Id
+          type: integer
+        standard_id:
+          title: Standard Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        value_from:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value From
+        value_to:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value To
+      required:
+      - id
+      - standard_id
+      - name
+      title: ResultCaptureThreshold
+      type: object
+    SolCleaningImagesInput:
+      additionalProperties: false
+      description: Patch payload for SOL cleaning images.
+      properties:
+        cleaning_images:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          title: Cleaning Images
+          type: object
+      required:
+      - cleaning_images
+      title: SolCleaningImagesInput
+      type: object
+    ServiceResultMutationResponse:
+      additionalProperties: false
+      description: Mutation response for create/update service result endpoints.
+      properties:
+        result:
+          $ref: '#/components/schemas/ServiceResultRecord'
+      required:
+      - result
+      title: ServiceResultMutationResponse
+      type: object
+    ServiceResultTemplateInfo:
+      additionalProperties: false
+      description: Nested template metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: ServiceResultTemplateInfo
+      type: object
+    FinalizeServiceResponse:
+      additionalProperties: false
+      description: Response after finalizing a service order line.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        completed_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Completed By
+        completed_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed Date
+      required:
+      - service_order_line_id
+      - status
+      title: FinalizeServiceResponse
+      type: object
+    ServiceResultUpdateInput:
+      additionalProperties: false
+      description: Patch payload for service result records.
+      properties:
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Standard Id
+        data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Data
+      title: ServiceResultUpdateInput
+      type: object
+    DashboardSummaryResponse:
+      additionalProperties: false
+      description: Operations dashboard summary KPI payload.
+      properties:
+        total_results:
+          title: Total Results
+          type: integer
+        auto_verified:
+          title: Auto Verified
+          type: integer
+        pending_operator:
+          title: Pending Operator
+          type: integer
+        pending_missing_standard:
+          title: Pending Missing Standard
+          type: integer
+        pending_missing_threshold_match:
+          title: Pending Missing Threshold Match
+          type: integer
+        pending_missing_required_fields:
+          title: Pending Missing Required Fields
+          type: integer
+        pending_invalid_value:
+          title: Pending Invalid Value
+          type: integer
+      required:
+      - total_results
+      - auto_verified
+      - pending_operator
+      - pending_missing_standard
+      - pending_missing_threshold_match
+      - pending_missing_required_fields
+      - pending_invalid_value
+      title: DashboardSummaryResponse
+      type: object
+    DashboardQueueItem:
+      additionalProperties: false
+      description: One queue row for operator review.
+      properties:
+        result:
+          $ref: '#/components/schemas/ServiceResultRecord'
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        turbine_component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Component Serial
+        workorder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workorder Name
+      required:
+      - result
+      title: DashboardQueueItem
+      type: object
+    ServiceResultWorkorderInfo:
+      additionalProperties: false
+      description: Nested workorder metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_derived:
+          default: false
+          title: Is Derived
+          type: boolean
+      required:
+      - id
+      title: ServiceResultWorkorderInfo
+      type: object
+    BladeComponent:
+      additionalProperties: false
+      description: Turbine blade component reference for BCL upload tabs.
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+      required:
+      - id
+      title: BladeComponent
+      type: object
+    ServiceResultCreateInput:
+      additionalProperties: false
+      description: Create payload for service results from technician SOL flow.
+      properties:
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Standard Id
+        data:
+          title: Data
+          type: object
+      required:
+      - data
+      title: ServiceResultCreateInput
+      type: object
+    ResultCaptureStandard:
+      additionalProperties: false
+      description: Standard option for result capture.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        key:
+          title: Key
+          type: string
+        type:
+          title: Type
+          type: string
+      required:
+      - id
+      - name
+      - key
+      - type
+      title: ResultCaptureStandard
+      type: object
+    ResultCaptureTemplateField:
+      additionalProperties: false
+      description: Field configuration for dynamic result entry form.
+      properties:
+        id:
+          title: Id
+          type: integer
+        key:
+          title: Key
+          type: string
+        label:
+          title: Label
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        field_type:
+          title: Field Type
+          type: string
+        is_required:
+          title: Is Required
+          type: boolean
+        sort_order:
+          title: Sort Order
+          type: integer
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        options:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Options
+        default_value:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Default Value
+      required:
+      - id
+      - key
+      - label
+      - field_type
+      - is_required
+      - sort_order
+      title: ResultCaptureTemplateField
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

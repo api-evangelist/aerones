@@ -1,0 +1,177 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.standards API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.standards
+paths:
+  /api/core/v1/standards:
+    get:
+      operationId: list_standards
+      summary: List Standards
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name
+          title: Search
+        required: false
+        description: Search by name
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field
+          title: Sort
+        required: false
+        description: Sort by field
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by type
+          title: Type
+        required: false
+        description: Filter by type
+      - in: query
+        name: key
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by key
+          title: Key
+        required: false
+        description: Filter by key
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/StandardResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - core.standards
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    StandardResponse:
+      additionalProperties: false
+      description: Schema for Standard response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Standard ID
+          title: Id
+          type: integer
+        name:
+          description: Standard name
+          title: Name
+          type: string
+        type:
+          description: Standard type
+          title: Type
+          type: string
+        key:
+          description: Standard key type
+          title: Key
+          type: string
+      required:
+      - updated_at
+      - id
+      - name
+      - type
+      - key
+      title: StandardResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

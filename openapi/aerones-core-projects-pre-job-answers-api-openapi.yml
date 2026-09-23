@@ -1,0 +1,492 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.pre Job Answers API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.pre-job-answers
+paths:
+  /api/core/v1/projects/{project_id}/pre-job-answers/bulk:
+    patch:
+      operationId: bulk_update_project_pre_job_answers
+      summary: Bulk update Pre-Job Answers
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectPreJobAnswerResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Update multiple pre-job answers for a project in a single request.
+      tags:
+      - core.projects.pre-job-answers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPreJobAnswerBulkUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/pre-job-answers:
+    get:
+      operationId: list_project_pre-job_answers
+      summary: List Pre-Job Answers for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectPreJobAnswerResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.projects.pre-job-answers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_pre-job_answer
+      summary: Create Pre-Job Answer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPreJobAnswerResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.projects.pre-job-answers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPreJobAnswerCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/pre-job-answers/{answer_id}:
+    get:
+      operationId: get_project_pre-job_answer
+      summary: Get Pre-Job Answer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: answer_id
+        schema:
+          title: Answer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPreJobAnswerResponse'
+      description: Get a single child item.
+      tags:
+      - core.projects.pre-job-answers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project_pre-job_answer
+      summary: Update Pre-Job Answer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: answer_id
+        schema:
+          title: Answer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPreJobAnswerResponse'
+      description: Update a child item.
+      tags:
+      - core.projects.pre-job-answers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectPreJobAnswerUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_pre-job_answer
+      summary: Delete Pre-Job Answer
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: answer_id
+        schema:
+          title: Answer Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.projects.pre-job-answers
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectPreJobAnswerBulkUpdate:
+      additionalProperties: false
+      description: Schema for bulk-updating pre-job answers.
+      properties:
+        items:
+          description: List of answers to update
+          items:
+            $ref: '#/components/schemas/ProjectPreJobAnswerBulkItem'
+          minItems: 1
+          title: Items
+          type: array
+      required:
+      - items
+      title: ProjectPreJobAnswerBulkUpdate
+      type: object
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectPreJobAnswerCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectPreJobAnswer.
+      properties:
+        question_id:
+          description: Question config ID
+          title: Question Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        title:
+          description: Question title snapshot
+          title: Title
+          type: string
+        answer:
+          description: Answer value (any valid JSON)
+          title: Answer
+      required:
+      - question_id
+      - title
+      - answer
+      title: ProjectPreJobAnswerCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectPreJobAnswerUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectPreJobAnswer.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Question title snapshot
+          title: Title
+        answer:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: Answer value (any valid JSON)
+          title: Answer
+      title: ProjectPreJobAnswerUpdate
+      type: object
+    ProjectPreJobAnswerBulkItem:
+      additionalProperties: false
+      description: Single item in a bulk update request — answer ID + fields to update.
+      properties:
+        id:
+          description: Answer ID to update
+          title: Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Question title snapshot
+          title: Title
+        answer:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: Answer value (any valid JSON)
+          title: Answer
+      required:
+      - id
+      title: ProjectPreJobAnswerBulkItem
+      type: object
+    ProjectPreJobAnswerResponse:
+      additionalProperties: false
+      description: Schema for ProjectPreJobAnswer response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        question_id:
+          title: Question Id
+          type: integer
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        title:
+          title: Title
+          type: string
+        answer:
+          title: Answer
+      required:
+      - updated_at
+      - id
+      - project_id
+      - question_id
+      - title
+      - answer
+      title: ProjectPreJobAnswerResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

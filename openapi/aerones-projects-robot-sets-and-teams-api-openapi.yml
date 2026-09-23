@@ -1,0 +1,457 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.robot Sets And Teams API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.robot-sets-and-teams
+paths:
+  /api/projects/{project_id}/available-services:
+    get:
+      operationId: projects_api_robot_sets_and_teams_get_available_services
+      summary: Get Available Services
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableServicesResponse'
+      description: Get available services from core.Service.
+      tags:
+      - projects.robot-sets-and-teams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/available-robot-sets:
+    get:
+      operationId: projects_api_robot_sets_and_teams_get_available_robot_sets
+      summary: Get Available Robot Sets
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableRobotSetsResponse'
+      description: Get available robot sets (ProjectResourceSets) for a project.
+      tags:
+      - projects.robot-sets-and-teams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/available-resources:
+    get:
+      operationId: projects_api_robot_sets_and_teams_get_available_resources
+      summary: Get Available Resources
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableResourcesResponse'
+      description: Get available resources (technicians) from Platform API.
+      tags:
+      - projects.robot-sets-and-teams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/{project_id}/robot-sets-and-teams:
+    get:
+      operationId: projects_api_robot_sets_and_teams_get_robot_sets_and_teams
+      summary: Get Robot Sets And Teams
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSetsAndTeamsResponse'
+      description: 'Get robot sets and teams for a project.
+
+
+        Returns stored data immediately without waiting for Platform API.
+
+        Names are stored when robot sets are saved.'
+      tags:
+      - projects.robot-sets-and-teams
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: projects_api_robot_sets_and_teams_update_robot_sets_and_teams
+      summary: Update Robot Sets And Teams
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotSetsAndTeamsResponse'
+      description: Update robot sets and teams for a project.
+      tags:
+      - projects.robot-sets-and-teams
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RobotSetsAndTeamsUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ResourceSetItemSchema:
+      additionalProperties: false
+      description: Schema for a resource set item (technician or robot from core.Resource).
+      properties:
+        id:
+          description: ProjectResourceSetItem ID
+          title: Id
+          type: integer
+        resource_id:
+          description: Resource ID from core.Resource
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: 'Resource type: ROBOT or TECHNICIAN'
+          title: Resource Type
+          type: string
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource email
+          title: Resource Email
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID from core.Resource (for robots only)
+          title: Robot Set Id
+      required:
+      - id
+      - resource_id
+      - resource_type
+      title: ResourceSetItemSchema
+      type: object
+    AvailableServicesResponse:
+      additionalProperties: false
+      description: Response schema for available services.
+      properties:
+        services:
+          description: Available service options
+          items:
+            $ref: '#/components/schemas/AvailableServiceOption'
+          title: Services
+          type: array
+      required:
+      - services
+      title: AvailableServicesResponse
+      type: object
+    ProjectRobotSetInput:
+      additionalProperties: false
+      description: Input schema for a robotic set.
+      properties:
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        status:
+          default: not_assigned
+          title: Status
+          type: string
+        scope:
+          default: 0
+          title: Scope
+          type: integer
+        mobilization_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Mobilization Date
+        resource_set_items:
+          default: []
+          description: Resources (robots + technicians) for core.ProjectResourceSet
+          items:
+            $ref: '#/components/schemas/ResourceSetItemInput'
+          title: Resource Set Items
+          type: array
+        linked_resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ID of selected pre-created resource set from core.resource_set
+          title: Linked Resource Set Id
+      title: ProjectRobotSetInput
+      type: object
+    RobotSetsAndTeamsResponse:
+      additionalProperties: false
+      description: Response schema for robot sets and teams data.
+      properties:
+        robot_sets:
+          description: List of project robot sets
+          items:
+            $ref: '#/components/schemas/ProjectRobotSetSchema'
+          title: Robot Sets
+          type: array
+      required:
+      - robot_sets
+      title: RobotSetsAndTeamsResponse
+      type: object
+    AvailableResourceOption:
+      additionalProperties: false
+      description: A resource option from core.Resource.
+      properties:
+        id:
+          description: Resource ID
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Full Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource email
+          title: Email
+      required:
+      - id
+      title: AvailableResourceOption
+      type: object
+    AvailableRobotSetOption:
+      additionalProperties: false
+      description: A robot set option from core.RobotSet.
+      properties:
+        id:
+          description: Robot set ID
+          title: Id
+          type: integer
+        name:
+          description: Robot set name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: AvailableRobotSetOption
+      type: object
+    ResourceSetItemInput:
+      additionalProperties: false
+      description: Input schema for a resource set item (technician or robot from core.Resource).
+      properties:
+        resource_id:
+          description: Resource ID from core.Resource
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: 'Resource type: ROBOT or TECHNICIAN'
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead (sets is_lead in ProjectResourceSetItem)
+          title: Is Lead
+      required:
+      - resource_id
+      - resource_type
+      title: ResourceSetItemInput
+      type: object
+    AvailableResourcesResponse:
+      additionalProperties: false
+      description: Response schema for available resources.
+      properties:
+        resources:
+          description: Available resources (technicians)
+          items:
+            $ref: '#/components/schemas/AvailableResourceOption'
+          title: Resources
+          type: array
+      required:
+      - resources
+      title: AvailableResourcesResponse
+      type: object
+    RobotSetsAndTeamsUpdate:
+      additionalProperties: false
+      description: Update schema for robot sets and teams.
+      properties:
+        robot_sets:
+          description: List of robot sets to save
+          items:
+            $ref: '#/components/schemas/ProjectRobotSetInput'
+          title: Robot Sets
+          type: array
+      required:
+      - robot_sets
+      title: RobotSetsAndTeamsUpdate
+      type: object
+    AvailableServiceOption:
+      additionalProperties: false
+      description: A service option from core.Service.
+      properties:
+        id:
+          description: Service ID
+          title: Id
+          type: integer
+        code:
+          description: Service code
+          title: Code
+          type: string
+        description:
+          description: Service description
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: AvailableServiceOption
+      type: object
+    AvailableRobotSetsResponse:
+      additionalProperties: false
+      description: Response schema for available robot sets.
+      properties:
+        robot_sets:
+          description: Available robot sets
+          items:
+            $ref: '#/components/schemas/AvailableRobotSetOption'
+          title: Robot Sets
+          type: array
+      required:
+      - robot_sets
+      title: AvailableRobotSetsResponse
+      type: object
+    ProjectRobotSetSchema:
+      additionalProperties: false
+      description: Schema for a robotic set.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set assignment ID
+          title: Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID from core.RobotSet
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Robot set name
+          title: Robot Set Name
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID from core.Service
+          title: Service Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service code (e.g., IIN-ONS)
+          title: Service Code
+        status:
+          default: not_assigned
+          description: Booking status
+          title: Status
+          type: string
+        scope:
+          default: 0
+          description: Scope assigned to this set
+          title: Scope
+          type: integer
+        mobilization_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Initial mobilization date for this set
+          title: Mobilization Date
+        resource_set_items:
+          default: []
+          description: Resources (robots + technicians) from core.ProjectResourceSetItem
+          items:
+            $ref: '#/components/schemas/ResourceSetItemSchema'
+          title: Resource Set Items
+          type: array
+      title: ProjectRobotSetSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

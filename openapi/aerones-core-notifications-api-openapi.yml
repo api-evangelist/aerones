@@ -1,0 +1,550 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.notifications API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.notifications
+paths:
+  /api/core/v1/notifications:
+    get:
+      operationId: core_endpoints_notifications_list_notifications
+      summary: List Notifications
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: is_read
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Read
+        required: false
+      - in: query
+        name: is_archived
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Archived
+        required: false
+      - in: query
+        name: category
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/NotificationCategory'
+          - type: 'null'
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NotificationResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List notifications for the current user.
+      tags:
+      - core.notifications
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/notifications/unread-count:
+    get:
+      operationId: core_endpoints_notifications_unread_count
+      summary: Unread Count
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationUnreadCountResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get unread notification count for the current user.
+      tags:
+      - core.notifications
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/notifications/mark-all-read:
+    patch:
+      operationId: core_endpoints_notifications_mark_all_read
+      summary: Mark All Read
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationMarkAllReadResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Mark all unread notifications as read for the current user.
+      tags:
+      - core.notifications
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/notifications/seen:
+    patch:
+      operationId: core_endpoints_notifications_mark_seen
+      summary: Mark Seen
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSeenResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Mark the given notifications as seen — not read, so the badge is unaffected.
+      tags:
+      - core.notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSeenRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/notifications/preferences:
+    get:
+      operationId: core_endpoints_notifications_list_preferences
+      summary: List Preferences
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NotificationPreferenceItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List channel preferences for every category for the current user.
+      tags:
+      - core.notifications
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: core_endpoints_notifications_upsert_preferences
+      summary: Upsert Preferences
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/NotificationPreferenceItem'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Upsert channel preferences, returning the full set afterwards.
+      tags:
+      - core.notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/NotificationPreferenceItem'
+              title: Payload
+              type: array
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/notifications/{notification_id}:
+    get:
+      operationId: core_endpoints_notifications_get_notification
+      summary: Get Notification
+      parameters:
+      - in: path
+        name: notification_id
+        schema:
+          title: Notification Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Get a single notification for the current user.
+      tags:
+      - core.notifications
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: core_endpoints_notifications_update_notification
+      summary: Update Notification
+      parameters:
+      - in: path
+        name: notification_id
+        schema:
+          title: Notification Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: Update notification read/archived status.
+      tags:
+      - core.notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    NotificationSeenRequest:
+      additionalProperties: false
+      description: 'Body for the batch mark-as-seen action.
+
+
+        The cap stops one request issuing an unbounded UPDATE; the bell panel only ever
+
+        reports the rows it rendered.'
+      properties:
+        ids:
+          description: Notification ids that were displayed. At most 200 per call; ids belonging to another user are ignored.
+          items:
+            type: integer
+          maxItems: 200
+          title: Ids
+          type: array
+      required:
+      - ids
+      title: NotificationSeenRequest
+      type: object
+    NotificationMarkAllReadResponse:
+      additionalProperties: false
+      description: Response for mark-all-read action.
+      properties:
+        updated_count:
+          title: Updated Count
+          type: integer
+      required:
+      - updated_count
+      title: NotificationMarkAllReadResponse
+      type: object
+    NotificationCategory:
+      description: 'The unit a user unsubscribes from.
+
+
+        Deliberately coarse — the groupings a person reasons about ("stop emailing me
+
+        about anomalies"), not one entry per event. A kind declares its category, and an
+
+        absent ``NotificationPreference`` row means the defaults apply, so a category
+
+        added here needs no backfill.'
+      enum:
+      - MENTIONS
+      - PROJECT_READINESS
+      - ANOMALIES
+      - SERVICE_DELIVERY
+      - ROTATIONS
+      title: NotificationCategory
+      type: string
+    NotificationSeenResponse:
+      additionalProperties: false
+      description: Response for the batch mark-as-seen action.
+      properties:
+        updated:
+          description: How many rows got a seen_at stamp. Already-seen rows are not re-stamped, so a repeat call returns 0.
+          title: Updated
+          type: integer
+      required:
+      - updated
+      title: NotificationSeenResponse
+      type: object
+    NotificationResponse:
+      additionalProperties: false
+      description: Response schema for a notification (list and single endpoints alike).
+      properties:
+        id:
+          title: Id
+          type: integer
+        user_id:
+          title: User Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        notification_type:
+          title: Notification Type
+          type: string
+        action:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+        kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registry code from notifications.notify, e.g. 'comment_mention'. Null only on rows predating the column, which carry it in data['kind'].
+          title: Kind
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NotificationCategory the kind belongs to, denormalised.
+          title: Category
+        entity_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entity Type
+        entity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Entity Id
+        seen_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the row was displayed. Set once, never cleared, and not the same thing as read — it does not affect the unread count.
+          title: Seen At
+        is_read:
+          title: Is Read
+          type: boolean
+        read_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Read At
+        is_archived:
+          title: Is Archived
+          type: boolean
+        data:
+          title: Data
+          type: object
+        metadata:
+          description: Notification-layer extras (action buttons, variants, deep-link overrides), kept separate from the producer-owned 'data' payload.
+          title: Metadata
+          type: object
+        event_count:
+          default: 1
+          description: Occurrences this row stands for; above 1 when the kind collapses.
+          title: Event Count
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - id
+      - user_id
+      - notification_type
+      - is_read
+      - is_archived
+      - data
+      - created_at
+      title: NotificationResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    NotificationUnreadCountResponse:
+      additionalProperties: false
+      description: Response for unread notification count.
+      properties:
+        count:
+          title: Count
+          type: integer
+      required:
+      - count
+      title: NotificationUnreadCountResponse
+      type: object
+    NotificationUpdate:
+      additionalProperties: false
+      description: Schema for updating notification read/archived status.
+      properties:
+        is_read:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Read
+        is_archived:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Archived
+      title: NotificationUpdate
+      type: object
+    NotificationPreferenceItem:
+      additionalProperties: false
+      description: 'One category''s channel opt-outs, used for both request and response.
+
+
+        The response always carries every category; the upsert body requires both
+
+        channels so an omitted field cannot silently re-enable one.'
+      properties:
+        category:
+          $ref: '#/components/schemas/NotificationCategory'
+        email:
+          title: Email
+          type: boolean
+        push:
+          title: Push
+          type: boolean
+      required:
+      - category
+      - email
+      - push
+      title: NotificationPreferenceItem
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,448 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.report Types API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.report-types
+paths:
+  /api/core/v1/projects/{project_id}/report-types:
+    get:
+      operationId: list_project_report_types
+      summary: List Report Types for Project
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectReportTypeResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all child items for a parent with pagination, search, and sorting.
+      tags:
+      - core.projects.report-types
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_report_type
+      summary: Create Report Type
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectReportTypeResponse'
+      description: Create a new child item for the parent.
+      tags:
+      - core.projects.report-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectReportTypeCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/report-types/{project_report_type_id}:
+    get:
+      operationId: get_project_report_type
+      summary: Get Report Type
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: project_report_type_id
+        schema:
+          title: Project Report Type Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectReportTypeResponse'
+      description: Get a single child item.
+      tags:
+      - core.projects.report-types
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_project_report_type
+      summary: Update Report Type
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: project_report_type_id
+        schema:
+          title: Project Report Type Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectReportTypeResponse'
+      description: Update a child item.
+      tags:
+      - core.projects.report-types
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectReportTypeUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_report_type
+      summary: Delete Report Type
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: project_report_type_id
+        schema:
+          title: Project Report Type Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete a child item.
+      tags:
+      - core.projects.report-types
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectReportTypeResponse:
+      additionalProperties: false
+      description: Schema for ProjectReportType response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project report type ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        report_type:
+          $ref: '#/components/schemas/ReportTypeObject'
+          description: Report type
+        requirement_file_ids:
+          description: Specific report requirement attachment file IDs
+          items:
+            type: string
+          title: Requirement File Ids
+          type: array
+        requirement_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipients:
+          description: Linked report recipients
+          items:
+            $ref: '#/components/schemas/ProjectReportRecipientObject'
+          title: Recipients
+          type: array
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails for this report type. None = no email-based selection saved (legacy row), [] = the user explicitly removed every recipient
+          title: Recipient Emails
+      required:
+      - updated_at
+      - id
+      - project_id
+      - report_type
+      title: ProjectReportTypeResponse
+      type: object
+    ProjectReportTypeUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectReportType (partial).
+      properties:
+        requirement_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Specific report requirement attachment file IDs
+          title: Requirement File Ids
+        requirement_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipient_project_contact_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
+          title: Recipient Project Contact Ids
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails (None leaves them unchanged, [] clears them)
+          title: Recipient Emails
+      title: ProjectReportTypeUpdate
+      type: object
+    ProjectReportRecipientObject:
+      additionalProperties: false
+      description: Nested report recipient object (a linked project contact).
+      properties:
+        id:
+          description: ProjectReportRecipient link ID
+          title: Id
+          type: integer
+        project_contact_id:
+          description: Linked project contact ID
+          title: Project Contact Id
+          type: integer
+        project_contact_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Linked contact's name
+          title: Project Contact Name
+        project_contact_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Linked contact's email
+          title: Project Contact Email
+      required:
+      - id
+      - project_contact_id
+      title: ProjectReportRecipientObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectReportTypeCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectReportType.
+      properties:
+        report_type_id:
+          description: Report type to subscribe to
+          title: Report Type Id
+          type: integer
+        requirement_file_ids:
+          description: Specific report requirement attachment file IDs
+          items:
+            type: string
+          title: Requirement File Ids
+          type: array
+        requirement_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipient_project_contact_ids:
+          description: Project contact IDs that receive this report
+          items:
+            type: integer
+          title: Recipient Project Contact Ids
+          type: array
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails for this report type (the form pre-selects the RFI report-recipient contacts; free-text addresses are allowed). None = no email-based selection, [] = explicitly no recipients
+          title: Recipient Emails
+      required:
+      - report_type_id
+      title: ProjectReportTypeCreate
+      type: object
+    ReportTypeObject:
+      additionalProperties: false
+      description: Nested report type object (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: ReportTypeObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

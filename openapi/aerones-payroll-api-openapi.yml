@@ -1,0 +1,563 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Payroll API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Payroll
+paths:
+  /api/v1/payroll/activities:
+    post:
+      operationId: payroll_api_activities_create_activity
+      summary: Create Activity
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollActivityOut'
+      tags:
+      - Payroll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayrollActivityIn'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: payroll_api_activities_list_activities
+      summary: List Activities
+      parameters:
+      - in: query
+        name: resource_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        required: false
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+        required: false
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PayrollActivityOut'
+                title: Response
+                type: array
+      tags:
+      - Payroll
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/v1/payroll/activities/{id}:
+    get:
+      operationId: payroll_api_activities_get_activity
+      summary: Get Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollActivityOut'
+      tags:
+      - Payroll
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: payroll_api_activities_update_activity
+      summary: Update Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollActivityOut'
+      tags:
+      - Payroll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayrollActivityPatchIn'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: payroll_api_activities_delete_activity
+      summary: Delete Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '204':
+          description: No Content
+      tags:
+      - Payroll
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/v1/payroll/timesheets:
+    get:
+      operationId: list_timesheets
+      summary: List timesheets
+      parameters:
+      - in: query
+        name: resource_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by resource
+          title: Resource Id
+        required: false
+        description: Filter by resource
+      - in: query
+        name: start_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter from date
+          title: Start Date
+        required: false
+        description: Filter from date
+      - in: query
+        name: end_date
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Filter until date
+          title: End Date
+        required: false
+        description: Filter until date
+      - in: query
+        name: project_id
+        schema:
+          description: Filter by project IDs
+          items:
+            type: integer
+          title: Project Id
+          type: array
+        required: false
+        description: Filter by project IDs
+      - in: query
+        name: robot_set_id
+        schema:
+          description: Filter by robot set IDs
+          items:
+            type: integer
+          title: Robot Set Id
+          type: array
+        required: false
+        description: Filter by robot set IDs
+      - in: query
+        name: work_time_category_id
+        schema:
+          description: Filter by work time category IDs
+          items:
+            type: integer
+          title: Work Time Category Id
+          type: array
+        required: false
+        description: Filter by work time category IDs
+      - in: query
+        name: exclude_null_work_time_category
+        schema:
+          default: false
+          description: Exclude entries where work time category is not assigned
+          title: Exclude Null Work Time Category
+          type: boolean
+        required: false
+        description: Exclude entries where work time category is not assigned
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TimesheetEntryOut'
+                title: Response
+                type: array
+      tags:
+      - Payroll
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    PayrollActivityIn:
+      additionalProperties: false
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/Status'
+        work_time_category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Category Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ended At
+        bonus_workorders_completed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Bonus Workorders Completed
+        approver_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approver Comment
+        pay_type:
+          anyOf:
+          - $ref: '#/components/schemas/PayType'
+          - type: 'null'
+        work_time_log_reference_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Log Reference Id
+      required:
+      - resource_id
+      - status
+      title: PayrollActivityIn
+      type: object
+    PayrollActivityPatchIn:
+      additionalProperties: false
+      properties:
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/Status'
+          - type: 'null'
+        work_time_category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Category Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ended At
+        bonus_workorders_completed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Bonus Workorders Completed
+        approver_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approver Comment
+        pay_type:
+          anyOf:
+          - $ref: '#/components/schemas/PayType'
+          - type: 'null'
+      title: PayrollActivityPatchIn
+      type: object
+    PayType:
+      enum:
+      - IDLE
+      - ON_SITE
+      - OFF_SITE
+      title: PayType
+      type: string
+    TimesheetEntryOut:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        source:
+          title: Source
+          type: string
+        status:
+          enum:
+          - pending
+          - approved
+          - rejected
+          title: Status
+          type: string
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        work_time_category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Category Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ended At
+        duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Min
+        pay_type:
+          anyOf:
+          - $ref: '#/components/schemas/PayType'
+          - type: 'null'
+        locked:
+          default: false
+          title: Locked
+          type: boolean
+        bonus_workorders_completed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Bonus Workorders Completed
+        approver_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approver Comment
+        payroll_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Payroll Activity Id
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
+        modified_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Modified By Id
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        work_time_log_created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Work Time Log Created At
+        payroll_activity_created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Payroll Activity Created At
+      required:
+      - id
+      - source
+      - status
+      title: TimesheetEntryOut
+      type: object
+    PayrollActivityOut:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/Status'
+        work_time_category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Category Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ended At
+        bonus_workorders_completed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Bonus Workorders Completed
+        approver_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approver Comment
+        pay_type:
+          anyOf:
+          - $ref: '#/components/schemas/PayType'
+          - type: 'null'
+        work_time_log_reference_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Log Reference Id
+        modified_by_id:
+          title: Modified By Id
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - resource_id
+      - status
+      - modified_by_id
+      - created_at
+      - updated_at
+      title: PayrollActivityOut
+      type: object
+    Status:
+      enum:
+      - approved
+      - rejected
+      title: Status
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

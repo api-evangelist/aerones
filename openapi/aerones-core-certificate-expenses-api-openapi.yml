@@ -1,0 +1,563 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.certificate Expenses API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.certificate-expenses
+paths:
+  /api/core/v1/certificate-expenses:
+    get:
+      operationId: list_certificateexpenses
+      summary: List CertificateExpenses
+      parameters:
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: resource_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by resource
+          title: Resource Id
+        required: false
+        description: Filter by resource
+      - in: query
+        name: certificate_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by certificate
+          title: Certificate Id
+        required: false
+        description: Filter by certificate
+      - in: query
+        name: resource_certificate_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by linked issuance row
+          title: Resource Certificate Id
+        required: false
+        description: Filter by linked issuance row
+      - in: query
+        name: issuer_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by issuer
+          title: Issuer Id
+        required: false
+        description: Filter by issuer
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project
+          title: Project Id
+        required: false
+        description: Filter by project
+      - in: query
+        name: status
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CertificateExpenseStatus'
+          - type: 'null'
+          description: Filter by status
+        required: false
+        description: Filter by status
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CertificateExpenseResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - core.certificate-expenses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_certificateexpense
+      summary: Create CertificateExpense
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateExpenseResponse'
+      description: Create a new item.
+      tags:
+      - core.certificate-expenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateExpenseCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/certificate-expenses/{id}:
+    get:
+      operationId: get_certificateexpense
+      summary: Get CertificateExpense
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateExpenseResponse'
+      description: Get a single item by ID.
+      tags:
+      - core.certificate-expenses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_certificateexpense
+      summary: Update CertificateExpense
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateExpenseResponse'
+      description: Update an item.
+      tags:
+      - core.certificate-expenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateExpenseUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_certificateexpense
+      summary: Delete CertificateExpense
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - core.certificate-expenses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CertificateExpenseCreate:
+      additionalProperties: false
+      description: Schema for creating a CertificateExpense.
+      properties:
+        resource_id:
+          description: Resource (technician) FK
+          title: Resource Id
+          type: integer
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Target certificate. Omit for ad-hoc bookings.
+          title: Certificate Id
+        resource_certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuance row, once it exists
+          title: Resource Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Issuer Id
+        issuer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text fallback when the issuer is not yet matched
+          title: Issuer Name
+        offering_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Offering Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          description: Amount in `currency`
+          title: Amount
+        currency_id:
+          description: Currency FK
+          title: Currency Id
+          type: integer
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CertificateExpenseStatus'
+          default: PENDING
+          description: Lifecycle status
+        order_date:
+          description: When the cost was booked
+          format: date
+          title: Order Date
+          type: string
+        completion_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completion Date
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for cancellation / refund / reissue
+          title: Reason
+      required:
+      - resource_id
+      - amount
+      - currency_id
+      - order_date
+      title: CertificateExpenseCreate
+      type: object
+    CertificateExpenseResponse:
+      additionalProperties: false
+      description: Schema for CertificateExpense response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Certificate Id
+        resource_certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Issuer Id
+        issuer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Issuer Name
+        offering_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Offering Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        currency_id:
+          title: Currency Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/CertificateExpenseStatus'
+        order_date:
+          format: date
+          title: Order Date
+          type: string
+        completion_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completion Date
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      required:
+      - updated_at
+      - id
+      - resource_id
+      - amount
+      - currency_id
+      - status
+      - order_date
+      title: CertificateExpenseResponse
+      type: object
+    CertificateExpenseUpdate:
+      additionalProperties: false
+      description: Schema for updating a CertificateExpense (partial).
+      properties:
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Certificate Id
+        resource_certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Issuer Id
+        issuer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Issuer Name
+        offering_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Offering Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Amount
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/CertificateExpenseStatus'
+          - type: 'null'
+        order_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Order Date
+        completion_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completion Date
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      title: CertificateExpenseUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CertificateExpenseStatus:
+      description: Lifecycle of a certificate cost row.
+      enum:
+      - PENDING
+      - COMPLETED
+      - CANCELLED
+      title: CertificateExpenseStatus
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

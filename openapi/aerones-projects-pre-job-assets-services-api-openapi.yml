@@ -1,0 +1,193 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.pre Job.assets Services API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.pre-job.assets-services
+paths:
+  /api/projects/{project_id}/pre-job/assets-services/customer-files:
+    post:
+      operationId: projects_api_prejob_associate_customer_asset_files
+      summary: Associate Customer Asset Files
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Associate customer-uploaded asset files with the project.
+
+
+        Takes storage IDs from files uploaded via POST /files endpoint
+
+        and associates them with the project for manual processing.'
+      tags:
+      - projects.pre-job.assets-services
+      deprecated: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerAssetFiles'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    get:
+      operationId: projects_api_prejob_get_customer_asset_files
+      summary: Get Customer Asset Files
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerAssetFilesList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all customer-uploaded asset files associated with the project.
+      tags:
+      - projects.pre-job.assets-services
+      deprecated: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerAssetFiles:
+      additionalProperties: false
+      description: Schema for customer asset files request.
+      properties:
+        storage_ids:
+          description: List of storage IDs from uploaded files to associate with project
+          items:
+            type: string
+          title: Storage Ids
+          type: array
+      required:
+      - storage_ids
+      title: CustomerAssetFiles
+      type: object
+    FileAttachment:
+      additionalProperties: false
+      description: 'File attachment response.
+
+
+        Defines the structure of a single file uploaded to the server.'
+      properties:
+        storage_id:
+          description: Unique identifier of the file received when first uploading it.
+          format: uuid
+          title: Storage Id
+          type: string
+        file_name:
+          description: The name of the file.
+          title: File Name
+          type: string
+        file_type:
+          description: MIME file type (e.g. 'application/pdf').
+          title: File Type
+          type: string
+      required:
+      - storage_id
+      - file_name
+      - file_type
+      title: FileAttachment
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerAssetFilesList:
+      additionalProperties: false
+      description: Schema for customer asset files response.
+      properties:
+        files:
+          description: List of customer asset files associated with the project
+          items:
+            $ref: '#/components/schemas/FileAttachment'
+          title: Files
+          type: array
+      required:
+      - files
+      title: CustomerAssetFilesList
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

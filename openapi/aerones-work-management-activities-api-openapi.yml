@@ -1,0 +1,624 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Work Management.activities API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: work-management.activities
+paths:
+  /api/work-management/cwo-activities:
+    get:
+      operationId: client_work_management_endpoints_activities_list_activities
+      summary: List Activities
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: client_work_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Client Work Order Id
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CwmActivityResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - work-management.activities
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: client_work_management_endpoints_activities_create_activity
+      summary: Create Activity
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CwmActivityResponse'
+      tags:
+      - work-management.activities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CwmActivityCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/cwo-activities/{id}:
+    get:
+      operationId: client_work_management_endpoints_activities_get_activity
+      summary: Get Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CwmActivityResponse'
+      tags:
+      - work-management.activities
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: client_work_management_endpoints_activities_update_activity
+      summary: Update Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CwmActivityResponse'
+      tags:
+      - work-management.activities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CwmActivityUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: client_work_management_endpoints_activities_delete_activity
+      summary: Delete Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - work-management.activities
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/cwo-activities/reorder:
+    post:
+      operationId: client_work_management_endpoints_activities_reorder_activities
+      summary: Reorder Activities
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - work-management.activities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CwmActivityReorderPayload'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/cwo-activities/{id}/comments:
+    post:
+      operationId: client_work_management_endpoints_activities_add_comment
+      summary: Add Comment to Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponse'
+      tags:
+      - work-management.activities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/cwo-activities/{id}/comments/{comment_id}:
+    delete:
+      operationId: client_work_management_endpoints_activities_delete_comment
+      summary: Delete Comment from Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - work-management.activities
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/cwo-activities/{id}/attach:
+    post:
+      operationId: client_work_management_endpoints_activities_attach_file
+      summary: Attach File to Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentResponse'
+      tags:
+      - work-management.activities
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachmentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/work-management/cwo-activities/{id}/detach/{storage_id}:
+    delete:
+      operationId: client_work_management_endpoints_activities_detach_file
+      summary: Detach File from Activity
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: storage_id
+        schema:
+          title: Storage Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      tags:
+      - work-management.activities
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    CwmActivityCreate:
+      additionalProperties: false
+      properties:
+        client_work_order_id:
+          title: Client Work Order Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        completed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Completed
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+      required:
+      - client_work_order_id
+      title: CwmActivityCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CwmActivityUpdate:
+      additionalProperties: false
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        completed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Completed
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+      title: CwmActivityUpdate
+      type: object
+    CommentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By Id
+      required:
+      - id
+      - body
+      title: CommentResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    AttachmentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          default: ''
+          title: File Name
+          type: string
+        file_type:
+          default: ''
+          title: File Type
+          type: string
+      required:
+      - id
+      - storage_id
+      title: AttachmentResponse
+      type: object
+    CommentCreate:
+      additionalProperties: false
+      properties:
+        body:
+          title: Body
+          type: string
+      required:
+      - body
+      title: CommentCreate
+      type: object
+    CwmActivityResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        client_work_order_id:
+          title: Client Work Order Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        completed:
+          default: false
+          title: Completed
+          type: boolean
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          default: []
+          items: {}
+          title: Custom Fields
+          type: array
+        comments:
+          default: []
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+          title: Comments
+          type: array
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+          title: Attachments
+          type: array
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - client_work_order_id
+      - updated_at
+      title: CwmActivityResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    AttachmentCreate:
+      additionalProperties: false
+      properties:
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Type
+      required:
+      - storage_id
+      title: AttachmentCreate
+      type: object
+    CwmActivityReorderPayload:
+      additionalProperties: false
+      properties:
+        client_work_order_id:
+          title: Client Work Order Id
+          type: integer
+        ordered_ids:
+          items:
+            type: integer
+          title: Ordered Ids
+          type: array
+      required:
+      - client_work_order_id
+      - ordered_ids
+      title: CwmActivityReorderPayload
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,630 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.service Charges API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.service-charges
+paths:
+  /api/accounting/v2/service-charges:
+    get:
+      operationId: list_service_charges
+      summary: List Service Charges
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search (case-insensitive)
+          title: Search
+        required: false
+        description: Search (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: project_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by project ID
+          title: Project Id
+        required: false
+        description: Filter by project ID
+      - in: query
+        name: sales_order_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by sales order ID
+          title: Sales Order Id
+        required: false
+        description: Filter by sales order ID
+      - in: query
+        name: billing_statement_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by billing statement ID
+          title: Billing Statement Id
+        required: false
+        description: Filter by billing statement ID
+      - in: query
+        name: source_system
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by source system
+          title: Source System
+        required: false
+        description: Filter by source system
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ServiceChargeResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and pagination.
+      tags:
+      - accounting.service-charges
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_service_charge
+      summary: Create Service Charge
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceChargeResponse'
+      description: Create a new item.
+      tags:
+      - accounting.service-charges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceChargeCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/accounting/v2/service-charges/{id}:
+    get:
+      operationId: get_service_charge
+      summary: Get Service Charge
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceChargeResponse'
+      description: Get a single item by ID.
+      tags:
+      - accounting.service-charges
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: update_service_charge
+      summary: Update Service Charge
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceChargeResponse'
+      description: Update an item.
+      tags:
+      - accounting.service-charges
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceChargeUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_service_charge
+      summary: Delete Service Charge
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft delete an item.
+      tags:
+      - accounting.service-charges
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceChargeUpdate:
+      additionalProperties: false
+      description: Schema for updating a ServiceCharge.
+      properties:
+        charge_date:
+          description: Charge date (YYYY-MM-DD)
+          format: date
+          title: Charge Date
+          type: string
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Dispatch service order line ID
+          title: Service Order Line Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID
+          title: Robot Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Source system (OPSHUB, NETSUITE)
+          title: Source System
+        price:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Unit price
+          title: Price
+        quantity:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Total amount
+          title: Amount
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        netsuite_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NetSuite status
+          title: Netsuite Status
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        sales_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order line ID
+          title: Sales Order Line Id
+        sales_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales invoice ID
+          title: Sales Invoice Id
+        netsuite_transaction_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite transaction ID
+          title: Netsuite Transaction Id
+        billing_statement_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Billing statement ID
+          title: Billing Statement Id
+      required:
+      - charge_date
+      title: ServiceChargeUpdate
+      type: object
+    ServiceChargeCreate:
+      additionalProperties: false
+      description: Schema for creating a ServiceCharge.
+      properties:
+        charge_date:
+          description: Charge date (YYYY-MM-DD)
+          format: date
+          title: Charge Date
+          type: string
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Dispatch service order line ID
+          title: Service Order Line Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID
+          title: Robot Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Source system (OPSHUB, NETSUITE)
+          title: Source System
+        price:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Unit price
+          title: Price
+        quantity:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Total amount
+          title: Amount
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        netsuite_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NetSuite status
+          title: Netsuite Status
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        sales_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order line ID
+          title: Sales Order Line Id
+        sales_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales invoice ID
+          title: Sales Invoice Id
+        netsuite_transaction_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite transaction ID
+          title: Netsuite Transaction Id
+        billing_statement_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Billing statement ID
+          title: Billing Statement Id
+      required:
+      - charge_date
+      title: ServiceChargeCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ServiceChargeResponse:
+      additionalProperties: false
+      description: Schema for ServiceCharge response.
+      properties:
+        id:
+          description: Charge ID
+          title: Id
+          type: integer
+        charge_date:
+          description: Charge date
+          format: date
+          title: Charge Date
+          type: string
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Dispatch service order line ID
+          title: Service Order Line Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID
+          title: Robot Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        source_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Source system
+          title: Source System
+        price:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Unit price
+          title: Price
+        quantity:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Total amount
+          title: Amount
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        netsuite_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NetSuite status
+          title: Netsuite Status
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        sales_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order line ID
+          title: Sales Order Line Id
+        sales_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales invoice ID
+          title: Sales Invoice Id
+        netsuite_transaction_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite transaction ID
+          title: Netsuite Transaction Id
+        billing_statement_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Billing statement ID
+          title: Billing Statement Id
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - charge_date
+      - updated_at
+      title: ServiceChargeResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer
