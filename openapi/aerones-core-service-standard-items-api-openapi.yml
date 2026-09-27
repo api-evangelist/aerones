@@ -205,6 +205,31 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
     ServiceStandardItemCreate:
       additionalProperties: false
       description: Schema for creating a standard-set line.
@@ -252,69 +277,6 @@ components:
       - part_id
       - unit
       title: ServiceStandardItemCreate
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ServiceObject:
-      additionalProperties: false
-      description: Nested service object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
-      required:
-      - id
-      - code
-      - is_service
-      title: ServiceObject
-      type: object
-    ErpPartObject:
-      additionalProperties: false
-      description: Nested ERP part object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        part_number:
-          title: Part Number
-          type: string
-        description:
-          default: ''
-          title: Description
-          type: string
-        unit:
-          default: ''
-          title: Unit
-          type: string
-        category:
-          anyOf:
-          - $ref: '#/components/schemas/ErpPartCategoryObject'
-          - type: 'null'
-      required:
-      - id
-      - part_number
-      title: ErpPartObject
       type: object
     ServiceStandardItemUpdate:
       additionalProperties: false
@@ -368,6 +330,52 @@ components:
           title: Scope
       title: ServiceStandardItemUpdate
       type: object
+    ErpPartCategoryObject:
+      additionalProperties: false
+      description: Nested item-category object for ERP part responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ErpPartCategoryObject
+      type: object
+    ErpPartObject:
+      additionalProperties: false
+      description: Nested ERP part object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        part_number:
+          title: Part Number
+          type: string
+        description:
+          default: ''
+          title: Description
+          type: string
+        unit:
+          default: ''
+          title: Unit
+          type: string
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/ErpPartCategoryObject'
+          - type: 'null'
+      required:
+      - id
+      - part_number
+      title: ErpPartObject
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -381,6 +389,26 @@ components:
       - code
       - message
       title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ServiceStandardItemResponse:
       additionalProperties: false
@@ -429,45 +457,17 @@ components:
       - scope
       title: ServiceStandardItemResponse
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErpPartCategoryObject:
-      additionalProperties: false
-      description: Nested item-category object for ERP part responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          title: Description
-          type: string
-      required:
-      - id
-      - code
-      - description
-      title: ErpPartCategoryObject
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -392,22 +392,83 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlannerStatusItemInput:
+    FocalxInspectionResponse:
       additionalProperties: false
       properties:
-        key:
-          title: Key
+        id:
+          title: Id
+          type: integer
+        focalx_inspection_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Focalx Inspection Id
+        status:
+          title: Status
           type: string
-        email:
+        result_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Result Data
+        error_message:
           anyOf:
           - type: string
           - type: 'null'
-          title: Email
-        project_code:
+          title: Error Message
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        completed_at:
           anyOf:
-          - type: string
+          - format: date-time
+            type: string
           - type: 'null'
-          title: Project Code
+          title: Completed At
+      required:
+      - id
+      - status
+      - created_at
+      title: FocalxInspectionResponse
+      type: object
+    VehicleFleetAssignmentDiscrepancy:
+      additionalProperties: false
+      properties:
+        assignment_id:
+          title: Assignment Id
+          type: integer
+        reasons:
+          items:
+            type: string
+          title: Reasons
+          type: array
+      required:
+      - assignment_id
+      - reasons
+      title: VehicleFleetAssignmentDiscrepancy
+      type: object
+    VehicleFleetPlanSchema:
+      additionalProperties: false
+      properties:
+        vehicle_id:
+          title: Vehicle Id
+          type: integer
+        assignee_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee User Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
         from_date:
           anyOf:
           - type: string
@@ -418,9 +479,83 @@ components:
           - type: string
           - type: 'null'
           title: To Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        allow_unrostered:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          default: false
+          title: Allow Unrostered
       required:
-      - key
-      title: PlannerStatusItemInput
+      - vehicle_id
+      - from_date
+      - to_date
+      title: VehicleFleetPlanSchema
+      type: object
+    PlannerStatusResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlannerStatusResult'
+          title: Items
+          type: array
+      required:
+      - items
+      title: PlannerStatusResponse
+      type: object
+    VehicleFleetAssignmentReportResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        type:
+          title: Type
+          type: string
+        odometer:
+          title: Odometer
+          type: integer
+        possession:
+          title: Possession
+          type: object
+        safety:
+          title: Safety
+          type: object
+        photos:
+          items: {}
+          title: Photos
+          type: array
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        reported_date:
+          title: Reported Date
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        focalx_inspection:
+          anyOf:
+          - $ref: '#/components/schemas/FocalxInspectionResponse'
+          - type: 'null'
+      required:
+      - id
+      - type
+      - odometer
+      - possession
+      - safety
+      - photos
+      - reported_date
+      - created_at
+      title: VehicleFleetAssignmentReportResponse
       type: object
     ErrorCode:
       description: Error codes for API errors.
@@ -433,6 +568,197 @@ components:
       - generic
       title: ErrorCode
       type: string
+    VehicleFleetAcceptSchema:
+      additionalProperties: false
+      properties:
+        vehicle_id:
+          title: Vehicle Id
+          type: integer
+        assignee_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee User Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        from_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Date
+        to_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To Date
+        odometer:
+          maximum: 2147483647
+          minimum: 0
+          title: Odometer
+          type: integer
+        possession:
+          title: Possession
+          type: object
+        safety:
+          title: Safety
+          type: object
+        photos:
+          default: []
+          items: {}
+          title: Photos
+          type: array
+        reported_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reported Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - vehicle_id
+      - from_date
+      - to_date
+      - odometer
+      - possession
+      - safety
+      title: VehicleFleetAcceptSchema
+      type: object
+    VehicleFleetAssignmentDiscrepancies:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/VehicleFleetAssignmentDiscrepancy'
+          title: Items
+          type: array
+      required:
+      - items
+      title: VehicleFleetAssignmentDiscrepancies
+      type: object
+    NavirecLiveState:
+      additionalProperties: false
+      description: Live tracking snapshot for a vehicle, joined from Navirec by plate.
+      properties:
+        status:
+          description: 'Derived status: ACTIVE (ignition on), PARKED (ignition off but reported ≤10min ago), OFFLINE (no recent report).'
+          title: Status
+          type: string
+        is_active:
+          description: Convenience flag — true when status is ACTIVE or PARKED.
+          title: Is Active
+          type: boolean
+        ignition:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ignition
+        speed_kmh:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Speed Kmh
+        last_seen:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Last Seen
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        vehicle_uuid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Uuid
+      required:
+      - status
+      - is_active
+      title: NavirecLiveState
+      type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    VehicleFleetAcceptPlannedSchema:
+      additionalProperties: false
+      properties:
+        odometer:
+          maximum: 2147483647
+          minimum: 0
+          title: Odometer
+          type: integer
+        possession:
+          title: Possession
+          type: object
+        safety:
+          title: Safety
+          type: object
+        photos:
+          default: []
+          items: {}
+          title: Photos
+          type: array
+        reported_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reported Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - odometer
+      - possession
+      - safety
+      title: VehicleFleetAcceptPlannedSchema
+      type: object
     VehicleFleetAssignmentResponse:
       additionalProperties: false
       properties:
@@ -524,45 +850,202 @@ components:
       - updated_at
       title: VehicleFleetAssignmentResponse
       type: object
-    FocalxInspectionResponse:
+    VehicleFleetUpdateSchema:
+      additionalProperties: false
+      properties:
+        assignee_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee User Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        from_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Date
+        to_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      title: VehicleFleetUpdateSchema
+      type: object
+    PlannerStatusResult:
+      additionalProperties: false
+      properties:
+        key:
+          title: Key
+          type: string
+        status:
+          title: Status
+          type: string
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        available_codes:
+          items:
+            type: string
+          title: Available Codes
+          type: array
+      required:
+      - key
+      - status
+      title: PlannerStatusResult
+      type: object
+    VehicleInsuranceResponse:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        focalx_inspection_id:
+        type:
+          title: Type
+          type: string
+        date_from:
           anyOf:
           - type: string
           - type: 'null'
-          title: Focalx Inspection Id
-        status:
-          title: Status
-          type: string
-        result_data:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Result Data
-        error_message:
+          title: Date From
+        date_to:
           anyOf:
           - type: string
           - type: 'null'
-          title: Error Message
-        created_at:
-          format: date-time
-          title: Created At
+          title: Date To
+        insurance_number:
+          title: Insurance Number
           type: string
-        completed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Completed At
       required:
       - id
-      - status
-      - created_at
-      title: FocalxInspectionResponse
+      - type
+      - insurance_number
+      title: VehicleInsuranceResponse
+      type: object
+    PlannerStatusRequest:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/PlannerStatusItemInput'
+          title: Items
+          type: array
+      required:
+      - items
+      title: PlannerStatusRequest
+      type: object
+    UserProjectOverlap:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+      required:
+      - id
+      - code
+      title: UserProjectOverlap
+      type: object
+    VehicleFleetReturnSchema:
+      additionalProperties: false
+      properties:
+        odometer:
+          maximum: 2147483647
+          minimum: 0
+          title: Odometer
+          type: integer
+        possession:
+          title: Possession
+          type: object
+        safety:
+          title: Safety
+          type: object
+        photos:
+          default: []
+          items: {}
+          title: Photos
+          type: array
+        reported_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reported Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - odometer
+      - possession
+      - safety
+      title: VehicleFleetReturnSchema
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectObject:
+      additionalProperties: false
+      description: Nested project object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: ProjectObject
       type: object
     VehicleResponse:
       additionalProperties: false
@@ -649,507 +1132,6 @@ components:
       - telematics_provider
       title: VehicleResponse
       type: object
-    NavirecLiveState:
-      additionalProperties: false
-      description: Live tracking snapshot for a vehicle, joined from Navirec by plate.
-      properties:
-        status:
-          description: 'Derived status: ACTIVE (ignition on), PARKED (ignition off but reported ≤10min ago), OFFLINE (no recent report).'
-          title: Status
-          type: string
-        is_active:
-          description: Convenience flag — true when status is ACTIVE or PARKED.
-          title: Is Active
-          type: boolean
-        ignition:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Ignition
-        speed_kmh:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Speed Kmh
-        last_seen:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Last Seen
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Longitude
-        vehicle_uuid:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Vehicle Uuid
-      required:
-      - status
-      - is_active
-      title: NavirecLiveState
-      type: object
-    VehicleFleetAcceptSchema:
-      additionalProperties: false
-      properties:
-        vehicle_id:
-          title: Vehicle Id
-          type: integer
-        assignee_user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Assignee User Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        from_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: From Date
-        to_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: To Date
-        odometer:
-          maximum: 2147483647
-          minimum: 0
-          title: Odometer
-          type: integer
-        possession:
-          title: Possession
-          type: object
-        safety:
-          title: Safety
-          type: object
-        photos:
-          default: []
-          items: {}
-          title: Photos
-          type: array
-        reported_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reported Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      required:
-      - vehicle_id
-      - from_date
-      - to_date
-      - odometer
-      - possession
-      - safety
-      title: VehicleFleetAcceptSchema
-      type: object
-    PlannerStatusResponse:
-      additionalProperties: false
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/PlannerStatusResult'
-          title: Items
-          type: array
-      required:
-      - items
-      title: PlannerStatusResponse
-      type: object
-    UserObject:
-      additionalProperties: false
-      description: Nested user object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        username:
-          title: Username
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
-      required:
-      - id
-      - username
-      title: UserObject
-      type: object
-    UserProjectOverlap:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        robot_set_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Robot Set Name
-      required:
-      - id
-      - code
-      title: UserProjectOverlap
-      type: object
-    VehicleFleetAssignmentDiscrepancy:
-      additionalProperties: false
-      properties:
-        assignment_id:
-          title: Assignment Id
-          type: integer
-        reasons:
-          items:
-            type: string
-          title: Reasons
-          type: array
-      required:
-      - assignment_id
-      - reasons
-      title: VehicleFleetAssignmentDiscrepancy
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    VehicleFleetPlanSchema:
-      additionalProperties: false
-      properties:
-        vehicle_id:
-          title: Vehicle Id
-          type: integer
-        assignee_user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Assignee User Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        from_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: From Date
-        to_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: To Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        allow_unrostered:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          default: false
-          title: Allow Unrostered
-      required:
-      - vehicle_id
-      - from_date
-      - to_date
-      title: VehicleFleetPlanSchema
-      type: object
-    VehicleFleetAcceptPlannedSchema:
-      additionalProperties: false
-      properties:
-        odometer:
-          maximum: 2147483647
-          minimum: 0
-          title: Odometer
-          type: integer
-        possession:
-          title: Possession
-          type: object
-        safety:
-          title: Safety
-          type: object
-        photos:
-          default: []
-          items: {}
-          title: Photos
-          type: array
-        reported_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reported Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      required:
-      - odometer
-      - possession
-      - safety
-      title: VehicleFleetAcceptPlannedSchema
-      type: object
-    ProjectObject:
-      additionalProperties: false
-      description: Nested project object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: ProjectObject
-      type: object
-    VehicleFleetAssignmentReportResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        type:
-          title: Type
-          type: string
-        odometer:
-          title: Odometer
-          type: integer
-        possession:
-          title: Possession
-          type: object
-        safety:
-          title: Safety
-          type: object
-        photos:
-          items: {}
-          title: Photos
-          type: array
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        reported_date:
-          title: Reported Date
-          type: string
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        focalx_inspection:
-          anyOf:
-          - $ref: '#/components/schemas/FocalxInspectionResponse'
-          - type: 'null'
-      required:
-      - id
-      - type
-      - odometer
-      - possession
-      - safety
-      - photos
-      - reported_date
-      - created_at
-      title: VehicleFleetAssignmentReportResponse
-      type: object
-    VehicleFleetAssignmentDiscrepancies:
-      additionalProperties: false
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/VehicleFleetAssignmentDiscrepancy'
-          title: Items
-          type: array
-      required:
-      - items
-      title: VehicleFleetAssignmentDiscrepancies
-      type: object
-    VehicleFleetReturnSchema:
-      additionalProperties: false
-      properties:
-        odometer:
-          maximum: 2147483647
-          minimum: 0
-          title: Odometer
-          type: integer
-        possession:
-          title: Possession
-          type: object
-        safety:
-          title: Safety
-          type: object
-        photos:
-          default: []
-          items: {}
-          title: Photos
-          type: array
-        reported_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reported Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      required:
-      - odometer
-      - possession
-      - safety
-      title: VehicleFleetReturnSchema
-      type: object
-    VehicleInsuranceResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        type:
-          title: Type
-          type: string
-        date_from:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date From
-        date_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date To
-        insurance_number:
-          title: Insurance Number
-          type: string
-      required:
-      - id
-      - type
-      - insurance_number
-      title: VehicleInsuranceResponse
-      type: object
-    VehicleFleetUpdateSchema:
-      additionalProperties: false
-      properties:
-        assignee_user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Assignee User Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        from_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: From Date
-        to_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: To Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      title: VehicleFleetUpdateSchema
-      type: object
-    PlannerStatusResult:
-      additionalProperties: false
-      properties:
-        key:
-          title: Key
-          type: string
-        status:
-          title: Status
-          type: string
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        robot_set_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Robot Set Name
-        available_codes:
-          items:
-            type: string
-          title: Available Codes
-          type: array
-      required:
-      - key
-      - status
-      title: PlannerStatusResult
-      type: object
     RobotSetObject:
       additionalProperties: false
       description: Nested robot set object for responses (no timestamps).
@@ -1165,17 +1147,35 @@ components:
       - name
       title: RobotSetObject
       type: object
-    PlannerStatusRequest:
+    PlannerStatusItemInput:
       additionalProperties: false
       properties:
-        items:
-          items:
-            $ref: '#/components/schemas/PlannerStatusItemInput'
-          title: Items
-          type: array
+        key:
+          title: Key
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        from_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Date
+        to_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To Date
       required:
-      - items
-      title: PlannerStatusRequest
+      - key
+      title: PlannerStatusItemInput
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -336,31 +336,53 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    NestedCampaign:
+    CampaignWithScopeResponse:
+      properties:
+        campaign:
+          $ref: '#/components/schemas/NestedCampaign'
+        work_packages:
+          items:
+            $ref: '#/components/schemas/NestedWorkPackage'
+          title: Work Packages
+          type: array
+      required:
+      - campaign
+      - work_packages
+      title: CampaignWithScopeResponse
+      type: object
+    AttachmentResponse:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          default: ''
+          title: File Name
+          type: string
+        file_type:
+          default: ''
+          title: File Type
           type: string
       required:
       - id
-      - name
-      title: NestedCampaign
+      - storage_id
+      title: AttachmentResponse
       type: object
-    CampaignUpdate:
+    CampaignCreate:
+      additionalProperties: false
       properties:
         name:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Name
+          type: string
         status:
           anyOf:
           - type: string
           - type: 'null'
+          default: draft
           title: Status
         description:
           anyOf:
@@ -390,19 +412,10 @@ components:
           - type: string
           - type: 'null'
           title: Notes
-      title: CampaignUpdate
+      required:
+      - name
+      title: CampaignCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     NestedWorkPackage:
       additionalProperties: false
       properties:
@@ -420,6 +433,42 @@ components:
       - id
       - name
       title: NestedWorkPackage
+      type: object
+    AttachmentCreate:
+      additionalProperties: false
+      properties:
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Type
+      required:
+      - storage_id
+      title: AttachmentCreate
+      type: object
+    NestedCampaign:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedCampaign
       type: object
     CampaignWithScopeCreate:
       additionalProperties: false
@@ -478,42 +527,31 @@ components:
       - location_ids
       title: CampaignWithScopeCreate
       type: object
-    CommentResponse:
+    Error:
       additionalProperties: false
+      description: Error response schema.
       properties:
-        id:
-          title: Id
-          type: integer
-        body:
-          title: Body
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Created At
-        created_by_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Created By Id
       required:
-      - id
-      - body
-      title: CommentResponse
+      - code
+      - message
+      title: Error
       type: object
-    CampaignCreate:
-      additionalProperties: false
+    CampaignUpdate:
       properties:
         name:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
-          type: string
         status:
           anyOf:
           - type: string
           - type: 'null'
-          default: draft
           title: Status
         description:
           anyOf:
@@ -543,9 +581,7 @@ components:
           - type: string
           - type: 'null'
           title: Notes
-      required:
-      - name
-      title: CampaignCreate
+      title: CampaignUpdate
       type: object
     CampaignResponse:
       properties:
@@ -614,34 +650,6 @@ components:
       - updated_at
       title: CampaignResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CampaignWithScopeResponse:
-      properties:
-        campaign:
-          $ref: '#/components/schemas/NestedCampaign'
-        work_packages:
-          items:
-            $ref: '#/components/schemas/NestedWorkPackage'
-          title: Work Packages
-          type: array
-      required:
-      - campaign
-      - work_packages
-      title: CampaignWithScopeResponse
-      type: object
     CommentCreate:
       additionalProperties: false
       properties:
@@ -651,6 +659,31 @@ components:
       required:
       - body
       title: CommentCreate
+      type: object
+    CommentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By Id
+      required:
+      - id
+      - body
+      title: CommentResponse
       type: object
     Success:
       additionalProperties: false
@@ -672,50 +705,17 @@ components:
           type: boolean
       title: Success
       type: object
-    AttachmentCreate:
-      additionalProperties: false
-      properties:
-        storage_id:
-          title: Storage Id
-          type: string
-        file_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: ''
-          title: File Name
-        file_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: ''
-          title: File Type
-      required:
-      - storage_id
-      title: AttachmentCreate
-      type: object
-    AttachmentResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        storage_id:
-          title: Storage Id
-          type: string
-        file_name:
-          default: ''
-          title: File Name
-          type: string
-        file_type:
-          default: ''
-          title: File Type
-          type: string
-      required:
-      - id
-      - storage_id
-      title: AttachmentResponse
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

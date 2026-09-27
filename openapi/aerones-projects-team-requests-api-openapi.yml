@@ -902,40 +902,66 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CertificateInfo:
+    TeamRequestLocationRef:
       additionalProperties: false
-      description: A pre-job-resolved cert (a ``Certificate`` row matched by name).
       properties:
-        id:
-          title: Id
+        project_location_id:
+          title: Project Location Id
           type: integer
         name:
           title: Name
           type: string
       required:
-      - id
+      - project_location_id
       - name
-      title: CertificateInfo
+      title: TeamRequestLocationRef
       type: object
-    SiteServiceOption:
+    OfferPairsResponse:
       additionalProperties: false
-      description: One service priced on the project's latest commercial offer.
       properties:
-        id:
-          title: Id
+        pairs:
+          items:
+            $ref: '#/components/schemas/OfferPair'
+          title: Pairs
+          type: array
+      title: OfferPairsResponse
+      type: object
+    OfferPair:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          title: Project Location Id
           type: integer
-        code:
-          title: Code
+        location_name:
+          title: Location Name
           type: string
-        description:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_description:
           anyOf:
           - type: string
           - type: 'null'
-          title: Description
+          title: Service Description
       required:
-      - id
-      - code
-      title: SiteServiceOption
+      - project_location_id
+      - location_name
+      - service_id
+      - service_code
+      title: OfferPair
+      type: object
+    SetOptionsResponse:
+      additionalProperties: false
+      properties:
+        sets:
+          items:
+            $ref: '#/components/schemas/RobotSetOptionResponse'
+          title: Sets
+          type: array
+      title: SetOptionsResponse
       type: object
     TeamRequestSlotUpdate:
       additionalProperties: false
@@ -955,62 +981,123 @@ components:
           title: Is Lead
       title: TeamRequestSlotUpdate
       type: object
-    TeamRequestCreate:
+    ResolveCertTokenPayload:
       additionalProperties: false
+      description: 'Body for POST /team-requests/{id}/resolve-cert-token.
+
+
+        The doc-controller picks one unresolved token and tells the server what to
+
+        do with it: ``map`` it to an existing Certificate, ``create`` a fresh
+
+        Certificate then map, or ``drop`` it (strip with no new requirement).
+
+
+        The token is stripped from both pre-job cert answers — the
+
+        ``required_certifications`` list and the free-text
+
+        ``other_certification_details`` — across every site the TR spans. Matching
+
+        nothing is a 422, not a silent success.'
       properties:
-        pprs_id:
-          description: PPRS the TR is bound to.
-          title: Pprs Id
-          type: integer
-        people_count:
-          maximum: 10
-          minimum: 1
-          title: People Count
-          type: integer
-        notes:
+        matched_text:
+          description: Token to strip from the pre-job cert answers (required_certifications and/or other_certification_details)
+          minLength: 1
+          title: Matched Text
+          type: string
+        action:
+          description: What to do with the token
+          enum:
+          - map
+          - create
+          - drop
+          title: Action
+          type: string
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Existing Certificate FK — required when action='map'
+          title: Certificate Id
+        new_certificate:
+          anyOf:
+          - $ref: '#/components/schemas/CertificateCreate'
+          - type: 'null'
+          description: Full CertificateCreate payload — required when action='create'
+      required:
+      - matched_text
+      - action
+      title: ResolveCertTokenPayload
+      type: object
+    CertificateCreate:
+      additionalProperties: false
+      description: Schema for creating a Certificate.
+      properties:
+        name:
+          description: Certificate name
+          minLength: 1
+          title: Name
+          type: string
+        code:
           anyOf:
           - type: string
           - type: 'null'
-          title: Notes
-        required_certificate_ids:
+          description: Unique short code
+          title: Code
+        description:
           anyOf:
-          - items:
-              type: integer
-            type: array
+          - type: string
           - type: 'null'
-          title: Required Certificate Ids
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Legacy single-service param, kept for back-compat. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
-          title: Service Id
-        service_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Commercial-offer-scoped services this TR's set will perform (multi-select). FE picks from /site-options (all services in the project's commercial offer). Empty / omitted means no service binding yet. Server validates each id is in scope. The first id is kept as the primary ``service`` for single-service consumers.
-          title: Service Ids
-        project_location_id:
+          description: Description
+          title: Description
+        default_validity_months:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Fallback site to use when the PPRS row has a NULL project_location (Wrike sync couldn't match the windpark). Server validates the PL is on the same project, then backfills the PPRS so subsequent TR/SR against it auto-resolve. Ignored when the PPRS already has a site.
-          title: Project Location Id
-        project_location_ids:
+          description: Default expiry window in months. Omit / null for non-expiring certificates.
+          title: Default Validity Months
+        is_active:
+          default: true
+          description: Whether the certificate is active
+          title: Is Active
+          type: boolean
+        country_id:
           anyOf:
-          - items:
-              type: integer
-            type: array
+          - type: integer
           - type: 'null'
-          description: Sites this TR spans (multi-select). The first id is the fallback for a PPRS with no site (same semantics as project_location_id); the resolved primary plus every other id form the TR's site set. Required certificates are the deduped union across all of them. When omitted the TR is single-site (project_location_id / PPRS).
-          title: Project Location Ids
+          description: Country the certificate is intrinsic to. Omit for global.
+          title: Country Id
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Category FK
+          title: Category Id
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Origin system (e.g. "bamboohr")
+          title: Source
       required:
-      - pprs_id
-      - people_count
-      title: TeamRequestCreate
+      - name
+      title: CertificateCreate
+      type: object
+    CertDriftItem:
+      additionalProperties: false
+      description: One cert that's been added or removed in pre-job vs the TR snapshot.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertDriftItem
       type: object
     TeamRequestSlotResponse:
       additionalProperties: false
@@ -1073,6 +1160,31 @@ components:
       - is_lead
       title: TeamRequestSlotResponse
       type: object
+    TeamRequestNoteCreate:
+      additionalProperties: false
+      description: 'POST .../notes body — free-form note with optional @-mentions.
+
+
+        ``mentioned_user_ids`` is persisted as a sidecar list on the activity row
+
+        so a later email-notification step can resolve recipients without
+
+        re-parsing the note body. Order-preserving; duplicates are dropped.'
+      properties:
+        text:
+          maxLength: 4000
+          minLength: 1
+          title: Text
+          type: string
+        mentioned_user_ids:
+          items:
+            type: integer
+          title: Mentioned User Ids
+          type: array
+      required:
+      - text
+      title: TeamRequestNoteCreate
+      type: object
     TeamRequestServiceRef:
       additionalProperties: false
       description: One service this TR's set will perform (offer-scoped).
@@ -1093,44 +1205,15 @@ components:
       - service_code
       title: TeamRequestServiceRef
       type: object
-    TeamRequestDuplicate:
+    MentionCandidateListResponse:
       additionalProperties: false
       properties:
-        pprs_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Optional override; defaults to the source TR's PPRS.
-          title: Pprs Id
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Fallback site when the target PPRS has no project_location. Same semantics as on TeamRequestCreate.
-          title: Project Location Id
-        project_location_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Override the cloned site set. When given, the first id is the PPRS fallback and the full list becomes the duplicate's sites; when omitted, the source TR's site set is cloned.
-          title: Project Location Ids
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Legacy single-service override. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
-          title: Service Id
-        service_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Override the cloned services (each must be on the project's latest offer). When omitted, the source TR's full service set is cloned.
-          title: Service Ids
-      title: TeamRequestDuplicate
+        candidates:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Candidates
+          type: array
+      title: MentionCandidateListResponse
       type: object
     CertDriftResponse:
       additionalProperties: false
@@ -1171,218 +1254,25 @@ components:
           type: boolean
       title: CertDriftResponse
       type: object
-    SetOptionsResponse:
+    SiteServiceOption:
       additionalProperties: false
-      properties:
-        sets:
-          items:
-            $ref: '#/components/schemas/RobotSetOptionResponse'
-          title: Sets
-          type: array
-      title: SetOptionsResponse
-      type: object
-    OfferPair:
-      additionalProperties: false
-      properties:
-        project_location_id:
-          title: Project Location Id
-          type: integer
-        location_name:
-          title: Location Name
-          type: string
-        service_id:
-          title: Service Id
-          type: integer
-        service_code:
-          title: Service Code
-          type: string
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-      required:
-      - project_location_id
-      - location_name
-      - service_id
-      - service_code
-      title: OfferPair
-      type: object
-    CertDriftItem:
-      additionalProperties: false
-      description: One cert that's been added or removed in pre-job vs the TR snapshot.
+      description: One service priced on the project's latest commercial offer.
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: CertDriftItem
-      type: object
-    TeamRequestNoteCreate:
-      additionalProperties: false
-      description: 'POST .../notes body — free-form note with optional @-mentions.
-
-
-        ``mentioned_user_ids`` is persisted as a sidecar list on the activity row
-
-        so a later email-notification step can resolve recipients without
-
-        re-parsing the note body. Order-preserving; duplicates are dropped.'
-      properties:
-        text:
-          maxLength: 4000
-          minLength: 1
-          title: Text
-          type: string
-        mentioned_user_ids:
-          items:
-            type: integer
-          title: Mentioned User Ids
-          type: array
-      required:
-      - text
-      title: TeamRequestNoteCreate
-      type: object
-    TeamRequestEventResponse:
-      additionalProperties: false
-      description: 'One row in the unified TR timeline.
-
-
-        Carries the union of status-change and activity fields; the
-
-        ``event_type`` discriminator tells the frontend how to render it
-
-        (``STATUS_CHANGE`` vs an activity type like ``NOTE_ADDED``).
-
-
-        ``id`` is unique within the response across both backing tables —
-
-        activity ids are offset by 1e9 so the frontend can use it as a stable
-
-        React key.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        event_type:
-          title: Event Type
+        code:
+          title: Code
           type: string
         description:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Description
-          type: string
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Id
-        resource_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Name
-        old_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Old Status
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: New Status
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        created_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created By Name
-        created_by_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created By Email
-        mentioned_user_ids:
-          items:
-            type: integer
-          title: Mentioned User Ids
-          type: array
       required:
       - id
-      - event_type
-      - description
-      - created_at
-      title: TeamRequestEventResponse
-      type: object
-    TeamRequestUpdate:
-      additionalProperties: false
-      properties:
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        people_count:
-          anyOf:
-          - maximum: 10
-            minimum: 1
-            type: integer
-          - type: 'null'
-          title: People Count
-        required_certificate_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Required Certificate Ids
-        mobilization_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Set the TR-owned mobilization date (TR-first flow). Rejected when a Set Request is already linked — the SR owns the date then.
-          title: Mobilization Date
-        project_location_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Full site set for the TR (DRAFT only). The primary project_location (tied to the PPRS) is always kept; any other ids become the additional sites. Editing re-derives the required certificates from the new site set.
-          title: Project Location Ids
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Legacy single-service param (DRAFT only). Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
-          title: Service Id
-        service_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: 'Full service set for the TR (DRAFT only). Replaces the current services wholesale: each id must be priced on the project''s latest offer; an empty list clears them. The first id becomes the primary ``service``.'
-          title: Service Ids
-      title: TeamRequestUpdate
-      type: object
-    OfferPairsResponse:
-      additionalProperties: false
-      properties:
-        pairs:
-          items:
-            $ref: '#/components/schemas/OfferPair'
-          title: Pairs
-          type: array
-      title: OfferPairsResponse
+      - code
+      title: SiteServiceOption
       type: object
     TeamRequestResponse:
       additionalProperties: false
@@ -1521,6 +1411,59 @@ components:
       - updated_at
       title: TeamRequestResponse
       type: object
+    TeamRequestUpdate:
+      additionalProperties: false
+      properties:
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        people_count:
+          anyOf:
+          - maximum: 10
+            minimum: 1
+            type: integer
+          - type: 'null'
+          title: People Count
+        required_certificate_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Required Certificate Ids
+        mobilization_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Set the TR-owned mobilization date (TR-first flow). Rejected when a Set Request is already linked — the SR owns the date then.
+          title: Mobilization Date
+        project_location_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Full site set for the TR (DRAFT only). The primary project_location (tied to the PPRS) is always kept; any other ids become the additional sites. Editing re-derives the required certificates from the new site set.
+          title: Project Location Ids
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Legacy single-service param (DRAFT only). Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
+          title: Service Id
+        service_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: 'Full service set for the TR (DRAFT only). Replaces the current services wholesale: each id must be priced on the project''s latest offer; an empty list clears them. The first id becomes the primary ``service``.'
+          title: Service Ids
+      title: TeamRequestUpdate
+      type: object
     SiteOptionsResponse:
       additionalProperties: false
       description: 'Services + cert preview for a project''s commercial-offer scope.
@@ -1559,18 +1502,136 @@ components:
           type: array
       title: SiteOptionsResponse
       type: object
-    SlotRejectPayload:
+    CertificateInfo:
       additionalProperties: false
-      description: POST .../slots/{id}/reject body. Reason is persisted on the slot.
+      description: A pre-job-resolved cert (a ``Certificate`` row matched by name).
       properties:
-        reason:
-          maxLength: 500
-          minLength: 1
-          title: Reason
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
           type: string
       required:
-      - reason
-      title: SlotRejectPayload
+      - id
+      - name
+      title: CertificateInfo
+      type: object
+    MentionCandidate:
+      additionalProperties: false
+      description: One user available for @-mention in a Set Request note.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: MentionCandidate
+      type: object
+    TeamRequestCreate:
+      additionalProperties: false
+      properties:
+        pprs_id:
+          description: PPRS the TR is bound to.
+          title: Pprs Id
+          type: integer
+        people_count:
+          maximum: 10
+          minimum: 1
+          title: People Count
+          type: integer
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        required_certificate_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Required Certificate Ids
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Legacy single-service param, kept for back-compat. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
+          title: Service Id
+        service_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Commercial-offer-scoped services this TR's set will perform (multi-select). FE picks from /site-options (all services in the project's commercial offer). Empty / omitted means no service binding yet. Server validates each id is in scope. The first id is kept as the primary ``service`` for single-service consumers.
+          title: Service Ids
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Fallback site to use when the PPRS row has a NULL project_location (Wrike sync couldn't match the windpark). Server validates the PL is on the same project, then backfills the PPRS so subsequent TR/SR against it auto-resolve. Ignored when the PPRS already has a site.
+          title: Project Location Id
+        project_location_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Sites this TR spans (multi-select). The first id is the fallback for a PPRS with no site (same semantics as project_location_id); the resolved primary plus every other id form the TR's site set. Required certificates are the deduped union across all of them. When omitted the TR is single-site (project_location_id / PPRS).
+          title: Project Location Ids
+      required:
+      - pprs_id
+      - people_count
+      title: TeamRequestCreate
+      type: object
+    TeamRequestDuplicate:
+      additionalProperties: false
+      properties:
+        pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional override; defaults to the source TR's PPRS.
+          title: Pprs Id
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Fallback site when the target PPRS has no project_location. Same semantics as on TeamRequestCreate.
+          title: Project Location Id
+        project_location_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Override the cloned site set. When given, the first id is the PPRS fallback and the full list becomes the duplicate's sites; when omitted, the source TR's site set is cloned.
+          title: Project Location Ids
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Legacy single-service override. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
+          title: Service Id
+        service_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Override the cloned services (each must be on the project's latest offer). When omitted, the source TR's full service set is cloned.
+          title: Service Ids
+      title: TeamRequestDuplicate
       type: object
     RobotSetOptionResponse:
       additionalProperties: false
@@ -1607,152 +1668,91 @@ components:
       - pprs_id
       title: RobotSetOptionResponse
       type: object
-    TeamRequestLocationRef:
+    TeamRequestEventResponse:
       additionalProperties: false
-      properties:
-        project_location_id:
-          title: Project Location Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - project_location_id
-      - name
-      title: TeamRequestLocationRef
-      type: object
-    MentionCandidateListResponse:
-      additionalProperties: false
-      properties:
-        candidates:
-          items:
-            $ref: '#/components/schemas/MentionCandidate'
-          title: Candidates
-          type: array
-      title: MentionCandidateListResponse
-      type: object
-    MentionCandidate:
-      additionalProperties: false
-      description: One user available for @-mention in a Set Request note.
+      description: 'One row in the unified TR timeline.
+
+
+        Carries the union of status-change and activity fields; the
+
+        ``event_type`` discriminator tells the frontend how to render it
+
+        (``STATUS_CHANGE`` vs an activity type like ``NOTE_ADDED``).
+
+
+        ``id`` is unique within the response across both backing tables —
+
+        activity ids are offset by 1e9 so the frontend can use it as a stable
+
+        React key.'
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
+        event_type:
+          title: Event Type
           type: string
-        email:
+        description:
+          title: Description
+          type: string
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        resource_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Email
+          title: Resource Name
+        old_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Old Status
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Status
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+        created_by_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Email
+        mentioned_user_ids:
+          items:
+            type: integer
+          title: Mentioned User Ids
+          type: array
       required:
       - id
-      - name
-      title: MentionCandidate
+      - event_type
+      - description
+      - created_at
+      title: TeamRequestEventResponse
       type: object
-    ResolveCertTokenPayload:
+    SlotRejectPayload:
       additionalProperties: false
-      description: 'Body for POST /team-requests/{id}/resolve-cert-token.
-
-
-        The doc-controller picks one unresolved token and tells the server what to
-
-        do with it: ``map`` it to an existing Certificate, ``create`` a fresh
-
-        Certificate then map, or ``drop`` it (strip with no new requirement).
-
-
-        The token is stripped from both pre-job cert answers — the
-
-        ``required_certifications`` list and the free-text
-
-        ``other_certification_details`` — across every site the TR spans. Matching
-
-        nothing is a 422, not a silent success.'
+      description: POST .../slots/{id}/reject body. Reason is persisted on the slot.
       properties:
-        matched_text:
-          description: Token to strip from the pre-job cert answers (required_certifications and/or other_certification_details)
+        reason:
+          maxLength: 500
           minLength: 1
-          title: Matched Text
+          title: Reason
           type: string
-        action:
-          description: What to do with the token
-          enum:
-          - map
-          - create
-          - drop
-          title: Action
-          type: string
-        certificate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Existing Certificate FK — required when action='map'
-          title: Certificate Id
-        new_certificate:
-          anyOf:
-          - $ref: '#/components/schemas/CertificateCreate'
-          - type: 'null'
-          description: Full CertificateCreate payload — required when action='create'
       required:
-      - matched_text
-      - action
-      title: ResolveCertTokenPayload
-      type: object
-    CertificateCreate:
-      additionalProperties: false
-      description: Schema for creating a Certificate.
-      properties:
-        name:
-          description: Certificate name
-          minLength: 1
-          title: Name
-          type: string
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Unique short code
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Description
-          title: Description
-        default_validity_months:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Default expiry window in months. Omit / null for non-expiring certificates.
-          title: Default Validity Months
-        is_active:
-          default: true
-          description: Whether the certificate is active
-          title: Is Active
-          type: boolean
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country the certificate is intrinsic to. Omit for global.
-          title: Country Id
-        category_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Category FK
-          title: Category Id
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Origin system (e.g. "bamboohr")
-          title: Source
-      required:
-      - name
-      title: CertificateCreate
+      - reason
+      title: SlotRejectPayload
       type: object
   securitySchemes:
     APIKeyAuth:

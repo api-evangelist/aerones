@@ -310,47 +310,44 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    NotificationSeenRequest:
+    NotificationPreferenceItem:
       additionalProperties: false
-      description: 'Body for the batch mark-as-seen action.
+      description: 'One category''s channel opt-outs, used for both request and response.
 
 
-        The cap stops one request issuing an unbounded UPDATE; the bell panel only ever
+        The response always carries every category; the upsert body requires both
 
-        reports the rows it rendered.'
+        channels so an omitted field cannot silently re-enable one.'
       properties:
-        ids:
-          description: Notification ids that were displayed. At most 200 per call; ids belonging to another user are ignored.
-          items:
-            type: integer
-          maxItems: 200
-          title: Ids
-          type: array
+        category:
+          $ref: '#/components/schemas/NotificationCategory'
+        email:
+          title: Email
+          type: boolean
+        push:
+          title: Push
+          type: boolean
       required:
-      - ids
-      title: NotificationSeenRequest
+      - category
+      - email
+      - push
+      title: NotificationPreferenceItem
       type: object
-    NotificationMarkAllReadResponse:
+    NotificationUpdate:
       additionalProperties: false
-      description: Response for mark-all-read action.
+      description: Schema for updating notification read/archived status.
       properties:
-        updated_count:
-          title: Updated Count
-          type: integer
-      required:
-      - updated_count
-      title: NotificationMarkAllReadResponse
+        is_read:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Read
+        is_archived:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Archived
+      title: NotificationUpdate
       type: object
     NotificationCategory:
       description: 'The unit a user unsubscribes from.
@@ -371,17 +368,27 @@ components:
       - ROTATIONS
       title: NotificationCategory
       type: string
-    NotificationSeenResponse:
+    NotificationMarkAllReadResponse:
       additionalProperties: false
-      description: Response for the batch mark-as-seen action.
+      description: Response for mark-all-read action.
       properties:
-        updated:
-          description: How many rows got a seen_at stamp. Already-seen rows are not re-stamped, so a repeat call returns 0.
-          title: Updated
+        updated_count:
+          title: Updated Count
           type: integer
       required:
-      - updated
-      title: NotificationSeenResponse
+      - updated_count
+      title: NotificationMarkAllReadResponse
+      type: object
+    NotificationUnreadCountResponse:
+      additionalProperties: false
+      description: Response for unread notification count.
+      properties:
+        count:
+          title: Count
+          type: integer
+      required:
+      - count
+      title: NotificationUnreadCountResponse
       type: object
     NotificationResponse:
       additionalProperties: false
@@ -487,56 +494,49 @@ components:
       - message
       title: Error
       type: object
-    NotificationUnreadCountResponse:
+    NotificationSeenRequest:
       additionalProperties: false
-      description: Response for unread notification count.
+      description: 'Body for the batch mark-as-seen action.
+
+
+        The cap stops one request issuing an unbounded UPDATE; the bell panel only ever
+
+        reports the rows it rendered.'
       properties:
-        count:
-          title: Count
+        ids:
+          description: Notification ids that were displayed. At most 200 per call; ids belonging to another user are ignored.
+          items:
+            type: integer
+          maxItems: 200
+          title: Ids
+          type: array
+      required:
+      - ids
+      title: NotificationSeenRequest
+      type: object
+    NotificationSeenResponse:
+      additionalProperties: false
+      description: Response for the batch mark-as-seen action.
+      properties:
+        updated:
+          description: How many rows got a seen_at stamp. Already-seen rows are not re-stamped, so a repeat call returns 0.
+          title: Updated
           type: integer
       required:
-      - count
-      title: NotificationUnreadCountResponse
+      - updated
+      title: NotificationSeenResponse
       type: object
-    NotificationUpdate:
-      additionalProperties: false
-      description: Schema for updating notification read/archived status.
-      properties:
-        is_read:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Read
-        is_archived:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Archived
-      title: NotificationUpdate
-      type: object
-    NotificationPreferenceItem:
-      additionalProperties: false
-      description: 'One category''s channel opt-outs, used for both request and response.
-
-
-        The response always carries every category; the upsert body requires both
-
-        channels so an omitted field cannot silently re-enable one.'
-      properties:
-        category:
-          $ref: '#/components/schemas/NotificationCategory'
-        email:
-          title: Email
-          type: boolean
-        push:
-          title: Push
-          type: boolean
-      required:
-      - category
-      - email
-      - push
-      title: NotificationPreferenceItem
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

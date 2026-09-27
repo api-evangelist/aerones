@@ -294,6 +294,248 @@ components:
       - name
       title: IDWithName
       type: object
+    OfferChangeSummary:
+      additionalProperties: false
+      description: Schema for high-level changes between offer versions.
+      properties:
+        manual_price_changes:
+          description: List of line item modifications (price, quantity, discount, etc.)
+          items:
+            type: string
+          title: Manual Price Changes
+          type: array
+        new_services:
+          description: List of new services added
+          items:
+            type: string
+          title: New Services
+          type: array
+        removed_services:
+          description: List of services removed
+          items:
+            type: string
+          title: Removed Services
+          type: array
+        price_increase:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total price increase
+          title: Price Increase
+        price_decrease:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total price decrease
+          title: Price Decrease
+      required:
+      - manual_price_changes
+      - new_services
+      - removed_services
+      title: OfferChangeSummary
+      type: object
+    LineItemDiff:
+      additionalProperties: false
+      description: Schema for line item differences between offer versions.
+      properties:
+        action:
+          description: 'Type of change: ''added'', ''removed'', ''modified'', ''unchanged'''
+          title: Action
+          type: string
+        row_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Row ID of the line item
+          title: Row Id
+        code:
+          description: Line item code
+          title: Code
+          type: string
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Line item category
+        price_old:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Old price value
+          title: Price Old
+        price_new:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New price value
+          title: Price New
+        quantity_old:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Old quantity value
+          title: Quantity Old
+        quantity_new:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: New quantity value
+          title: Quantity New
+        discount_old:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Old discount value
+          title: Discount Old
+        discount_new:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New discount value
+          title: Discount New
+        adjustment_old:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Old adjustment value
+          title: Adjustment Old
+        adjustment_new:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New adjustment value
+          title: Adjustment New
+        description_old:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Old description value
+          title: Description Old
+        description_new:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: New description value
+          title: Description New
+        turbine_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine model
+          title: Turbine Model
+        turbine_manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine manufacturer
+          title: Turbine Manufacturer
+        blade_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade model
+          title: Blade Model
+        blade_manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade manufacturer
+          title: Blade Manufacturer
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset type
+          title: Type
+        site:
+          anyOf:
+          - $ref: '#/components/schemas/IDWithName'
+          - type: 'null'
+          description: Site information
+      required:
+      - action
+      - code
+      - category
+      title: LineItemDiff
+      type: object
+    OfferStatus:
+      description: Individual offer level status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      title: OfferStatus
+      type: string
+    CodeWithName:
+      additionalProperties: false
+      description: Schema for code and name.
+      properties:
+        code:
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CodeWithName
+      type: object
+    ServiceRef:
+      additionalProperties: false
+      description: Nested service reference.
+      properties:
+        id:
+          description: Service ID
+          title: Id
+          type: integer
+        code:
+          description: Service code
+          title: Code
+          type: string
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service description
+          title: Name
+      required:
+      - id
+      - code
+      title: ServiceRef
+      type: object
+    PricingUnitRef:
+      additionalProperties: false
+      description: Nested pricing unit reference.
+      properties:
+        id:
+          description: Pricing unit ID
+          title: Id
+          type: integer
+        name:
+          description: Pricing unit name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PricingUnitRef
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     LineItem:
       additionalProperties: false
       description: Schema for offer line item.
@@ -488,162 +730,6 @@ components:
       - category
       title: LineItem
       type: object
-    ItemCoefficient:
-      additionalProperties: false
-      description: Schema for item coefficient information.
-      properties:
-        type:
-          description: Type of coefficient (Country, Month, or Special Conditions)
-          examples:
-          - Country
-          - Month
-          - Special Conditions
-          title: Type
-          type: string
-        name:
-          description: Name of the coefficient (e.g. country name, month name, or condition name)
-          examples:
-          - Germany
-          - February
-          - Unavailable Technicians
-          title: Name
-          type: string
-        value:
-          description: Value of the coefficient
-          examples:
-          - 1.1
-          - 1.2
-          - 1.5
-          title: Value
-          type: number
-      required:
-      - type
-      - name
-      - value
-      title: ItemCoefficient
-      type: object
-    LineItemDiff:
-      additionalProperties: false
-      description: Schema for line item differences between offer versions.
-      properties:
-        action:
-          description: 'Type of change: ''added'', ''removed'', ''modified'', ''unchanged'''
-          title: Action
-          type: string
-        row_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Row ID of the line item
-          title: Row Id
-        code:
-          description: Line item code
-          title: Code
-          type: string
-        category:
-          $ref: '#/components/schemas/CodeWithName'
-          description: Line item category
-        price_old:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Old price value
-          title: Price Old
-        price_new:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: New price value
-          title: Price New
-        quantity_old:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Old quantity value
-          title: Quantity Old
-        quantity_new:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: New quantity value
-          title: Quantity New
-        discount_old:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Old discount value
-          title: Discount Old
-        discount_new:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: New discount value
-          title: Discount New
-        adjustment_old:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Old adjustment value
-          title: Adjustment Old
-        adjustment_new:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: New adjustment value
-          title: Adjustment New
-        description_old:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Old description value
-          title: Description Old
-        description_new:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: New description value
-          title: Description New
-        turbine_model:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine model
-          title: Turbine Model
-        turbine_manufacturer:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine manufacturer
-          title: Turbine Manufacturer
-        blade_model:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Blade model
-          title: Blade Model
-        blade_manufacturer:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Blade manufacturer
-          title: Blade Manufacturer
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Asset type
-          title: Type
-        site:
-          anyOf:
-          - $ref: '#/components/schemas/IDWithName'
-          - type: 'null'
-          description: Site information
-      required:
-      - action
-      - code
-      - category
-      title: LineItemDiff
-      type: object
     Offer:
       additionalProperties: false
       description: Schema for project offer.
@@ -723,55 +809,6 @@ components:
       - status
       title: Offer
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    OfferRejectRequest:
-      additionalProperties: false
-      description: Schema for offer rejection request.
-      properties:
-        message:
-          description: Reason for rejecting the offer
-          title: Message
-          type: string
-      required:
-      - message
-      title: OfferRejectRequest
-      type: object
-    CodeWithName:
-      additionalProperties: false
-      description: Schema for code and name.
-      properties:
-        code:
-          description: Unique code.
-          title: Code
-          type: string
-        name:
-          description: Human readable name.
-          title: Name
-          type: string
-      required:
-      - code
-      - name
-      title: CodeWithName
-      type: object
-    OfferStatus:
-      description: Individual offer level status.
-      enum:
-      - Draft
-      - Pending
-      - Approved
-      - Rejected
-      title: OfferStatus
-      type: string
     CurrencyRef:
       additionalProperties: false
       description: Nested currency reference.
@@ -789,19 +826,108 @@ components:
       - code
       title: CurrencyRef
       type: object
-    Error:
+    ProjectOffer:
       additionalProperties: false
-      description: Error response schema.
+      description: Schema for project offer response.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
+        offer:
+          $ref: '#/components/schemas/Offer'
+          description: Project offer
+          examples:
+          - currency:
+              code: EUR
+              id: 1
+            line_items:
+            - category:
+                code: 01INS
+                name: Inspections
+              code: IIN-ONS
+              discount: 10.0
+              location:
+                id: 10
+                name: Site A
+              price: 100.5
+              quantity: 5
+              row_id: 1
+              service:
+                code: IIN-ONS
+                id: 123
+                name: Internal inspection
+              turbine_manufacturer:
+                id: 2
+                name: Vestas
+              turbine_model:
+                id: 5
+                name: V150
+      required:
+      - offer
+      title: ProjectOffer
+      type: object
+    ItemCoefficient:
+      additionalProperties: false
+      description: Schema for item coefficient information.
+      properties:
+        type:
+          description: Type of coefficient (Country, Month, or Special Conditions)
+          examples:
+          - Country
+          - Month
+          - Special Conditions
+          title: Type
+          type: string
+        name:
+          description: Name of the coefficient (e.g. country name, month name, or condition name)
+          examples:
+          - Germany
+          - February
+          - Unavailable Technicians
+          title: Name
+          type: string
+        value:
+          description: Value of the coefficient
+          examples:
+          - 1.1
+          - 1.2
+          - 1.5
+          title: Value
+          type: number
+      required:
+      - type
+      - name
+      - value
+      title: ItemCoefficient
+      type: object
+    OfferRejectRequest:
+      additionalProperties: false
+      description: Schema for offer rejection request.
+      properties:
         message:
+          description: Reason for rejecting the offer
           title: Message
           type: string
       required:
-      - code
       - message
-      title: Error
+      title: OfferRejectRequest
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     OfferComparison:
       additionalProperties: false
@@ -859,143 +985,6 @@ components:
       - final_sum_new
       title: OfferComparison
       type: object
-    ProjectOffer:
-      additionalProperties: false
-      description: Schema for project offer response.
-      properties:
-        offer:
-          $ref: '#/components/schemas/Offer'
-          description: Project offer
-          examples:
-          - currency:
-              code: EUR
-              id: 1
-            line_items:
-            - category:
-                code: 01INS
-                name: Inspections
-              code: IIN-ONS
-              discount: 10.0
-              location:
-                id: 10
-                name: Site A
-              price: 100.5
-              quantity: 5
-              row_id: 1
-              service:
-                code: IIN-ONS
-                id: 123
-                name: Internal inspection
-              turbine_manufacturer:
-                id: 2
-                name: Vestas
-              turbine_model:
-                id: 5
-                name: V150
-      required:
-      - offer
-      title: ProjectOffer
-      type: object
-    OfferChangeSummary:
-      additionalProperties: false
-      description: Schema for high-level changes between offer versions.
-      properties:
-        manual_price_changes:
-          description: List of line item modifications (price, quantity, discount, etc.)
-          items:
-            type: string
-          title: Manual Price Changes
-          type: array
-        new_services:
-          description: List of new services added
-          items:
-            type: string
-          title: New Services
-          type: array
-        removed_services:
-          description: List of services removed
-          items:
-            type: string
-          title: Removed Services
-          type: array
-        price_increase:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total price increase
-          title: Price Increase
-        price_decrease:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total price decrease
-          title: Price Decrease
-      required:
-      - manual_price_changes
-      - new_services
-      - removed_services
-      title: OfferChangeSummary
-      type: object
-    ServiceRef:
-      additionalProperties: false
-      description: Nested service reference.
-      properties:
-        id:
-          description: Service ID
-          title: Id
-          type: integer
-        code:
-          description: Service code
-          title: Code
-          type: string
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Service description
-          title: Name
-      required:
-      - id
-      - code
-      title: ServiceRef
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    PricingUnitRef:
-      additionalProperties: false
-      description: Nested pricing unit reference.
-      properties:
-        id:
-          description: Pricing unit ID
-          title: Id
-          type: integer
-        name:
-          description: Pricing unit name
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: PricingUnitRef
-      type: object
     OfferApprovalRequest:
       additionalProperties: false
       description: Schema for enhanced offer approval request.
@@ -1008,6 +997,17 @@ components:
           title: Sales Comment
       title: OfferApprovalRequest
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

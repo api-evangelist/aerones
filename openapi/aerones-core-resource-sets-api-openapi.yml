@@ -185,52 +185,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ResourceSetResponse:
-      additionalProperties: false
-      description: Schema for ResourceSet response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Resource set ID
-          title: Id
-          type: integer
-        name:
-          description: Resource set name
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource set description
-          title: Description
-        set_items:
-          description: Resource set items
-          items:
-            $ref: '#/components/schemas/ResourceSetItemOutput'
-          title: Set Items
-          type: array
-      required:
-      - updated_at
-      - id
-      - name
-      title: ResourceSetResponse
-      type: object
     ResourceSetUpdate:
       additionalProperties: false
       description: Schema for updating a ResourceSet.
@@ -255,6 +209,47 @@ components:
           description: Resource set items (None=unchanged, []=clear all, [...]= replace)
           title: Set Items
       title: ResourceSetUpdate
+      type: object
+    ResourceSetCreate:
+      additionalProperties: false
+      description: Schema for creating a ResourceSet.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource set description
+          title: Description
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items to create with the set
+          title: Set Items
+      required:
+      - name
+      title: ResourceSetCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ResourceSetItemOutput:
       additionalProperties: false
@@ -307,19 +302,25 @@ components:
       - is_active
       title: ResourceSetItemOutput
       type: object
-    Error:
+    Success:
       additionalProperties: false
-      description: Error response schema.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ResourceSetItemInput:
       additionalProperties: false
@@ -344,33 +345,32 @@ components:
       - resource_type
       title: ResourceSetItemInput
       type: object
-    Success:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResourceSetResponse:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for ResourceSet response.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ResourceSetCreate:
-      additionalProperties: false
-      description: Schema for creating a ResourceSet.
-      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Resource set ID
+          title: Id
+          type: integer
         name:
-          description: Entity name
-          minLength: 1
+          description: Resource set name
           title: Name
           type: string
         description:
@@ -380,16 +380,16 @@ components:
           description: Resource set description
           title: Description
         set_items:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ResourceSetItemInput'
-            type: array
-          - type: 'null'
-          description: Resource set items to create with the set
+          description: Resource set items
+          items:
+            $ref: '#/components/schemas/ResourceSetItemOutput'
           title: Set Items
+          type: array
       required:
+      - updated_at
+      - id
       - name
-      title: ResourceSetCreate
+      title: ResourceSetResponse
       type: object
   securitySchemes:
     APIKeyAuth:

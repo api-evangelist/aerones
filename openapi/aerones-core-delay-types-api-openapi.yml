@@ -205,17 +205,113 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    DelayTypeCreate:
+      additionalProperties: false
+      description: Schema for creating a DelayType.
+      properties:
+        delay_category_id:
+          description: Delay category ID
+          title: Delay Category Id
+          type: integer
+        code:
+          description: Delay type code
+          minLength: 1
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type description
+          title: Description
+        enabled:
+          default: true
+          description: Whether type is enabled
+          title: Enabled
+          type: boolean
+        include_in_client_reports:
+          default: true
+          description: Include in client reports
+          title: Include In Client Reports
+          type: boolean
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+      required:
+      - delay_category_id
+      - code
+      title: DelayTypeCreate
+      type: object
+    DelayTypeResponse:
+      additionalProperties: false
+      description: Schema for DelayType response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Delay type ID
+          title: Id
+          type: integer
+        delay_category:
+          $ref: '#/components/schemas/DelayCategoryObject'
+          description: Delay category information
+        code:
+          description: Delay type code
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type description
+          title: Description
+        enabled:
+          description: Whether type is enabled
+          title: Enabled
+          type: boolean
+        include_in_client_reports:
+          description: Include in client reports
+          title: Include In Client Reports
+          type: boolean
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+      required:
+      - updated_at
+      - id
+      - delay_category
+      - code
+      - enabled
+      - include_in_client_reports
+      title: DelayTypeResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     DelayTypeUpdate:
       additionalProperties: false
       description: Schema for updating a DelayType.
@@ -276,113 +372,6 @@ components:
       - code
       title: DelayCategoryObject
       type: object
-    DelayTypeResponse:
-      additionalProperties: false
-      description: Schema for DelayType response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Delay type ID
-          title: Id
-          type: integer
-        delay_category:
-          $ref: '#/components/schemas/DelayCategoryObject'
-          description: Delay category information
-        code:
-          description: Delay type code
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Type description
-          title: Description
-        enabled:
-          description: Whether type is enabled
-          title: Enabled
-          type: boolean
-        include_in_client_reports:
-          description: Include in client reports
-          title: Include In Client Reports
-          type: boolean
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields as JSON (object or array)
-          title: Custom Fields
-      required:
-      - updated_at
-      - id
-      - delay_category
-      - code
-      - enabled
-      - include_in_client_reports
-      title: DelayTypeResponse
-      type: object
-    DelayTypeCreate:
-      additionalProperties: false
-      description: Schema for creating a DelayType.
-      properties:
-        delay_category_id:
-          description: Delay category ID
-          title: Delay Category Id
-          type: integer
-        code:
-          description: Delay type code
-          minLength: 1
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Type description
-          title: Description
-        enabled:
-          default: true
-          description: Whether type is enabled
-          title: Enabled
-          type: boolean
-        include_in_client_reports:
-          default: true
-          description: Include in client reports
-          title: Include In Client Reports
-          type: boolean
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields as JSON (object or array)
-          title: Custom Fields
-      required:
-      - delay_category_id
-      - code
-      title: DelayTypeCreate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -403,6 +392,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

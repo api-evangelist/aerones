@@ -100,47 +100,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectOverviewPercentages:
-      additionalProperties: false
-      description: Schema for project overview completion percentages.
-      properties:
-        filled:
-          description: Total filled fields across all forms
-          title: Filled
-          type: integer
-        total:
-          description: Total fields across all forms
-          title: Total
-          type: integer
-        percentage:
-          description: Overall completion percentage (0-100)
-          title: Percentage
-          type: integer
-        rfi:
-          $ref: '#/components/schemas/RFICompletion'
-          description: RFI forms completion data
-        prejob:
-          $ref: '#/components/schemas/PreJobCompletion'
-          description: Pre-job forms completion data
-      required:
-      - filled
-      - total
-      - percentage
-      - rfi
-      - prejob
-      title: ProjectOverviewPercentages
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     PreJobCompletion:
       additionalProperties: false
       description: Schema for Pre-job forms completion data.
@@ -179,35 +138,35 @@ components:
       - site_safety
       title: PreJobCompletion
       type: object
-    AssetsServicesCompletion:
+    ProjectOverviewPercentages:
       additionalProperties: false
-      description: Schema for assets/services forms completion data.
+      description: Schema for project overview completion percentages.
       properties:
         filled:
-          description: Total filled fields across all assets/services forms
+          description: Total filled fields across all forms
           title: Filled
           type: integer
         total:
-          description: Total fields across all assets/services forms
+          description: Total fields across all forms
           title: Total
           type: integer
         percentage:
-          description: Overall assets/services completion percentage (0-100)
+          description: Overall completion percentage (0-100)
           title: Percentage
           type: integer
-        general:
-          $ref: '#/components/schemas/FormCompletion'
-          description: Assets/services general form completion
-        questions:
-          $ref: '#/components/schemas/FormCompletion'
-          description: Service-specific questions completion
+        rfi:
+          $ref: '#/components/schemas/RFICompletion'
+          description: RFI forms completion data
+        prejob:
+          $ref: '#/components/schemas/PreJobCompletion'
+          description: Pre-job forms completion data
       required:
       - filled
       - total
       - percentage
-      - general
-      - questions
-      title: AssetsServicesCompletion
+      - rfi
+      - prejob
+      title: ProjectOverviewPercentages
       type: object
     TechnicianSimple:
       additionalProperties: false
@@ -238,6 +197,72 @@ components:
       - email
       - phone
       title: TechnicianSimple
+      type: object
+    AssetsServicesCompletion:
+      additionalProperties: false
+      description: Schema for assets/services forms completion data.
+      properties:
+        filled:
+          description: Total filled fields across all assets/services forms
+          title: Filled
+          type: integer
+        total:
+          description: Total fields across all assets/services forms
+          title: Total
+          type: integer
+        percentage:
+          description: Overall assets/services completion percentage (0-100)
+          title: Percentage
+          type: integer
+        general:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Assets/services general form completion
+        questions:
+          $ref: '#/components/schemas/FormCompletion'
+          description: Service-specific questions completion
+      required:
+      - filled
+      - total
+      - percentage
+      - general
+      - questions
+      title: AssetsServicesCompletion
+      type: object
+    FormCompletion:
+      additionalProperties: false
+      description: Schema for form completion data.
+      properties:
+        filled:
+          description: Number of filled fields
+          title: Filled
+          type: integer
+        total:
+          description: Total number of fields
+          title: Total
+          type: integer
+        percentage:
+          description: Completion percentage (0-100)
+          title: Percentage
+          type: integer
+      required:
+      - filled
+      - total
+      - percentage
+      title: FormCompletion
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     RFICompletion:
       additionalProperties: false
@@ -277,42 +302,17 @@ components:
       - assets_services
       title: RFICompletion
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    FormCompletion:
-      additionalProperties: false
-      description: Schema for form completion data.
-      properties:
-        filled:
-          description: Number of filled fields
-          title: Filled
-          type: integer
-        total:
-          description: Total number of fields
-          title: Total
-          type: integer
-        percentage:
-          description: Completion percentage (0-100)
-          title: Percentage
-          type: integer
-      required:
-      - filled
-      - total
-      - percentage
-      title: FormCompletion
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

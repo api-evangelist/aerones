@@ -495,6 +495,46 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    CreateTeamMessagePayload:
+      additionalProperties: false
+      description: 'Payload for a dispatcher message to a team, dated today or later
+
+        (DISP-2288). Images are pre-uploaded via ``POST /core/v1/files/`` (bare);
+
+        their ids are passed here to be linked in the same transaction.'
+      properties:
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        date:
+          format: date
+          title: Date
+          type: string
+        text:
+          title: Text
+          type: string
+        image_file_ids:
+          items:
+            type: integer
+          title: Image File Ids
+          type: array
+      required:
+      - project_resource_set_id
+      - date
+      - text
+      title: CreateTeamMessagePayload
+      type: object
+    SetServiceKpiPayload:
+      additionalProperties: false
+      description: Payload to set a project's KPI override for one service (DISP-2988).
+      properties:
+        kpi_minutes:
+          title: Kpi Minutes
+          type: integer
+      required:
+      - kpi_minutes
+      title: SetServiceKpiPayload
+      type: object
     TeamMessageResponse:
       additionalProperties: false
       description: A team message with its current (possibly still-pending) reaction.
@@ -550,61 +590,40 @@ components:
       - attachments
       title: TeamMessageResponse
       type: object
-    TeamMessageAttachmentResponse:
+    DayCommentaryResponse:
       additionalProperties: false
-      description: One image attached to a team message.
+      description: One day-commentary entry.
       properties:
         id:
           title: Id
-          type: integer
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-      required:
-      - id
-      title: TeamMessageAttachmentResponse
-      type: object
-    CreateTeamMessagePayload:
-      additionalProperties: false
-      description: 'Payload for a dispatcher message to a team, dated today or later
-
-        (DISP-2288). Images are pre-uploaded via ``POST /core/v1/files/`` (bare);
-
-        their ids are passed here to be linked in the same transaction.'
-      properties:
-        project_resource_set_id:
-          title: Project Resource Set Id
           type: integer
         date:
           format: date
           title: Date
           type: string
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
         text:
           title: Text
           type: string
-        image_file_ids:
-          items:
-            type: integer
-          title: Image File Ids
-          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
       required:
-      - project_resource_set_id
+      - id
       - date
       - text
-      title: CreateTeamMessagePayload
-      type: object
-    SetServiceKpiPayload:
-      additionalProperties: false
-      description: Payload to set a project's KPI override for one service (DISP-2988).
-      properties:
-        kpi_minutes:
-          title: Kpi Minutes
-          type: integer
-      required:
-      - kpi_minutes
-      title: SetServiceKpiPayload
+      - created_at
+      title: DayCommentaryResponse
       type: object
     ServiceKpiResponse:
       additionalProperties: false
@@ -640,40 +659,21 @@ components:
       - has_override
       title: ServiceKpiResponse
       type: object
-    DayCommentaryResponse:
+    TeamMessageAttachmentResponse:
       additionalProperties: false
-      description: One day-commentary entry.
+      description: One image attached to a team message.
       properties:
         id:
           title: Id
           type: integer
-        date:
-          format: date
-          title: Date
-          type: string
-        category:
+        url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Category
-        text:
-          title: Text
-          type: string
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        created_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created By Name
+          title: Url
       required:
       - id
-      - date
-      - text
-      - created_at
-      title: DayCommentaryResponse
+      title: TeamMessageAttachmentResponse
       type: object
     DayCommentaryPayload:
       additionalProperties: false

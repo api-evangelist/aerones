@@ -234,151 +234,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectPlannedResourceSetStatus:
-      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
-
-
-        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
-
-        in sync.'
-      enum:
-      - PLANNED
-      - SUGGESTED
-      - APPROVED
-      - PLANNING
-      - EXECUTION
-      - FIELD_COMPLETED
-      - REJECTED
-      title: ProjectPlannedResourceSetStatus
-      type: string
-    ProjectPlannedResourceSetResponse:
-      additionalProperties: false
-      description: Schema for ProjectPlannedResourceSet response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Planned resource set ID
-          title: Id
-          type: integer
-        project:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectObject'
-          - type: 'null'
-          description: Project information
-        project_location:
-          anyOf:
-          - $ref: '#/components/schemas/NestedIdOnly'
-          - type: 'null'
-          description: Project location information
-        name:
-          description: Set name
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        status:
-          $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          description: Approval lifecycle status
-        set_items:
-          description: Planned resource set items
-          items:
-            $ref: '#/components/schemas/ProjectPlannedResourceSetItemEmbeddedOutput'
-          title: Set Items
-          type: array
-        planned_start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Earliest planned start across set items (min, NULL if none)
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Latest planned end across set items (max, NULL if none)
-          title: Planned End Date
-      required:
-      - updated_at
-      - id
-      - name
-      - status
-      title: ProjectPlannedResourceSetResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectPlannedResourceSetCreate:
-      additionalProperties: false
-      description: Schema for creating a ProjectPlannedResourceSet.
-      properties:
-        name:
-          description: Set name
-          minLength: 1
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        status:
-          allOf:
-          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          default: APPROVED
-          description: Set-deployment status (defaults to APPROVED on create)
-      required:
-      - name
-      title: ProjectPlannedResourceSetCreate
-      type: object
-    NestedIdOnly:
-      additionalProperties: false
-      description: Generic nested object with just id (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: NestedIdOnly
-      type: object
-    ProjectObject:
-      additionalProperties: false
-      description: Nested project object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: ProjectObject
-      type: object
     ProjectPlannedResourceSetItemEmbeddedOutput:
       additionalProperties: false
       description: 'Embedded planned item: same shape as a PRS item plus approval status.
@@ -449,39 +304,63 @@ components:
       - status
       title: ProjectPlannedResourceSetItemEmbeddedOutput
       type: object
-    Error:
+    ProjectPlannedResourceSetStatus:
+      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
+
+
+        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
+
+        in sync.'
+      enum:
+      - PLANNED
+      - SUGGESTED
+      - APPROVED
+      - PLANNING
+      - EXECUTION
+      - FIELD_COMPLETED
+      - REJECTED
+      title: ProjectPlannedResourceSetStatus
+      type: string
+    NestedIdOnly:
       additionalProperties: false
-      description: Error response schema.
+      description: Generic nested object with just id (no timestamps).
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
+        id:
+          title: Id
+          type: integer
       required:
-      - code
-      - message
-      title: Error
+      - id
+      title: NestedIdOnly
       type: object
-    Success:
+    ProjectPlannedResourceSetCreate:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for creating a ProjectPlannedResourceSet.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        name:
+          description: Set name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          default: APPROVED
+          description: Set-deployment status (defaults to APPROVED on create)
+      required:
+      - name
+      title: ProjectPlannedResourceSetCreate
       type: object
     ProjectPlannedResourceSetUpdate:
       additionalProperties: false
@@ -513,6 +392,127 @@ components:
           description: Approval lifecycle status
       title: ProjectPlannedResourceSetUpdate
       type: object
+    ProjectPlannedResourceSetResponse:
+      additionalProperties: false
+      description: Schema for ProjectPlannedResourceSet response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Planned resource set ID
+          title: Id
+          type: integer
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectObject'
+          - type: 'null'
+          description: Project information
+        project_location:
+          anyOf:
+          - $ref: '#/components/schemas/NestedIdOnly'
+          - type: 'null'
+          description: Project location information
+        name:
+          description: Set name
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        status:
+          $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          description: Approval lifecycle status
+        set_items:
+          description: Planned resource set items
+          items:
+            $ref: '#/components/schemas/ProjectPlannedResourceSetItemEmbeddedOutput'
+          title: Set Items
+          type: array
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Earliest planned start across set items (min, NULL if none)
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Latest planned end across set items (max, NULL if none)
+          title: Planned End Date
+      required:
+      - updated_at
+      - id
+      - name
+      - status
+      title: ProjectPlannedResourceSetResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectObject:
+      additionalProperties: false
+      description: Nested project object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: ProjectObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

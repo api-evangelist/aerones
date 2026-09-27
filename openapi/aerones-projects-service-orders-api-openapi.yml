@@ -1016,97 +1016,23 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ServiceOrderLineScopeChangeLinkedSol:
+    ServiceOrderHeaderOption:
       additionalProperties: false
-      description: The counterpart SOL on the other side of a scope change.
+      description: Compact service order header for filter dropdowns.
       properties:
         id:
-          description: Linked ServiceOrderLine ID
+          description: ServiceOrderHeader PK
           title: Id
           type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Linked SOL number
-          title: Number
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Linked SOL status
-          title: Status
+        label:
+          description: Display label (service_order_number or id)
+          title: Label
+          type: string
       required:
       - id
-      title: ServiceOrderLineScopeChangeLinkedSol
+      - label
+      title: ServiceOrderHeaderOption
       type: object
-    StatusChangeLogEntry:
-      additionalProperties: false
-      description: A single workorder status change log entry.
-      properties:
-        id:
-          description: Log entry ID
-          title: Id
-          type: integer
-        old_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Previous status
-          title: Old Status
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: New status
-          title: New Status
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Reason code (e.g. aerotask_processor, status_cascade, manual_admin)
-          title: Change Reason
-        change_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Free-text note
-          title: Change Note
-        status_changed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the status transition occurred
-          title: Status Changed At
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the log entry was created
-          title: Created At
-        created_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Display name of who triggered the change
-          title: Created By Name
-      required:
-      - id
-      title: StatusChangeLogEntry
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     BulkDeleteStatusChangeLogRequest:
       additionalProperties: false
       description: Request to bulk soft-delete status change log entries.
@@ -1120,300 +1046,6 @@ components:
       required:
       - entry_ids
       title: BulkDeleteStatusChangeLogRequest
-      type: object
-    ServiceOrderLineCustomerCustomFieldValuesReplace:
-      additionalProperties: false
-      description: 'The full set of customer custom field values to store on one line.
-
-
-        Replace semantics: a field the viewer can see and leaves out is cleared, a
-
-        field the viewer cannot see is never touched. See
-
-        ``CustomerCustomValueManager.replace_values_sync``.'
-      properties:
-        customer_custom_field_values:
-          description: Every value to store, one entry per field.
-          items:
-            $ref: '#/components/schemas/CustomerCustomValueInput'
-          title: Customer Custom Field Values
-          type: array
-      required:
-      - customer_custom_field_values
-      title: ServiceOrderLineCustomerCustomFieldValuesReplace
-      type: object
-    ServiceOrderLocation:
-      additionalProperties: false
-      description: Location summary for service order page.
-      properties:
-        id:
-          description: Location ID
-          title: Id
-          type: integer
-        name:
-          description: Location name
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ServiceOrderLocation
-      type: object
-    ServiceOrderLineWorkorder:
-      additionalProperties: false
-      description: Workorder for service order line detail.
-      properties:
-        id:
-          description: Workorder ID
-          title: Id
-          type: integer
-        name:
-          description: Workorder name
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: WO type (FIELD, ADMIN, OFFICE, DATA_UPLOAD)
-          title: Type
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: The blade this workorder targets; null for turbine-level work (e.g. Set Up / Packing Up). The scope-change create drawer uses it to offer only blades that actually have work on the line.
-          title: Turbine Component Id
-        activities_completed:
-          description: Completed activities
-          title: Activities Completed
-          type: integer
-        activities_total:
-          description: Total activities
-          title: Activities Total
-          type: integer
-        assignment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Team assignment
-          title: Assignment
-        is_optional:
-          description: Whether workorder is optional
-          title: Is Optional
-          type: boolean
-        is_rework:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether the workorder is rework (redoing already-completed work). NULL on legacy/normal workorders.
-          title: Is Rework
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Workorder status
-          title: Status
-        completed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Completion timestamp
-          title: Completed At
-        completed_at_debug:
-          anyOf:
-          - $ref: '#/components/schemas/CompletedAtDebug'
-          - type: 'null'
-          description: Completion timestamp source breakdown
-        cancellation_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Free-text reason recorded when the workorder was cancelled. Sourced from the change_note of the latest WorkorderStatusChangeLog entry that transitioned the workorder into CANCELLED. Null when the workorder isn't cancelled or no note was captured (e.g. cascades).
-          title: Cancellation Reason
-        cancelled_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Display name of the user who cancelled the workorder. Sourced from the same log entry as cancellation_reason. Null when the workorder isn't cancelled or the actor is unknown.
-          title: Cancelled By Name
-      required:
-      - id
-      - name
-      - activities_completed
-      - activities_total
-      - is_optional
-      title: ServiceOrderLineWorkorder
-      type: object
-    WorkorderActivityResourceLink:
-      additionalProperties: false
-      description: 'Resource assignment row on a workorder activity.
-
-
-        Mirrors the dict shape returned by
-
-        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
-
-        per row in the ``dispatch.workorder_activity_resources`` junction table).'
-      properties:
-        id:
-          title: Id
-          type: integer
-        resource_id:
-          title: Resource Id
-          type: integer
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Lead
-        resource_full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Full Name
-        resource_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Email
-      required:
-      - id
-      - resource_id
-      title: WorkorderActivityResourceLink
-      type: object
-    WorkorderStatusLogValue:
-      description: Valid workorder status values for status change log entries.
-      enum:
-      - UNASSIGNED
-      - NOT_STARTED
-      - IN_PROGRESS
-      - COMPLETED
-      - CANCELLED
-      title: WorkorderStatusLogValue
-      type: string
-    GenerationLocation:
-      additionalProperties: false
-      description: Location option for generation filter dropdown.
-      properties:
-        id:
-          description: Location ID
-          title: Id
-          type: integer
-        name:
-          description: Location name
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: GenerationLocation
-      type: object
-    AvailableActivity:
-      additionalProperties: false
-      description: Available activity option for workorder activity creation.
-      properties:
-        id:
-          description: Service item activity ID
-          title: Id
-          type: integer
-        description:
-          description: Activity description
-          title: Description
-          type: string
-        estimated_duration:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Estimated duration in minutes
-          title: Estimated Duration
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields data
-          title: Custom Fields
-      required:
-      - id
-      - description
-      title: AvailableActivity
-      type: object
-    WarrantyServiceOrderRef:
-      additionalProperties: false
-      description: A warranty SOL derived from this line (lives in the warranty project).
-      properties:
-        id:
-          description: Warranty ServiceOrderLine ID
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Warranty SOL number
-          title: Number
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Warranty SOL status
-          title: Status
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Warranty work service code
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Warranty work service description
-          title: Service Description
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the warranty SOL was created
-          title: Created At
-        field_completed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Field-completed timestamp from the SOL status change log
-          title: Field Completed At
-        completed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Office-finalization timestamp from SOL.completed_date
-          title: Completed At
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Warranty project (core) ID
-          title: Project Id
-        project_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Warranty project code
-          title: Project Code
-        project_builder_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Warranty project builder UUID (frontend routing)
-          title: Project Builder Id
-      required:
-      - id
-      title: WarrantyServiceOrderRef
       type: object
     CompletedAtDebug:
       additionalProperties: false
@@ -1442,557 +1074,23 @@ components:
           title: From Updated At
       title: CompletedAtDebug
       type: object
-    ServiceOrderGenerationDataResponse:
+    DeleteWorkorderResponse:
       additionalProperties: false
-      description: Response for GET generation data endpoint.
+      description: Response from deleting an unplanned workorder.
       properties:
-        items:
-          description: Selectable ProjectScopeItem records
-          items:
-            $ref: '#/components/schemas/GenerationItem'
-          title: Items
-          type: array
-        total:
-          description: Total count of selectable records
-          title: Total
-          type: integer
-        locations:
-          description: Location filter options
-          items:
-            $ref: '#/components/schemas/GenerationLocation'
-          title: Locations
-          type: array
-        services:
-          description: Service filter options
-          items:
-            $ref: '#/components/schemas/GenerationService'
-          title: Services
-          type: array
-        existing_service_orders_count:
-          description: Number of existing service orders for this project
-          title: Existing Service Orders Count
-          type: integer
-      required:
-      - items
-      - total
-      - locations
-      - services
-      - existing_service_orders_count
-      title: ServiceOrderGenerationDataResponse
-      type: object
-    CreateWarrantyWorkRequest:
-      additionalProperties: false
-      description: 'Request payload to create a warranty-work SOL from this SOL.
-
-
-        Targeting defaults to mirroring the original (component overrides and
-
-        explicit component targeting are deferred to the configure-scope surface).
-
-        Warranty work is always non-billable (hardcoded). Workorder generation is
-
-        driven by service-item selection.'
-      properties:
-        target_service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service for the warranty work; defaults to the original's service.
-          title: Target Service Id
-        service_item_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Which service items to generate workorders for. Omitted → all required items of the target service; empty list → no workorders; list → just those.
-          title: Service Item Ids
-        component_overrides:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ComponentOverride'
-            type: array
-          - type: 'null'
-          description: Optional per-service-item narrowing to a subset of turbine components.
-          title: Component Overrides
-      title: CreateWarrantyWorkRequest
-      type: object
-    TurbineComponentOption:
-      additionalProperties: false
-      description: A selectable turbine component for workorder generation.
-      properties:
-        id:
-          description: TurbineComponent ID
-          title: Id
-          type: integer
-        serial_number:
-          description: Component serial number
-          title: Serial Number
-          type: string
-        position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Position (e.g., 'A', 'B', 'C')
-          title: Position
-        label:
-          description: Display label (position or serial number)
-          title: Label
-          type: string
-      required:
-      - id
-      - serial_number
-      - label
-      title: TurbineComponentOption
-      type: object
-    ServiceOrderGenerateRequest:
-      additionalProperties: false
-      description: Request payload for generating service orders.
-      properties:
-        items:
-          description: List of scope items with their individual generation configs
-          items:
-            $ref: '#/components/schemas/ScopeItemGenerationConfig'
-          title: Items
-          type: array
-        confirm_duplicates:
-          default: false
-          description: Acknowledge generating additional SOLs for scope items that already have a live (non-cancelled) SOL. When False, such items block generation and the response returns requires_confirmation.
-          title: Confirm Duplicates
+        success:
+          description: Whether deletion succeeded
+          title: Success
           type: boolean
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Error message if failed
+          title: Error
       required:
-      - items
-      title: ServiceOrderGenerateRequest
-      type: object
-    CreateStatusChangeLogRequest:
-      additionalProperties: false
-      description: Request to create a new status change log entry.
-      properties:
-        old_status:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderStatusLogValue'
-          - type: 'null'
-          description: Previous status
-        new_status:
-          $ref: '#/components/schemas/WorkorderStatusLogValue'
-          description: New status
-        status_changed_at:
-          description: When the status transition occurred (ISO 8601)
-          format: date-time
-          title: Status Changed At
-          type: string
-        change_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Free-text note
-          title: Change Note
-      required:
-      - new_status
-      - status_changed_at
-      title: CreateStatusChangeLogRequest
-      type: object
-    BulkCreateStatusChangeLogRequest:
-      additionalProperties: false
-      description: Request to bulk-create status change log entries for multiple workorders.
-      properties:
-        workorder_ids:
-          description: Workorder IDs to create entries for
-          items:
-            type: integer
-          title: Workorder Ids
-          type: array
-        entries:
-          description: Entries to create for each workorder
-          items:
-            $ref: '#/components/schemas/CreateStatusChangeLogRequest'
-          title: Entries
-          type: array
-      required:
-      - workorder_ids
-      - entries
-      title: BulkCreateStatusChangeLogRequest
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CustomerCustomFieldResponse:
-      additionalProperties: false
-      description: 'A customer custom field definition, as any record''s REST surface returns it.
-
-
-        Serialized straight from a ``core.CustomerCustomField`` row. ``options`` is
-
-        what the field offers on the record it is being returned for; see
-
-        ``resolve_options``.'
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Custom field ID
-          title: Id
-          type: integer
-        customer_id:
-          description: Owning customer ID
-          title: Customer Id
-          type: integer
-        customer_display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Owning customer display name, for labelling the field group
-          title: Customer Display Name
-        name:
-          description: Field name
-          title: Name
-          type: string
-        type:
-          description: Field data type
-          title: Type
-          type: string
-        options:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/CustomerCustomFieldOption'
-            type: array
-          - type: 'null'
-          description: Allowed options for SELECT-type fields. A field reading its options from a live list carries the list resolved for this record.
-          title: Options
-        options_source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: The live list a SELECT field reads its options from, or null for a field storing its own. When set, an empty options list means no value is allowed; when null, an empty list leaves the field unrestricted.
-          title: Options Source
-        validation:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: Limits the value must satisfy, as {min, max, decimals}. Applies to NUMBER fields; decimals 0 means whole numbers only.
-          title: Validation
-      required:
-      - updated_at
-      - id
-      - customer_id
-      - name
-      - type
-      title: CustomerCustomFieldResponse
-      type: object
-    ComponentOverride:
-      additionalProperties: false
-      description: 'Per-ServiceItem narrowing of which turbine components get a workorder.
-
-
-        Used by the line-level workorder generation endpoint, where the caller
-
-        already specifies which ServiceItems to generate via ``service_item_ids``
-
-        and this schema *additionally* narrows the component selection.'
-      properties:
-        service_item_id:
-          description: ServiceItem ID this override applies to (must be component-level).
-          title: Service Item Id
-          type: integer
-        turbine_component_ids:
-          description: TurbineComponent IDs that should receive a workorder for this ServiceItem. Each id must belong to the scope item's turbine and match the ServiceItem's component type. An empty list (or omitting the override entirely) falls back to the default selection — all components matching the ServiceItem's component type.
-          items:
-            type: integer
-          title: Turbine Component Ids
-          type: array
-      required:
-      - service_item_id
-      title: ComponentOverride
-      type: object
-    ProjectServiceOrderListItem:
-      additionalProperties: false
-      description: Service order line for paginated list (without nested workorders).
-      properties:
-        id:
-          description: ServiceOrderLine ID
-          title: Id
-          type: integer
-        service_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: ServiceOrderHeader ID
-          title: Service Order Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine ID
-          title: Turbine Id
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine name
-          title: Turbine Name
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Location name
-          title: Location Name
-        service_code:
-          description: Service code
-          title: Service Code
-          type: string
-        service_name:
-          description: Service name
-          title: Service Name
-          type: string
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine component ID the line is pinned to
-          title: Turbine Component Id
-        turbine_component_serial:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine component serial number
-          title: Turbine Component Serial
-        turbine_component_position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine component position
-          title: Turbine Component Position
-        component_type_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Component type name
-          title: Component Type Name
-        workorder_count:
-          description: Number of workorders
-          title: Workorder Count
-          type: integer
-        workorder_turbine_component_ids:
-          description: Distinct turbine_component_id values across the line's non-deleted workorders (any status, cancelled included). Lets the scope-change create drawer tell whether a whole-turbine line still has any blade left to scope change without fetching every line's workorders.
-          items:
-            type: integer
-          title: Workorder Turbine Component Ids
-          type: array
-        warranty_sol_count:
-          default: 0
-          description: Number of warranty SOLs derived from this line
-          title: Warranty Sol Count
-          type: integer
-        created_at:
-          description: Creation timestamp
-          format: date-time
-          title: Created At
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Service order line status
-          title: Status
-        field_completed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When field work was completed
-          title: Field Completed At
-        field_completed_at_debug:
-          anyOf:
-          - $ref: '#/components/schemas/FieldCompletedAtDebug'
-          - type: 'null'
-          description: Field completed timestamp source
-        completed_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When office finalization occurred
-          title: Completed At
-        completed_at_debug:
-          anyOf:
-          - $ref: '#/components/schemas/LineCompletedAtDebug'
-          - type: 'null'
-          description: Office finalization timestamp source
-        original_sol_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Original SOL this line reworks (warranty work)
-          title: Original Sol Id
-        original_sol_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Original SOL number
-          title: Original Sol Number
-        original_sol_project_builder_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Builder UUID of the original SOL's project (frontend routing)
-          title: Original Sol Project Builder Id
-      required:
-      - id
-      - service_code
-      - service_name
-      - workorder_count
-      - created_at
-      title: ProjectServiceOrderListItem
-      type: object
-    GenerateLineWorkordersRequest:
-      additionalProperties: false
-      description: Request payload for generating additional workorders from a ServiceOrderLine.
-      properties:
-        service_item_ids:
-          description: ServiceItem IDs to generate workorders for. Currently only optional service items are allowed.
-          items:
-            type: integer
-          title: Service Item Ids
-          type: array
-        component_overrides:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ComponentOverride'
-            type: array
-          - type: 'null'
-          description: Optional narrowing of which turbine components get a workorder for each component-level ServiceItem. ServiceItems not listed (or listed with an empty list) use the default scope-item-driven selection.
-          title: Component Overrides
-        activity_overrides:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ActivityOverride'
-            type: array
-          - type: 'null'
-          description: 'Optional per-ServiceItem customization of the generated activities: exclude specific template activities and/or force others mandatory. ServiceItems not listed use the default template-driven activity set.'
-          title: Activity Overrides
-        force_optional_activities:
-          default: false
-          description: When true, every generated activity is created optional regardless of its template flag. The UI sets this for lines created from a scope change, where mandatory steps may already have been completed on the pre-scope-change workorders and should not block completion of the new SOL.
-          title: Force Optional Activities
-          type: boolean
-        is_rework:
-          default: false
-          description: When true, the generated workorders are marked as rework (redoing already-completed work). Only allowed when every selected service item resolves to a FIELD_WORK/FIELD_OTHER workorder type. Optional; defaults to False.
-          title: Is Rework
-          type: boolean
-        rework_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text note for the rework. Recorded as the change_note on the generated workorders' status-change logs (and on the SOL reopen log when generating reopens a field-completed/completed line). Ignored when is_rework is false.
-          title: Rework Note
-      required:
-      - service_item_ids
-      title: GenerateLineWorkordersRequest
-      type: object
-    GenerateLineWorkordersResponse:
-      additionalProperties: false
-      description: Response from generating additional workorders for a line.
-      properties:
-        workorder_ids:
-          default: []
-          description: IDs of the newly created workorders
-          items:
-            type: integer
-          title: Workorder Ids
-          type: array
-      title: GenerateLineWorkordersResponse
-      type: object
-    WorkorderResource:
-      additionalProperties: false
-      description: Resource assigned to a workorder.
-      properties:
-        id:
-          description: Resource ID
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource full name
-          title: Full Name
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ROBOT or TECHNICIAN
-          title: Resource Type
-      required:
-      - id
-      title: WorkorderResource
-      type: object
-    DuplicateScopeItem:
-      additionalProperties: false
-      description: A requested scope item that already has a live SOL (duplicate guard).
-      properties:
-        scope_item_id:
-          description: ProjectScopeItem ID
-          title: Scope Item Id
-          type: integer
-        existing_sol_count:
-          description: Count of live (non-cancelled) SOLs already on this scope item
-          title: Existing Sol Count
-          type: integer
-        existing_sol_ids:
-          default: []
-          description: IDs of the live SOLs already on this scope item (for linking)
-          items:
-            type: integer
-          title: Existing Sol Ids
-          type: array
-      required:
-      - scope_item_id
-      - existing_sol_count
-      title: DuplicateScopeItem
-      type: object
-    SolStatusChangeLogGroup:
-      additionalProperties: false
-      description: Status change log entries grouped by workorder.
-      properties:
-        workorder_id:
-          description: Workorder ID
-          title: Workorder Id
-          type: integer
-        workorder_name:
-          description: Workorder name
-          title: Workorder Name
-          type: string
-        workorder_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Current workorder status
-          title: Workorder Status
-        entries:
-          description: Status change log entries for this workorder
-          items:
-            $ref: '#/components/schemas/StatusChangeLogEntry'
-          title: Entries
-          type: array
-      required:
-      - workorder_id
-      - workorder_name
-      title: SolStatusChangeLogGroup
+      - success
+      title: DeleteWorkorderResponse
       type: object
     GenerationService:
       additionalProperties: false
@@ -2032,188 +1130,6 @@ components:
       - required_workorder_count
       - optional_workorder_count
       title: GenerationService
-      type: object
-    OptionalServiceItemGeneration:
-      additionalProperties: false
-      description: 'Opt-in (and optionally narrow) for one optional ServiceItem.
-
-
-        Used by the bulk service-order generation endpoint where required
-
-        ServiceItems are auto-included; this schema describes both the opt-in
-
-        of an optional ServiceItem AND the per-component narrowing in a single
-
-        entry, so the ``service_item_id`` and ``turbine_component_ids`` always
-
-        live on the same level.'
-      properties:
-        service_item_id:
-          description: Optional ServiceItem ID to include for this scope item.
-          title: Service Item Id
-          type: integer
-        turbine_component_ids:
-          description: TurbineComponent IDs that should receive a workorder for this ServiceItem. Each id must belong to the scope item's turbine and match the ServiceItem's component type. Empty list = default selection (every matching component).
-          items:
-            type: integer
-          title: Turbine Component Ids
-          type: array
-      required:
-      - service_item_id
-      title: OptionalServiceItemGeneration
-      type: object
-    WorkorderActivityDetail:
-      additionalProperties: false
-      description: Workorder activity response.
-      properties:
-        id:
-          description: Activity ID
-          title: Id
-          type: integer
-        activity_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Activity description
-          title: Activity Description
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Start datetime
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: End datetime
-          title: End Datetime
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status
-          title: Status
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether the activity is optional. Null is treated as optional.
-          title: Is Optional
-        estimated_duration:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Mirrored from the linked SIA's estimated_duration at create time (minutes). Null when no SIA template is linked. Frontend treats zero as 'instant' and renders a single 'Completed at' field.
-          title: Estimated Duration
-        resources:
-          description: Resources assigned to this activity (snapshot)
-          items:
-            $ref: '#/components/schemas/WorkorderResource'
-          title: Resources
-          type: array
-        activity_resources:
-          description: Normalised resource assignments from the ``dispatch.workorder_activity_resources`` junction table. Empty until the cutover from the legacy ``resources`` JSON column has landed.
-          items:
-            $ref: '#/components/schemas/WorkorderActivityResourceLink'
-          title: Activity Resources
-          type: array
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields data
-          title: Custom Fields
-      required:
-      - id
-      title: WorkorderActivityDetail
-      type: object
-    GenerationServiceItem:
-      additionalProperties: false
-      description: Service item info for workorder generation preview.
-      properties:
-        id:
-          description: ServiceItem ID
-          title: Id
-          type: integer
-        code:
-          description: ServiceItem code
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ServiceItem description
-          title: Description
-        is_optional:
-          description: Whether this service item is optional
-          title: Is Optional
-          type: boolean
-        service_id:
-          description: Parent Service ID
-          title: Service Id
-          type: integer
-        component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Component type ID (if component-specific)
-          title: Component Id
-        component_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Component type name (e.g., 'Blade') - NULL means turbine-level
-          title: Component Name
-      required:
-      - id
-      - code
-      - is_optional
-      - service_id
-      title: GenerationServiceItem
-      type: object
-    LineCompletedAtDebug:
-      additionalProperties: false
-      description: Tooltip data for SOL completed_at (office finalization).
-      properties:
-        completed_date:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: SOL.completed_date (set during office finalization)
-          title: Completed Date
-        from_status_log:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: From SOL status change log (COMPLETED transition)
-          title: From Status Log
-      title: LineCompletedAtDebug
-      type: object
-    ScopeItemGenerationConfig:
-      additionalProperties: false
-      description: Configuration for generating from a single scope item.
-      properties:
-        scope_item_id:
-          description: ProjectScopeItem ID
-          title: Scope Item Id
-          type: integer
-        optional_service_items:
-          description: Optional ServiceItems to opt-in for this scope item, each optionally narrowed to a subset of turbine components. Required ServiceItems are auto-included for the scope item and do not need to be listed here.
-          items:
-            $ref: '#/components/schemas/OptionalServiceItemGeneration'
-          title: Optional Service Items
-          type: array
-      required:
-      - scope_item_id
-      title: ScopeItemGenerationConfig
       type: object
     ServiceOrderLineDetail:
       additionalProperties: false
@@ -2369,83 +1285,118 @@ components:
       - service_description
       title: ServiceOrderLineDetail
       type: object
-    WorkorderBreakdownItem:
+    ServiceOrderDeleteResponse:
       additionalProperties: false
-      description: Breakdown of workorders per service item with selectable components.
+      description: Response for service order deletion.
       properties:
-        service_item_id:
-          description: ServiceItem ID
-          title: Service Item Id
-          type: integer
-        service_item_code:
-          description: ServiceItem code
-          title: Service Item Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ServiceItem description
-          title: Description
-        component_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Component type (e.g., 'Blade') or null for turbine-level
-          title: Component Name
-        component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Component type ID
-          title: Component Id
-        is_optional:
-          description: Whether this service item is optional
-          title: Is Optional
+        success:
+          description: Whether deletion was successful
+          title: Success
           type: boolean
-        components:
+        deleted:
+          $ref: '#/components/schemas/ServiceOrderDeleteCounts'
+          description: Counts of deleted records
+      required:
+      - success
+      - deleted
+      title: ServiceOrderDeleteResponse
+      type: object
+    GenerateLineWorkordersResponse:
+      additionalProperties: false
+      description: Response from generating additional workorders for a line.
+      properties:
+        workorder_ids:
           default: []
-          description: Selectable turbine components (empty for turbine-level items)
+          description: IDs of the newly created workorders
           items:
-            $ref: '#/components/schemas/TurbineComponentOption'
-          title: Components
+            type: integer
+          title: Workorder Ids
+          type: array
+      title: GenerateLineWorkordersResponse
+      type: object
+    GenerationLocation:
+      additionalProperties: false
+      description: Location option for generation filter dropdown.
+      properties:
+        id:
+          description: Location ID
+          title: Id
+          type: integer
+        name:
+          description: Location name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: GenerationLocation
+      type: object
+    GenerateLineWorkordersRequest:
+      additionalProperties: false
+      description: Request payload for generating additional workorders from a ServiceOrderLine.
+      properties:
+        service_item_ids:
+          description: ServiceItem IDs to generate workorders for. Currently only optional service items are allowed.
+          items:
+            type: integer
+          title: Service Item Ids
+          type: array
+        component_overrides:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ComponentOverride'
+            type: array
+          - type: 'null'
+          description: Optional narrowing of which turbine components get a workorder for each component-level ServiceItem. ServiceItems not listed (or listed with an empty list) use the default scope-item-driven selection.
+          title: Component Overrides
+        activity_overrides:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ActivityOverride'
+            type: array
+          - type: 'null'
+          description: 'Optional per-ServiceItem customization of the generated activities: exclude specific template activities and/or force others mandatory. ServiceItems not listed use the default template-driven activity set.'
+          title: Activity Overrides
+        force_optional_activities:
+          default: false
+          description: When true, every generated activity is created optional regardless of its template flag. The UI sets this for lines created from a scope change, where mandatory steps may already have been completed on the pre-scope-change workorders and should not block completion of the new SOL.
+          title: Force Optional Activities
+          type: boolean
+        is_rework:
+          default: false
+          description: When true, the generated workorders are marked as rework (redoing already-completed work). Only allowed when every selected service item resolves to a FIELD_WORK/FIELD_OTHER workorder type. Optional; defaults to False.
+          title: Is Rework
+          type: boolean
+        rework_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text note for the rework. Recorded as the change_note on the generated workorders' status-change logs (and on the SOL reopen log when generating reopens a field-completed/completed line). Ignored when is_rework is false.
+          title: Rework Note
+      required:
+      - service_item_ids
+      title: GenerateLineWorkordersRequest
+      type: object
+    BulkCreateStatusChangeLogRequest:
+      additionalProperties: false
+      description: Request to bulk-create status change log entries for multiple workorders.
+      properties:
+        workorder_ids:
+          description: Workorder IDs to create entries for
+          items:
+            type: integer
+          title: Workorder Ids
+          type: array
+        entries:
+          description: Entries to create for each workorder
+          items:
+            $ref: '#/components/schemas/CreateStatusChangeLogRequest'
+          title: Entries
           type: array
       required:
-      - service_item_id
-      - service_item_code
-      - is_optional
-      title: WorkorderBreakdownItem
-      type: object
-    FieldCompletedAtDebug:
-      additionalProperties: false
-      description: Tooltip data for SOL field_completed_at.
-      properties:
-        from_status_log:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: From SOL status change log (FIELD_COMPLETED transition)
-          title: From Status Log
-      title: FieldCompletedAtDebug
-      type: object
-    CustomerCustomValueInput:
-      additionalProperties: false
-      description: One value to store against a customer custom field, on the record the URL names.
-      properties:
-        custom_field_id:
-          description: Customer custom field ID
-          title: Custom Field Id
-          type: integer
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Value for the field. Null or empty clears it.
-          title: Value
-      required:
-      - custom_field_id
-      title: CustomerCustomValueInput
+      - workorder_ids
+      - entries
+      title: BulkCreateStatusChangeLogRequest
       type: object
     CreateWarrantyWorkResponse:
       additionalProperties: false
@@ -2507,22 +1458,504 @@ components:
       - project_scope_item_id
       title: CreateWarrantyWorkResponse
       type: object
-    ServiceOrderHeaderOption:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    FieldCompletedAtDebug:
       additionalProperties: false
-      description: Compact service order header for filter dropdowns.
+      description: Tooltip data for SOL field_completed_at.
+      properties:
+        from_status_log:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: From SOL status change log (FIELD_COMPLETED transition)
+          title: From Status Log
+      title: FieldCompletedAtDebug
+      type: object
+    CreateStatusChangeLogRequest:
+      additionalProperties: false
+      description: Request to create a new status change log entry.
+      properties:
+        old_status:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderStatusLogValue'
+          - type: 'null'
+          description: Previous status
+        new_status:
+          $ref: '#/components/schemas/WorkorderStatusLogValue'
+          description: New status
+        status_changed_at:
+          description: When the status transition occurred (ISO 8601)
+          format: date-time
+          title: Status Changed At
+          type: string
+        change_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text note
+          title: Change Note
+      required:
+      - new_status
+      - status_changed_at
+      title: CreateStatusChangeLogRequest
+      type: object
+    CustomerCustomValueResponse:
+      additionalProperties: false
+      description: One stored customer custom field value, embedded in its record's response.
       properties:
         id:
-          description: ServiceOrderHeader PK
+          description: Custom value ID
           title: Id
           type: integer
+        custom_field_id:
+          description: Customer custom field ID
+          title: Custom Field Id
+          type: integer
+        custom_field_name:
+          description: Field name
+          title: Custom Field Name
+          type: string
+        custom_field_type:
+          description: Field data type
+          title: Custom Field Type
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Value for the field
+          title: Value
+      required:
+      - id
+      - custom_field_id
+      - custom_field_name
+      - custom_field_type
+      title: CustomerCustomValueResponse
+      type: object
+    WorkorderResource:
+      additionalProperties: false
+      description: Resource assigned to a workorder.
+      properties:
+        id:
+          description: Resource ID
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ROBOT or TECHNICIAN
+          title: Resource Type
+      required:
+      - id
+      title: WorkorderResource
+      type: object
+    ScopeItemGenerationConfig:
+      additionalProperties: false
+      description: Configuration for generating from a single scope item.
+      properties:
+        scope_item_id:
+          description: ProjectScopeItem ID
+          title: Scope Item Id
+          type: integer
+        optional_service_items:
+          description: Optional ServiceItems to opt-in for this scope item, each optionally narrowed to a subset of turbine components. Required ServiceItems are auto-included for the scope item and do not need to be listed here.
+          items:
+            $ref: '#/components/schemas/OptionalServiceItemGeneration'
+          title: Optional Service Items
+          type: array
+      required:
+      - scope_item_id
+      title: ScopeItemGenerationConfig
+      type: object
+    CreateWarrantyWorkRequest:
+      additionalProperties: false
+      description: 'Request payload to create a warranty-work SOL from this SOL.
+
+
+        Targeting defaults to mirroring the original (component overrides and
+
+        explicit component targeting are deferred to the configure-scope surface).
+
+        Warranty work is always non-billable (hardcoded). Workorder generation is
+
+        driven by service-item selection.'
+      properties:
+        target_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service for the warranty work; defaults to the original's service.
+          title: Target Service Id
+        service_item_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Which service items to generate workorders for. Omitted → all required items of the target service; empty list → no workorders; list → just those.
+          title: Service Item Ids
+        component_overrides:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ComponentOverride'
+            type: array
+          - type: 'null'
+          description: Optional per-service-item narrowing to a subset of turbine components.
+          title: Component Overrides
+      title: CreateWarrantyWorkRequest
+      type: object
+    TurbineComponentOption:
+      additionalProperties: false
+      description: A selectable turbine component for workorder generation.
+      properties:
+        id:
+          description: TurbineComponent ID
+          title: Id
+          type: integer
+        serial_number:
+          description: Component serial number
+          title: Serial Number
+          type: string
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Position (e.g., 'A', 'B', 'C')
+          title: Position
         label:
-          description: Display label (service_order_number or id)
+          description: Display label (position or serial number)
           title: Label
           type: string
       required:
       - id
+      - serial_number
       - label
-      title: ServiceOrderHeaderOption
+      title: TurbineComponentOption
+      type: object
+    ServiceOrderLineScopeChangeComponent:
+      additionalProperties: false
+      description: The blade a per-blade scope change applies to.
+      properties:
+        id:
+          description: TurbineComponent ID
+          title: Id
+          type: integer
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade position (A/B/C)
+          title: Position
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component serial number
+          title: Serial Number
+      required:
+      - id
+      title: ServiceOrderLineScopeChangeComponent
+      type: object
+    DuplicateScopeItem:
+      additionalProperties: false
+      description: A requested scope item that already has a live SOL (duplicate guard).
+      properties:
+        scope_item_id:
+          description: ProjectScopeItem ID
+          title: Scope Item Id
+          type: integer
+        existing_sol_count:
+          description: Count of live (non-cancelled) SOLs already on this scope item
+          title: Existing Sol Count
+          type: integer
+        existing_sol_ids:
+          default: []
+          description: IDs of the live SOLs already on this scope item (for linking)
+          items:
+            type: integer
+          title: Existing Sol Ids
+          type: array
+      required:
+      - scope_item_id
+      - existing_sol_count
+      title: DuplicateScopeItem
+      type: object
+    UnplannedServiceItem:
+      additionalProperties: false
+      description: Unplanned service item that doesn't have a workorder yet.
+      properties:
+        id:
+          description: ServiceItem ID
+          title: Id
+          type: integer
+        name:
+          description: Service item code/name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: WO type that this service item generates
+          title: Type
+        activities_total:
+          description: Number of activities the template will generate
+          title: Activities Total
+          type: integer
+        is_optional:
+          description: Whether item is optional
+          title: Is Optional
+          type: boolean
+        component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ComponentType ID this service item is scoped to (null for turbine-level items). Used by the UI to decide whether to show a per-component picker before generation.
+          title: Component Id
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Display name of the component type, when set
+          title: Component Name
+      required:
+      - id
+      - name
+      - activities_total
+      - is_optional
+      title: UnplannedServiceItem
+      type: object
+    ServiceOrderLineWorkorder:
+      additionalProperties: false
+      description: Workorder for service order line detail.
+      properties:
+        id:
+          description: Workorder ID
+          title: Id
+          type: integer
+        name:
+          description: Workorder name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: WO type (FIELD, ADMIN, OFFICE, DATA_UPLOAD)
+          title: Type
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The blade this workorder targets; null for turbine-level work (e.g. Set Up / Packing Up). The scope-change create drawer uses it to offer only blades that actually have work on the line.
+          title: Turbine Component Id
+        activities_completed:
+          description: Completed activities
+          title: Activities Completed
+          type: integer
+        activities_total:
+          description: Total activities
+          title: Activities Total
+          type: integer
+        assignment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Team assignment
+          title: Assignment
+        is_optional:
+          description: Whether workorder is optional
+          title: Is Optional
+          type: boolean
+        is_rework:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the workorder is rework (redoing already-completed work). NULL on legacy/normal workorders.
+          title: Is Rework
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder status
+          title: Status
+        completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Completion timestamp
+          title: Completed At
+        completed_at_debug:
+          anyOf:
+          - $ref: '#/components/schemas/CompletedAtDebug'
+          - type: 'null'
+          description: Completion timestamp source breakdown
+        cancellation_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text reason recorded when the workorder was cancelled. Sourced from the change_note of the latest WorkorderStatusChangeLog entry that transitioned the workorder into CANCELLED. Null when the workorder isn't cancelled or no note was captured (e.g. cascades).
+          title: Cancellation Reason
+        cancelled_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Display name of the user who cancelled the workorder. Sourced from the same log entry as cancellation_reason. Null when the workorder isn't cancelled or the actor is unknown.
+          title: Cancelled By Name
+      required:
+      - id
+      - name
+      - activities_completed
+      - activities_total
+      - is_optional
+      title: ServiceOrderLineWorkorder
+      type: object
+    ServiceOrderGenerateResponse:
+      additionalProperties: false
+      description: Response from service order generation.
+      properties:
+        service_order_ids:
+          default: []
+          description: Created ServiceOrderHeader IDs (newly created only)
+          items:
+            type: integer
+          title: Service Order Ids
+          type: array
+        service_order_line_ids:
+          default: []
+          description: Created ServiceOrderLine IDs
+          items:
+            type: integer
+          title: Service Order Line Ids
+          type: array
+        workorder_ids:
+          default: []
+          description: Created Workorder IDs
+          items:
+            type: integer
+          title: Workorder Ids
+          type: array
+        results:
+          default: []
+          description: Per-scope-item results showing parent-child relationships
+          items:
+            $ref: '#/components/schemas/ScopeItemGenerationResult'
+          title: Results
+          type: array
+        requires_confirmation:
+          default: false
+          description: True when generation was refused because some scope items already have a live SOL and confirm_duplicates was not set. Nothing was created; resend with confirm_duplicates=true to proceed.
+          title: Requires Confirmation
+          type: boolean
+        duplicate_scope_items:
+          default: []
+          description: Requested scope items that already have a live SOL
+          items:
+            $ref: '#/components/schemas/DuplicateScopeItem'
+          title: Duplicate Scope Items
+          type: array
+      title: ServiceOrderGenerateResponse
+      type: object
+    GenerationServiceItem:
+      additionalProperties: false
+      description: Service item info for workorder generation preview.
+      properties:
+        id:
+          description: ServiceItem ID
+          title: Id
+          type: integer
+        code:
+          description: ServiceItem code
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ServiceItem description
+          title: Description
+        is_optional:
+          description: Whether this service item is optional
+          title: Is Optional
+          type: boolean
+        service_id:
+          description: Parent Service ID
+          title: Service Id
+          type: integer
+        component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component type ID (if component-specific)
+          title: Component Id
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component type name (e.g., 'Blade') - NULL means turbine-level
+          title: Component Name
+      required:
+      - id
+      - code
+      - is_optional
+      - service_id
+      title: GenerationServiceItem
+      type: object
+    WorkorderActivityResourceLink:
+      additionalProperties: false
+      description: 'Resource assignment row on a workorder activity.
+
+
+        Mirrors the dict shape returned by
+
+        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
+
+        per row in the ``dispatch.workorder_activity_resources`` junction table).'
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      title: WorkorderActivityResourceLink
       type: object
     ServiceOrderDeleteCounts:
       additionalProperties: false
@@ -2575,21 +2008,146 @@ components:
       - service_item_id
       title: ActivityOverride
       type: object
-    ServiceOrderDeleteResponse:
+    CustomerCustomFieldResponse:
       additionalProperties: false
-      description: Response for service order deletion.
+      description: 'A customer custom field definition, as any record''s REST surface returns it.
+
+
+        Serialized straight from a ``core.CustomerCustomField`` row. ``options`` is
+
+        what the field offers on the record it is being returned for; see
+
+        ``resolve_options``.'
       properties:
-        success:
-          description: Whether deletion was successful
-          title: Success
-          type: boolean
-        deleted:
-          $ref: '#/components/schemas/ServiceOrderDeleteCounts'
-          description: Counts of deleted records
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Custom field ID
+          title: Id
+          type: integer
+        customer_id:
+          description: Owning customer ID
+          title: Customer Id
+          type: integer
+        customer_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Owning customer display name, for labelling the field group
+          title: Customer Display Name
+        name:
+          description: Field name
+          title: Name
+          type: string
+        type:
+          description: Field data type
+          title: Type
+          type: string
+        options:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/CustomerCustomFieldOption'
+            type: array
+          - type: 'null'
+          description: Allowed options for SELECT-type fields. A field reading its options from a live list carries the list resolved for this record.
+          title: Options
+        options_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The live list a SELECT field reads its options from, or null for a field storing its own. When set, an empty options list means no value is allowed; when null, an empty list leaves the field unrestricted.
+          title: Options Source
+        validation:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Limits the value must satisfy, as {min, max, decimals}. Applies to NUMBER fields; decimals 0 means whole numbers only.
+          title: Validation
       required:
-      - success
-      - deleted
-      title: ServiceOrderDeleteResponse
+      - updated_at
+      - id
+      - customer_id
+      - name
+      - type
+      title: CustomerCustomFieldResponse
+      type: object
+    WorkorderStatusLogValue:
+      description: Valid workorder status values for status change log entries.
+      enum:
+      - UNASSIGNED
+      - NOT_STARTED
+      - IN_PROGRESS
+      - COMPLETED
+      - CANCELLED
+      title: WorkorderStatusLogValue
+      type: string
+    WorkorderBreakdownItem:
+      additionalProperties: false
+      description: Breakdown of workorders per service item with selectable components.
+      properties:
+        service_item_id:
+          description: ServiceItem ID
+          title: Service Item Id
+          type: integer
+        service_item_code:
+          description: ServiceItem code
+          title: Service Item Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ServiceItem description
+          title: Description
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component type (e.g., 'Blade') or null for turbine-level
+          title: Component Name
+        component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component type ID
+          title: Component Id
+        is_optional:
+          description: Whether this service item is optional
+          title: Is Optional
+          type: boolean
+        components:
+          default: []
+          description: Selectable turbine components (empty for turbine-level items)
+          items:
+            $ref: '#/components/schemas/TurbineComponentOption'
+          title: Components
+          type: array
+      required:
+      - service_item_id
+      - service_item_code
+      - is_optional
+      title: WorkorderBreakdownItem
+      type: object
+    CustomerCustomValueInput:
+      additionalProperties: false
+      description: One value to store against a customer custom field, on the record the URL names.
+      properties:
+        custom_field_id:
+          description: Customer custom field ID
+          title: Custom Field Id
+          type: integer
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Value for the field. Null or empty clears it.
+          title: Value
+      required:
+      - custom_field_id
+      title: CustomerCustomValueInput
       type: object
     ServiceOrderLineScopeChange:
       additionalProperties: false
@@ -2618,106 +2176,123 @@ components:
       - role
       title: ServiceOrderLineScopeChange
       type: object
-    ServiceOrderLineScopeChangeComponent:
+    Error:
       additionalProperties: false
-      description: The blade a per-blade scope change applies to.
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceOrderGenerateRequest:
+      additionalProperties: false
+      description: Request payload for generating service orders.
+      properties:
+        items:
+          description: List of scope items with their individual generation configs
+          items:
+            $ref: '#/components/schemas/ScopeItemGenerationConfig'
+          title: Items
+          type: array
+        confirm_duplicates:
+          default: false
+          description: Acknowledge generating additional SOLs for scope items that already have a live (non-cancelled) SOL. When False, such items block generation and the response returns requires_confirmation.
+          title: Confirm Duplicates
+          type: boolean
+      required:
+      - items
+      title: ServiceOrderGenerateRequest
+      type: object
+    OptionalServiceItemGeneration:
+      additionalProperties: false
+      description: 'Opt-in (and optionally narrow) for one optional ServiceItem.
+
+
+        Used by the bulk service-order generation endpoint where required
+
+        ServiceItems are auto-included; this schema describes both the opt-in
+
+        of an optional ServiceItem AND the per-component narrowing in a single
+
+        entry, so the ``service_item_id`` and ``turbine_component_ids`` always
+
+        live on the same level.'
+      properties:
+        service_item_id:
+          description: Optional ServiceItem ID to include for this scope item.
+          title: Service Item Id
+          type: integer
+        turbine_component_ids:
+          description: TurbineComponent IDs that should receive a workorder for this ServiceItem. Each id must belong to the scope item's turbine and match the ServiceItem's component type. Empty list = default selection (every matching component).
+          items:
+            type: integer
+          title: Turbine Component Ids
+          type: array
+      required:
+      - service_item_id
+      title: OptionalServiceItemGeneration
+      type: object
+    StatusChangeLogEntry:
+      additionalProperties: false
+      description: A single workorder status change log entry.
       properties:
         id:
-          description: TurbineComponent ID
+          description: Log entry ID
           title: Id
           type: integer
-        position:
+        old_status:
           anyOf:
           - type: string
           - type: 'null'
-          description: Blade position (A/B/C)
-          title: Position
-        serial_number:
+          description: Previous status
+          title: Old Status
+        new_status:
           anyOf:
           - type: string
           - type: 'null'
-          description: Component serial number
-          title: Serial Number
+          description: New status
+          title: New Status
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason code (e.g. aerotask_processor, status_cascade, manual_admin)
+          title: Change Reason
+        change_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text note
+          title: Change Note
+        status_changed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the status transition occurred
+          title: Status Changed At
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the log entry was created
+          title: Created At
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Display name of who triggered the change
+          title: Created By Name
       required:
       - id
-      title: ServiceOrderLineScopeChangeComponent
-      type: object
-    ServiceOrderSummaryResponse:
-      additionalProperties: false
-      description: Response for GET service order summary endpoint.
-      properties:
-        customer:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Customer name
-          title: Customer
-        services:
-          default: []
-          description: List of unique service codes
-          items:
-            type: string
-          title: Services
-          type: array
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Country name
-          title: Country
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: State/region or 'Multiple'
-          title: State
-        project_manager:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Project manager full name
-          title: Project Manager
-        total_service_orders:
-          description: Total count of service orders
-          title: Total Service Orders
-          type: integer
-        locations:
-          default: []
-          description: Available locations
-          items:
-            $ref: '#/components/schemas/ServiceOrderLocation'
-          title: Locations
-          type: array
-        statuses:
-          default: []
-          description: Distinct service order line statuses
-          items:
-            type: string
-          title: Statuses
-          type: array
-        service_order_headers:
-          default: []
-          description: Distinct service order headers for filter dropdowns
-          items:
-            $ref: '#/components/schemas/ServiceOrderHeaderOption'
-          title: Service Order Headers
-          type: array
-        original_sols:
-          default: []
-          description: Distinct original SOLs reworked in this project (warranty filter)
-          items:
-            $ref: '#/components/schemas/ServiceOrderHeaderOption'
-          title: Original Sols
-          type: array
-        warranty_project_builder_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Builder UUID of this project's warranty sibling, if any
-          title: Warranty Project Builder Id
-      required:
-      - total_service_orders
-      title: ServiceOrderSummaryResponse
+      title: StatusChangeLogEntry
       type: object
     WorkorderDetail:
       additionalProperties: false
@@ -2837,6 +2412,540 @@ components:
       - name
       title: WorkorderDetail
       type: object
+    CustomerCustomFieldOption:
+      additionalProperties: false
+      description: One allowed option for a SELECT-type customer custom field.
+      properties:
+        value:
+          description: Stored option value
+          title: Value
+          type: string
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable option label
+          title: Label
+      required:
+      - value
+      title: CustomerCustomFieldOption
+      type: object
+    ServiceOrderLocation:
+      additionalProperties: false
+      description: Location summary for service order page.
+      properties:
+        id:
+          description: Location ID
+          title: Id
+          type: integer
+        name:
+          description: Location name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ServiceOrderLocation
+      type: object
+    ProjectServiceOrderListItem:
+      additionalProperties: false
+      description: Service order line for paginated list (without nested workorders).
+      properties:
+        id:
+          description: ServiceOrderLine ID
+          title: Id
+          type: integer
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ServiceOrderHeader ID
+          title: Service Order Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine ID
+          title: Turbine Id
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine name
+          title: Turbine Name
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Location name
+          title: Location Name
+        service_code:
+          description: Service code
+          title: Service Code
+          type: string
+        service_name:
+          description: Service name
+          title: Service Name
+          type: string
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine component ID the line is pinned to
+          title: Turbine Component Id
+        turbine_component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine component serial number
+          title: Turbine Component Serial
+        turbine_component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine component position
+          title: Turbine Component Position
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Component type name
+          title: Component Type Name
+        workorder_count:
+          description: Number of workorders
+          title: Workorder Count
+          type: integer
+        workorder_turbine_component_ids:
+          description: Distinct turbine_component_id values across the line's non-deleted workorders (any status, cancelled included). Lets the scope-change create drawer tell whether a whole-turbine line still has any blade left to scope change without fetching every line's workorders.
+          items:
+            type: integer
+          title: Workorder Turbine Component Ids
+          type: array
+        warranty_sol_count:
+          default: 0
+          description: Number of warranty SOLs derived from this line
+          title: Warranty Sol Count
+          type: integer
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service order line status
+          title: Status
+        field_completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When field work was completed
+          title: Field Completed At
+        field_completed_at_debug:
+          anyOf:
+          - $ref: '#/components/schemas/FieldCompletedAtDebug'
+          - type: 'null'
+          description: Field completed timestamp source
+        completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When office finalization occurred
+          title: Completed At
+        completed_at_debug:
+          anyOf:
+          - $ref: '#/components/schemas/LineCompletedAtDebug'
+          - type: 'null'
+          description: Office finalization timestamp source
+        original_sol_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Original SOL this line reworks (warranty work)
+          title: Original Sol Id
+        original_sol_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Original SOL number
+          title: Original Sol Number
+        original_sol_project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Builder UUID of the original SOL's project (frontend routing)
+          title: Original Sol Project Builder Id
+      required:
+      - id
+      - service_code
+      - service_name
+      - workorder_count
+      - created_at
+      title: ProjectServiceOrderListItem
+      type: object
+    ServiceOrderGenerationDataResponse:
+      additionalProperties: false
+      description: Response for GET generation data endpoint.
+      properties:
+        items:
+          description: Selectable ProjectScopeItem records
+          items:
+            $ref: '#/components/schemas/GenerationItem'
+          title: Items
+          type: array
+        total:
+          description: Total count of selectable records
+          title: Total
+          type: integer
+        locations:
+          description: Location filter options
+          items:
+            $ref: '#/components/schemas/GenerationLocation'
+          title: Locations
+          type: array
+        services:
+          description: Service filter options
+          items:
+            $ref: '#/components/schemas/GenerationService'
+          title: Services
+          type: array
+        existing_service_orders_count:
+          description: Number of existing service orders for this project
+          title: Existing Service Orders Count
+          type: integer
+      required:
+      - items
+      - total
+      - locations
+      - services
+      - existing_service_orders_count
+      title: ServiceOrderGenerationDataResponse
+      type: object
+    WorkorderActivityDetail:
+      additionalProperties: false
+      description: Workorder activity response.
+      properties:
+        id:
+          description: Activity ID
+          title: Id
+          type: integer
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity description
+          title: Activity Description
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start datetime
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End datetime
+          title: End Datetime
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status
+          title: Status
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the activity is optional. Null is treated as optional.
+          title: Is Optional
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Mirrored from the linked SIA's estimated_duration at create time (minutes). Null when no SIA template is linked. Frontend treats zero as 'instant' and renders a single 'Completed at' field.
+          title: Estimated Duration
+        resources:
+          description: Resources assigned to this activity (snapshot)
+          items:
+            $ref: '#/components/schemas/WorkorderResource'
+          title: Resources
+          type: array
+        activity_resources:
+          description: Normalised resource assignments from the ``dispatch.workorder_activity_resources`` junction table. Empty until the cutover from the legacy ``resources`` JSON column has landed.
+          items:
+            $ref: '#/components/schemas/WorkorderActivityResourceLink'
+          title: Activity Resources
+          type: array
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields data
+          title: Custom Fields
+      required:
+      - id
+      title: WorkorderActivityDetail
+      type: object
+    ComponentOverride:
+      additionalProperties: false
+      description: 'Per-ServiceItem narrowing of which turbine components get a workorder.
+
+
+        Used by the line-level workorder generation endpoint, where the caller
+
+        already specifies which ServiceItems to generate via ``service_item_ids``
+
+        and this schema *additionally* narrows the component selection.'
+      properties:
+        service_item_id:
+          description: ServiceItem ID this override applies to (must be component-level).
+          title: Service Item Id
+          type: integer
+        turbine_component_ids:
+          description: TurbineComponent IDs that should receive a workorder for this ServiceItem. Each id must belong to the scope item's turbine and match the ServiceItem's component type. An empty list (or omitting the override entirely) falls back to the default selection — all components matching the ServiceItem's component type.
+          items:
+            type: integer
+          title: Turbine Component Ids
+          type: array
+      required:
+      - service_item_id
+      title: ComponentOverride
+      type: object
+    ScopeItemGenerationResult:
+      additionalProperties: false
+      description: Result for a single scope item in service order generation.
+      properties:
+        scope_item_id:
+          description: The ProjectScopeItem ID from the request
+          title: Scope Item Id
+          type: integer
+        service_order_id:
+          description: The ServiceOrderHeader ID (new or reused)
+          title: Service Order Id
+          type: integer
+        service_order_line_id:
+          description: The created ServiceOrderLine ID
+          title: Service Order Line Id
+          type: integer
+        workorder_ids:
+          default: []
+          description: Created Workorder IDs for this scope item
+          items:
+            type: integer
+          title: Workorder Ids
+          type: array
+      required:
+      - scope_item_id
+      - service_order_id
+      - service_order_line_id
+      title: ScopeItemGenerationResult
+      type: object
+    ServiceOrderSummaryResponse:
+      additionalProperties: false
+      description: Response for GET service order summary endpoint.
+      properties:
+        customer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Customer name
+          title: Customer
+        services:
+          default: []
+          description: List of unique service codes
+          items:
+            type: string
+          title: Services
+          type: array
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Country name
+          title: Country
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State/region or 'Multiple'
+          title: State
+        project_manager:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project manager full name
+          title: Project Manager
+        total_service_orders:
+          description: Total count of service orders
+          title: Total Service Orders
+          type: integer
+        locations:
+          default: []
+          description: Available locations
+          items:
+            $ref: '#/components/schemas/ServiceOrderLocation'
+          title: Locations
+          type: array
+        statuses:
+          default: []
+          description: Distinct service order line statuses
+          items:
+            type: string
+          title: Statuses
+          type: array
+        service_order_headers:
+          default: []
+          description: Distinct service order headers for filter dropdowns
+          items:
+            $ref: '#/components/schemas/ServiceOrderHeaderOption'
+          title: Service Order Headers
+          type: array
+        original_sols:
+          default: []
+          description: Distinct original SOLs reworked in this project (warranty filter)
+          items:
+            $ref: '#/components/schemas/ServiceOrderHeaderOption'
+          title: Original Sols
+          type: array
+        warranty_project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Builder UUID of this project's warranty sibling, if any
+          title: Warranty Project Builder Id
+      required:
+      - total_service_orders
+      title: ServiceOrderSummaryResponse
+      type: object
+    ServiceOrderLineScopeChangeLinkedSol:
+      additionalProperties: false
+      description: The counterpart SOL on the other side of a scope change.
+      properties:
+        id:
+          description: Linked ServiceOrderLine ID
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Linked SOL number
+          title: Number
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Linked SOL status
+          title: Status
+      required:
+      - id
+      title: ServiceOrderLineScopeChangeLinkedSol
+      type: object
+    ServiceOrderLineCustomerCustomFieldValuesReplace:
+      additionalProperties: false
+      description: 'The full set of customer custom field values to store on one line.
+
+
+        Replace semantics: a field the viewer can see and leaves out is cleared, a
+
+        field the viewer cannot see is never touched. See
+
+        ``CustomerCustomValueManager.replace_values_sync``.'
+      properties:
+        customer_custom_field_values:
+          description: Every value to store, one entry per field.
+          items:
+            $ref: '#/components/schemas/CustomerCustomValueInput'
+          title: Customer Custom Field Values
+          type: array
+      required:
+      - customer_custom_field_values
+      title: ServiceOrderLineCustomerCustomFieldValuesReplace
+      type: object
+    WarrantyServiceOrderRef:
+      additionalProperties: false
+      description: A warranty SOL derived from this line (lives in the warranty project).
+      properties:
+        id:
+          description: Warranty ServiceOrderLine ID
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warranty SOL number
+          title: Number
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warranty SOL status
+          title: Status
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warranty work service code
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warranty work service description
+          title: Service Description
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the warranty SOL was created
+          title: Created At
+        field_completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Field-completed timestamp from the SOL status change log
+          title: Field Completed At
+        completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Office-finalization timestamp from SOL.completed_date
+          title: Completed At
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Warranty project (core) ID
+          title: Project Id
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warranty project code
+          title: Project Code
+        project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Warranty project builder UUID (frontend routing)
+          title: Project Builder Id
+      required:
+      - id
+      title: WarrantyServiceOrderRef
+      type: object
     GenerationItem:
       additionalProperties: false
       description: A ProjectScopeItem record for generation selection.
@@ -2923,194 +3032,85 @@ components:
       - estimated_workorder_count
       title: GenerationItem
       type: object
-    ServiceOrderGenerateResponse:
+    LineCompletedAtDebug:
       additionalProperties: false
-      description: Response from service order generation.
+      description: Tooltip data for SOL completed_at (office finalization).
       properties:
-        service_order_ids:
-          default: []
-          description: Created ServiceOrderHeader IDs (newly created only)
-          items:
-            type: integer
-          title: Service Order Ids
-          type: array
-        service_order_line_ids:
-          default: []
-          description: Created ServiceOrderLine IDs
-          items:
-            type: integer
-          title: Service Order Line Ids
-          type: array
-        workorder_ids:
-          default: []
-          description: Created Workorder IDs
-          items:
-            type: integer
-          title: Workorder Ids
-          type: array
-        results:
-          default: []
-          description: Per-scope-item results showing parent-child relationships
-          items:
-            $ref: '#/components/schemas/ScopeItemGenerationResult'
-          title: Results
-          type: array
-        requires_confirmation:
-          default: false
-          description: True when generation was refused because some scope items already have a live SOL and confirm_duplicates was not set. Nothing was created; resend with confirm_duplicates=true to proceed.
-          title: Requires Confirmation
-          type: boolean
-        duplicate_scope_items:
-          default: []
-          description: Requested scope items that already have a live SOL
-          items:
-            $ref: '#/components/schemas/DuplicateScopeItem'
-          title: Duplicate Scope Items
-          type: array
-      title: ServiceOrderGenerateResponse
-      type: object
-    DeleteWorkorderResponse:
-      additionalProperties: false
-      description: Response from deleting an unplanned workorder.
-      properties:
-        success:
-          description: Whether deletion succeeded
-          title: Success
-          type: boolean
-        error:
+        completed_date:
           anyOf:
-          - type: string
+          - format: date-time
+            type: string
           - type: 'null'
-          description: Error message if failed
-          title: Error
-      required:
-      - success
-      title: DeleteWorkorderResponse
+          description: SOL.completed_date (set during office finalization)
+          title: Completed Date
+        from_status_log:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: From SOL status change log (COMPLETED transition)
+          title: From Status Log
+      title: LineCompletedAtDebug
       type: object
-    UnplannedServiceItem:
+    AvailableActivity:
       additionalProperties: false
-      description: Unplanned service item that doesn't have a workorder yet.
+      description: Available activity option for workorder activity creation.
       properties:
         id:
-          description: ServiceItem ID
+          description: Service item activity ID
           title: Id
           type: integer
-        name:
-          description: Service item code/name
-          title: Name
+        description:
+          description: Activity description
+          title: Description
           type: string
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: WO type that this service item generates
-          title: Type
-        activities_total:
-          description: Number of activities the template will generate
-          title: Activities Total
-          type: integer
-        is_optional:
-          description: Whether item is optional
-          title: Is Optional
-          type: boolean
-        component_id:
+        estimated_duration:
           anyOf:
           - type: integer
           - type: 'null'
-          description: ComponentType ID this service item is scoped to (null for turbine-level items). Used by the UI to decide whether to show a per-component picker before generation.
-          title: Component Id
-        component_name:
+          description: Estimated duration in minutes
+          title: Estimated Duration
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields data
+          title: Custom Fields
+      required:
+      - id
+      - description
+      title: AvailableActivity
+      type: object
+    SolStatusChangeLogGroup:
+      additionalProperties: false
+      description: Status change log entries grouped by workorder.
+      properties:
+        workorder_id:
+          description: Workorder ID
+          title: Workorder Id
+          type: integer
+        workorder_name:
+          description: Workorder name
+          title: Workorder Name
+          type: string
+        workorder_status:
           anyOf:
           - type: string
           - type: 'null'
-          description: Display name of the component type, when set
-          title: Component Name
-      required:
-      - id
-      - name
-      - activities_total
-      - is_optional
-      title: UnplannedServiceItem
-      type: object
-    ScopeItemGenerationResult:
-      additionalProperties: false
-      description: Result for a single scope item in service order generation.
-      properties:
-        scope_item_id:
-          description: The ProjectScopeItem ID from the request
-          title: Scope Item Id
-          type: integer
-        service_order_id:
-          description: The ServiceOrderHeader ID (new or reused)
-          title: Service Order Id
-          type: integer
-        service_order_line_id:
-          description: The created ServiceOrderLine ID
-          title: Service Order Line Id
-          type: integer
-        workorder_ids:
-          default: []
-          description: Created Workorder IDs for this scope item
+          description: Current workorder status
+          title: Workorder Status
+        entries:
+          description: Status change log entries for this workorder
           items:
-            type: integer
-          title: Workorder Ids
+            $ref: '#/components/schemas/StatusChangeLogEntry'
+          title: Entries
           type: array
       required:
-      - scope_item_id
-      - service_order_id
-      - service_order_line_id
-      title: ScopeItemGenerationResult
-      type: object
-    CustomerCustomFieldOption:
-      additionalProperties: false
-      description: One allowed option for a SELECT-type customer custom field.
-      properties:
-        value:
-          description: Stored option value
-          title: Value
-          type: string
-        label:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Human-readable option label
-          title: Label
-      required:
-      - value
-      title: CustomerCustomFieldOption
-      type: object
-    CustomerCustomValueResponse:
-      additionalProperties: false
-      description: One stored customer custom field value, embedded in its record's response.
-      properties:
-        id:
-          description: Custom value ID
-          title: Id
-          type: integer
-        custom_field_id:
-          description: Customer custom field ID
-          title: Custom Field Id
-          type: integer
-        custom_field_name:
-          description: Field name
-          title: Custom Field Name
-          type: string
-        custom_field_type:
-          description: Field data type
-          title: Custom Field Type
-          type: string
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Value for the field
-          title: Value
-      required:
-      - id
-      - custom_field_id
-      - custom_field_name
-      - custom_field_type
-      title: CustomerCustomValueResponse
+      - workorder_id
+      - workorder_name
+      title: SolStatusChangeLogGroup
       type: object
   securitySchemes:
     APIKeyAuth:

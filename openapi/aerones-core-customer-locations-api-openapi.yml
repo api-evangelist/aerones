@@ -116,49 +116,39 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    CustomerLocationResponse:
+    LocationObjectWithType:
       additionalProperties: false
-      description: Schema for CustomerLocation response.
+      description: Nested location object for responses (no timestamps), including type.
       properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
         id:
-          description: Customer location ID
           title: Id
           type: integer
-        customer_id:
-          description: Customer ID
-          title: Customer Id
-          type: integer
-        location:
-          $ref: '#/components/schemas/LocationObjectWithType'
-          description: Location information
-        relationship:
+        name:
           anyOf:
-          - $ref: '#/components/schemas/RelationshipTypeObject'
+          - type: string
           - type: 'null'
-          description: Relationship type information
+          title: Name
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+          description: Location type
       required:
-      - updated_at
       - id
-      - customer_id
-      - location
-      title: CustomerLocationResponse
+      title: LocationObjectWithType
       type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -193,39 +183,49 @@ components:
       - code
       title: RelationshipTypeObject
       type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
-    LocationObjectWithType:
+    CustomerLocationResponse:
       additionalProperties: false
-      description: Nested location object for responses (no timestamps), including type.
+      description: Schema for CustomerLocation response.
       properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
         id:
+          description: Customer location ID
           title: Id
           type: integer
-        name:
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/LocationObjectWithType'
+          description: Location information
+        relationship:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/RelationshipTypeObject'
           - type: 'null'
-          title: Name
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-          description: Location type
+          description: Relationship type information
       required:
+      - updated_at
       - id
-      title: LocationObjectWithType
+      - customer_id
+      - location
+      title: CustomerLocationResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

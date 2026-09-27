@@ -286,6 +286,31 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -297,9 +322,9 @@ components:
       - generic
       title: ErrorCode
       type: string
-    NestedIdName:
+    CertificateObject:
       additionalProperties: false
-      description: Generic nested object with id and name (no timestamps).
+      description: Nested certificate object for responses.
       properties:
         id:
           title: Id
@@ -310,7 +335,71 @@ components:
       required:
       - id
       - name
-      title: NestedIdName
+      title: CertificateObject
+      type: object
+    CertificateRequirementScopeUnit:
+      additionalProperties: false
+      description: 'One scope of a mapping group: a service, a family, or (both empty) all services.'
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Exact service
+          title: Service Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service family
+          title: Service Family Id
+      title: CertificateRequirementScopeUnit
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
       type: object
     CertificateRequirementGroupSave:
       additionalProperties: false
@@ -377,27 +466,74 @@ components:
       - units
       title: CertificateRequirementGroupSave
       type: object
-    CertificateRequirementScopeUnit:
+    CertificateRequirementRuleCreate:
       additionalProperties: false
-      description: 'One scope of a mapping group: a service, a family, or (both empty) all services.'
+      description: Schema for creating a certificate mapping rule.
       properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer; omit for every customer
+          title: Customer Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site; omit for every site
+          title: Location Id
         service_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Exact service
+          description: Exact service; mutually exclusive with service_family_id
           title: Service Id
         service_family_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Service family
+          description: Service family; mutually exclusive with service_id
           title: Service Family Id
-      title: CertificateRequirementScopeUnit
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Region; omit for every region
+          title: Region
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note
+          title: Comment
+      required:
+      - certificate_id
+      title: CertificateRequirementRuleCreate
       type: object
-    ServiceObject:
+    Error:
       additionalProperties: false
-      description: Nested service object for responses (no timestamps).
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceFamilyObject:
+      additionalProperties: false
+      description: Nested service-family object for responses (no timestamps).
       properties:
         id:
           title: Id
@@ -405,20 +541,14 @@ components:
         code:
           title: Code
           type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
+        name:
+          title: Name
+          type: string
       required:
       - id
       - code
-      - is_service
-      title: ServiceObject
+      - name
+      title: ServiceFamilyObject
       type: object
     CertificateRequirementRuleUpdate:
       additionalProperties: false
@@ -471,51 +601,6 @@ components:
           title: Comment
       title: CertificateRequirementRuleUpdate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CustomerObject:
-      additionalProperties: false
-      description: Nested customer object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyIdCodeObject'
-          - type: 'null'
-          description: Customer currency (id and code only)
-      required:
-      - id
-      - display_name
-      title: CustomerObject
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -535,55 +620,6 @@ components:
           title: Success
           type: boolean
       title: Success
-      type: object
-    ServiceFamilyObject:
-      additionalProperties: false
-      description: Nested service-family object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: ServiceFamilyObject
-      type: object
-    CurrencyIdCodeObject:
-      additionalProperties: false
-      description: Nested currency object with only id and code (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: CurrencyIdCodeObject
-      type: object
-    CertificateObject:
-      additionalProperties: false
-      description: Nested certificate object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: CertificateObject
       type: object
     CertificateRequirementRuleResponse:
       additionalProperties: false
@@ -639,56 +675,20 @@ components:
       - certificate
       title: CertificateRequirementRuleResponse
       type: object
-    CertificateRequirementRuleCreate:
+    NestedIdName:
       additionalProperties: false
-      description: Schema for creating a certificate mapping rule.
+      description: Generic nested object with id and name (no timestamps).
       properties:
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
+        id:
+          title: Id
           type: integer
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer; omit for every customer
-          title: Customer Id
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Site; omit for every site
-          title: Location Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Exact service; mutually exclusive with service_family_id
-          title: Service Id
-        service_family_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service family; mutually exclusive with service_id
-          title: Service Family Id
-        region:
-          anyOf:
-          - enum:
-            - EU
-            - NA
-            type: string
-          - type: 'null'
-          description: Region; omit for every region
-          title: Region
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Condition note
-          title: Comment
+        name:
+          title: Name
+          type: string
       required:
-      - certificate_id
-      title: CertificateRequirementRuleCreate
+      - id
+      - name
+      title: NestedIdName
       type: object
   securitySchemes:
     APIKeyAuth:

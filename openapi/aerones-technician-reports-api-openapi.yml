@@ -369,15 +369,14 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    FinalReportStatusResponse:
+    FinalReportGenerationSummary:
       additionalProperties: false
-      description: Polling response for an in-flight final-report generation.
+      description: A single final-report generation, used in the modal state payload.
       properties:
         generation_id:
           title: Generation Id
           type: integer
         status:
-          description: pending | complete | failed
           title: Status
           type: string
         generated_at:
@@ -386,19 +385,41 @@ components:
             type: string
           - type: 'null'
           title: Generated At
-        error:
+        generated_by_user:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
           - type: 'null'
-          title: Error
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
       required:
       - generation_id
       - status
-      title: FinalReportStatusResponse
+      title: FinalReportGenerationSummary
       type: object
-    DownloadReportRequest:
+    FinalReportStartResponse:
       additionalProperties: false
-      description: Request body for generating a daily report.
+      description: Response after kicking off async final-report generation.
+      properties:
+        generation_id:
+          description: Report row ID
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+      required:
+      - generation_id
+      - status
+      title: FinalReportStartResponse
+      type: object
+    SendReportRequest:
+      additionalProperties: false
+      description: Request body for sending a daily report via the reporting engine.
       properties:
         project_id:
           anyOf:
@@ -419,7 +440,7 @@ components:
           type: string
         format:
           default: pdf
-          description: Output format (pdf, html)
+          description: Output format (pdf, docx)
           title: Format
           type: string
         service_order_line_ids:
@@ -428,37 +449,60 @@ components:
             type: integer
           title: Service Order Line Ids
           type: array
-        submit_draft:
-          default: false
-          description: When true, persist a draft-submission log for selected SOLs.
-          title: Submit Draft
-          type: boolean
+        file_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: X-File-Token from the download step. When provided the reporting engine attaches the exact cached file without re-rendering.
+          title: File Token
+        report_token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Report snapshot token (X-Report-Token) returned by the download step.
+          title: Report Token
       required:
       - date
-      title: DownloadReportRequest
+      title: SendReportRequest
       type: object
-    FinalReportRequest:
+    SendReportResponse:
       additionalProperties: false
-      description: Request body for generating a final report for a single SOL.
+      description: Response payload for successful daily report send action.
       properties:
-        service_order_line_id:
-          description: Service order line ID
-          title: Service Order Line Id
-          type: integer
-        format:
-          default: pdf
-          description: Output format (pdf, html)
-          title: Format
+        success:
+          title: Success
+          type: boolean
+        message:
+          title: Message
           type: string
-        exclude_fields:
-          description: Optional report field names to exclude (e.g. comments, description)
+        recipients_count:
+          title: Recipients Count
+          type: integer
+        recipient_emails:
           items:
             type: string
-          title: Exclude Fields
+          title: Recipient Emails
           type: array
       required:
-      - service_order_line_id
-      title: FinalReportRequest
+      - success
+      - message
+      - recipients_count
+      title: SendReportResponse
+      type: object
+    DailyReportSubmittedByUser:
+      additionalProperties: false
+      description: Submitted-by user identity for selected-date draft metadata.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: DailyReportSubmittedByUser
       type: object
     DailyReportSolResponse:
       additionalProperties: false
@@ -638,62 +682,6 @@ components:
       - id
       title: DailyReportSolResponse
       type: object
-    FinalReportStartResponse:
-      additionalProperties: false
-      description: Response after kicking off async final-report generation.
-      properties:
-        generation_id:
-          description: Report row ID
-          title: Generation Id
-          type: integer
-        status:
-          description: pending | complete | failed
-          title: Status
-          type: string
-      required:
-      - generation_id
-      - status
-      title: FinalReportStartResponse
-      type: object
-    SendReportResponse:
-      additionalProperties: false
-      description: Response payload for successful daily report send action.
-      properties:
-        success:
-          title: Success
-          type: boolean
-        message:
-          title: Message
-          type: string
-        recipients_count:
-          title: Recipients Count
-          type: integer
-        recipient_emails:
-          items:
-            type: string
-          title: Recipient Emails
-          type: array
-      required:
-      - success
-      - message
-      - recipients_count
-      title: SendReportResponse
-      type: object
-    DailyReportSubmittedByUser:
-      additionalProperties: false
-      description: Submitted-by user identity for selected-date draft metadata.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: DailyReportSubmittedByUser
-      type: object
     FinalReportStateResponse:
       additionalProperties: false
       description: 'State the Final Report modal needs on open.
@@ -713,9 +701,9 @@ components:
           - type: 'null'
       title: FinalReportStateResponse
       type: object
-    SendReportRequest:
+    DownloadReportRequest:
       additionalProperties: false
-      description: Request body for sending a daily report via the reporting engine.
+      description: Request body for generating a daily report.
       properties:
         project_id:
           anyOf:
@@ -736,7 +724,7 @@ components:
           type: string
         format:
           default: pdf
-          description: Output format (pdf, docx)
+          description: Output format (pdf, html)
           title: Format
           type: string
         service_order_line_ids:
@@ -745,30 +733,47 @@ components:
             type: integer
           title: Service Order Line Ids
           type: array
-        file_token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: X-File-Token from the download step. When provided the reporting engine attaches the exact cached file without re-rendering.
-          title: File Token
-        report_token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Report snapshot token (X-Report-Token) returned by the download step.
-          title: Report Token
+        submit_draft:
+          default: false
+          description: When true, persist a draft-submission log for selected SOLs.
+          title: Submit Draft
+          type: boolean
       required:
       - date
-      title: SendReportRequest
+      title: DownloadReportRequest
       type: object
-    FinalReportGenerationSummary:
+    FinalReportRequest:
       additionalProperties: false
-      description: A single final-report generation, used in the modal state payload.
+      description: Request body for generating a final report for a single SOL.
+      properties:
+        service_order_line_id:
+          description: Service order line ID
+          title: Service Order Line Id
+          type: integer
+        format:
+          default: pdf
+          description: Output format (pdf, html)
+          title: Format
+          type: string
+        exclude_fields:
+          description: Optional report field names to exclude (e.g. comments, description)
+          items:
+            type: string
+          title: Exclude Fields
+          type: array
+      required:
+      - service_order_line_id
+      title: FinalReportRequest
+      type: object
+    FinalReportStatusResponse:
+      additionalProperties: false
+      description: Polling response for an in-flight final-report generation.
       properties:
         generation_id:
           title: Generation Id
           type: integer
         status:
+          description: pending | complete | failed
           title: Status
           type: string
         generated_at:
@@ -777,20 +782,15 @@ components:
             type: string
           - type: 'null'
           title: Generated At
-        generated_by_user:
+        error:
           anyOf:
-          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
+          - type: string
           - type: 'null'
-        started_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Started At
+          title: Error
       required:
       - generation_id
       - status
-      title: FinalReportGenerationSummary
+      title: FinalReportStatusResponse
       type: object
   securitySchemes:
     APIKeyAuth:

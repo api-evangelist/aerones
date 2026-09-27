@@ -530,34 +530,101 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectPOST:
+    Country:
       additionalProperties: false
-      description: Schema for project creation.
+      description: Schema for Country.
       properties:
-        origin_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Project origin identifier (Pipedrive deal ID). Required for Pipedrive path.
-          title: Origin Id
         code:
+          description: Country code in alpha-2.
+          title: Code
+          type: string
+        name:
+          description: Human readable country name.
+          title: Name
+          type: string
+        region:
           anyOf:
           - type: string
           - type: 'null'
-          description: Core project code. Required when origin_id is not provided (platform path).
-          title: Code
-      title: ProjectPOST
+          description: Custom region name a country belongs to.
+          title: Region
+      required:
+      - code
+      - name
+      title: Country
+      type: object
+    WindparkProjectList:
+      additionalProperties: false
+      description: Schema for windpark in project list.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Windpark identifier in project builder, may not exist.
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Windpark name.
+          title: Name
+      title: WindparkProjectList
+      type: object
+    Customer:
+      additionalProperties: false
+      description: Schema for customer.
+      properties:
+        id:
+          description: NetSuite ID for customer
+          title: Id
+          type: integer
+        alt_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
+          title: Alt Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name
+          title: Name
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency
+          title: Currency
+        business_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Business ID
+          title: Business Id
+        address_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full address in single text/string
+          title: Address Text
+      required:
+      - id
+      title: Customer
+      type: object
+    ProjectEmailRequest:
+      additionalProperties: false
+      description: Schema for project email request.
+      properties:
+        recipient_email:
+          description: Email address of the recipient
+          format: email
+          title: Recipient Email
+          type: string
+      required:
+      - recipient_email
+      title: ProjectEmailRequest
       type: object
     ProjectServiceCode:
       additionalProperties: false
@@ -606,47 +673,94 @@ components:
       - group_id
       title: ProjectServiceCode
       type: object
-    ProjectSiteSimple:
+    ProjectPassword:
       additionalProperties: false
-      description: Schema for project site information.
+      description: Schema for project password.
       properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Site name
-          title: Name
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Site latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Site longitude
-          title: Longitude
-      title: ProjectSiteSimple
+        password:
+          description: Project password
+          title: Password
+          type: string
+      required:
+      - password
+      title: ProjectPassword
       type: object
-    WindparkProjectList:
+    Success:
       additionalProperties: false
-      description: Schema for windpark in project list.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    UserStatusPayload:
+      additionalProperties: false
+      description: Schema for updating user_status.
+      properties:
+        user_status:
+          $ref: '#/components/schemas/UserStatus'
+          description: The new user status for the project.
+        reason:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Required when user_status is Cancelled; stored as the status-history note.
+          title: Reason
+      required:
+      - user_status
+      title: UserStatusPayload
+      type: object
+    UserStatus:
+      description: Enum for user-defined project statuses.
+      enum:
+      - Cancelled
+      - Completed
+      - Customer PJ in progress
+      - Customer PJ in review
+      - Customer PJ done
+      - Customer PJ rejected
+      title: UserStatus
+      type: string
+    Client:
+      additionalProperties: false
+      description: Schema for client.
       properties:
         id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Windpark identifier in project builder, may not exist.
           title: Id
         name:
           anyOf:
           - type: string
           - type: 'null'
-          description: Windpark name.
+          description: Client name.
           title: Name
-      title: WindparkProjectList
+      title: Client
       type: object
     Error:
       additionalProperties: false
@@ -661,6 +775,66 @@ components:
       - code
       - message
       title: Error
+      type: object
+    ProjectPOST:
+      additionalProperties: false
+      description: Schema for project creation.
+      properties:
+        origin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project origin identifier (Pipedrive deal ID). Required for Pipedrive path.
+          title: Origin Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Core project code. Required when origin_id is not provided (platform path).
+          title: Code
+      title: ProjectPOST
+      type: object
+    RelatedProjectsResponse:
+      additionalProperties: false
+      description: Schema for related projects response.
+      properties:
+        related_projects:
+          default: []
+          description: List of related projects with their code and id.
+          items:
+            $ref: '#/components/schemas/RelatedProject'
+          title: Related Projects
+          type: array
+      title: RelatedProjectsResponse
+      type: object
+    RelatedProject:
+      additionalProperties: false
+      description: Schema for related project with code, id, client name and match score.
+      properties:
+        id:
+          description: Project unique identifier.
+          title: Id
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project unique code shared with Pipedrive.
+          title: Code
+        client_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Client/company name.
+          title: Client Name
+        match_score:
+          description: Fuzzy match score as percentage (0-100).
+          title: Match Score
+          type: number
+      required:
+      - id
+      - match_score
+      title: RelatedProject
       type: object
     ProjectList:
       additionalProperties: false
@@ -747,231 +921,6 @@ components:
       - created_at
       - updated_at
       title: ProjectList
-      type: object
-    ProjectOfferStatus:
-      description: Project level Offer status.
-      enum:
-      - Draft
-      - Pending
-      - Approved
-      - Rejected
-      - Changed
-      title: ProjectOfferStatus
-      type: string
-    ProjectPassword:
-      additionalProperties: false
-      description: Schema for project password.
-      properties:
-        password:
-          description: Project password
-          title: Password
-          type: string
-      required:
-      - password
-      title: ProjectPassword
-      type: object
-    Client:
-      additionalProperties: false
-      description: Schema for client.
-      properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Client name.
-          title: Name
-      title: Client
-      type: object
-    ProjectEmailRequest:
-      additionalProperties: false
-      description: Schema for project email request.
-      properties:
-        recipient_email:
-          description: Email address of the recipient
-          format: email
-          title: Recipient Email
-          type: string
-      required:
-      - recipient_email
-      title: ProjectEmailRequest
-      type: object
-    UserStatus:
-      description: Enum for user-defined project statuses.
-      enum:
-      - Cancelled
-      - Completed
-      - Customer PJ in progress
-      - Customer PJ in review
-      - Customer PJ done
-      - Customer PJ rejected
-      title: UserStatus
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    RelatedProject:
-      additionalProperties: false
-      description: Schema for related project with code, id, client name and match score.
-      properties:
-        id:
-          description: Project unique identifier.
-          title: Id
-          type: string
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Project unique code shared with Pipedrive.
-          title: Code
-        client_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Client/company name.
-          title: Client Name
-        match_score:
-          description: Fuzzy match score as percentage (0-100).
-          title: Match Score
-          type: number
-      required:
-      - id
-      - match_score
-      title: RelatedProject
-      type: object
-    Country:
-      additionalProperties: false
-      description: Schema for Country.
-      properties:
-        code:
-          description: Country code in alpha-2.
-          title: Code
-          type: string
-        name:
-          description: Human readable country name.
-          title: Name
-          type: string
-        region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Custom region name a country belongs to.
-          title: Region
-      required:
-      - code
-      - name
-      title: Country
-      type: object
-    RelatedProjectsResponse:
-      additionalProperties: false
-      description: Schema for related projects response.
-      properties:
-        related_projects:
-          default: []
-          description: List of related projects with their code and id.
-          items:
-            $ref: '#/components/schemas/RelatedProject'
-          title: Related Projects
-          type: array
-      title: RelatedProjectsResponse
-      type: object
-    UserStatusPayload:
-      additionalProperties: false
-      description: Schema for updating user_status.
-      properties:
-        user_status:
-          $ref: '#/components/schemas/UserStatus'
-          description: The new user status for the project.
-        reason:
-          anyOf:
-          - maxLength: 1000
-            type: string
-          - type: 'null'
-          description: Required when user_status is Cancelled; stored as the status-history note.
-          title: Reason
-      required:
-      - user_status
-      title: UserStatusPayload
-      type: object
-    ProjectEmailResponse:
-      additionalProperties: false
-      description: Schema for project email response.
-      properties:
-        success:
-          description: Whether the email was sent successfully
-          title: Success
-          type: boolean
-        message:
-          description: Response message
-          title: Message
-          type: string
-      required:
-      - success
-      - message
-      title: ProjectEmailResponse
-      type: object
-    Customer:
-      additionalProperties: false
-      description: Schema for customer.
-      properties:
-        id:
-          description: NetSuite ID for customer
-          title: Id
-          type: integer
-        alt_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
-          title: Alt Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name
-          title: Name
-        currency:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Currency
-          title: Currency
-        business_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Business ID
-          title: Business Id
-        address_text:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full address in single text/string
-          title: Address Text
-      required:
-      - id
-      title: Customer
       type: object
     Project:
       additionalProperties: false
@@ -1087,6 +1036,57 @@ components:
       - updated_at
       - origin_id
       title: Project
+      type: object
+    ProjectOfferStatus:
+      description: Project level Offer status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      - Changed
+      title: ProjectOfferStatus
+      type: string
+    ProjectEmailResponse:
+      additionalProperties: false
+      description: Schema for project email response.
+      properties:
+        success:
+          description: Whether the email was sent successfully
+          title: Success
+          type: boolean
+        message:
+          description: Response message
+          title: Message
+          type: string
+      required:
+      - success
+      - message
+      title: ProjectEmailResponse
+      type: object
+    ProjectSiteSimple:
+      additionalProperties: false
+      description: Schema for project site information.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Site name
+          title: Name
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site longitude
+          title: Longitude
+      title: ProjectSiteSimple
       type: object
   securitySchemes:
     APIKeyAuth:

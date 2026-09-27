@@ -205,30 +205,123 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningNestedCustomer:
+    PlanningProjectCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        core_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Project Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: PLANNED
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        planned_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Planned Cost
+        actual_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Actual Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - customer_id
+      - name
+      title: PlanningProjectCreate
+      type: object
+    PlanningNestedCoreProject:
       properties:
         id:
           title: Id
           type: integer
-        display_name:
-          title: Display Name
+        code:
+          title: Code
           type: string
       required:
       - id
-      - display_name
-      title: PlanningNestedCustomer
+      - code
+      title: PlanningNestedCoreProject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    PlanningNestedCampaign:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PlanningNestedCampaign
+      type: object
     PlanningNestedCurrency:
       properties:
         id:
@@ -331,31 +424,18 @@ components:
           title: Notes
       title: PlanningProjectUpdate
       type: object
-    PlanningNestedCoreProject:
+    PlanningNestedCustomer:
       properties:
         id:
           title: Id
           type: integer
-        code:
-          title: Code
+        display_name:
+          title: Display Name
           type: string
       required:
       - id
-      - code
-      title: PlanningNestedCoreProject
-      type: object
-    PlanningNestedCampaign:
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: PlanningNestedCampaign
+      - display_name
+      title: PlanningNestedCustomer
       type: object
     Error:
       additionalProperties: false
@@ -371,96 +451,25 @@ components:
       - message
       title: Error
       type: object
-    PlanningProjectCreate:
+    Success:
       additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        customer_id:
-          title: Customer Id
-          type: integer
-        campaign_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Campaign Id
-        core_project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Core Project Id
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-        name:
-          title: Name
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: PLANNED
-          title: Status
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        priority:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Priority
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-        actual_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Actual Start Date
-        actual_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Actual End Date
-        planned_cost:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Planned Cost
-        actual_cost:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Actual Cost
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Currency Id
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      required:
-      - customer_id
-      - name
-      title: PlanningProjectCreate
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     PlanningProjectResponse:
       properties:
@@ -580,26 +589,17 @@ components:
       - updated_at
       title: PlanningProjectResponse
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

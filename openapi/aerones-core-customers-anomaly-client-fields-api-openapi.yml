@@ -263,17 +263,24 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    AnomalyClientFieldOption:
+      additionalProperties: false
+      description: One allowed option for a SELECT-type client field.
+      properties:
+        value:
+          description: Stored option value
+          title: Value
+          type: string
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable option label
+          title: Label
+      required:
+      - value
+      title: AnomalyClientFieldOption
+      type: object
     AnomalyClientFieldUpdate:
       additionalProperties: false
       description: Schema for updating an AnomalyClientField.
@@ -300,6 +307,31 @@ components:
           title: Options
       title: AnomalyClientFieldUpdate
       type: object
+    AnomalyClientFieldCreate:
+      additionalProperties: false
+      description: Schema for creating an AnomalyClientField.
+      properties:
+        name:
+          description: Field name
+          title: Name
+          type: string
+        type:
+          default: TEXT
+          description: Field data type
+          title: Type
+          type: string
+        options:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AnomalyClientFieldOption'
+            type: array
+          - type: 'null'
+          description: Allowed options for SELECT-type fields
+          title: Options
+      required:
+      - name
+      title: AnomalyClientFieldCreate
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -313,44 +345,6 @@ components:
       - code
       - message
       title: Error
-      type: object
-    AnomalyClientFieldOption:
-      additionalProperties: false
-      description: One allowed option for a SELECT-type client field.
-      properties:
-        value:
-          description: Stored option value
-          title: Value
-          type: string
-        label:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Human-readable option label
-          title: Label
-      required:
-      - value
-      title: AnomalyClientFieldOption
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
       type: object
     AnomalyClientFieldResponse:
       additionalProperties: false
@@ -411,6 +405,37 @@ components:
       - type
       title: AnomalyClientFieldResponse
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     CustomerCustomFieldOption:
       additionalProperties: false
       description: One allowed option for a SELECT-type customer custom field.
@@ -428,31 +453,6 @@ components:
       required:
       - value
       title: CustomerCustomFieldOption
-      type: object
-    AnomalyClientFieldCreate:
-      additionalProperties: false
-      description: Schema for creating an AnomalyClientField.
-      properties:
-        name:
-          description: Field name
-          title: Name
-          type: string
-        type:
-          default: TEXT
-          description: Field data type
-          title: Type
-          type: string
-        options:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/AnomalyClientFieldOption'
-            type: array
-          - type: 'null'
-          description: Allowed options for SELECT-type fields
-          title: Options
-      required:
-      - name
-      title: AnomalyClientFieldCreate
       type: object
   securitySchemes:
     APIKeyAuth:

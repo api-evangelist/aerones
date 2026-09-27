@@ -371,6 +371,31 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
     ManufacturerObject:
       additionalProperties: false
       description: Nested manufacturer object for responses.
@@ -386,133 +411,57 @@ components:
       - name
       title: ManufacturerObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectOfferItemCreate:
+    PricingUnitNestedResponse:
       additionalProperties: false
-      description: Schema for creating a ProjectOfferItem.
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
       properties:
-        location_id:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Project location ID
-          title: Location Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service ID
-          title: Service Id
-        price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Price
-          title: Price
-        quantity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Quantity
-          title: Quantity
-        discount:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Discount
-          title: Discount
-        adjustment:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Adjustment
-          title: Adjustment
-        amount:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Amount
-          title: Amount
-        turbine_manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine manufacturer ID
-          title: Turbine Manufacturer Id
-        turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine model ID
-          title: Turbine Model Id
-        component_manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Component manufacturer ID
-          title: Component Manufacturer Id
-        manufacturer_component_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Manufacturer component model ID
-          title: Manufacturer Component Model Id
-        coefficients:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Coefficients as JSON (object or array)
-          title: Coefficients
-        group_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Group ID
-          title: Group Id
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Item description
-          title: Description
-        pricing_unit_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pricing unit ID
-          title: Pricing Unit Id
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
         type:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/LocationType'
           - type: 'null'
-          description: Deprecated legacy field. Ignored if provided.
-          title: Type
-        unit_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Deprecated legacy field. Use pricing_unit_id.
-          title: Unit Type
-        initial_offer_item_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Initial offer item ID (self-reference)
-          title: Initial Offer Item Id
-      title: ProjectOfferItemCreate
+      required:
+      - id
+      - name
+      title: LocationObject
       type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
     ProjectOfferItemResponse:
       additionalProperties: false
       description: Schema for ProjectOfferItem response.
@@ -633,6 +582,20 @@ components:
       - offer_id
       title: ProjectOfferItemResponse
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     ManufacturerComponentModelObject:
       additionalProperties: false
       description: Nested manufacturer component model object for responses.
@@ -648,9 +611,9 @@ components:
       - name
       title: ManufacturerComponentModelObject
       type: object
-    LocationObject:
+    TurbineModelObject:
       additionalProperties: false
-      description: Nested location object for responses (no timestamps).
+      description: Nested turbine model object for responses.
       properties:
         id:
           title: Id
@@ -658,39 +621,10 @@ components:
         name:
           title: Name
           type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
       required:
       - id
       - name
-      title: LocationObject
-      type: object
-    ServiceObject:
-      additionalProperties: false
-      description: Nested service object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
-      required:
-      - id
-      - code
-      - is_service
-      title: ServiceObject
+      title: TurbineModelObject
       type: object
     ProjectOfferItemUpdate:
       additionalProperties: false
@@ -808,32 +742,6 @@ components:
           title: Initial Offer Item Id
       title: ProjectOfferItemUpdate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -854,41 +762,133 @@ components:
           type: boolean
       title: Success
       type: object
-    PricingUnitNestedResponse:
+    ProjectOfferItemCreate:
       additionalProperties: false
-      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      description: Schema for creating a ProjectOfferItem.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        netsuite_id:
+        location_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Netsuite Id
-      required:
-      - id
-      - name
-      title: PricingUnitNestedResponse
+          description: Project location ID
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          title: Price
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjustment
+          title: Adjustment
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount
+          title: Amount
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer component model ID
+          title: Manufacturer Component Model Id
+        coefficients:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Coefficients as JSON (object or array)
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Group ID
+          title: Group Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Item description
+          title: Description
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Ignored if provided.
+          title: Type
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Use pricing_unit_id.
+          title: Unit Type
+        initial_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Initial offer item ID (self-reference)
+          title: Initial Offer Item Id
+      title: ProjectOfferItemCreate
       type: object
-    TurbineModelObject:
-      additionalProperties: false
-      description: Nested turbine model object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: TurbineModelObject
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

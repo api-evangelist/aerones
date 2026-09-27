@@ -69,7 +69,7 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningNestedCustomer:
+    PlanningNestedVendor:
       properties:
         id:
           title: Id
@@ -80,7 +80,42 @@ components:
       required:
       - id
       - display_name
-      title: PlanningNestedCustomer
+      title: PlanningNestedVendor
+      type: object
+    PlanningNestedService:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedService
+      type: object
+    PlanningNestedCustomerVendor:
+      properties:
+        id:
+          title: Id
+          type: integer
+        vendor_id:
+          title: Vendor Id
+          type: integer
+        vendor:
+          anyOf:
+          - $ref: '#/components/schemas/PlanningNestedVendor'
+          - type: 'null'
+      required:
+      - id
+      - vendor_id
+      title: PlanningNestedCustomerVendor
       type: object
     PlanningServiceOrderResponse:
       properties:
@@ -221,53 +256,17 @@ components:
       - updated_at
       title: PlanningServiceOrderResponse
       type: object
-    PlanningNestedCustomerVendor:
+    PlanningServiceOrderAnomalyLinkRequest:
+      additionalProperties: false
       properties:
-        id:
-          title: Id
-          type: integer
-        vendor_id:
-          title: Vendor Id
-          type: integer
-        vendor:
-          anyOf:
-          - $ref: '#/components/schemas/PlanningNestedVendor'
-          - type: 'null'
+        anomaly_ids:
+          items:
+            type: integer
+          title: Anomaly Ids
+          type: array
       required:
-      - id
-      - vendor_id
-      title: PlanningNestedCustomerVendor
-      type: object
-    PlanningNestedService:
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      required:
-      - id
-      - code
-      title: PlanningNestedService
-      type: object
-    PlanningNestedVendor:
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: PlanningNestedVendor
+      - anomaly_ids
+      title: PlanningServiceOrderAnomalyLinkRequest
       type: object
     PlanningNestedProject:
       properties:
@@ -282,17 +281,18 @@ components:
       - name
       title: PlanningNestedProject
       type: object
-    PlanningServiceOrderAnomalyLinkRequest:
-      additionalProperties: false
+    PlanningNestedCustomer:
       properties:
-        anomaly_ids:
-          items:
-            type: integer
-          title: Anomaly Ids
-          type: array
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
       required:
-      - anomaly_ids
-      title: PlanningServiceOrderAnomalyLinkRequest
+      - id
+      - display_name
+      title: PlanningNestedCustomer
       type: object
   securitySchemes:
     APIKeyAuth:

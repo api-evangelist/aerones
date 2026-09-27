@@ -238,6 +238,28 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    LocationCertificateOutput:
+      additionalProperties: false
+      description: Output schema for location certificate in responses.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        certificate_name:
+          description: Certificate name
+          title: Certificate Name
+          type: string
+        is_mandatory:
+          description: Whether certificate is mandatory
+          title: Is Mandatory
+          type: boolean
+      required:
+      - certificate_id
+      - certificate_name
+      - is_mandatory
+      title: LocationCertificateOutput
+      type: object
     LocationUpdate:
       additionalProperties: false
       description: Schema for updating a Location.
@@ -350,17 +372,6 @@ components:
           title: Custom Fields
       title: LocationUpdate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ResolveCoordinatesResponse:
       additionalProperties: false
       description: Resolved geographic data from coordinates.
@@ -420,6 +431,37 @@ components:
           description: State or region
           title: State Region
       title: ResolveCoordinatesResponse
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
       type: object
     LocationResponse:
       additionalProperties: false
@@ -542,28 +584,6 @@ components:
       - address_line1
       title: LocationResponse
       type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
     LocationCreate:
       additionalProperties: false
       description: Schema for creating a Location.
@@ -681,133 +701,29 @@ components:
       - type
       title: LocationCreate
       type: object
-    LocationCertificateOutput:
+    ResolveCoordinatesRequest:
       additionalProperties: false
-      description: Output schema for location certificate in responses.
+      description: Request body for resolving geographic data from coordinates.
       properties:
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
-          type: integer
-        certificate_name:
-          description: Certificate name
-          title: Certificate Name
-          type: string
-        is_mandatory:
-          description: Whether certificate is mandatory
-          title: Is Mandatory
-          type: boolean
-      required:
-      - certificate_id
-      - certificate_name
-      - is_mandatory
-      title: LocationCertificateOutput
-      type: object
-    TimezoneObject:
-      additionalProperties: false
-      description: Nested timezone object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Timezone ID
-          title: Id
-          type: integer
-        timezone:
-          description: Timezone name (e.g., Europe/Riga)
-          title: Timezone
-          type: string
-        city:
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        coordinates:
           anyOf:
           - type: string
           - type: 'null'
-          description: City name
-          title: City
-        utc_offset:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: UTC offset (e.g., +02:00)
-          title: Utc Offset
-      required:
-      - id
-      - timezone
-      title: TimezoneObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CustomerObject:
-      additionalProperties: false
-      description: Nested customer object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyIdCodeObject'
-          - type: 'null'
-          description: Customer currency (id and code only)
-      required:
-      - id
-      - display_name
-      title: CustomerObject
-      type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+          description: Free-text coordinates (e.g. 37°51'05.0"N 99°12'53.5"W)
+          title: Coordinates
+      title: ResolveCoordinatesRequest
       type: object
     CurrencyIdCodeObject:
       additionalProperties: false
@@ -841,30 +757,114 @@ components:
       - certificate_id
       title: LocationCertificateInput
       type: object
-    ResolveCoordinatesRequest:
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    Error:
       additionalProperties: false
-      description: Request body for resolving geographic data from coordinates.
+      description: Error response schema.
       properties:
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Latitude coordinate
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Longitude coordinate
-          title: Longitude
-        coordinates:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
           anyOf:
           - type: string
           - type: 'null'
-          description: Free-text coordinates (e.g. 37°51'05.0"N 99°12'53.5"W)
-          title: Coordinates
-      title: ResolveCoordinatesRequest
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
       type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

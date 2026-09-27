@@ -441,85 +441,106 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectBillingPrefilled:
+    ProjectRFIGeneralEdit:
       additionalProperties: false
-      description: Schema for project billing prefilled data.
+      description: Schema for project general creation.
       properties:
-        billing_lead_name:
+        project_leads:
           anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
+          - items:
+              $ref: '#/components/schemas/ProjectLead'
+            type: array
           - type: 'null'
-        billing_lead_email:
+          title: Project Leads
+        company_legal_name:
           anyOf:
-          - $ref: '#/components/schemas/Prefill_EmailStr_'
+          - type: string
           - type: 'null'
-        billing_lead_phone:
+          title: Company Legal Name
+        company_address:
           anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
+          - type: string
           - type: 'null'
-        legal_entity:
+          title: Company Address
+        company_vat_id:
           anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
+          - type: string
           - type: 'null'
-        address:
+          title: Company Vat Id
+        company_reg_no:
           anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
+          - type: string
           - type: 'null'
-        payment_terms:
+          title: Company Reg No
+        platform_client_id:
           anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
+          - type: integer
           - type: 'null'
-        purchase_order_required:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_bool_'
-          - type: 'null'
-        purchase_order_number:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
-          - type: 'null'
-        purchase_order_value:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_float_'
-          - type: 'null'
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
-          - type: 'null'
-        invoicing_method:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_InvoicingMethod_'
-          - type: 'null'
-        invoicing_instructions:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
-          - type: 'null'
-        invoicing_email:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
-          - type: 'null'
-        invoice_frequency:
-          anyOf:
-          - $ref: '#/components/schemas/Prefill_str_'
-          - type: 'null'
-      title: ProjectBillingPrefilled
+          title: Platform Client Id
+      title: ProjectRFIGeneralEdit
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
+    InvoicingMethod:
+      description: Invoicing method definitions.
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - email
+      - portal
+      title: InvoicingMethod
       type: string
-    Prefill_str_:
+    SiteAccessConditions:
+      description: 'Condition definitions for site.
+
+
+        The conditions primarily define some restrictions to access specific site.
+
+        They primarily drive some costs and additional services availability and pricing.'
+      enum:
+      - Unavailable technicians
+      - None
+      - Health check
+      - Specific permit
+      - Escalation fee
+      - Other
+      - 5 working days
+      - 8 working hours
+      - Additional technician in US
+      - +20% fee
+      - +30% fee
+      - +50% fee
+      title: SiteAccessConditions
+      type: string
+    ProjectAssetGroupPrefilled:
+      additionalProperties: false
+      description: Schema for prefilled asset groups.
+      properties:
+        asset_groups:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/Prefill_AssetGroupService_'
+            type: array
+          - type: 'null'
+          description: Prefilled asset groups.
+          title: Asset Groups
+      title: ProjectAssetGroupPrefilled
+      type: object
+    ProjectSitesEdit:
+      additionalProperties: false
+      description: Schema for project sites update.
+      properties:
+        sites:
+          items:
+            $ref: '#/components/schemas/ProjectSiteEdit'
+          title: Sites
+          type: array
+      required:
+      - sites
+      title: ProjectSitesEdit
+      type: object
+    Prefill_float_:
       additionalProperties: false
       properties:
         value:
           title: Value
-          type: string
+          type: number
         prefilled:
           default: true
           description: Whether the value is prefilled.
@@ -527,21 +548,7 @@ components:
           type: boolean
       required:
       - value
-      title: Prefill[str]
-      type: object
-    Prefill_InvoicingMethod_:
-      additionalProperties: false
-      properties:
-        value:
-          $ref: '#/components/schemas/InvoicingMethod'
-        prefilled:
-          default: true
-          description: Whether the value is prefilled.
-          title: Prefilled
-          type: boolean
-      required:
-      - value
-      title: Prefill[InvoicingMethod]
+      title: Prefill[float]
       type: object
     FileAttachment:
       additionalProperties: false
@@ -568,6 +575,19 @@ components:
       - file_name
       - file_type
       title: FileAttachment
+      type: object
+    ProjectAssetGroup:
+      additionalProperties: false
+      description: Schema for assets of turbines and blades and their services.
+      properties:
+        asset_groups:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AssetGroupService'
+            type: array
+          - type: 'null'
+          title: Asset Groups
+      title: ProjectAssetGroup
       type: object
     AssetServiceUserSelection:
       additionalProperties: false
@@ -603,6 +623,196 @@ components:
       - code
       - conditions
       title: AssetServiceUserSelection
+      type: object
+    ProjectSites:
+      additionalProperties: false
+      description: 'Schema for project sites.
+
+
+        Project can contain multiple sites an each site is some collection of turbines.
+
+        It is not given that all turbines from the site are in the project.'
+      properties:
+        sites:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectSite'
+            type: array
+          - type: 'null'
+          title: Sites
+      title: ProjectSites
+      type: object
+    Prefill_AssetGroupService_:
+      additionalProperties: false
+      properties:
+        value:
+          $ref: '#/components/schemas/AssetGroupService'
+        prefilled:
+          default: true
+          description: Whether the value is prefilled.
+          title: Prefilled
+          type: boolean
+      required:
+      - value
+      title: Prefill[AssetGroupService]
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    AssetGroupType:
+      description: Asset group type definitions.
+      enum:
+      - WTG
+      - BLADE
+      title: AssetGroupType
+      type: string
+    CodeWithName:
+      additionalProperties: false
+      description: Schema for code and name.
+      properties:
+        code:
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CodeWithName
+      type: object
+    ProjectSiteAccessEdit:
+      additionalProperties: false
+      description: Schema for project site access update.
+      properties:
+        can_work_six_days:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Can Work Six Days
+        mandatory_certifications:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mandatory Certifications
+        specific_certifications_or_permits:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Specific Certifications Or Permits
+        regional_or_country_regulations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Regional Or Country Regulations
+        operational_limitations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operational Limitations
+        attachments:
+          default: []
+          description: List of file attachment storage IDs.
+          items:
+            format: uuid
+            type: string
+          title: Attachments
+          type: array
+      title: ProjectSiteAccessEdit
+      type: object
+    ProjectRFIGeneral:
+      additionalProperties: false
+      description: Schema for project general.
+      properties:
+        project_leads:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectLead'
+            type: array
+          - type: 'null'
+          title: Project Leads
+        company_legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Legal Name
+        company_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Address
+        company_vat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Vat Id
+        company_reg_no:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Company Reg No
+        company_netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Company Netsuite Id
+        platform_client_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Platform Client Id
+      title: ProjectRFIGeneral
+      type: object
+    Prefill_InvoicingMethod_:
+      additionalProperties: false
+      properties:
+        value:
+          $ref: '#/components/schemas/InvoicingMethod'
+        prefilled:
+          default: true
+          description: Whether the value is prefilled.
+          title: Prefilled
+          type: boolean
+      required:
+      - value
+      title: Prefill[InvoicingMethod]
+      type: object
+    ProjectLead:
+      additionalProperties: false
+      description: Schema for project lead.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - format: email
+            type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+      title: ProjectLead
       type: object
     ProjectBillingEdit:
       additionalProperties: false
@@ -708,6 +918,478 @@ components:
           description: Frequency of invoicing
           title: Invoice Frequency
       title: ProjectBillingEdit
+      type: object
+    Prefill_EmailStr_:
+      additionalProperties: false
+      properties:
+        value:
+          format: email
+          title: Value
+          type: string
+        prefilled:
+          default: true
+          description: Whether the value is prefilled.
+          title: Prefilled
+          type: boolean
+      required:
+      - value
+      title: Prefill[EmailStr]
+      type: object
+    ProjectBillingPrefilled:
+      additionalProperties: false
+      description: Schema for project billing prefilled data.
+      properties:
+        billing_lead_name:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        billing_lead_email:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_EmailStr_'
+          - type: 'null'
+        billing_lead_phone:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        legal_entity:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        address:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        payment_terms:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        purchase_order_required:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_bool_'
+          - type: 'null'
+        purchase_order_number:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        purchase_order_value:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_float_'
+          - type: 'null'
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        invoicing_method:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_InvoicingMethod_'
+          - type: 'null'
+        invoicing_instructions:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        invoicing_email:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+        invoice_frequency:
+          anyOf:
+          - $ref: '#/components/schemas/Prefill_str_'
+          - type: 'null'
+      title: ProjectBillingPrefilled
+      type: object
+    ProjectSiteAccess:
+      additionalProperties: false
+      description: Schema for project site access.
+      properties:
+        can_work_six_days:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Can Work Six Days
+        mandatory_certifications:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mandatory Certifications
+        specific_certifications_or_permits:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Specific Certifications Or Permits
+        regional_or_country_regulations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Regional Or Country Regulations
+        operational_limitations:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Operational Limitations
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/FileAttachment'
+          title: Attachments
+          type: array
+      title: ProjectSiteAccess
+      type: object
+    AssetGroupServiceEdit:
+      additionalProperties: false
+      description: Single asset group edit on a single project.
+      properties:
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Asset group identifier in project builder. Required when editing.
+          title: Group Id
+        type:
+          $ref: '#/components/schemas/AssetGroupType'
+        count:
+          default: 1
+          description: Number of assets in the group.
+          title: Count
+          type: integer
+        attachments:
+          default: []
+          description: List of file attachment storage IDs.
+          items:
+            format: uuid
+            type: string
+          title: Attachments
+          type: array
+        services:
+          default: []
+          items:
+            $ref: '#/components/schemas/AssetServiceUserSelection'
+          title: Services
+          type: array
+        site_id:
+          description: Site to which turbine belongs to. Required when editing.
+          title: Site Id
+          type: integer
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Hub Height
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer id as in platform.
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model id as in platform.
+          title: Turbine Model Id
+        blade_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Blade manufacturer id as in platform.
+          title: Blade Manufacturer Id
+        blade_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Blade model id as in platform.
+          title: Blade Model Id
+      required:
+      - type
+      - site_id
+      title: AssetGroupServiceEdit
+      type: object
+    ProjectSite:
+      additionalProperties: false
+      description: Schema for project site in RFI stage.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          description: Site name
+          title: Name
+          type: string
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Country code in alpha-2 format
+          title: Country
+        coordinates:
+          anyOf:
+          - $ref: '#/components/schemas/Coordinates'
+          - type: 'null'
+          description: Site coordinates
+        special_conditions:
+          default: []
+          description: List of special conditions for site access
+          items:
+            $ref: '#/components/schemas/SiteAccessConditions'
+          title: Special Conditions
+          type: array
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State code in alpha-2 format
+          title: State
+      required:
+      - id
+      - name
+      title: ProjectSite
+      type: object
+    ProjectAssetGroupEdit:
+      additionalProperties: false
+      description: Schema for editing assets of turbines and blades and their services.
+      properties:
+        asset_groups:
+          items:
+            $ref: '#/components/schemas/AssetGroupServiceEdit'
+          title: Asset Groups
+          type: array
+      required:
+      - asset_groups
+      title: ProjectAssetGroupEdit
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Prefill_bool_:
+      additionalProperties: false
+      properties:
+        value:
+          title: Value
+          type: boolean
+        prefilled:
+          default: true
+          description: Whether the value is prefilled.
+          title: Prefilled
+          type: boolean
+      required:
+      - value
+      title: Prefill[bool]
+      type: object
+    PaymentTerms:
+      description: Payment terms definitions.
+      enum:
+      - '30'
+      - '45'
+      - '60'
+      - '90'
+      title: PaymentTerms
+      type: string
+    ServiceConditionUserSelection:
+      additionalProperties: false
+      description: User selection of service condition.
+      properties:
+        name:
+          description: Name of the condition that is selected.
+          title: Name
+          type: string
+        code:
+          description: Code of the selected condition from the available values.
+          title: Code
+          type: string
+        severity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Additional description of the service condition as a severity level.
+          title: Severity
+      required:
+      - name
+      - code
+      title: ServiceConditionUserSelection
+      type: object
+    Prefill_str_:
+      additionalProperties: false
+      properties:
+        value:
+          title: Value
+          type: string
+        prefilled:
+          default: true
+          description: Whether the value is prefilled.
+          title: Prefilled
+          type: boolean
+      required:
+      - value
+      title: Prefill[str]
+      type: object
+    ServiceCondition:
+      additionalProperties: false
+      description: Schema for service condition.
+      properties:
+        name:
+          description: Name of the condition specific to service.
+          title: Name
+          type: string
+        values:
+          description: List of possible values for the condition.
+          items:
+            $ref: '#/components/schemas/ServiceConditionValue'
+          title: Values
+          type: array
+      required:
+      - name
+      - values
+      title: ServiceCondition
+      type: object
+    AssetServiceSelection:
+      additionalProperties: false
+      description: User selection of services for particular assets.
+      properties:
+        code:
+          description: Unique service base code.
+          title: Code
+          type: string
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Service category.
+        name:
+          description: Human readable service name.
+          title: Name
+          type: string
+        conditions:
+          default: []
+          description: List of conditions that describe the service, including RAT availability.
+          items:
+            $ref: '#/components/schemas/ServiceCondition'
+          title: Conditions
+          type: array
+        addons:
+          default: []
+          description: List of additional service codes that can/or are added to the service.
+          items:
+            type: string
+          title: Addons
+          type: array
+        materials:
+          default: []
+          description: List of material codes that are compatible with the service.
+          items:
+            type: string
+          title: Materials
+          type: array
+        full_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full line item service code.
+          title: Full Code
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Name
+      required:
+      - code
+      - category
+      - name
+      title: AssetServiceSelection
+      type: object
+    ProjectSiteEdit:
+      additionalProperties: false
+      description: Schema for project site edit in RFI stage.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site identifier in project builder. Required when editing.
+          title: Id
+        name:
+          description: Site name
+          title: Name
+          type: string
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Country code in alpha-2 format
+          title: Country
+        state:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State code in alpha-2 format
+          title: State
+        coordinates:
+          anyOf:
+          - $ref: '#/components/schemas/Coordinates'
+          - type: 'null'
+          description: Site coordinates
+        special_conditions:
+          description: List of special conditions for site access. Must not be empty - if no conditions, use ['None']. 'None' cannot be selected together with other conditions.
+          items:
+            $ref: '#/components/schemas/SiteAccessConditions'
+          minItems: 1
+          title: Special Conditions
+          type: array
+      required:
+      - name
+      - special_conditions
+      title: ProjectSiteEdit
+      type: object
+    Coordinates:
+      additionalProperties: false
+      description: Schema for coordinates.
+      properties:
+        latitude:
+          title: Latitude
+          type: number
+        longitude:
+          title: Longitude
+          type: number
+      required:
+      - latitude
+      - longitude
+      title: Coordinates
+      type: object
+    ServiceConditionValue:
+      additionalProperties: false
+      description: Schema for describing specific service condition/level.
+      properties:
+        code:
+          description: Unique condition value code.
+          title: Code
+          type: string
+        name:
+          description: Human readable condition value name.
+          title: Name
+          type: string
+        severity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Severity level for service object conditions.
+          title: Severity
+        selected:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Selected condition by user.
+          title: Selected
+      required:
+      - code
+      - name
+      title: ServiceConditionValue
       type: object
     AssetGroupService:
       additionalProperties: false
@@ -884,688 +1566,6 @@ components:
           description: Frequency of invoicing
           title: Invoice Frequency
       title: ProjectBilling
-      type: object
-    InvoicingMethod:
-      description: Invoicing method definitions.
-      enum:
-      - email
-      - portal
-      title: InvoicingMethod
-      type: string
-    Prefill_bool_:
-      additionalProperties: false
-      properties:
-        value:
-          title: Value
-          type: boolean
-        prefilled:
-          default: true
-          description: Whether the value is prefilled.
-          title: Prefilled
-          type: boolean
-      required:
-      - value
-      title: Prefill[bool]
-      type: object
-    SiteAccessConditions:
-      description: 'Condition definitions for site.
-
-
-        The conditions primarily define some restrictions to access specific site.
-
-        They primarily drive some costs and additional services availability and pricing.'
-      enum:
-      - Unavailable technicians
-      - None
-      - Health check
-      - Specific permit
-      - Escalation fee
-      - Other
-      - 5 working days
-      - 8 working hours
-      - Additional technician in US
-      - +20% fee
-      - +30% fee
-      - +50% fee
-      title: SiteAccessConditions
-      type: string
-    ProjectRFIGeneralEdit:
-      additionalProperties: false
-      description: Schema for project general creation.
-      properties:
-        project_leads:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ProjectLead'
-            type: array
-          - type: 'null'
-          title: Project Leads
-        company_legal_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Legal Name
-        company_address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Address
-        company_vat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Vat Id
-        company_reg_no:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Reg No
-        platform_client_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Platform Client Id
-      title: ProjectRFIGeneralEdit
-      type: object
-    CodeWithName:
-      additionalProperties: false
-      description: Schema for code and name.
-      properties:
-        code:
-          description: Unique code.
-          title: Code
-          type: string
-        name:
-          description: Human readable name.
-          title: Name
-          type: string
-      required:
-      - code
-      - name
-      title: CodeWithName
-      type: object
-    ServiceCondition:
-      additionalProperties: false
-      description: Schema for service condition.
-      properties:
-        name:
-          description: Name of the condition specific to service.
-          title: Name
-          type: string
-        values:
-          description: List of possible values for the condition.
-          items:
-            $ref: '#/components/schemas/ServiceConditionValue'
-          title: Values
-          type: array
-      required:
-      - name
-      - values
-      title: ServiceCondition
-      type: object
-    ProjectSitesEdit:
-      additionalProperties: false
-      description: Schema for project sites update.
-      properties:
-        sites:
-          items:
-            $ref: '#/components/schemas/ProjectSiteEdit'
-          title: Sites
-          type: array
-      required:
-      - sites
-      title: ProjectSitesEdit
-      type: object
-    AssetGroupType:
-      description: Asset group type definitions.
-      enum:
-      - WTG
-      - BLADE
-      title: AssetGroupType
-      type: string
-    AssetServiceSelection:
-      additionalProperties: false
-      description: User selection of services for particular assets.
-      properties:
-        code:
-          description: Unique service base code.
-          title: Code
-          type: string
-        category:
-          $ref: '#/components/schemas/CodeWithName'
-          description: Service category.
-        name:
-          description: Human readable service name.
-          title: Name
-          type: string
-        conditions:
-          default: []
-          description: List of conditions that describe the service, including RAT availability.
-          items:
-            $ref: '#/components/schemas/ServiceCondition'
-          title: Conditions
-          type: array
-        addons:
-          default: []
-          description: List of additional service codes that can/or are added to the service.
-          items:
-            type: string
-          title: Addons
-          type: array
-        materials:
-          default: []
-          description: List of material codes that are compatible with the service.
-          items:
-            type: string
-          title: Materials
-          type: array
-        full_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full line item service code.
-          title: Full Code
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Full Name
-      required:
-      - code
-      - category
-      - name
-      title: AssetServiceSelection
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Prefill_AssetGroupService_:
-      additionalProperties: false
-      properties:
-        value:
-          $ref: '#/components/schemas/AssetGroupService'
-        prefilled:
-          default: true
-          description: Whether the value is prefilled.
-          title: Prefilled
-          type: boolean
-      required:
-      - value
-      title: Prefill[AssetGroupService]
-      type: object
-    PaymentTerms:
-      description: Payment terms definitions.
-      enum:
-      - '30'
-      - '45'
-      - '60'
-      - '90'
-      title: PaymentTerms
-      type: string
-    ServiceConditionValue:
-      additionalProperties: false
-      description: Schema for describing specific service condition/level.
-      properties:
-        code:
-          description: Unique condition value code.
-          title: Code
-          type: string
-        name:
-          description: Human readable condition value name.
-          title: Name
-          type: string
-        severity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Severity level for service object conditions.
-          title: Severity
-        selected:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Selected condition by user.
-          title: Selected
-      required:
-      - code
-      - name
-      title: ServiceConditionValue
-      type: object
-    Coordinates:
-      additionalProperties: false
-      description: Schema for coordinates.
-      properties:
-        latitude:
-          title: Latitude
-          type: number
-        longitude:
-          title: Longitude
-          type: number
-      required:
-      - latitude
-      - longitude
-      title: Coordinates
-      type: object
-    ProjectAssetGroup:
-      additionalProperties: false
-      description: Schema for assets of turbines and blades and their services.
-      properties:
-        asset_groups:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/AssetGroupService'
-            type: array
-          - type: 'null'
-          title: Asset Groups
-      title: ProjectAssetGroup
-      type: object
-    ProjectAssetGroupPrefilled:
-      additionalProperties: false
-      description: Schema for prefilled asset groups.
-      properties:
-        asset_groups:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/Prefill_AssetGroupService_'
-            type: array
-          - type: 'null'
-          description: Prefilled asset groups.
-          title: Asset Groups
-      title: ProjectAssetGroupPrefilled
-      type: object
-    ProjectSiteEdit:
-      additionalProperties: false
-      description: Schema for project site edit in RFI stage.
-      properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Site identifier in project builder. Required when editing.
-          title: Id
-        name:
-          description: Site name
-          title: Name
-          type: string
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Country code in alpha-2 format
-          title: Country
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: State code in alpha-2 format
-          title: State
-        coordinates:
-          anyOf:
-          - $ref: '#/components/schemas/Coordinates'
-          - type: 'null'
-          description: Site coordinates
-        special_conditions:
-          description: List of special conditions for site access. Must not be empty - if no conditions, use ['None']. 'None' cannot be selected together with other conditions.
-          items:
-            $ref: '#/components/schemas/SiteAccessConditions'
-          minItems: 1
-          title: Special Conditions
-          type: array
-      required:
-      - name
-      - special_conditions
-      title: ProjectSiteEdit
-      type: object
-    ProjectSiteAccessEdit:
-      additionalProperties: false
-      description: Schema for project site access update.
-      properties:
-        can_work_six_days:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Can Work Six Days
-        mandatory_certifications:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mandatory Certifications
-        specific_certifications_or_permits:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Specific Certifications Or Permits
-        regional_or_country_regulations:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Regional Or Country Regulations
-        operational_limitations:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Operational Limitations
-        attachments:
-          default: []
-          description: List of file attachment storage IDs.
-          items:
-            format: uuid
-            type: string
-          title: Attachments
-          type: array
-      title: ProjectSiteAccessEdit
-      type: object
-    AssetGroupServiceEdit:
-      additionalProperties: false
-      description: Single asset group edit on a single project.
-      properties:
-        group_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Asset group identifier in project builder. Required when editing.
-          title: Group Id
-        type:
-          $ref: '#/components/schemas/AssetGroupType'
-        count:
-          default: 1
-          description: Number of assets in the group.
-          title: Count
-          type: integer
-        attachments:
-          default: []
-          description: List of file attachment storage IDs.
-          items:
-            format: uuid
-            type: string
-          title: Attachments
-          type: array
-        services:
-          default: []
-          items:
-            $ref: '#/components/schemas/AssetServiceUserSelection'
-          title: Services
-          type: array
-        site_id:
-          description: Site to which turbine belongs to. Required when editing.
-          title: Site Id
-          type: integer
-        hub_height:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Hub Height
-        turbine_manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine manufacturer id as in platform.
-          title: Turbine Manufacturer Id
-        turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine model id as in platform.
-          title: Turbine Model Id
-        blade_manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Blade manufacturer id as in platform.
-          title: Blade Manufacturer Id
-        blade_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Blade model id as in platform.
-          title: Blade Model Id
-      required:
-      - type
-      - site_id
-      title: AssetGroupServiceEdit
-      type: object
-    Prefill_EmailStr_:
-      additionalProperties: false
-      properties:
-        value:
-          format: email
-          title: Value
-          type: string
-        prefilled:
-          default: true
-          description: Whether the value is prefilled.
-          title: Prefilled
-          type: boolean
-      required:
-      - value
-      title: Prefill[EmailStr]
-      type: object
-    ProjectSite:
-      additionalProperties: false
-      description: Schema for project site in RFI stage.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          description: Site name
-          title: Name
-          type: string
-        country:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Country code in alpha-2 format
-          title: Country
-        coordinates:
-          anyOf:
-          - $ref: '#/components/schemas/Coordinates'
-          - type: 'null'
-          description: Site coordinates
-        special_conditions:
-          default: []
-          description: List of special conditions for site access
-          items:
-            $ref: '#/components/schemas/SiteAccessConditions'
-          title: Special Conditions
-          type: array
-        state:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: State code in alpha-2 format
-          title: State
-      required:
-      - id
-      - name
-      title: ProjectSite
-      type: object
-    ProjectLead:
-      additionalProperties: false
-      description: Schema for project lead.
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        email:
-          anyOf:
-          - format: email
-            type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-      title: ProjectLead
-      type: object
-    Prefill_float_:
-      additionalProperties: false
-      properties:
-        value:
-          title: Value
-          type: number
-        prefilled:
-          default: true
-          description: Whether the value is prefilled.
-          title: Prefilled
-          type: boolean
-      required:
-      - value
-      title: Prefill[float]
-      type: object
-    ServiceConditionUserSelection:
-      additionalProperties: false
-      description: User selection of service condition.
-      properties:
-        name:
-          description: Name of the condition that is selected.
-          title: Name
-          type: string
-        code:
-          description: Code of the selected condition from the available values.
-          title: Code
-          type: string
-        severity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Additional description of the service condition as a severity level.
-          title: Severity
-      required:
-      - name
-      - code
-      title: ServiceConditionUserSelection
-      type: object
-    ProjectSiteAccess:
-      additionalProperties: false
-      description: Schema for project site access.
-      properties:
-        can_work_six_days:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Can Work Six Days
-        mandatory_certifications:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Mandatory Certifications
-        specific_certifications_or_permits:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Specific Certifications Or Permits
-        regional_or_country_regulations:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Regional Or Country Regulations
-        operational_limitations:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Operational Limitations
-        attachments:
-          default: []
-          items:
-            $ref: '#/components/schemas/FileAttachment'
-          title: Attachments
-          type: array
-      title: ProjectSiteAccess
-      type: object
-    ProjectSites:
-      additionalProperties: false
-      description: 'Schema for project sites.
-
-
-        Project can contain multiple sites an each site is some collection of turbines.
-
-        It is not given that all turbines from the site are in the project.'
-      properties:
-        sites:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ProjectSite'
-            type: array
-          - type: 'null'
-          title: Sites
-      title: ProjectSites
-      type: object
-    ProjectAssetGroupEdit:
-      additionalProperties: false
-      description: Schema for editing assets of turbines and blades and their services.
-      properties:
-        asset_groups:
-          items:
-            $ref: '#/components/schemas/AssetGroupServiceEdit'
-          title: Asset Groups
-          type: array
-      required:
-      - asset_groups
-      title: ProjectAssetGroupEdit
-      type: object
-    ProjectRFIGeneral:
-      additionalProperties: false
-      description: Schema for project general.
-      properties:
-        project_leads:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ProjectLead'
-            type: array
-          - type: 'null'
-          title: Project Leads
-        company_legal_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Legal Name
-        company_address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Address
-        company_vat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Vat Id
-        company_reg_no:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Company Reg No
-        company_netsuite_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Company Netsuite Id
-        platform_client_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Platform Client Id
-      title: ProjectRFIGeneral
       type: object
   securitySchemes:
     APIKeyAuth:

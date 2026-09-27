@@ -416,38 +416,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    VehicleFleetSummary:
-      additionalProperties: false
-      description: Summary counts for the fleet vehicles dashboard.
-      properties:
-        total:
-          description: Total non-archived vehicles
-          title: Total
-          type: integer
-        in_project:
-          description: Vehicles with an accepted assignment
-          title: In Project
-          type: integer
-        planned:
-          description: Vehicles with a planned (not yet accepted) assignment
-          title: Planned
-          type: integer
-        available:
-          description: Vehicles available for assignment
-          title: Available
-          type: integer
-        vor:
-          description: Vehicles off road (expired inspection or no active insurance)
-          title: Vor
-          type: integer
-      required:
-      - total
-      - in_project
-      - planned
-      - available
-      - vor
-      title: VehicleFleetSummary
-      type: object
     VehicleInsuranceResponse:
       additionalProperties: false
       properties:
@@ -524,17 +492,210 @@ components:
       - is_active
       title: NavirecLiveState
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    VehicleUpdate:
+      additionalProperties: false
+      properties:
+        license_plate:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: License Plate
+        make:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Make
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        vehicle_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Source
+        telematics_provider:
+          anyOf:
+          - enum:
+            - NAVIREC
+            - MOTIVE
+            type: string
+          - type: 'null'
+          title: Telematics Provider
+        telematics_device_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Telematics Device Id
+        rental_company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rental Company
+        rental_agreement_no:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rental Agreement No
+        inspection_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Inspection To
+      title: VehicleUpdate
+      type: object
+    VehicleInsuranceUpdate:
+      additionalProperties: false
+      properties:
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        date_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date From
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        insurance_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Insurance Number
+      title: VehicleInsuranceUpdate
+      type: object
+    VehicleFleetSummary:
+      additionalProperties: false
+      description: Summary counts for the fleet vehicles dashboard.
+      properties:
+        total:
+          description: Total non-archived vehicles
+          title: Total
+          type: integer
+        in_project:
+          description: Vehicles with an accepted assignment
+          title: In Project
+          type: integer
+        planned:
+          description: Vehicles with a planned (not yet accepted) assignment
+          title: Planned
+          type: integer
+        available:
+          description: Vehicles available for assignment
+          title: Available
+          type: integer
+        vor:
+          description: Vehicles off road (expired inspection or no active insurance)
+          title: Vor
+          type: integer
+      required:
+      - total
+      - in_project
+      - planned
+      - available
+      - vor
+      title: VehicleFleetSummary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    VehicleCreate:
+      additionalProperties: false
+      properties:
+        license_plate:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: License Plate
+        make:
+          title: Make
+          type: string
+        model:
+          title: Model
+          type: string
+        type:
+          title: Type
+          type: string
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        location_id:
+          title: Location Id
+          type: integer
+        vehicle_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Source
+        telematics_provider:
+          anyOf:
+          - enum:
+            - NAVIREC
+            - MOTIVE
+            type: string
+          - type: 'null'
+          title: Telematics Provider
+        telematics_device_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Telematics Device Id
+        rental_company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rental Company
+        rental_agreement_no:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rental Agreement No
+        inspection_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Inspection To
+      required:
+      - make
+      - model
+      - type
+      - location_id
+      title: VehicleCreate
+      type: object
     VehicleResponse:
       additionalProperties: false
       properties:
@@ -620,153 +781,37 @@ components:
       - telematics_provider
       title: VehicleResponse
       type: object
-    VehicleCreate:
+    Success:
       additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        license_plate:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: License Plate
-        make:
-          title: Make
-          type: string
-        model:
-          title: Model
-          type: string
-        type:
-          title: Type
-          type: string
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Country Id
-        location_id:
-          title: Location Id
-          type: integer
-        vehicle_source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Vehicle Source
-        telematics_provider:
-          anyOf:
-          - enum:
-            - NAVIREC
-            - MOTIVE
-            type: string
-          - type: 'null'
-          title: Telematics Provider
-        telematics_device_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Telematics Device Id
-        rental_company:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rental Company
-        rental_agreement_no:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rental Agreement No
-        inspection_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Inspection To
-      required:
-      - make
-      - model
-      - type
-      - location_id
-      title: VehicleCreate
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    VehicleUpdate:
-      additionalProperties: false
-      properties:
-        license_plate:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: License Plate
-        make:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Make
-        model:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Model
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Country Id
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        vehicle_source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Vehicle Source
-        telematics_provider:
-          anyOf:
-          - enum:
-            - NAVIREC
-            - MOTIVE
-            type: string
-          - type: 'null'
-          title: Telematics Provider
-        telematics_device_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Telematics Device Id
-        rental_company:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rental Company
-        rental_agreement_no:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rental Agreement No
-        inspection_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Inspection To
-      title: VehicleUpdate
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     VehicleInsuranceCreate:
       additionalProperties: false
       properties:
@@ -789,51 +834,6 @@ components:
       - date_from
       - insurance_number
       title: VehicleInsuranceCreate
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    VehicleInsuranceUpdate:
-      additionalProperties: false
-      properties:
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        date_from:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date From
-        date_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date To
-        insurance_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Insurance Number
-      title: VehicleInsuranceUpdate
       type: object
   securitySchemes:
     APIKeyAuth:

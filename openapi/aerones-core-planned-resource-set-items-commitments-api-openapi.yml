@@ -235,17 +235,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ServiceObject:
       additionalProperties: false
       description: Nested service object for responses (no timestamps).
@@ -334,19 +323,25 @@ components:
       - quantity
       title: ProjectPlannedResourceSetItemCommitmentCreate
       type: object
-    Error:
+    PricingUnitNestedResponse:
       additionalProperties: false
-      description: Error response schema.
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
           type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
       required:
-      - code
-      - message
-      title: Error
+      - id
+      - name
+      title: PricingUnitNestedResponse
       type: object
     ProjectPlannedResourceSetItemCommitmentResponse:
       additionalProperties: false
@@ -391,6 +386,35 @@ components:
       - pricing_unit
       title: ProjectPlannedResourceSetItemCommitmentResponse
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    TurbineModelObject:
+      additionalProperties: false
+      description: Nested turbine model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineModelObject
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -411,41 +435,17 @@ components:
           type: boolean
       title: Success
       type: object
-    PricingUnitNestedResponse:
-      additionalProperties: false
-      description: Nested response for pricing unit in service response (no timestamps in nested objects).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        netsuite_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Netsuite Id
-      required:
-      - id
-      - name
-      title: PricingUnitNestedResponse
-      type: object
-    TurbineModelObject:
-      additionalProperties: false
-      description: Nested turbine model object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: TurbineModelObject
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -215,17 +215,36 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
     CustomerUserResponse:
       additionalProperties: false
       description: Schema for CustomerUser response.
@@ -269,6 +288,20 @@ components:
       - status
       title: CustomerUserResponse
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     CustomerUserUpdate:
       additionalProperties: false
       description: Schema for updating a CustomerUser.
@@ -288,68 +321,6 @@ components:
           description: Role IDs (None = no change, [] = clear all)
           title: Customer Role Ids
       title: CustomerUserUpdate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CustomerUserCreate:
-      additionalProperties: false
-      description: Schema for creating a CustomerUser.
-      properties:
-        user_id:
-          description: User ID
-          title: User Id
-          type: integer
-        customer_role_ids:
-          description: Role IDs to assign
-          items:
-            type: integer
-          title: Customer Role Ids
-          type: array
-      required:
-      - user_id
-      title: CustomerUserCreate
-      type: object
-    UserObject:
-      additionalProperties: false
-      description: Nested user object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        username:
-          title: Username
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
-      required:
-      - id
-      - username
-      title: UserObject
       type: object
     Success:
       additionalProperties: false
@@ -371,6 +342,35 @@ components:
           type: boolean
       title: Success
       type: object
+    CustomerUserCreate:
+      additionalProperties: false
+      description: Schema for creating a CustomerUser.
+      properties:
+        user_id:
+          description: User ID
+          title: User Id
+          type: integer
+        customer_role_ids:
+          description: Role IDs to assign
+          items:
+            type: integer
+          title: Customer Role Ids
+          type: array
+      required:
+      - user_id
+      title: CustomerUserCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

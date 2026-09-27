@@ -215,6 +215,23 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ParentVendorObject:
+      additionalProperties: false
+      description: Nested parent vendor object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Parent vendor ID
+          title: Id
+          type: integer
+        display_name:
+          description: Parent vendor display name
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: ParentVendorObject
+      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -226,6 +243,237 @@ components:
       - generic
       title: ErrorCode
       type: string
+    VendorCreate:
+      additionalProperties: false
+      description: Schema for creating a Vendor. Number is auto-generated.
+      properties:
+        display_name:
+          description: Display name
+          minLength: 1
+          title: Display Name
+          type: string
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        parent_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent vendor ID
+          title: Parent Vendor Id
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite vendor ID
+          title: Netsuite Vendor Id
+      required:
+      - display_name
+      title: VendorCreate
+      type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    VendorUpdate:
+      additionalProperties: false
+      description: Schema for updating a Vendor.
+      properties:
+        number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Vendor number
+          title: Number
+        display_name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Display name
+          title: Display Name
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        parent_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent vendor ID
+          title: Parent Vendor Id
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite vendor ID
+          title: Netsuite Vendor Id
+      title: VendorUpdate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
     VendorResponse:
       additionalProperties: false
       description: Schema for Vendor response.
@@ -310,254 +558,6 @@ components:
       - number
       - display_name
       title: VendorResponse
-      type: object
-    CurrencyObject:
-      additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
-        code:
-          description: Currency code (ISO 4217)
-          title: Code
-          type: string
-        name:
-          description: Currency name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CurrencyObject
-      type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
-    ParentVendorObject:
-      additionalProperties: false
-      description: Nested parent vendor object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Parent vendor ID
-          title: Id
-          type: integer
-        display_name:
-          description: Parent vendor display name
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: ParentVendorObject
-      type: object
-    VendorUpdate:
-      additionalProperties: false
-      description: Schema for updating a Vendor.
-      properties:
-        number:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Vendor number
-          title: Number
-        display_name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Display name
-          title: Display Name
-        legal_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Legal name
-          title: Legal Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Email address
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Phone number
-          title: Phone
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        parent_vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent vendor ID
-          title: Parent Vendor Id
-        vat_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: VAT number
-          title: Vat Number
-        registration_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Registration number
-          title: Registration Number
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency ID
-          title: Currency Id
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional information
-          title: Additional Info
-        netsuite_vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite vendor ID
-          title: Netsuite Vendor Id
-      title: VendorUpdate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    VendorCreate:
-      additionalProperties: false
-      description: Schema for creating a Vendor. Number is auto-generated.
-      properties:
-        display_name:
-          description: Display name
-          minLength: 1
-          title: Display Name
-          type: string
-        legal_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Legal name
-          title: Legal Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Email address
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Phone number
-          title: Phone
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        parent_vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent vendor ID
-          title: Parent Vendor Id
-        vat_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: VAT number
-          title: Vat Number
-        registration_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Registration number
-          title: Registration Number
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency ID
-          title: Currency Id
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional information
-          title: Additional Info
-        netsuite_vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite vendor ID
-          title: Netsuite Vendor Id
-      required:
-      - display_name
-      title: VendorCreate
       type: object
   securitySchemes:
     APIKeyAuth:

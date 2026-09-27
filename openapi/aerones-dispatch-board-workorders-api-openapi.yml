@@ -807,6 +807,122 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    AdminActivityInput:
+      additionalProperties: false
+      description: 'One activity, shared by "create a new ADMIN workorder" (DISP-2379)
+
+        and "add an activity to an already-created one" (``add_workorder_activity``
+
+        below).
+
+
+        ``estimated_duration_minutes`` stays optional here -- adding to an existing
+
+        WO has never required one -- but if given it must be a real, positive
+
+        number, never the old silent-zero default. Workorder *creation* additionally
+
+        requires every activity to carry one; see
+
+        ``CreateAdminWorkorderPayload.validate_payload``.
+
+
+        ``image_required`` (FEAT-2554) mirrors the ``custom_fields`` shape the
+
+        "Replace Cleaning Cloth" field activity already uses to require a photo
+
+        before AeroTask lets the activity complete (see migration
+
+        0047_add_replace_cleaning_cloth_activities) -- reused verbatim here rather
+
+        than inventing a second mechanism for the same thing.'
+      properties:
+        description:
+          title: Description
+          type: string
+        estimated_duration_minutes:
+          anyOf:
+          - minimum: 1
+            type: integer
+          - type: 'null'
+          title: Estimated Duration Minutes
+        image_required:
+          default: false
+          title: Image Required
+          type: boolean
+      required:
+      - description
+      title: AdminActivityInput
+      type: object
+    UpdateWorkorderActivityResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        estimated_duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration Minutes
+        image_required:
+          title: Image Required
+          type: boolean
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - description
+      - estimated_duration_minutes
+      - image_required
+      title: UpdateWorkorderActivityResponse
+      type: object
+    AssignWorkorderPayload:
+      additionalProperties: false
+      description: 'Payload for assigning a workorder to resources on a datetime.
+
+
+        ``assignee_resource_id`` optionally pins the workorder to a single
+
+        individual within the set (ADMIN WOs only); recorded as a
+
+        ``WorkorderResource`` row and must be one of ``resource_ids``.'
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+        resource_ids:
+          items:
+            type: integer
+          title: Resource Ids
+          type: array
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End Datetime
+        assignee_resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee Resource Id
+      required:
+      - workorder_id
+      - resource_ids
+      - planned_start_datetime
+      title: AssignWorkorderPayload
+      type: object
     UpdateAdminWorkorderPayload:
       additionalProperties: false
       description: 'Payload for editing an existing ADMIN workorder''s name/duration
@@ -833,6 +949,101 @@ components:
       - name
       - duration_minutes
       title: UpdateAdminWorkorderPayload
+      type: object
+    UpdateAdminWorkorderResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+      required:
+      - id
+      - name
+      - planned_start_datetime
+      - planned_end_datetime
+      title: UpdateAdminWorkorderResponse
+      type: object
+    AddWorkorderActivityResponse:
+      additionalProperties: false
+      description: Result of adding an activity to an existing ADMIN workorder.
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - description
+      title: AddWorkorderActivityResponse
+      type: object
+    SetWorkorderTurbinePayload:
+      additionalProperties: false
+      description: Payload for binding a turbine to a scope-dispatched workorder.
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+      required:
+      - turbine_id
+      title: SetWorkorderTurbinePayload
+      type: object
+    CreateAdminWorkorderResponse:
+      additionalProperties: false
+      description: Result of creating an ADMIN workorder.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        assignee_resource_id:
+          title: Assignee Resource Id
+          type: integer
+      required:
+      - id
+      - name
+      - assignee_resource_id
+      title: CreateAdminWorkorderResponse
+      type: object
+    UnassignWorkorderPayload:
+      additionalProperties: false
+      description: Payload for unassigning a workorder.
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+      required:
+      - workorder_id
+      title: UnassignWorkorderPayload
       type: object
     CreateAdminWorkorderPayload:
       additionalProperties: false
@@ -902,69 +1113,38 @@ components:
       - activities
       title: CreateAdminWorkorderPayload
       type: object
-    UpdateAdminWorkorderResponse:
+    BulkAssignWorkordersPayload:
       additionalProperties: false
+      description: Payload for bulk-assigning workorders to resources.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          format: date-time
-          title: Planned End Datetime
-          type: string
-      required:
-      - id
-      - name
-      - planned_start_datetime
-      - planned_end_datetime
-      title: UpdateAdminWorkorderResponse
-      type: object
-    AssignWorkorderPayload:
-      additionalProperties: false
-      description: 'Payload for assigning a workorder to resources on a datetime.
-
-
-        ``assignee_resource_id`` optionally pins the workorder to a single
-
-        individual within the set (ADMIN WOs only); recorded as a
-
-        ``WorkorderResource`` row and must be one of ``resource_ids``.'
-      properties:
-        workorder_id:
-          title: Workorder Id
-          type: integer
-        resource_ids:
+        assignments:
           items:
-            type: integer
-          title: Resource Ids
+            $ref: '#/components/schemas/AssignWorkorderPayload'
+          title: Assignments
           type: array
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Planned End Datetime
-        assignee_resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Assignee Resource Id
       required:
-      - workorder_id
-      - resource_ids
-      - planned_start_datetime
-      title: AssignWorkorderPayload
+      - assignments
+      title: BulkAssignWorkordersPayload
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     UpdateWorkorderActivityPayload:
       additionalProperties: false
@@ -988,186 +1168,6 @@ components:
       required:
       - description
       title: UpdateWorkorderActivityPayload
-      type: object
-    AdminActivityInput:
-      additionalProperties: false
-      description: 'One activity, shared by "create a new ADMIN workorder" (DISP-2379)
-
-        and "add an activity to an already-created one" (``add_workorder_activity``
-
-        below).
-
-
-        ``estimated_duration_minutes`` stays optional here -- adding to an existing
-
-        WO has never required one -- but if given it must be a real, positive
-
-        number, never the old silent-zero default. Workorder *creation* additionally
-
-        requires every activity to carry one; see
-
-        ``CreateAdminWorkorderPayload.validate_payload``.
-
-
-        ``image_required`` (FEAT-2554) mirrors the ``custom_fields`` shape the
-
-        "Replace Cleaning Cloth" field activity already uses to require a photo
-
-        before AeroTask lets the activity complete (see migration
-
-        0047_add_replace_cleaning_cloth_activities) -- reused verbatim here rather
-
-        than inventing a second mechanism for the same thing.'
-      properties:
-        description:
-          title: Description
-          type: string
-        estimated_duration_minutes:
-          anyOf:
-          - minimum: 1
-            type: integer
-          - type: 'null'
-          title: Estimated Duration Minutes
-        image_required:
-          default: false
-          title: Image Required
-          type: boolean
-      required:
-      - description
-      title: AdminActivityInput
-      type: object
-    UnassignWorkorderPayload:
-      additionalProperties: false
-      description: Payload for unassigning a workorder.
-      properties:
-        workorder_id:
-          title: Workorder Id
-          type: integer
-      required:
-      - workorder_id
-      title: UnassignWorkorderPayload
-      type: object
-    BulkAssignWorkordersPayload:
-      additionalProperties: false
-      description: Payload for bulk-assigning workorders to resources.
-      properties:
-        assignments:
-          items:
-            $ref: '#/components/schemas/AssignWorkorderPayload'
-          title: Assignments
-          type: array
-      required:
-      - assignments
-      title: BulkAssignWorkordersPayload
-      type: object
-    AddWorkorderActivityResponse:
-      additionalProperties: false
-      description: Result of adding an activity to an existing ADMIN workorder.
-      properties:
-        id:
-          title: Id
-          type: integer
-        description:
-          title: Description
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-      required:
-      - id
-      - description
-      title: AddWorkorderActivityResponse
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    UpdateWorkorderActivityResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        description:
-          title: Description
-          type: string
-        estimated_duration_minutes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Estimated Duration Minutes
-        image_required:
-          title: Image Required
-          type: boolean
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-      required:
-      - id
-      - description
-      - estimated_duration_minutes
-      - image_required
-      title: UpdateWorkorderActivityResponse
-      type: object
-    SetWorkorderTurbinePayload:
-      additionalProperties: false
-      description: Payload for binding a turbine to a scope-dispatched workorder.
-      properties:
-        turbine_id:
-          title: Turbine Id
-          type: integer
-      required:
-      - turbine_id
-      title: SetWorkorderTurbinePayload
-      type: object
-    CreateAdminWorkorderResponse:
-      additionalProperties: false
-      description: Result of creating an ADMIN workorder.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        assignee_resource_id:
-          title: Assignee Resource Id
-          type: integer
-      required:
-      - id
-      - name
-      - assignee_resource_id
-      title: CreateAdminWorkorderResponse
       type: object
   securitySchemes:
     APIKeyAuth:

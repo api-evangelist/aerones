@@ -225,17 +225,70 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    CertificateResponse:
+      additionalProperties: false
+      description: Schema for Certificate response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Certificate ID
+          title: Id
+          type: integer
+        name:
+          description: Certificate name
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Unique short code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        default_validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Default expiry window in months
+          title: Default Validity Months
+        is_active:
+          description: Whether the certificate is active
+          title: Is Active
+          type: boolean
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country FK
+          title: Country Id
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Category FK
+          title: Category Id
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Origin system
+          title: Source
+      required:
+      - updated_at
+      - id
+      - name
+      - is_active
+      title: CertificateResponse
+      type: object
     CertificateUpdate:
       additionalProperties: false
       description: Schema for updating a Certificate (partial).
@@ -351,70 +404,6 @@ components:
       - name
       title: CertificateCreate
       type: object
-    CertificateResponse:
-      additionalProperties: false
-      description: Schema for Certificate response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Certificate ID
-          title: Id
-          type: integer
-        name:
-          description: Certificate name
-          title: Name
-          type: string
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Unique short code
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Description
-          title: Description
-        default_validity_months:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Default expiry window in months
-          title: Default Validity Months
-        is_active:
-          description: Whether the certificate is active
-          title: Is Active
-          type: boolean
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country FK
-          title: Country Id
-        category_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Category FK
-          title: Category Id
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Origin system
-          title: Source
-      required:
-      - updated_at
-      - id
-      - name
-      - is_active
-      title: CertificateResponse
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -435,6 +424,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

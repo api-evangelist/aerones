@@ -215,6 +215,54 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    CustomerBankAccountCreate:
+      additionalProperties: false
+      description: Schema for creating a CustomerBankAccount.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank account name
+          title: Name
+        iban:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: IBAN number
+          title: Iban
+        account_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Account number
+          title: Account Number
+        bank_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bank name
+          title: Bank Name
+        swift_bic:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SWIFT/BIC code
+          title: Swift Bic
+        currency_code:
+          anyOf:
+          - maxLength: 3
+            type: string
+          - type: 'null'
+          description: Currency code (ISO 4217)
+          title: Currency Code
+        is_primary:
+          default: false
+          description: Is primary bank account
+          title: Is Primary
+          type: boolean
+      title: CustomerBankAccountCreate
+      type: object
     CustomerBankAccountUpdate:
       additionalProperties: false
       description: Schema for updating a CustomerBankAccount.
@@ -264,65 +312,20 @@ components:
           title: Is Primary
       title: CustomerBankAccountUpdate
       type: object
-    CustomerBankAccountCreate:
+    Error:
       additionalProperties: false
-      description: Schema for creating a CustomerBankAccount.
+      description: Error response schema.
       properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Bank account name
-          title: Name
-        iban:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: IBAN number
-          title: Iban
-        account_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Account number
-          title: Account Number
-        bank_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Bank name
-          title: Bank Name
-        swift_bic:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: SWIFT/BIC code
-          title: Swift Bic
-        currency_code:
-          anyOf:
-          - maxLength: 3
-            type: string
-          - type: 'null'
-          description: Currency code (ISO 4217)
-          title: Currency Code
-        is_primary:
-          default: false
-          description: Is primary bank account
-          title: Is Primary
-          type: boolean
-      title: CustomerBankAccountCreate
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     CustomerBankAccountResponse:
       additionalProperties: false
       description: Schema for CustomerBankAccount response.
@@ -388,20 +391,6 @@ components:
       - is_primary
       title: CustomerBankAccountResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -422,6 +411,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -341,168 +341,231 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    NordexCustomValueSchema:
+    NordexActivitySchema:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        custom_field_id:
-          title: Custom Field Id
-          type: integer
-        custom_field_type:
-          description: TEXT, NUMBER, DATE, BOOLEAN or SELECT.
-          title: Custom Field Type
-          type: string
-        custom_field_name:
-          description: The field's name as the customer defined it, e.g. 'Profile depth from (%)' on an anomaly or 'Nordex Incident Number' on a line.
-          title: Custom Field Name
-          type: string
-        value:
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        activity_description:
           anyOf:
           - type: string
           - type: 'null'
-          description: Always a string, whatever the field's type.
-          title: Value
-      required:
-      - id
-      - custom_field_id
-      - custom_field_type
-      - custom_field_name
-      - value
-      title: NordexCustomValueSchema
-      type: object
-    NordexIdNameSchema:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-      required:
-      - id
-      - name
-      title: NordexIdNameSchema
-      type: object
-    TurbineSchema:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        latitude:
-          title: Latitude
-          type: number
-        longitude:
-          title: Longitude
-          type: number
-        blades:
-          items:
-            $ref: '#/components/schemas/BladeSchema'
-          title: Blades
-          type: array
-        serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Serial number of the turbine
-          title: Serial Number
-      required:
-      - id
-      - latitude
-      - longitude
-      - blades
-      - serial_number
-      title: TurbineSchema
-      type: object
-    CIRSubmitResponseSchema:
-      additionalProperties: false
-      properties:
-        submission_id:
-          title: Submission Id
-          type: integer
-        status:
-          title: Status
-          type: string
-      required:
-      - submission_id
-      - status
-      title: CIRSubmitResponseSchema
-      type: object
-    NordexTurbineSchema:
-      additionalProperties: false
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        manufacturer_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: The Nordex turbine ID as stored. Never derived from 'name', which is the operator's label.
-          title: Manufacturer Number
-        location:
-          $ref: '#/components/schemas/NordexLocationSchema'
-      required:
-      - name
-      - manufacturer_number
-      - location
-      title: NordexTurbineSchema
-      type: object
-    VestasCIRDataSchema:
-      additionalProperties: false
-      properties:
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        turbine:
-          $ref: '#/components/schemas/TurbineSchema'
-        anomalies:
-          items:
-            $ref: '#/components/schemas/AnomalySchema'
-          title: Anomalies
-          type: array
-        inspection_date:
+          description: Free text, e.g. 'WTG off' or 'WTG off (for LER)'.
+          title: Activity Description
+        start_datetime:
           anyOf:
           - format: date-time
             type: string
           - type: 'null'
-          title: Inspection Date
-        is_annual_inspection:
+          description: Timezone-aware UTC instant. Localise it with 'turbine.location.timezone'.
+          title: Start Datetime
+        end_datetime:
           anyOf:
-          - type: boolean
+          - format: date-time
+            type: string
           - type: 'null'
-          title: Is Annual Inspection
-        work_order_number:
+          title: End Datetime
+        status:
           anyOf:
           - type: string
           - type: 'null'
-          title: Work Order Number
+          description: COMPLETED or IN_PROGRESS. Planned, cancelled and failed activities are not returned.
+          title: Status
       required:
-      - service_order_line_id
-      - turbine
+      - id
+      - workorder_id
+      - activity_description
+      - start_datetime
+      - end_datetime
+      - status
+      title: NordexActivitySchema
+      type: object
+    Country:
+      additionalProperties: false
+      description: Schema for Country.
+      properties:
+        code:
+          description: Country code in alpha-2.
+          title: Code
+          type: string
+        name:
+          description: Human readable country name.
+          title: Name
+          type: string
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Custom region name a country belongs to.
+          title: Region
+      required:
+      - code
+      - name
+      title: Country
+      type: object
+    Customer:
+      additionalProperties: false
+      description: Schema for customer.
+      properties:
+        id:
+          description: NetSuite ID for customer
+          title: Id
+          type: integer
+        alt_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
+          title: Alt Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name
+          title: Name
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency
+          title: Currency
+        business_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Business ID
+          title: Business Id
+        address_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full address in single text/string
+          title: Address Text
+      required:
+      - id
+      title: Customer
+      type: object
+    ServiceLineItemFull:
+      additionalProperties: false
+      description: Full schema including all available fields for unified service line item.
+      properties:
+        code:
+          description: Service item code.
+          title: Code
+          type: string
+        line_item:
+          description: Service item description.
+          title: Line Item
+          type: string
+        category:
+          description: Service category name.
+          title: Category
+          type: string
+        service_group:
+          description: Service group name.
+          title: Service Group
+          type: string
+        rat_team:
+          description: Whether service is provided by RAT.
+          title: Rat Team
+          type: boolean
+        reported_as_service:
+          description: Whether the item is a service.
+          title: Reported As Service
+          type: boolean
+        unit_types:
+          description: List of pricing unit names compatible with this service item.
+          items:
+            type: string
+          title: Unit Types
+          type: array
+      required:
+      - code
+      - line_item
+      - category
+      - service_group
+      - rat_team
+      - reported_as_service
+      - unit_types
+      title: ServiceLineItemFull
+      type: object
+    NordexServiceOrderLineSchema:
+      additionalProperties: false
+      properties:
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Always an IIN code, e.g. IIN-ONS; other services are refused.
+          title: Service Code
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: NOT_STARTED, IN_PROGRESS, FIELD_COMPLETED or COMPLETED. Cancelled lines are not returned.
+          title: Status
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The blade this line covers, or null for a whole-turbine line.
+          title: Turbine Component Id
+        custom_values:
+          description: The line's customer-defined fields, including the incident number and the purchase order id.
+          items:
+            $ref: '#/components/schemas/NordexCustomValueSchema'
+          title: Custom Values
+          type: array
+        purchase_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Current order number of the purchase order the line's 'Nordex Purchase Order' value points at, when that order is linked to the line's project; otherwise null.
+          title: Purchase Order Number
+        workorders:
+          items:
+            $ref: '#/components/schemas/NordexWorkorderSchema'
+          title: Workorders
+          type: array
+        activities:
+          items:
+            $ref: '#/components/schemas/NordexActivitySchema'
+          title: Activities
+          type: array
+        activity_resources:
+          items:
+            $ref: '#/components/schemas/NordexActivityResourceSchema'
+          title: Activity Resources
+          type: array
+        anomalies:
+          description: Every anomaly recorded on the turbine's blades by this line, damage and blade-ID photos alike. AI detections are flagged, not filtered.
+          items:
+            $ref: '#/components/schemas/NordexAnomalySchema'
+          title: Anomalies
+          type: array
+      required:
+      - number
+      - service_code
+      - status
+      - turbine_component_id
+      - custom_values
+      - purchase_order_number
+      - workorders
+      - activities
+      - activity_resources
       - anomalies
-      - inspection_date
-      - is_annual_inspection
-      - work_order_number
-      title: VestasCIRDataSchema
+      title: NordexServiceOrderLineSchema
       type: object
     ServiceLineItem:
       additionalProperties: false
@@ -541,14 +604,59 @@ components:
       - reported_as_service
       title: ServiceLineItem
       type: object
-    AnomalyRegisteredByType:
-      description: Registered by classification for anomalies.
+    ErrorCode:
+      description: Error codes for API errors.
       enum:
-      - AERONES
-      - AI
-      - CUSTOMER
-      title: AnomalyRegisteredByType
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
       type: string
+    NordexComponentModelSchema:
+      additionalProperties: false
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade model as stored, e.g. 'NR 74.5' or 'TPI 81.5'.
+          title: Name
+        blade_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Shear-web configuration of the model.
+          title: Blade Type
+      required:
+      - name
+      - blade_type
+      title: NordexComponentModelSchema
+      type: object
+    NordexTurbineSchema:
+      additionalProperties: false
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        manufacturer_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The Nordex turbine ID as stored. Never derived from 'name', which is the operator's label.
+          title: Manufacturer Number
+        location:
+          $ref: '#/components/schemas/NordexLocationSchema'
+      required:
+      - name
+      - manufacturer_number
+      - location
+      title: NordexTurbineSchema
+      type: object
     AnomalySchema:
       additionalProperties: false
       properties:
@@ -712,23 +820,76 @@ components:
       - registered_by
       title: AnomalySchema
       type: object
-    NordexWorkorderSchema:
+    AnomalyAIStatus:
+      description: AI status for anomalies.
+      enum:
+      - NEW
+      - QUALIFIED
+      - UNQUALIFIED
+      - CONFIRMED
+      - REJECTED
+      - DUPLICATE
+      title: AnomalyAIStatus
+      type: string
+    NordexAnomalyFileSchema:
       additionalProperties: false
       properties:
         id:
-          description: Join key for 'activities[].workorder_id'.
           title: Id
           type: integer
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
         type:
           anyOf:
           - type: string
           - type: 'null'
-          description: ADMIN, FIELD_WORK, FIELD_OTHER, FIELD_SITE, OFFICE, DATA_UPLOAD or DATA_TRACKING. Cancelled workorders are not returned.
           title: Type
+        original_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Server-rendered cross-section diagrams are named 'cross_section_image*' and are not inspection photos.
+          title: Original Name
       required:
       - id
+      - url
       - type
-      title: NordexWorkorderSchema
+      - original_name
+      title: NordexAnomalyFileSchema
+      type: object
+    NordexCustomValueSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        custom_field_id:
+          title: Custom Field Id
+          type: integer
+        custom_field_type:
+          description: TEXT, NUMBER, DATE, BOOLEAN or SELECT.
+          title: Custom Field Type
+          type: string
+        custom_field_name:
+          description: The field's name as the customer defined it, e.g. 'Profile depth from (%)' on an anomaly or 'Nordex Incident Number' on a line.
+          title: Custom Field Name
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Always a string, whatever the field's type.
+          title: Value
+      required:
+      - id
+      - custom_field_id
+      - custom_field_type
+      - custom_field_name
+      - value
+      title: NordexCustomValueSchema
       type: object
     BladeSchema:
       additionalProperties: false
@@ -787,6 +948,183 @@ components:
       - blade_id_image_url
       title: BladeSchema
       type: object
+    CIRSubmissionStatusSchema:
+      additionalProperties: false
+      properties:
+        has_been_submitted:
+          title: Has Been Submitted
+          type: boolean
+        last_submission_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Last Submission Id
+        last_submission_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Submission Status
+        last_submitted_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Submitted At
+        last_submitted_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Submitted By Name
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        last_successful_sync_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Successful Sync At
+      required:
+      - has_been_submitted
+      title: CIRSubmissionStatusSchema
+      type: object
+    NordexWorkorderSchema:
+      additionalProperties: false
+      properties:
+        id:
+          description: Join key for 'activities[].workorder_id'.
+          title: Id
+          type: integer
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ADMIN, FIELD_WORK, FIELD_OTHER, FIELD_SITE, OFFICE, DATA_UPLOAD or DATA_TRACKING. Cancelled workorders are not returned.
+          title: Type
+      required:
+      - id
+      - type
+      title: NordexWorkorderSchema
+      type: object
+    NordexCIRDataSchema:
+      additionalProperties: false
+      properties:
+        turbine:
+          $ref: '#/components/schemas/NordexTurbineSchema'
+        turbine_components:
+          description: The turbine's blades, ordered A, B, C.
+          items:
+            $ref: '#/components/schemas/NordexTurbineComponentSchema'
+          title: Turbine Components
+          type: array
+        service_order_lines:
+          description: The IIN lines carrying this incident number, oldest first.
+          items:
+            $ref: '#/components/schemas/NordexServiceOrderLineSchema'
+          title: Service Order Lines
+          type: array
+      required:
+      - turbine
+      - turbine_components
+      - service_order_lines
+      title: NordexCIRDataSchema
+      type: object
+    CIRValidationResultSchema:
+      additionalProperties: false
+      properties:
+        is_valid:
+          title: Is Valid
+          type: boolean
+        issues:
+          items:
+            $ref: '#/components/schemas/CIRValidationIssueSchema'
+          title: Issues
+          type: array
+      required:
+      - is_valid
+      - issues
+      title: CIRValidationResultSchema
+      type: object
+    NordexTurbineComponentSchema:
+      additionalProperties: false
+      properties:
+        id:
+          description: Join key for 'turbine_component_id' on service order lines and anomalies.
+          title: Id
+          type: integer
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+        manufacturer_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The OEM's serial as stamped on the blade, e.g. 'N2-742-0048-0013'; its fourth group is the blade set number. OpsHub's own 'serial_number' is the operator's label and is not sent.
+          title: Manufacturer Serial Number
+        manufacturer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Manufacturer
+        manufacturer_component_model:
+          anyOf:
+          - $ref: '#/components/schemas/NordexComponentModelSchema'
+          - type: 'null'
+      required:
+      - id
+      - position
+      - manufacturer_serial_number
+      - manufacturer
+      - manufacturer_component_model
+      title: NordexTurbineComponentSchema
+      type: object
+    CIRSubmitResponseSchema:
+      additionalProperties: false
+      properties:
+        submission_id:
+          title: Submission Id
+          type: integer
+        status:
+          title: Status
+          type: string
+      required:
+      - submission_id
+      - status
+      title: CIRSubmitResponseSchema
+      type: object
+    TurbineSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        latitude:
+          title: Latitude
+          type: number
+        longitude:
+          title: Longitude
+          type: number
+        blades:
+          items:
+            $ref: '#/components/schemas/BladeSchema'
+          title: Blades
+          type: array
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Serial number of the turbine
+          title: Serial Number
+      required:
+      - id
+      - latitude
+      - longitude
+      - blades
+      - serial_number
+      title: TurbineSchema
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -801,16 +1139,21 @@ components:
       - message
       title: Error
       type: object
-    NordexLocationSchema:
+    NordexIdNameSchema:
       additionalProperties: false
       properties:
-        timezone:
-          description: IANA name of the wind park's timezone, e.g. 'America/Chicago'. Localise every activity datetime with it. The request is refused when the park has none.
-          title: Timezone
-          type: string
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
       required:
-      - timezone
-      title: NordexLocationSchema
+      - id
+      - name
+      title: NordexIdNameSchema
       type: object
     NordexAnomalySchema:
       additionalProperties: false
@@ -961,335 +1304,35 @@ components:
       - files
       title: NordexAnomalySchema
       type: object
-    NordexServiceOrderLineSchema:
-      additionalProperties: false
-      properties:
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Always an IIN code, e.g. IIN-ONS; other services are refused.
-          title: Service Code
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: NOT_STARTED, IN_PROGRESS, FIELD_COMPLETED or COMPLETED. Cancelled lines are not returned.
-          title: Status
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: The blade this line covers, or null for a whole-turbine line.
-          title: Turbine Component Id
-        custom_values:
-          description: The line's customer-defined fields, including the incident number and the purchase order id.
-          items:
-            $ref: '#/components/schemas/NordexCustomValueSchema'
-          title: Custom Values
-          type: array
-        purchase_order_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Current order number of the purchase order the line's 'Nordex Purchase Order' value points at, when that order is linked to the line's project; otherwise null.
-          title: Purchase Order Number
-        workorders:
-          items:
-            $ref: '#/components/schemas/NordexWorkorderSchema'
-          title: Workorders
-          type: array
-        activities:
-          items:
-            $ref: '#/components/schemas/NordexActivitySchema'
-          title: Activities
-          type: array
-        activity_resources:
-          items:
-            $ref: '#/components/schemas/NordexActivityResourceSchema'
-          title: Activity Resources
-          type: array
-        anomalies:
-          description: Every anomaly recorded on the turbine's blades by this line, damage and blade-ID photos alike. AI detections are flagged, not filtered.
-          items:
-            $ref: '#/components/schemas/NordexAnomalySchema'
-          title: Anomalies
-          type: array
-      required:
-      - number
-      - service_code
-      - status
-      - turbine_component_id
-      - custom_values
-      - purchase_order_number
-      - workorders
-      - activities
-      - activity_resources
-      - anomalies
-      title: NordexServiceOrderLineSchema
-      type: object
-    ServiceLineItemFull:
-      additionalProperties: false
-      description: Full schema including all available fields for unified service line item.
-      properties:
-        code:
-          description: Service item code.
-          title: Code
-          type: string
-        line_item:
-          description: Service item description.
-          title: Line Item
-          type: string
-        category:
-          description: Service category name.
-          title: Category
-          type: string
-        service_group:
-          description: Service group name.
-          title: Service Group
-          type: string
-        rat_team:
-          description: Whether service is provided by RAT.
-          title: Rat Team
-          type: boolean
-        reported_as_service:
-          description: Whether the item is a service.
-          title: Reported As Service
-          type: boolean
-        unit_types:
-          description: List of pricing unit names compatible with this service item.
-          items:
-            type: string
-          title: Unit Types
-          type: array
-      required:
-      - code
-      - line_item
-      - category
-      - service_group
-      - rat_team
-      - reported_as_service
-      - unit_types
-      title: ServiceLineItemFull
-      type: object
-    NordexCIRDataSchema:
-      additionalProperties: false
-      properties:
-        turbine:
-          $ref: '#/components/schemas/NordexTurbineSchema'
-        turbine_components:
-          description: The turbine's blades, ordered A, B, C.
-          items:
-            $ref: '#/components/schemas/NordexTurbineComponentSchema'
-          title: Turbine Components
-          type: array
-        service_order_lines:
-          description: The IIN lines carrying this incident number, oldest first.
-          items:
-            $ref: '#/components/schemas/NordexServiceOrderLineSchema'
-          title: Service Order Lines
-          type: array
-      required:
-      - turbine
-      - turbine_components
-      - service_order_lines
-      title: NordexCIRDataSchema
-      type: object
-    NordexAnomalyFileSchema:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        original_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Server-rendered cross-section diagrams are named 'cross_section_image*' and are not inspection photos.
-          title: Original Name
-      required:
-      - id
-      - url
-      - type
-      - original_name
-      title: NordexAnomalyFileSchema
-      type: object
-    NordexComponentModelSchema:
-      additionalProperties: false
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Blade model as stored, e.g. 'NR 74.5' or 'TPI 81.5'.
-          title: Name
-        blade_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Shear-web configuration of the model.
-          title: Blade Type
-      required:
-      - name
-      - blade_type
-      title: NordexComponentModelSchema
-      type: object
-    AnomalyFileSchema:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-      required:
-      - id
-      - url
-      title: AnomalyFileSchema
-      type: object
-    NordexTurbineComponentSchema:
-      additionalProperties: false
-      properties:
-        id:
-          description: Join key for 'turbine_component_id' on service order lines and anomalies.
-          title: Id
-          type: integer
-        position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Position
-        manufacturer_serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: The OEM's serial as stamped on the blade, e.g. 'N2-742-0048-0013'; its fourth group is the blade set number. OpsHub's own 'serial_number' is the operator's label and is not sent.
-          title: Manufacturer Serial Number
-        manufacturer:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Manufacturer
-        manufacturer_component_model:
-          anyOf:
-          - $ref: '#/components/schemas/NordexComponentModelSchema'
-          - type: 'null'
-      required:
-      - id
-      - position
-      - manufacturer_serial_number
-      - manufacturer
-      - manufacturer_component_model
-      title: NordexTurbineComponentSchema
-      type: object
-    CIRValidationResultSchema:
-      additionalProperties: false
-      properties:
-        is_valid:
-          title: Is Valid
-          type: boolean
-        issues:
-          items:
-            $ref: '#/components/schemas/CIRValidationIssueSchema'
-          title: Issues
-          type: array
-      required:
-      - is_valid
-      - issues
-      title: CIRValidationResultSchema
-      type: object
-    Country:
-      additionalProperties: false
-      description: Schema for Country.
-      properties:
-        code:
-          description: Country code in alpha-2.
-          title: Code
-          type: string
-        name:
-          description: Human readable country name.
-          title: Name
-          type: string
-        region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Custom region name a country belongs to.
-          title: Region
-      required:
-      - code
-      - name
-      title: Country
-      type: object
-    CIRSubmissionStatusSchema:
-      additionalProperties: false
-      properties:
-        has_been_submitted:
-          title: Has Been Submitted
-          type: boolean
-        last_submission_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Last Submission Id
-        last_submission_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Submission Status
-        last_submitted_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Submitted At
-        last_submitted_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Submitted By Name
-        error_message:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error Message
-        last_successful_sync_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Successful Sync At
-      required:
-      - has_been_submitted
-      title: CIRSubmissionStatusSchema
-      type: object
-    AnomalyAIStatus:
-      description: AI status for anomalies.
+    AnomalyRegisteredByType:
+      description: Registered by classification for anomalies.
       enum:
-      - NEW
-      - QUALIFIED
-      - UNQUALIFIED
-      - CONFIRMED
-      - REJECTED
-      - DUPLICATE
-      title: AnomalyAIStatus
+      - AERONES
+      - AI
+      - CUSTOMER
+      title: AnomalyRegisteredByType
       type: string
+    BladePhotoSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Base CDN URL of the directory holding this photo — same convention as the VIS inspection payload: build the final URL as f''{cdn_base_url}/{percent_encoded(name)}''.'
+          title: Cdn Base Url
+      required:
+      - id
+      - name
+      - cdn_base_url
+      title: BladePhotoSchema
+      type: object
     NordexActivityResourceSchema:
       additionalProperties: false
       properties:
@@ -1317,6 +1360,81 @@ components:
       - resource_type
       - is_lead
       title: NordexActivityResourceSchema
+      type: object
+    CIRValidationIssueSchema:
+      additionalProperties: false
+      properties:
+        anomaly_id:
+          title: Anomaly Id
+          type: integer
+        blade_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Blade Position
+        blade_id:
+          title: Blade Id
+          type: integer
+        missing_fields:
+          items:
+            type: string
+          title: Missing Fields
+          type: array
+      required:
+      - anomaly_id
+      - blade_position
+      - blade_id
+      - missing_fields
+      title: CIRValidationIssueSchema
+      type: object
+    NordexLocationSchema:
+      additionalProperties: false
+      properties:
+        timezone:
+          description: IANA name of the wind park's timezone, e.g. 'America/Chicago'. Localise every activity datetime with it. The request is refused when the park has none.
+          title: Timezone
+          type: string
+      required:
+      - timezone
+      title: NordexLocationSchema
+      type: object
+    VestasCIRDataSchema:
+      additionalProperties: false
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/TurbineSchema'
+        anomalies:
+          items:
+            $ref: '#/components/schemas/AnomalySchema'
+          title: Anomalies
+          type: array
+        inspection_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Inspection Date
+        is_annual_inspection:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Annual Inspection
+        work_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Work Order Number
+      required:
+      - service_order_line_id
+      - turbine
+      - anomalies
+      - inspection_date
+      - is_annual_inspection
+      - work_order_number
+      title: VestasCIRDataSchema
       type: object
     Subsidiary:
       additionalProperties: false
@@ -1356,139 +1474,21 @@ components:
       - currency
       title: Subsidiary
       type: object
-    Customer:
-      additionalProperties: false
-      description: Schema for customer.
-      properties:
-        id:
-          description: NetSuite ID for customer
-          title: Id
-          type: integer
-        alt_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
-          title: Alt Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name
-          title: Name
-        currency:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Currency
-          title: Currency
-        business_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Business ID
-          title: Business Id
-        address_text:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full address in single text/string
-          title: Address Text
-      required:
-      - id
-      title: Customer
-      type: object
-    NordexActivitySchema:
+    AnomalyFileSchema:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder Id
-        activity_description:
+        url:
           anyOf:
           - type: string
           - type: 'null'
-          description: Free text, e.g. 'WTG off' or 'WTG off (for LER)'.
-          title: Activity Description
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Timezone-aware UTC instant. Localise it with 'turbine.location.timezone'.
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: End Datetime
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: COMPLETED or IN_PROGRESS. Planned, cancelled and failed activities are not returned.
-          title: Status
+          title: Url
       required:
       - id
-      - workorder_id
-      - activity_description
-      - start_datetime
-      - end_datetime
-      - status
-      title: NordexActivitySchema
-      type: object
-    BladePhotoSchema:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        cdn_base_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: 'Base CDN URL of the directory holding this photo — same convention as the VIS inspection payload: build the final URL as f''{cdn_base_url}/{percent_encoded(name)}''.'
-          title: Cdn Base Url
-      required:
-      - id
-      - name
-      - cdn_base_url
-      title: BladePhotoSchema
-      type: object
-    CIRValidationIssueSchema:
-      additionalProperties: false
-      properties:
-        anomaly_id:
-          title: Anomaly Id
-          type: integer
-        blade_position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Blade Position
-        blade_id:
-          title: Blade Id
-          type: integer
-        missing_fields:
-          items:
-            type: string
-          title: Missing Fields
-          type: array
-      required:
-      - anomaly_id
-      - blade_position
-      - blade_id
-      - missing_fields
-      title: CIRValidationIssueSchema
+      - url
+      title: AnomalyFileSchema
       type: object
   securitySchemes:
     APIKeyAuth:

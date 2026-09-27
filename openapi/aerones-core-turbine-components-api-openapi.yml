@@ -350,6 +350,28 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
     ManufacturerObject:
       additionalProperties: false
       description: Nested manufacturer object for responses.
@@ -365,23 +387,117 @@ components:
       - name
       title: ManufacturerObject
       type: object
-    TurbineComponentUpdate:
+    ComponentImportRowError:
       additionalProperties: false
-      description: Schema for updating a TurbineComponent.
+      properties:
+        row:
+          title: Row
+          type: integer
+        errors:
+          items:
+            type: string
+          title: Errors
+          type: array
+      required:
+      - row
+      - errors
+      title: ComponentImportRowError
+      type: object
+    TurbineObject:
+      additionalProperties: false
+      description: Nested turbine object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineObject
+      type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    ComponentImportResponse:
+      additionalProperties: false
+      properties:
+        created_count:
+          default: 0
+          title: Created Count
+          type: integer
+        errors:
+          default: []
+          items:
+            $ref: '#/components/schemas/ComponentImportRowError'
+          title: Errors
+          type: array
+      title: ComponentImportResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    TurbineComponentCreate:
+      additionalProperties: false
+      description: Schema for creating a TurbineComponent.
       properties:
         component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
           description: Component type ID
           title: Component Type Id
+          type: integer
         serial_number:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
           description: Serial number
+          minLength: 1
           title: Serial Number
+          type: string
         manufacturer_serial_number:
           anyOf:
           - type: string
@@ -389,11 +505,9 @@ components:
           description: Manufacturer serial number
           title: Manufacturer Serial Number
         turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
           description: Turbine ID
           title: Turbine Id
+          type: integer
         manufacturer_id:
           anyOf:
           - type: integer
@@ -425,16 +539,15 @@ components:
           description: Component radius in meters
           title: Radius
         blade_tip:
-          anyOf:
-          - type: boolean
-          - type: 'null'
+          default: false
           description: Whether this is a blade tip component
           title: Blade Tip
+          type: boolean
         position:
           anyOf:
           - $ref: '#/components/schemas/PositionEnum'
           - type: 'null'
-          description: Component position (A, B, or C)
+          description: Component position (A, B, or C). Must be NULL when the selected turbine has is_virtual=true; required when is_virtual=false.
         pair_index:
           anyOf:
           - enum:
@@ -450,33 +563,11 @@ components:
           - type: 'null'
           description: Additional information as JSON
           title: Additional Information
-      title: TurbineComponentUpdate
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ComponentImportResponse:
-      additionalProperties: false
-      properties:
-        created_count:
-          default: 0
-          title: Created Count
-          type: integer
-        errors:
-          default: []
-          items:
-            $ref: '#/components/schemas/ComponentImportRowError'
-          title: Errors
-          type: array
-      title: ComponentImportResponse
+      required:
+      - component_type_id
+      - serial_number
+      - turbine_id
+      title: TurbineComponentCreate
       type: object
     ManufacturerComponentModelObject:
       additionalProperties: false
@@ -492,44 +583,6 @@ components:
       - id
       - name
       title: ManufacturerComponentModelObject
-      type: object
-    TurbineComponentReassignmentHistoryResponse:
-      additionalProperties: false
-      description: Response schema for a single blade component reassignment event.
-      properties:
-        reassigned_at:
-          format: date-time
-          title: Reassigned At
-          type: string
-        from_turbine:
-          $ref: '#/components/schemas/TurbineObject'
-        to_turbine:
-          $ref: '#/components/schemas/TurbineObject'
-        reassigned_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-      required:
-      - reassigned_at
-      - from_turbine
-      - to_turbine
-      - reassigned_by
-      title: TurbineComponentReassignmentHistoryResponse
-      type: object
-    TurbineObject:
-      additionalProperties: false
-      description: Nested turbine object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: TurbineObject
       type: object
     TurbineComponentResponse:
       additionalProperties: false
@@ -621,93 +674,43 @@ components:
       - blade_tip
       title: TurbineComponentResponse
       type: object
-    UserObject:
+    Success:
       additionalProperties: false
-      description: Nested user object for responses (no timestamps).
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        id:
-          title: Id
-          type: integer
-        username:
-          title: Username
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
-      required:
-      - id
-      - username
-      title: UserObject
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
-    Error:
+    TurbineComponentUpdate:
       additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PositionEnum:
-      description: Enum for turbine component positions.
-      enum:
-      - A
-      - B
-      - C
-      title: PositionEnum
-      type: string
-    ComponentTypeObject:
-      additionalProperties: false
-      description: Nested component type object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        field_list:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Field List
-      required:
-      - id
-      - name
-      title: ComponentTypeObject
-      type: object
-    TurbineComponentCreate:
-      additionalProperties: false
-      description: Schema for creating a TurbineComponent.
+      description: Schema for updating a TurbineComponent.
       properties:
         component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
           description: Component type ID
           title: Component Type Id
-          type: integer
         serial_number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
           description: Serial number
-          minLength: 1
           title: Serial Number
-          type: string
         manufacturer_serial_number:
           anyOf:
           - type: string
@@ -715,9 +718,11 @@ components:
           description: Manufacturer serial number
           title: Manufacturer Serial Number
         turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
           description: Turbine ID
           title: Turbine Id
-          type: integer
         manufacturer_id:
           anyOf:
           - type: integer
@@ -749,15 +754,16 @@ components:
           description: Component radius in meters
           title: Radius
         blade_tip:
-          default: false
+          anyOf:
+          - type: boolean
+          - type: 'null'
           description: Whether this is a blade tip component
           title: Blade Tip
-          type: boolean
         position:
           anyOf:
           - $ref: '#/components/schemas/PositionEnum'
           - type: 'null'
-          description: Component position (A, B, or C). Must be NULL when the selected turbine has is_virtual=true; required when is_virtual=false.
+          description: Component position (A, B, or C)
         pair_index:
           anyOf:
           - enum:
@@ -773,48 +779,42 @@ components:
           - type: 'null'
           description: Additional information as JSON
           title: Additional Information
-      required:
-      - component_type_id
-      - serial_number
-      - turbine_id
-      title: TurbineComponentCreate
+      title: TurbineComponentUpdate
       type: object
-    Success:
+    TurbineComponentReassignmentHistoryResponse:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Response schema for a single blade component reassignment event.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ComponentImportRowError:
-      additionalProperties: false
-      properties:
-        row:
-          title: Row
-          type: integer
-        errors:
-          items:
-            type: string
-          title: Errors
-          type: array
+        reassigned_at:
+          format: date-time
+          title: Reassigned At
+          type: string
+        from_turbine:
+          $ref: '#/components/schemas/TurbineObject'
+        to_turbine:
+          $ref: '#/components/schemas/TurbineObject'
+        reassigned_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
       required:
-      - row
-      - errors
-      title: ComponentImportRowError
+      - reassigned_at
+      - from_turbine
+      - to_turbine
+      - reassigned_by
+      title: TurbineComponentReassignmentHistoryResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

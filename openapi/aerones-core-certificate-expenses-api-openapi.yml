@@ -234,107 +234,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    CertificateExpenseCreate:
-      additionalProperties: false
-      description: Schema for creating a CertificateExpense.
-      properties:
-        resource_id:
-          description: Resource (technician) FK
-          title: Resource Id
-          type: integer
-        certificate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Target certificate. Omit for ad-hoc bookings.
-          title: Certificate Id
-        resource_certificate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Issuance row, once it exists
-          title: Resource Certificate Id
-        issuer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Issuer Id
-        issuer_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Free-text fallback when the issuer is not yet matched
-          title: Issuer Name
-        offering_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Offering Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        amount:
-          anyOf:
-          - type: number
-          - type: string
-          description: Amount in `currency`
-          title: Amount
-        currency_id:
-          description: Currency FK
-          title: Currency Id
-          type: integer
-        status:
-          allOf:
-          - $ref: '#/components/schemas/CertificateExpenseStatus'
-          default: PENDING
-          description: Lifecycle status
-        order_date:
-          description: When the cost was booked
-          format: date
-          title: Order Date
-          type: string
-        completion_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completion Date
-        invoice_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Invoice Number
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Reason for cancellation / refund / reissue
-          title: Reason
-      required:
-      - resource_id
-      - amount
-      - currency_id
-      - order_date
-      title: CertificateExpenseCreate
-      type: object
     CertificateExpenseResponse:
       additionalProperties: false
       description: Schema for CertificateExpense response.
@@ -508,6 +407,14 @@ components:
           title: Reason
       title: CertificateExpenseUpdate
       type: object
+    CertificateExpenseStatus:
+      description: Lifecycle of a certificate cost row.
+      enum:
+      - PENDING
+      - COMPLETED
+      - CANCELLED
+      title: CertificateExpenseStatus
+      type: string
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -522,14 +429,96 @@ components:
       - message
       title: Error
       type: object
-    CertificateExpenseStatus:
-      description: Lifecycle of a certificate cost row.
-      enum:
-      - PENDING
-      - COMPLETED
-      - CANCELLED
-      title: CertificateExpenseStatus
-      type: string
+    CertificateExpenseCreate:
+      additionalProperties: false
+      description: Schema for creating a CertificateExpense.
+      properties:
+        resource_id:
+          description: Resource (technician) FK
+          title: Resource Id
+          type: integer
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Target certificate. Omit for ad-hoc bookings.
+          title: Certificate Id
+        resource_certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuance row, once it exists
+          title: Resource Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Issuer Id
+        issuer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text fallback when the issuer is not yet matched
+          title: Issuer Name
+        offering_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Offering Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          description: Amount in `currency`
+          title: Amount
+        currency_id:
+          description: Currency FK
+          title: Currency Id
+          type: integer
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CertificateExpenseStatus'
+          default: PENDING
+          description: Lifecycle status
+        order_date:
+          description: When the cost was booked
+          format: date
+          title: Order Date
+          type: string
+        completion_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completion Date
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for cancellation / refund / reissue
+          title: Reason
+      required:
+      - resource_id
+      - amount
+      - currency_id
+      - order_date
+      title: CertificateExpenseCreate
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -550,6 +539,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

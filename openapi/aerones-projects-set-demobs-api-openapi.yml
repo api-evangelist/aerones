@@ -327,17 +327,72 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    SetDemobReject:
+    SetDemobEventResponse:
       additionalProperties: false
       properties:
-        reason:
-          description: Why this demob is rejected. Required.
-          minLength: 1
-          title: Reason
+        id:
+          title: Id
+          type: integer
+        event_type:
+          title: Event Type
+          type: string
+        old_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Old Status
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Status
+        old_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Old Date
+        new_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: New Date
+        description:
+          default: ''
+          title: Description
+          type: string
+        actor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Name
+        updated_at:
+          format: date-time
+          title: Updated At
           type: string
       required:
-      - reason
-      title: SetDemobReject
+      - id
+      - event_type
+      - updated_at
+      title: SetDemobEventResponse
+      type: object
+    SetDemobApprove:
+      additionalProperties: false
+      properties:
+        demob_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Return date to confirm. Defaults to the set's PPRSI end date (auto_demob_date) when omitted.
+          title: Demob Date
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      title: SetDemobApprove
       type: object
     SetDemobCancel:
       additionalProperties: false
@@ -445,23 +500,6 @@ components:
       - updated_at
       title: SetDemobResponse
       type: object
-    SetDemobApprove:
-      additionalProperties: false
-      properties:
-        demob_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Return date to confirm. Defaults to the set's PPRSI end date (auto_demob_date) when omitted.
-          title: Demob Date
-        note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Note
-      title: SetDemobApprove
-      type: object
     SetDemobCreate:
       additionalProperties: false
       properties:
@@ -501,55 +539,17 @@ components:
       - demob_date
       title: SetDemobAdjustDate
       type: object
-    SetDemobEventResponse:
+    SetDemobReject:
       additionalProperties: false
       properties:
-        id:
-          title: Id
-          type: integer
-        event_type:
-          title: Event Type
-          type: string
-        old_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Old Status
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: New Status
-        old_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Old Date
-        new_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: New Date
-        description:
-          default: ''
-          title: Description
-          type: string
-        actor_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Actor Name
-        updated_at:
-          format: date-time
-          title: Updated At
+        reason:
+          description: Why this demob is rejected. Required.
+          minLength: 1
+          title: Reason
           type: string
       required:
-      - id
-      - event_type
-      - updated_at
-      title: SetDemobEventResponse
+      - reason
+      title: SetDemobReject
       type: object
     SetDemobAnchorCandidate:
       additionalProperties: false

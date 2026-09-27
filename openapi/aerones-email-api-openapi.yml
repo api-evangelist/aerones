@@ -126,89 +126,25 @@ paths:
       - Email
 components:
   schemas:
-    EmailRequest:
+    SendEmailResponse:
       additionalProperties: false
-      description: Incoming payload for sending a templated email.
+      description: Response for a successful (or dev-mode-skipped) `/email` call.
       properties:
-        to:
-          description: List of recipient email addresses
-          examples:
-          - - user@example.com
-            - other@example.com
-          - - user@example.com
-          items:
-            format: email
-            type: string
-          title: To
-          type: array
-        cc:
+        success:
+          description: Whether the email was queued for sending
+          title: Success
+          type: boolean
+        tracking_id:
           anyOf:
-          - items:
-              format: email
-              type: string
-            type: array
-          - type: 'null'
-          description: List of CC recipient email addresses
-          examples:
-          - - cc1@example.com
-            - cc2@example.com
-          title: Cc
-        bcc:
-          anyOf:
-          - items:
-              format: email
-              type: string
-            type: array
-          - type: 'null'
-          description: List of BCC recipient email addresses (audit / silent copy)
-          examples:
-          - - audit@example.com
-          title: Bcc
-        reply_to:
-          anyOf:
-          - format: email
+          - format: uuid
             type: string
           - type: 'null'
-          description: Address replies should be routed to. Useful when the SMTP From is a no-reply mailbox but you want client replies to land on a specific human address.
-          examples:
-          - pm@example.com
-          title: Reply To
-        subject:
-          description: Email subject line
-          title: Subject
-          type: string
-        attachments:
-          anyOf:
-          - items:
-              type: object
-            type: array
-          - type: 'null'
-          description: 'Inline attachments: [{filename, content_base64, content_type}]'
-          examples:
-          - - content_base64: JVBERi…
-              content_type: application/pdf
-              filename: x.pdf
-          title: Attachments
-        context:
-          $ref: '#/components/schemas/EmailContext'
-          description: Template rendering configuration
+          description: Id to poll `/email/{tracking_id}/status` with. Null when success is false.
+          title: Tracking Id
       required:
-      - to
-      - subject
-      - context
-      title: EmailRequest
+      - success
+      title: SendEmailResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     EmailTemplateNames:
       description: Definitions of available email templates.
       enum:
@@ -287,6 +223,78 @@ components:
       - message
       title: Error
       type: object
+    EmailRequest:
+      additionalProperties: false
+      description: Incoming payload for sending a templated email.
+      properties:
+        to:
+          description: List of recipient email addresses
+          examples:
+          - - user@example.com
+            - other@example.com
+          - - user@example.com
+          items:
+            format: email
+            type: string
+          title: To
+          type: array
+        cc:
+          anyOf:
+          - items:
+              format: email
+              type: string
+            type: array
+          - type: 'null'
+          description: List of CC recipient email addresses
+          examples:
+          - - cc1@example.com
+            - cc2@example.com
+          title: Cc
+        bcc:
+          anyOf:
+          - items:
+              format: email
+              type: string
+            type: array
+          - type: 'null'
+          description: List of BCC recipient email addresses (audit / silent copy)
+          examples:
+          - - audit@example.com
+          title: Bcc
+        reply_to:
+          anyOf:
+          - format: email
+            type: string
+          - type: 'null'
+          description: Address replies should be routed to. Useful when the SMTP From is a no-reply mailbox but you want client replies to land on a specific human address.
+          examples:
+          - pm@example.com
+          title: Reply To
+        subject:
+          description: Email subject line
+          title: Subject
+          type: string
+        attachments:
+          anyOf:
+          - items:
+              type: object
+            type: array
+          - type: 'null'
+          description: 'Inline attachments: [{filename, content_base64, content_type}]'
+          examples:
+          - - content_base64: JVBERi…
+              content_type: application/pdf
+              filename: x.pdf
+          title: Attachments
+        context:
+          $ref: '#/components/schemas/EmailContext'
+          description: Template rendering configuration
+      required:
+      - to
+      - subject
+      - context
+      title: EmailRequest
+      type: object
     EmailContext:
       additionalProperties: false
       description: 'Define the template context for an email.
@@ -327,25 +335,6 @@ components:
           type: boolean
       title: Success
       type: object
-    SendEmailResponse:
-      additionalProperties: false
-      description: Response for a successful (or dev-mode-skipped) `/email` call.
-      properties:
-        success:
-          description: Whether the email was queued for sending
-          title: Success
-          type: boolean
-        tracking_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Id to poll `/email/{tracking_id}/status` with. Null when success is false.
-          title: Tracking Id
-      required:
-      - success
-      title: SendEmailResponse
-      type: object
     SentEmailStatusResponse:
       additionalProperties: false
       description: Response for `GET /email/{tracking_id}/status`.
@@ -369,6 +358,17 @@ components:
       - sent_at
       title: SentEmailStatusResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -156,6 +156,25 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    DailyWeatherListResponse:
+      additionalProperties: false
+      description: Response schema for weather data list.
+      properties:
+        weather:
+          description: Weather data by date
+          items:
+            $ref: '#/components/schemas/DailyWeatherSchema'
+          title: Weather
+          type: array
+        hasCoordinates:
+          description: Whether project has site coordinates
+          title: Hascoordinates
+          type: boolean
+      required:
+      - weather
+      - hasCoordinates
+      title: DailyWeatherListResponse
+      type: object
     TimePeriodWeather:
       additionalProperties: false
       description: Weather values for a single time period.
@@ -179,24 +198,6 @@ components:
           - type: 'null'
           title: Afternoon
       title: TimePeriodWeather
-      type: object
-    WeatherResetRequest:
-      additionalProperties: false
-      description: Schema for resetting weather values to API values.
-      properties:
-        weather_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Type to reset, or all if not specified
-          title: Weather Type
-        period:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Period to reset, or all if not specified
-          title: Period
-      title: WeatherResetRequest
       type: object
     WeatherValueUpdate:
       additionalProperties: false
@@ -255,24 +256,23 @@ components:
       - precipitation
       title: DailyWeatherSchema
       type: object
-    DailyWeatherListResponse:
+    WeatherResetRequest:
       additionalProperties: false
-      description: Response schema for weather data list.
+      description: Schema for resetting weather values to API values.
       properties:
-        weather:
-          description: Weather data by date
-          items:
-            $ref: '#/components/schemas/DailyWeatherSchema'
-          title: Weather
-          type: array
-        hasCoordinates:
-          description: Whether project has site coordinates
-          title: Hascoordinates
-          type: boolean
-      required:
-      - weather
-      - hasCoordinates
-      title: DailyWeatherListResponse
+        weather_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Type to reset, or all if not specified
+          title: Weather Type
+        period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period to reset, or all if not specified
+          title: Period
+      title: WeatherResetRequest
       type: object
   securitySchemes:
     APIKeyAuth:

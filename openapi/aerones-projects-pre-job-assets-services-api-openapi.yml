@@ -81,17 +81,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     CustomerAssetFiles:
       additionalProperties: false
       description: Schema for customer asset files request.
@@ -105,6 +94,20 @@ components:
       required:
       - storage_ids
       title: CustomerAssetFiles
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     FileAttachment:
       additionalProperties: false
@@ -132,34 +135,6 @@ components:
       - file_type
       title: FileAttachment
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CustomerAssetFilesList:
-      additionalProperties: false
-      description: Schema for customer asset files response.
-      properties:
-        files:
-          description: List of customer asset files associated with the project
-          items:
-            $ref: '#/components/schemas/FileAttachment'
-          title: Files
-          type: array
-      required:
-      - files
-      title: CustomerAssetFilesList
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -180,6 +155,31 @@ components:
           type: boolean
       title: Success
       type: object
+    CustomerAssetFilesList:
+      additionalProperties: false
+      description: Schema for customer asset files response.
+      properties:
+        files:
+          description: List of customer asset files associated with the project
+          items:
+            $ref: '#/components/schemas/FileAttachment'
+          title: Files
+          type: array
+      required:
+      - files
+      title: CustomerAssetFilesList
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -102,14 +102,49 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    TokenType:
-      description: Token type enum.
-      enum:
-      - Bearer
-      - JWT
-      - PWT
-      title: TokenType
-      type: string
+    UserCustomer:
+      additionalProperties: false
+      description: Customer the user has access to, with their roles at that customer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        organisation:
+          title: Organisation
+          type: string
+        role:
+          default: []
+          items:
+            type: string
+          title: Role
+          type: array
+        status:
+          default: ACTIVE
+          title: Status
+          type: string
+        invite_expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Invite Expires At
+      required:
+      - id
+      - organisation
+      title: UserCustomer
+      type: object
+    ClientLoginRequest:
+      additionalProperties: false
+      description: Request schema for client login via project password.
+      properties:
+        password:
+          description: Project password
+          title: Password
+          type: string
+      required:
+      - password
+      title: ClientLoginRequest
+      type: object
     User:
       additionalProperties: false
       description: Schema for user details.
@@ -183,17 +218,94 @@ components:
       - permissions
       title: User
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
+    UserType:
+      description: User classification based on customer relationships.
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - INTERNAL
+      - CUSTOMER
+      title: UserType
       type: string
+    Authenticate:
+      additionalProperties: false
+      description: Schema for authentication.
+      properties:
+        token:
+          description: Authentication token.
+          title: Token
+          type: string
+        token_type:
+          $ref: '#/components/schemas/TokenType'
+          description: Token type.
+        impersonate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional user id to impersonate. Only honored for JWT auth and requires the caller to hold `auth.impersonate`. Pass `null` (or omit) to clear an existing impersonation from the session.
+          title: Impersonate Id
+      required:
+      - token
+      - token_type
+      title: Authenticate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    TokenType:
+      description: Token type enum.
+      enum:
+      - Bearer
+      - JWT
+      - PWT
+      title: TokenType
+      type: string
+    ClientLoginResponse:
+      additionalProperties: false
+      description: Response schema for client login, returning access token and project ID.
+      properties:
+        access_token:
+          description: Signed PWT access token
+          title: Access Token
+          type: string
+        project_id:
+          description: UUID of the authenticated project
+          title: Project Id
+          type: string
+      required:
+      - access_token
+      - project_id
+      title: ClientLoginResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     PermissionCodename:
       description: All supported permission codenames in the system.
       enum:
@@ -280,129 +392,17 @@ components:
       - auth.broe
       title: PermissionCodename
       type: string
-    Authenticate:
-      additionalProperties: false
-      description: Schema for authentication.
-      properties:
-        token:
-          description: Authentication token.
-          title: Token
-          type: string
-        token_type:
-          $ref: '#/components/schemas/TokenType'
-          description: Token type.
-        impersonate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Optional user id to impersonate. Only honored for JWT auth and requires the caller to hold `auth.impersonate`. Pass `null` (or omit) to clear an existing impersonation from the session.
-          title: Impersonate Id
-      required:
-      - token
-      - token_type
-      title: Authenticate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ClientLoginResponse:
-      additionalProperties: false
-      description: Response schema for client login, returning access token and project ID.
-      properties:
-        access_token:
-          description: Signed PWT access token
-          title: Access Token
-          type: string
-        project_id:
-          description: UUID of the authenticated project
-          title: Project Id
-          type: string
-      required:
-      - access_token
-      - project_id
-      title: ClientLoginResponse
-      type: object
-    ClientLoginRequest:
-      additionalProperties: false
-      description: Request schema for client login via project password.
-      properties:
-        password:
-          description: Project password
-          title: Password
-          type: string
-      required:
-      - password
-      title: ClientLoginRequest
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    UserType:
-      description: User classification based on customer relationships.
+    ErrorCode:
+      description: Error codes for API errors.
       enum:
-      - INTERNAL
-      - CUSTOMER
-      title: UserType
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
       type: string
-    UserCustomer:
-      additionalProperties: false
-      description: Customer the user has access to, with their roles at that customer.
-      properties:
-        id:
-          title: Id
-          type: integer
-        organisation:
-          title: Organisation
-          type: string
-        role:
-          default: []
-          items:
-            type: string
-          title: Role
-          type: array
-        status:
-          default: ACTIVE
-          title: Status
-          type: string
-        invite_expires_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Invite Expires At
-      required:
-      - id
-      - organisation
-      title: UserCustomer
-      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

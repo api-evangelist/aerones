@@ -230,17 +230,66 @@ components:
       - id
       title: PurchaseOrderResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    PurchaseOrderCustomerRef:
+      additionalProperties: false
+      description: 'Slim customer reference for PurchaseOrder responses.
+
+
+        Intentionally does not nest the customer''s own currency — a PO carries
+
+        its own currency, independent of the customer''s default.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      - display_name
+      title: PurchaseOrderCustomerRef
+      type: object
+    PurchaseOrderVersionObject:
+      additionalProperties: false
+      description: Nested purchase order version object (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        version_number:
+          title: Version Number
+          type: integer
+        order_number:
+          title: Order Number
+          type: string
+        issue_date:
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+      required:
+      - id
+      - version_number
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderVersionObject
+      type: object
     CurrencyObject:
       additionalProperties: false
       description: Nested currency object for responses (no timestamps in nested objects).
@@ -277,40 +326,28 @@ components:
       - message
       title: Error
       type: object
-    PurchaseOrderVersionObject:
+    PurchaseOrderUpdate:
       additionalProperties: false
-      description: Nested purchase order version object (no timestamps).
+      description: 'Partial update of the PurchaseOrder-level fields.
+
+
+        Version-scoped fields (order_number, issue_date, amount) are immutable
+
+        here — correct them by adding a new version via the dedicated endpoint.'
       properties:
-        id:
-          title: Id
-          type: integer
-        version_number:
-          title: Version Number
-          type: integer
-        order_number:
-          title: Order Number
-          type: string
-        issue_date:
-          format: date
-          title: Issue Date
-          type: string
-        amount:
-          anyOf:
-          - type: number
-          - type: string
-          title: Amount
-        file_id:
+        customer_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: File Id
-      required:
-      - id
-      - version_number
-      - order_number
-      - issue_date
-      - amount
-      title: PurchaseOrderVersionObject
+          description: Customer that issued the PO
+          title: Customer Id
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency for the PO
+          title: Currency Id
+      title: PurchaseOrderUpdate
       type: object
     PurchaseOrderCreate:
       additionalProperties: false
@@ -360,54 +397,6 @@ components:
       - amount
       title: PurchaseOrderCreate
       type: object
-    PurchaseOrderUpdate:
-      additionalProperties: false
-      description: 'Partial update of the PurchaseOrder-level fields.
-
-
-        Version-scoped fields (order_number, issue_date, amount) are immutable
-
-        here — correct them by adding a new version via the dedicated endpoint.'
-      properties:
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer that issued the PO
-          title: Customer Id
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency for the PO
-          title: Currency Id
-      title: PurchaseOrderUpdate
-      type: object
-    PurchaseOrderCustomerRef:
-      additionalProperties: false
-      description: 'Slim customer reference for PurchaseOrder responses.
-
-
-        Intentionally does not nest the customer''s own currency — a PO carries
-
-        its own currency, independent of the customer''s default.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-      required:
-      - id
-      - display_name
-      title: PurchaseOrderCustomerRef
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -428,6 +417,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

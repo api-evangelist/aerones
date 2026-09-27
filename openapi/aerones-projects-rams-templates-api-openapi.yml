@@ -413,21 +413,25 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    RamsTemplateScopeBody:
+    RamsTemplateCreateBody:
       additionalProperties: false
-      description: New scope for a template (region / country / customer).
+      description: 'Body for creating a new RAMS template.
+
+
+        ``service_family_id`` (and the optional ``service_id`` narrowing) fix *what*
+
+        the template is for and are immutable afterwards; region / country /
+
+        customer are the editable scope.'
       properties:
+        service_family_id:
+          title: Service Family Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
         region_id:
           anyOf:
           - type: integer
@@ -443,69 +447,27 @@ components:
           - type: integer
           - type: 'null'
           title: Customer Id
-      title: RamsTemplateScopeBody
-      type: object
-    RamsTemplateUpdateBody:
-      additionalProperties: false
-      description: Body for patching a RAMS template.
-      properties:
         form_data:
-          anyOf:
-          - type: object
-          - type: 'null'
           title: Form Data
+          type: object
         layout:
-          anyOf:
-          - type: object
-          - type: 'null'
           title: Layout
-        scope:
-          anyOf:
-          - $ref: '#/components/schemas/RamsTemplateScopeBody'
-          - type: 'null'
-      title: RamsTemplateUpdateBody
-      type: object
-    RamsTemplateImageResponse:
-      additionalProperties: false
-      description: Serialised HSE-uploaded default image.
-      properties:
-        id:
-          title: Id
-          type: integer
-        slot:
-          title: Slot
-          type: string
-        label:
-          title: Label
-          type: string
-        file_id:
-          title: File Id
-          type: integer
-        url:
-          title: Url
-          type: string
+          type: object
       required:
-      - id
-      - slot
-      - label
-      - file_id
-      - url
-      title: RamsTemplateImageResponse
+      - service_family_id
+      title: RamsTemplateCreateBody
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     RamsTemplateResponse:
       additionalProperties: false
       description: Serialised RAMS template.
@@ -577,6 +539,41 @@ components:
       - updated_at
       title: RamsTemplateResponse
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RamsTemplateScopeBody:
+      additionalProperties: false
+      description: New scope for a template (region / country / customer).
+      properties:
+        region_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+      title: RamsTemplateScopeBody
+      type: object
     RamsTemplateResolvedResponse:
       additionalProperties: false
       description: Resolved template content for starting a new RAMS document.
@@ -607,49 +604,52 @@ components:
           type: object
       title: RamsTemplateResolvedResponse
       type: object
-    RamsTemplateCreateBody:
+    RamsTemplateImageResponse:
       additionalProperties: false
-      description: 'Body for creating a new RAMS template.
-
-
-        ``service_family_id`` (and the optional ``service_id`` narrowing) fix *what*
-
-        the template is for and are immutable afterwards; region / country /
-
-        customer are the editable scope.'
+      description: Serialised HSE-uploaded default image.
       properties:
-        service_family_id:
-          title: Service Family Id
+        id:
+          title: Id
           type: integer
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        region_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Region Id
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Country Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        form_data:
-          title: Form Data
-          type: object
-        layout:
-          title: Layout
-          type: object
+        slot:
+          title: Slot
+          type: string
+        label:
+          title: Label
+          type: string
+        file_id:
+          title: File Id
+          type: integer
+        url:
+          title: Url
+          type: string
       required:
-      - service_family_id
-      title: RamsTemplateCreateBody
+      - id
+      - slot
+      - label
+      - file_id
+      - url
+      title: RamsTemplateImageResponse
+      type: object
+    RamsTemplateUpdateBody:
+      additionalProperties: false
+      description: Body for patching a RAMS template.
+      properties:
+        form_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Form Data
+        layout:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Layout
+        scope:
+          anyOf:
+          - $ref: '#/components/schemas/RamsTemplateScopeBody'
+          - type: 'null'
+      title: RamsTemplateUpdateBody
       type: object
   securitySchemes:
     APIKeyAuth:

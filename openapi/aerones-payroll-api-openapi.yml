@@ -294,13 +294,30 @@ components:
       - status
       title: PayrollActivityIn
       type: object
-    PayrollActivityPatchIn:
+    PayType:
+      enum:
+      - IDLE
+      - ON_SITE
+      - OFF_SITE
+      title: PayType
+      type: string
+    Status:
+      enum:
+      - approved
+      - rejected
+      title: Status
+      type: string
+    PayrollActivityOut:
       additionalProperties: false
       properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
         status:
-          anyOf:
-          - $ref: '#/components/schemas/Status'
-          - type: 'null'
+          $ref: '#/components/schemas/Status'
         work_time_category_id:
           anyOf:
           - type: integer
@@ -342,15 +359,31 @@ components:
           anyOf:
           - $ref: '#/components/schemas/PayType'
           - type: 'null'
-      title: PayrollActivityPatchIn
+        work_time_log_reference_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Log Reference Id
+        modified_by_id:
+          title: Modified By Id
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - resource_id
+      - status
+      - modified_by_id
+      - created_at
+      - updated_at
+      title: PayrollActivityOut
       type: object
-    PayType:
-      enum:
-      - IDLE
-      - ON_SITE
-      - OFF_SITE
-      title: PayType
-      type: string
     TimesheetEntryOut:
       additionalProperties: false
       properties:
@@ -467,17 +500,13 @@ components:
       - status
       title: TimesheetEntryOut
       type: object
-    PayrollActivityOut:
+    PayrollActivityPatchIn:
       additionalProperties: false
       properties:
-        id:
-          title: Id
-          type: integer
-        resource_id:
-          title: Resource Id
-          type: integer
         status:
-          $ref: '#/components/schemas/Status'
+          anyOf:
+          - $ref: '#/components/schemas/Status'
+          - type: 'null'
         work_time_category_id:
           anyOf:
           - type: integer
@@ -519,37 +548,8 @@ components:
           anyOf:
           - $ref: '#/components/schemas/PayType'
           - type: 'null'
-        work_time_log_reference_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Work Time Log Reference Id
-        modified_by_id:
-          title: Modified By Id
-          type: integer
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        updated_at:
-          format: date-time
-          title: Updated At
-          type: string
-      required:
-      - id
-      - resource_id
-      - status
-      - modified_by_id
-      - created_at
-      - updated_at
-      title: PayrollActivityOut
+      title: PayrollActivityPatchIn
       type: object
-    Status:
-      enum:
-      - approved
-      - rejected
-      title: Status
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

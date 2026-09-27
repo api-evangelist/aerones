@@ -132,82 +132,17 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ServicePreJobQuestionDefinition:
-      additionalProperties: false
-      description: Single definition of a pre job question that can be attached to service.
-      properties:
-        key:
-          description: Unique key for the question. This key is used to store the question answer, when referencing it in a project service questionnaire.
-          title: Key
-          type: string
-        title:
-          description: Human readable title of the question.
-          title: Title
-          type: string
-        type:
-          $ref: '#/components/schemas/ServicePreJobQuestionType'
-          description: Type of the value in the answer of the question.
-        required:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is the question required to be answered.
-          title: Required
-        choices:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          default: []
-          description: List of possible choices for the question. Only used when type is select or multiselect.
-          title: Choices
-        tooltip:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional tooltip text to provide additional information about the question.
-          title: Tooltip
-        unit:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional unit for number type questions (e.g., kg, m, etc.).
-          title: Unit
-      required:
-      - key
-      - title
-      - type
-      title: ServicePreJobQuestionDefinition
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
+    ServicePreJobQuestionType:
+      description: Allowed type of the pre job question.
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - text
+      - select
+      - multiselect
+      - boolean
+      - file
+      - number
+      title: ServicePreJobQuestionType
       type: string
-    CodeWithName:
-      additionalProperties: false
-      description: Schema for code and name.
-      properties:
-        code:
-          description: Unique code.
-          title: Code
-          type: string
-        name:
-          description: Human readable name.
-          title: Name
-          type: string
-      required:
-      - code
-      - name
-      title: CodeWithName
-      type: object
     ServiceCondition:
       additionalProperties: false
       description: Schema for service condition.
@@ -227,31 +162,23 @@ components:
       - values
       title: ServiceCondition
       type: object
-    Error:
+    CodeWithName:
       additionalProperties: false
-      description: Error response schema.
+      description: Schema for code and name.
       properties:
         code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
           type: string
       required:
       - code
-      - message
-      title: Error
+      - name
+      title: CodeWithName
       type: object
-    ServicePreJobQuestionType:
-      description: Allowed type of the pre job question.
-      enum:
-      - text
-      - select
-      - multiselect
-      - boolean
-      - file
-      - number
-      title: ServicePreJobQuestionType
-      type: string
     Service:
       additionalProperties: false
       description: Schema for unified service.
@@ -300,6 +227,27 @@ components:
       - name
       title: Service
       type: object
+    ServiceList:
+      additionalProperties: false
+      description: Schema for services on list.
+      properties:
+        code:
+          description: Unique service code.
+          title: Code
+          type: string
+        name:
+          description: Human readable service name.
+          title: Name
+          type: string
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Service category.
+      required:
+      - code
+      - name
+      - category
+      title: ServiceList
+      type: object
     ServiceConditionValue:
       additionalProperties: false
       description: Schema for describing specific service condition/level.
@@ -329,27 +277,79 @@ components:
       - name
       title: ServiceConditionValue
       type: object
-    ServiceList:
+    ServicePreJobQuestionDefinition:
       additionalProperties: false
-      description: Schema for services on list.
+      description: Single definition of a pre job question that can be attached to service.
+      properties:
+        key:
+          description: Unique key for the question. This key is used to store the question answer, when referencing it in a project service questionnaire.
+          title: Key
+          type: string
+        title:
+          description: Human readable title of the question.
+          title: Title
+          type: string
+        type:
+          $ref: '#/components/schemas/ServicePreJobQuestionType'
+          description: Type of the value in the answer of the question.
+        required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is the question required to be answered.
+          title: Required
+        choices:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          default: []
+          description: List of possible choices for the question. Only used when type is select or multiselect.
+          title: Choices
+        tooltip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional tooltip text to provide additional information about the question.
+          title: Tooltip
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional unit for number type questions (e.g., kg, m, etc.).
+          title: Unit
+      required:
+      - key
+      - title
+      - type
+      title: ServicePreJobQuestionDefinition
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
       properties:
         code:
-          description: Unique service code.
-          title: Code
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
-        name:
-          description: Human readable service name.
-          title: Name
-          type: string
-        category:
-          $ref: '#/components/schemas/CodeWithName'
-          description: Service category.
       required:
       - code
-      - name
-      - category
-      title: ServiceList
+      - message
+      title: Error
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -215,17 +215,80 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    ProjectReportTypeUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectReportType (partial).
+      properties:
+        requirement_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Specific report requirement attachment file IDs
+          title: Requirement File Ids
+        requirement_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipient_project_contact_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
+          title: Recipient Project Contact Ids
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails (None leaves them unchanged, [] clears them)
+          title: Recipient Emails
+      title: ProjectReportTypeUpdate
+      type: object
+    ProjectReportTypeCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectReportType.
+      properties:
+        report_type_id:
+          description: Report type to subscribe to
+          title: Report Type Id
+          type: integer
+        requirement_file_ids:
+          description: Specific report requirement attachment file IDs
+          items:
+            type: string
+          title: Requirement File Ids
+          type: array
+        requirement_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipient_project_contact_ids:
+          description: Project contact IDs that receive this report
+          items:
+            type: integer
+          title: Recipient Project Contact Ids
+          type: array
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails for this report type (the form pre-selects the RFI report-recipient contacts; free-text addresses are allowed). None = no email-based selection, [] = explicitly no recipients
+          title: Recipient Emails
+      required:
+      - report_type_id
+      title: ProjectReportTypeCreate
+      type: object
     ProjectReportTypeResponse:
       additionalProperties: false
       description: Schema for ProjectReportType response.
@@ -279,42 +342,6 @@ components:
       - report_type
       title: ProjectReportTypeResponse
       type: object
-    ProjectReportTypeUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectReportType (partial).
-      properties:
-        requirement_file_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Specific report requirement attachment file IDs
-          title: Requirement File Ids
-        requirement_notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text specific report requirements
-          title: Requirement Notes
-        recipient_project_contact_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
-          title: Recipient Project Contact Ids
-        recipient_emails:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Selected recipient emails (None leaves them unchanged, [] clears them)
-          title: Recipient Emails
-      title: ProjectReportTypeUpdate
-      type: object
     ProjectReportRecipientObject:
       additionalProperties: false
       description: Nested report recipient object (a linked project contact).
@@ -344,58 +371,6 @@ components:
       - project_contact_id
       title: ProjectReportRecipientObject
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ProjectReportTypeCreate:
-      additionalProperties: false
-      description: Schema for creating a ProjectReportType.
-      properties:
-        report_type_id:
-          description: Report type to subscribe to
-          title: Report Type Id
-          type: integer
-        requirement_file_ids:
-          description: Specific report requirement attachment file IDs
-          items:
-            type: string
-          title: Requirement File Ids
-          type: array
-        requirement_notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text specific report requirements
-          title: Requirement Notes
-        recipient_project_contact_ids:
-          description: Project contact IDs that receive this report
-          items:
-            type: integer
-          title: Recipient Project Contact Ids
-          type: array
-        recipient_emails:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Selected recipient emails for this report type (the form pre-selects the RFI report-recipient contacts; free-text addresses are allowed). None = no email-based selection, [] = explicitly no recipients
-          title: Recipient Emails
-      required:
-      - report_type_id
-      title: ProjectReportTypeCreate
-      type: object
     ReportTypeObject:
       additionalProperties: false
       description: Nested report type object (no timestamps).
@@ -414,6 +389,20 @@ components:
       - code
       - name
       title: ReportTypeObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     Success:
       additionalProperties: false
@@ -435,6 +424,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

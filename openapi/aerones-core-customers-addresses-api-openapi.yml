@@ -215,17 +215,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     CustomerAddressCreate:
       additionalProperties: false
       description: Schema for creating a CustomerAddress.
@@ -294,140 +283,17 @@ components:
       - address_line1
       title: CustomerAddressCreate
       type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
-    CustomerAddressUpdate:
-      additionalProperties: false
-      description: Schema for updating a CustomerAddress.
-      properties:
-        name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Address name
-          title: Name
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional information
-          title: Additional Info
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Address type
-          title: Type
-        address_line1:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Address line 1
-          title: Address Line1
-        address_line2:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Address line 2
-          title: Address Line2
-        city:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: City
-          title: City
-        state_region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: State or region
-          title: State Region
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Postal code
-          title: Postal Code
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        timezone_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Timezone ID
-          title: Timezone Id
-      title: CustomerAddressUpdate
-      type: object
-    TimezoneObject:
-      additionalProperties: false
-      description: Nested timezone object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Timezone ID
-          title: Id
-          type: integer
-        timezone:
-          description: Timezone name (e.g., Europe/Riga)
-          title: Timezone
-          type: string
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: City name
-          title: City
-        utc_offset:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: UTC offset (e.g., +02:00)
-          title: Utc Offset
-      required:
-      - id
-      - timezone
-      title: TimezoneObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    CustomerAddressType:
+      description: Enum for customer address types.
+      enum:
+      - PRIMARY
+      - BILLING
+      - LEGAL
+      - FACTUAL
+      - SHIPPING
+      - OM_BUILDING
+      title: CustomerAddressType
+      type: string
     CustomerAddressResponse:
       additionalProperties: false
       description: Schema for CustomerAddress response.
@@ -509,17 +375,140 @@ components:
       - address_line1
       title: CustomerAddressResponse
       type: object
-    CustomerAddressType:
-      description: Enum for customer address types.
-      enum:
-      - PRIMARY
-      - BILLING
-      - LEGAL
-      - FACTUAL
-      - SHIPPING
-      - OM_BUILDING
-      title: CustomerAddressType
-      type: string
+    CustomerAddressUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerAddress.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address name
+          title: Name
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address type
+          title: Type
+        address_line1:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address line 1
+          title: Address Line1
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+      title: CustomerAddressUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -540,6 +529,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

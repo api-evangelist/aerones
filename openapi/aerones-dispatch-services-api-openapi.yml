@@ -869,267 +869,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ServiceOrderLineInput:
-      additionalProperties: false
-      description: Payload for creating/updating service order lines.
-      properties:
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        service_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order
-        service:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service
-        quantity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Quantity
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        sales_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sales Order Line Id
-        project_scope_item_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Scope Item Id
-        required_qualifications:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Required Qualifications
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        stage:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Stage
-        original_sol_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Original Sol Id
-        billable:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Billable
-      title: ServiceOrderLineInput
-      type: object
-    ServiceItemActivityAttachment:
-      additionalProperties: false
-      description: 'File (image or video) attached to a service-item-activity instruction.
-
-
-        Mirrors the GraphQL `ServiceItemActivityAttachment` type. `url` is
-
-        an authenticated proxy URL through `/api/files/{id}/download` — the
-
-        underlying GCS bucket stays private and the URL itself does not
-
-        expire.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        caption:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Caption
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        file_name:
-          title: File Name
-          type: string
-        file_type:
-          title: File Type
-          type: string
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-      required:
-      - id
-      - file_name
-      - file_type
-      title: ServiceItemActivityAttachment
-      type: object
-    ServiceOrderSummary:
-      additionalProperties: false
-      description: Service order summary response.
-      properties:
-        total:
-          title: Total
-          type: integer
-        by_type:
-          items:
-            $ref: '#/components/schemas/ServiceOrderTypeCount'
-          title: By Type
-          type: array
-        by_client:
-          items:
-            $ref: '#/components/schemas/ServiceOrderClientCount'
-          title: By Client
-          type: array
-      required:
-      - total
-      - by_type
-      - by_client
-      title: ServiceOrderSummary
-      type: object
-    DispatchService:
-      additionalProperties: false
-      description: Dispatch service.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_configured:
-          title: Is Configured
-          type: boolean
-      required:
-      - id
-      - is_configured
-      title: DispatchService
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ServiceItemActivity:
-      additionalProperties: false
-      description: Dispatch service item activity.
-      properties:
-        id:
-          title: Id
-          type: integer
-        service_item:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        requires_robot_set:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Requires Robot Set
-        estimated_duration:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Estimated Duration
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Optional
-        instructions:
-          default: []
-          items:
-            $ref: '#/components/schemas/ServiceItemActivityInstruction'
-          title: Instructions
-          type: array
-      required:
-      - id
-      title: ServiceItemActivity
-      type: object
     ServiceOrderHeader:
       additionalProperties: false
       description: Dispatch service order header.
@@ -1194,6 +933,127 @@ components:
       - project_id
       - customer_id
       title: ServiceOrderHeader
+      type: object
+    ServiceItemActivityInstructionLink:
+      additionalProperties: false
+      description: Web link on a service-item-activity instruction.
+      properties:
+        id:
+          title: Id
+          type: integer
+        url:
+          title: Url
+          type: string
+        label:
+          title: Label
+          type: string
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      required:
+      - id
+      - url
+      - label
+      title: ServiceItemActivityInstructionLink
+      type: object
+    ServiceItem:
+      additionalProperties: false
+      description: Dispatch service item.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        component:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        service:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      required:
+      - id
+      - code
+      title: ServiceItem
+      type: object
+    ServiceItemActivityInstruction:
+      additionalProperties: false
+      description: One ordered procedure step on a service-item-activity.
+      properties:
+        id:
+          title: Id
+          type: integer
+        title:
+          title: Title
+          type: string
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/ServiceItemActivityAttachment'
+          title: Attachments
+          type: array
+        links:
+          default: []
+          items:
+            $ref: '#/components/schemas/ServiceItemActivityInstructionLink'
+          title: Links
+          type: array
+      required:
+      - id
+      - title
+      title: ServiceItemActivityInstruction
+      type: object
+    ServiceOrderTypeCount:
+      additionalProperties: false
+      description: Count of service orders by type.
+      properties:
+        service_order_type:
+          title: Service Order Type
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - service_order_type
+      - count
+      title: ServiceOrderTypeCount
       type: object
     ServiceOrderLine:
       additionalProperties: false
@@ -1307,29 +1167,227 @@ components:
       - id
       title: ServiceOrderLine
       type: object
-    ServiceItemActivityInstructionLink:
+    ServiceOrderSummary:
       additionalProperties: false
-      description: Web link on a service-item-activity instruction.
+      description: Service order summary response.
+      properties:
+        total:
+          title: Total
+          type: integer
+        by_type:
+          items:
+            $ref: '#/components/schemas/ServiceOrderTypeCount'
+          title: By Type
+          type: array
+        by_client:
+          items:
+            $ref: '#/components/schemas/ServiceOrderClientCount'
+          title: By Client
+          type: array
+      required:
+      - total
+      - by_type
+      - by_client
+      title: ServiceOrderSummary
+      type: object
+    DispatchService:
+      additionalProperties: false
+      description: Dispatch service.
       properties:
         id:
           title: Id
           type: integer
-        url:
-          title: Url
-          type: string
-        label:
-          title: Label
-          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_configured:
+          title: Is Configured
+          type: boolean
+      required:
+      - id
+      - is_configured
+      title: DispatchService
+      type: object
+    ServiceOrderLineInput:
+      additionalProperties: false
+      description: Payload for creating/updating service order lines.
+      properties:
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        service_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order
+        service:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        sales_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sales Order Line Id
+        project_scope_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Scope Item Id
+        required_qualifications:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Required Qualifications
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        original_sol_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Original Sol Id
+        billable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Billable
+      title: ServiceOrderLineInput
+      type: object
+    ServiceItemActivity:
+      additionalProperties: false
+      description: Dispatch service item activity.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_item:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        requires_robot_set:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Robot Set
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
         sort_order:
           anyOf:
           - type: integer
           - type: 'null'
           title: Sort Order
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        instructions:
+          default: []
+          items:
+            $ref: '#/components/schemas/ServiceItemActivityInstruction'
+          title: Instructions
+          type: array
       required:
       - id
-      - url
-      - label
-      title: ServiceItemActivityInstructionLink
+      title: ServiceItemActivity
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ServiceOrderClientCount:
+      additionalProperties: false
+      description: Count of service orders by client.
+      properties:
+        client_name:
+          title: Client Name
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - client_name
+      - count
+      title: ServiceOrderClientCount
       type: object
     ServiceOrderHeaderInput:
       additionalProperties: false
@@ -1393,6 +1451,49 @@ components:
           title: Status
       title: ServiceOrderHeaderInput
       type: object
+    ServiceItemActivityAttachment:
+      additionalProperties: false
+      description: 'File (image or video) attached to a service-item-activity instruction.
+
+
+        Mirrors the GraphQL `ServiceItemActivityAttachment` type. `url` is
+
+        an authenticated proxy URL through `/api/files/{id}/download` — the
+
+        underlying GCS bucket stays private and the URL itself does not
+
+        expire.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        caption:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caption
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      required:
+      - id
+      - file_name
+      - file_type
+      title: ServiceItemActivityAttachment
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -1413,118 +1514,17 @@ components:
           type: boolean
       title: Success
       type: object
-    ServiceItem:
-      additionalProperties: false
-      description: Dispatch service item.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        component:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component
-        component_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Component Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Optional
-        service:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-      required:
-      - id
-      - code
-      title: ServiceItem
-      type: object
-    ServiceOrderTypeCount:
-      additionalProperties: false
-      description: Count of service orders by type.
-      properties:
-        service_order_type:
-          title: Service Order Type
-          type: string
-        count:
-          title: Count
-          type: integer
-      required:
-      - service_order_type
-      - count
-      title: ServiceOrderTypeCount
-      type: object
-    ServiceItemActivityInstruction:
-      additionalProperties: false
-      description: One ordered procedure step on a service-item-activity.
-      properties:
-        id:
-          title: Id
-          type: integer
-        title:
-          title: Title
-          type: string
-        body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Body
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        attachments:
-          default: []
-          items:
-            $ref: '#/components/schemas/ServiceItemActivityAttachment'
-          title: Attachments
-          type: array
-        links:
-          default: []
-          items:
-            $ref: '#/components/schemas/ServiceItemActivityInstructionLink'
-          title: Links
-          type: array
-      required:
-      - id
-      - title
-      title: ServiceItemActivityInstruction
-      type: object
-    ServiceOrderClientCount:
-      additionalProperties: false
-      description: Count of service orders by client.
-      properties:
-        client_name:
-          title: Client Name
-          type: string
-        count:
-          title: Count
-          type: integer
-      required:
-      - client_name
-      - count
-      title: ServiceOrderClientCount
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

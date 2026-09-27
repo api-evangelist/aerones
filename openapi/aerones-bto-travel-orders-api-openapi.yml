@@ -465,33 +465,6 @@ components:
       - flagged
       title: MemberProgressResponse
       type: object
-    QuestionAnswerResponse:
-      additionalProperties: false
-      properties:
-        key:
-          title: Key
-          type: string
-        category_name:
-          title: Category Name
-          type: string
-        text:
-          title: Text
-          type: string
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-        note:
-          default: ''
-          title: Note
-          type: string
-      required:
-      - key
-      - category_name
-      - text
-      title: QuestionAnswerResponse
-      type: object
     SiteContactResponse:
       additionalProperties: false
       description: 'One Pre-Job site contact for the internal set panel''s contacts table.
@@ -522,206 +495,6 @@ components:
           - type: 'null'
           title: Role
       title: SiteContactResponse
-      type: object
-    TravelOrderUpdateSchema:
-      additionalProperties: false
-      properties:
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Location Id
-        resource_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Set Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        supervisor_user_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Supervisor User Ids
-        drive_folder_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Drive Folder Url
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      title: TravelOrderUpdateSchema
-      type: object
-    QuestionnaireRecipientResponse:
-      additionalProperties: false
-      description: 'Per-member email/questionnaire tracking for the roster''s Email column.
-
-
-        Only present for crew members provisioned a questionnaire row, which
-
-        happens at send. `questionnaire_id` is the crew''s stable magic-link UUID so
-
-        staff can open or copy the crew URL; `events` is the append-only timeline
-
-        the popover renders.'
-      properties:
-        questionnaire_id:
-          title: Questionnaire Id
-          type: string
-        resource_id:
-          title: Resource Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        sent_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sent At
-        opened_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Opened At
-        events:
-          default: []
-          items:
-            type: object
-          title: Events
-          type: array
-      required:
-      - questionnaire_id
-      - resource_id
-      title: QuestionnaireRecipientResponse
-      type: object
-    SupervisorResponse:
-      additionalProperties: false
-      description: One assigned supervisor (an OpsHub user) for the supervisors panel chips.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: SupervisorResponse
-      type: object
-    TravelOrderAnswerValue:
-      description: 'Canonical answer values, stored lowercase in the answers JSONB to match
-
-        the design ids (`yes` | `no` | `need_info`).'
-      enum:
-      - 'yes'
-      - 'no'
-      - need_info
-      title: TravelOrderAnswerValue
-      type: string
-    TeamMemberResponse:
-      additionalProperties: false
-      properties:
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        qualifications:
-          default: []
-          items:
-            type: string
-          title: Qualifications
-          type: array
-        is_lead:
-          default: false
-          title: Is Lead
-          type: boolean
-        membership_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Membership Status
-        joined_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Joined At
-        removed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Removed At
-      title: TeamMemberResponse
-      type: object
-    ResendResult:
-      additionalProperties: false
-      properties:
-        resource_id:
-          title: Resource Id
-          type: integer
-        ok:
-          title: Ok
-          type: boolean
-      required:
-      - resource_id
-      - ok
-      title: ResendResult
-      type: object
-    CategoryStatusResponse:
-      additionalProperties: false
-      properties:
-        name:
-          title: Name
-          type: string
-        status:
-          title: Status
-          type: string
-      required:
-      - name
-      - status
-      title: CategoryStatusResponse
       type: object
     TravelOrderResponse:
       additionalProperties: false
@@ -983,38 +756,89 @@ components:
       - updated_at
       title: TravelOrderResponse
       type: object
-    SubmitAnswerSchema:
+    CategoryStatusResponse:
       additionalProperties: false
       properties:
-        value:
-          $ref: '#/components/schemas/TravelOrderAnswerValue'
-        note:
-          default: ''
-          title: Note
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
           type: string
       required:
-      - value
-      title: SubmitAnswerSchema
+      - name
+      - status
+      title: CategoryStatusResponse
       type: object
-    Success:
+    SupervisorResponse:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: One assigned supervisor (an OpsHub user) for the supervisors panel chips.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: SupervisorResponse
+      type: object
+    QuestionnaireRecipientResponse:
+      additionalProperties: false
+      description: 'Per-member email/questionnaire tracking for the roster''s Email column.
+
+
+        Only present for crew members provisioned a questionnaire row, which
+
+        happens at send. `questionnaire_id` is the crew''s stable magic-link UUID so
+
+        staff can open or copy the crew URL; `events` is the append-only timeline
+
+        the popover renders.'
+      properties:
+        questionnaire_id:
+          title: Questionnaire Id
+          type: string
+        resource_id:
+          title: Resource Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        sent_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sent At
+        opened_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Opened At
+        events:
+          default: []
+          items:
+            type: object
+          title: Events
+          type: array
+      required:
+      - questionnaire_id
+      - resource_id
+      title: QuestionnaireRecipientResponse
       type: object
     TravelOrderCreateSchema:
       additionalProperties: false
@@ -1062,6 +886,182 @@ components:
       - resource_set_id
       - service_id
       title: TravelOrderCreateSchema
+      type: object
+    TravelOrderAnswerValue:
+      description: 'Canonical answer values, stored lowercase in the answers JSONB to match
+
+        the design ids (`yes` | `no` | `need_info`).'
+      enum:
+      - 'yes'
+      - 'no'
+      - need_info
+      title: TravelOrderAnswerValue
+      type: string
+    QuestionAnswerResponse:
+      additionalProperties: false
+      properties:
+        key:
+          title: Key
+          type: string
+        category_name:
+          title: Category Name
+          type: string
+        text:
+          title: Text
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - key
+      - category_name
+      - text
+      title: QuestionAnswerResponse
+      type: object
+    TeamMemberResponse:
+      additionalProperties: false
+      properties:
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        qualifications:
+          default: []
+          items:
+            type: string
+          title: Qualifications
+          type: array
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+        membership_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Membership Status
+        joined_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Joined At
+        removed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Removed At
+      title: TeamMemberResponse
+      type: object
+    ResendResult:
+      additionalProperties: false
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        ok:
+          title: Ok
+          type: boolean
+      required:
+      - resource_id
+      - ok
+      title: ResendResult
+      type: object
+    TravelOrderUpdateSchema:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        supervisor_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Supervisor User Ids
+        drive_folder_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Folder Url
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      title: TravelOrderUpdateSchema
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    SubmitAnswerSchema:
+      additionalProperties: false
+      properties:
+        value:
+          $ref: '#/components/schemas/TravelOrderAnswerValue'
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - value
+      title: SubmitAnswerSchema
       type: object
   securitySchemes:
     APIKeyAuth:

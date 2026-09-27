@@ -875,6 +875,54 @@ components:
       - counts
       title: BacklogPageResponse
       type: object
+    BacklogFacetCount:
+      additionalProperties: false
+      description: 'One facet value with its count.
+
+
+        List-of-objects rather than a value-keyed dict so the frontend''s
+
+        camel/snake response transform can''t mangle enum-ish keys like
+
+        ``NOT_STARTED``.'
+      properties:
+        key:
+          title: Key
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - key
+      - count
+      title: BacklogFacetCount
+      type: object
+    AdoptionTableResponse:
+      additionalProperties: false
+      properties:
+        since:
+          title: Since
+          type: string
+        until:
+          title: Until
+          type: string
+        days:
+          items:
+            type: string
+          title: Days
+          type: array
+        rows:
+          items:
+            $ref: '#/components/schemas/AdoptionRow'
+          title: Rows
+          type: array
+      required:
+      - since
+      - until
+      - days
+      - rows
+      title: AdoptionTableResponse
+      type: object
     SupervisorOption:
       additionalProperties: false
       description: A BTO supervisor and the core projects they supervise (DISP-2905).
@@ -892,141 +940,59 @@ components:
       - project_ids
       title: SupervisorOption
       type: object
-    PendingScopeCommitmentResponse:
+    AdoptionCell:
       additionalProperties: false
-      description: One PENDING scope-dispatch commitment (DISP-3249) -- no SOL/Workorder yet.
-      properties:
-        id:
-          title: Id
-          type: integer
-        service_id:
-          title: Service Id
-          type: integer
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Name
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        project_resource_set_id:
-          title: Project Resource Set Id
-          type: integer
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          format: date-time
-          title: Planned End Datetime
-          type: string
-      required:
-      - id
-      - service_id
-      - project_resource_set_id
-      - planned_start_datetime
-      - planned_end_datetime
-      title: PendingScopeCommitmentResponse
-      type: object
-    WorkorderResourceResponse:
-      additionalProperties: false
-      description: A resource assigned to a workorder.
-      properties:
-        resource_id:
-          title: Resource Id
-          type: integer
-        resource_name:
-          title: Resource Name
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Lead
-      required:
-      - resource_id
-      - resource_name
-      title: WorkorderResourceResponse
-      type: object
-    AdoptionPerson:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        first_name:
-          title: First Name
-          type: string
-        last_name:
-          title: Last Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - first_name
-      - last_name
-      title: AdoptionPerson
-      type: object
-    BoardWeatherResponse:
-      additionalProperties: false
-      description: 'Hourly weather for the dispatching day-Gantt.
+      description: 'One non-empty team-day. ``date`` is ISO ``YYYY-MM-DD`` in the project''s
 
+        local timezone; cells are a list, not a date-keyed dict, so the frontend
 
-        ``available`` is False (with an empty ``hours`` list) when the project''s
-
-        primary location has no coordinates or the forecast cache has no data for
-
-        that day — the board renders regardless.'
+        camel-case interceptor leaves the dates alone.'
       properties:
-        available:
-          title: Available
-          type: boolean
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Name
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Longitude
-        hours:
+        date:
+          title: Date
+          type: string
+        workorders:
           items:
-            $ref: '#/components/schemas/WeatherHourResponse'
-          title: Hours
+            $ref: '#/components/schemas/AdoptionWorkorderItem'
+          title: Workorders
+          type: array
+        pending:
+          items:
+            $ref: '#/components/schemas/AdoptionPendingItem'
+          title: Pending
+          type: array
+        missed:
+          items:
+            $ref: '#/components/schemas/AdoptionMissedItem'
+          title: Missed
+          type: array
+        logged_unplanned:
+          items:
+            $ref: '#/components/schemas/AdoptionLoggedItem'
+          title: Logged Unplanned
           type: array
       required:
-      - available
-      - hours
-      title: BoardWeatherResponse
+      - date
+      - workorders
+      - pending
+      - missed
+      - logged_unplanned
+      title: AdoptionCell
+      type: object
+    BacklogAssignmentCounts:
+      additionalProperties: false
+      description: Unassigned/assigned totals for the sidebar toggle (search scope only).
+      properties:
+        unassigned:
+          title: Unassigned
+          type: integer
+        assigned:
+          title: Assigned
+          type: integer
+      required:
+      - unassigned
+      - assigned
+      title: BacklogAssignmentCounts
       type: object
     BoardWorkorderResponse:
       additionalProperties: false
@@ -1156,6 +1122,345 @@ components:
       - assigned_resources
       title: BoardWorkorderResponse
       type: object
+    AdoptionMissedItem:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        label:
+          title: Label
+          type: string
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+      required:
+      - id
+      - label
+      title: AdoptionMissedItem
+      type: object
+    MissedPlanResponse:
+      additionalProperties: false
+      description: 'A planned slot the board still shows on its original day -- a
+
+        historical, non-interactive record. ``kind`` ``MISSED``: not completed by
+
+        its planned day and returned to the backlog / cancelled. ``MOVED``: an
+
+        in-progress workorder dragged to another day; ``source_workorder_id``
+
+        lets the board say where it went.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        label:
+          title: Label
+          type: string
+        kind:
+          title: Kind
+          type: string
+        source_workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Workorder Id
+      required:
+      - id
+      - project_resource_set_id
+      - planned_start_datetime
+      - planned_end_datetime
+      - label
+      - kind
+      title: MissedPlanResponse
+      type: object
+    BoardTurbineResponse:
+      additionalProperties: false
+      description: 'A project-scope turbine (WTG) with its combined status.
+
+
+        ``status`` is a rollup of the turbine''s non-cancelled workorders across the
+
+        whole project (any date), independent of the board''s date window:
+
+        ``NO_WORK`` (no non-cancelled workorders), ``NOT_STARTED``, ``IN_PROGRESS``
+
+        (any WO in progress), or ``COMPLETED`` (all WOs completed).
+
+
+        ``activity_groups`` breaks that rollup down per activity group (ServiceItem
+
+        phase) so the board can show which groups are done: each entry carries the
+
+        completed vs total non-cancelled ``WorkorderActivity`` count for that group
+
+        on this turbine, across the whole project.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          title: Status
+          type: string
+        activity_groups:
+          default: []
+          items:
+            $ref: '#/components/schemas/BoardTurbineActivityGroupResponse'
+          title: Activity Groups
+          type: array
+      required:
+      - id
+      - status
+      title: BoardTurbineResponse
+      type: object
+    ResourceSetMemberResponse:
+      additionalProperties: false
+      description: A member (resource) within a project resource set.
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_name:
+          title: Resource Name
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+      required:
+      - id
+      - resource_id
+      - resource_name
+      title: ResourceSetMemberResponse
+      type: object
+    BoardDataResponse:
+      additionalProperties: false
+      description: Full response for the dispatching board.
+      properties:
+        resource_sets:
+          items:
+            $ref: '#/components/schemas/DispatchResourceSetResponse'
+          title: Resource Sets
+          type: array
+        workorders:
+          items:
+            $ref: '#/components/schemas/BoardWorkorderResponse'
+          title: Workorders
+          type: array
+        service_order_lines:
+          items:
+            $ref: '#/components/schemas/ServiceOrderLineGroup'
+          title: Service Order Lines
+          type: array
+        pending_scope_commitments:
+          default: []
+          items:
+            $ref: '#/components/schemas/PendingScopeCommitmentResponse'
+          title: Pending Scope Commitments
+          type: array
+        missed_plans:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissedPlanResponse'
+          title: Missed Plans
+          type: array
+        earliest_planned_start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Earliest Planned Start
+      required:
+      - resource_sets
+      - workorders
+      - service_order_lines
+      title: BoardDataResponse
+      type: object
+    ServiceOrderLineGroup:
+      additionalProperties: false
+      description: A service order line with its child workorders.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        service_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Order Number
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Id
+        component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Position
+        workorder_ids:
+          items:
+            type: integer
+          title: Workorder Ids
+          type: array
+      required:
+      - id
+      - workorder_ids
+      title: ServiceOrderLineGroup
+      type: object
+    WeatherHourResponse:
+      additionalProperties: false
+      description: 'One hour of forecast weather for the project''s location.
+
+
+        Units reflect what the Gust gateway returns (assumed m/s for wind,
+
+        degrees C for temperature/dew point, mm for precipitation, degrees for
+
+        direction) — see the units open point on Wrike 4506011329.'
+      properties:
+        time:
+          title: Time
+          type: string
+        temperature_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature C
+        humidity_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Pct
+        dew_point_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Dew Point C
+        wind_speed_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wind Speed Ms
+        wind_gust_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wind Gust Ms
+        wind_direction_deg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Wind Direction Deg
+        precipitation_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Precipitation Mm
+      required:
+      - time
+      title: WeatherHourResponse
+      type: object
+    WorkorderResourceResponse:
+      additionalProperties: false
+      description: A resource assigned to a workorder.
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_name:
+          title: Resource Name
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+      required:
+      - resource_id
+      - resource_name
+      title: WorkorderResourceResponse
+      type: object
+    AdoptionPerson:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - first_name
+      - last_name
+      title: AdoptionPerson
+      type: object
     AdoptionLoggedItem:
       additionalProperties: false
       properties:
@@ -1174,6 +1479,34 @@ components:
       - id
       - name
       title: AdoptionLoggedItem
+      type: object
+    AdoptionWorkorderItem:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        status:
+          title: Status
+          type: string
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+      required:
+      - id
+      - name
+      - status
+      title: AdoptionWorkorderItem
       type: object
     BacklogCounts:
       additionalProperties: false
@@ -1255,118 +1588,6 @@ components:
       - daily_filled
       title: ProjectCoverageResponse
       type: object
-    AdoptionCell:
-      additionalProperties: false
-      description: 'One non-empty team-day. ``date`` is ISO ``YYYY-MM-DD`` in the project''s
-
-        local timezone; cells are a list, not a date-keyed dict, so the frontend
-
-        camel-case interceptor leaves the dates alone.'
-      properties:
-        date:
-          title: Date
-          type: string
-        workorders:
-          items:
-            $ref: '#/components/schemas/AdoptionWorkorderItem'
-          title: Workorders
-          type: array
-        pending:
-          items:
-            $ref: '#/components/schemas/AdoptionPendingItem'
-          title: Pending
-          type: array
-        missed:
-          items:
-            $ref: '#/components/schemas/AdoptionMissedItem'
-          title: Missed
-          type: array
-        logged_unplanned:
-          items:
-            $ref: '#/components/schemas/AdoptionLoggedItem'
-          title: Logged Unplanned
-          type: array
-      required:
-      - date
-      - workorders
-      - pending
-      - missed
-      - logged_unplanned
-      title: AdoptionCell
-      type: object
-    ResourceSetMemberResponse:
-      additionalProperties: false
-      description: A member (resource) within a project resource set.
-      properties:
-        id:
-          title: Id
-          type: integer
-        resource_id:
-          title: Resource Id
-          type: integer
-        resource_name:
-          title: Resource Name
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Lead
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Type
-      required:
-      - id
-      - resource_id
-      - resource_name
-      title: ResourceSetMemberResponse
-      type: object
-    BoardTurbineResponse:
-      additionalProperties: false
-      description: 'A project-scope turbine (WTG) with its combined status.
-
-
-        ``status`` is a rollup of the turbine''s non-cancelled workorders across the
-
-        whole project (any date), independent of the board''s date window:
-
-        ``NO_WORK`` (no non-cancelled workorders), ``NOT_STARTED``, ``IN_PROGRESS``
-
-        (any WO in progress), or ``COMPLETED`` (all WOs completed).
-
-
-        ``activity_groups`` breaks that rollup down per activity group (ServiceItem
-
-        phase) so the board can show which groups are done: each entry carries the
-
-        completed vs total non-cancelled ``WorkorderActivity`` count for that group
-
-        on this turbine, across the whole project.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        status:
-          title: Status
-          type: string
-        activity_groups:
-          default: []
-          items:
-            $ref: '#/components/schemas/BoardTurbineActivityGroupResponse'
-          title: Activity Groups
-          type: array
-      required:
-      - id
-      - status
-      title: BoardTurbineResponse
-      type: object
     AdoptionRow:
       additionalProperties: false
       properties:
@@ -1420,89 +1641,143 @@ components:
       - cells
       title: AdoptionRow
       type: object
-    BacklogAssignmentCounts:
+    BoardTurbineActivityGroupResponse:
       additionalProperties: false
-      description: Unassigned/assigned totals for the sidebar toggle (search scope only).
+      description: 'One activity group (ServiceItem phase) on a turbine, with how many of
+
+        its activities are completed vs the total (excludes CANCELLED activities).'
       properties:
-        unassigned:
-          title: Unassigned
+        name:
+          title: Name
+          type: string
+        completed:
+          title: Completed
           type: integer
-        assigned:
-          title: Assigned
+        total:
+          title: Total
           type: integer
       required:
-      - unassigned
-      - assigned
-      title: BacklogAssignmentCounts
+      - name
+      - completed
+      - total
+      title: BoardTurbineActivityGroupResponse
       type: object
-    BoardDataResponse:
+    DispatchResourceSetResponse:
       additionalProperties: false
-      description: Full response for the dispatching board.
+      description: A project resource set with its members.
       properties:
-        resource_sets:
-          items:
-            $ref: '#/components/schemas/DispatchResourceSetResponse'
-          title: Resource Sets
-          type: array
-        workorders:
-          items:
-            $ref: '#/components/schemas/BoardWorkorderResponse'
-          title: Workorders
-          type: array
-        service_order_lines:
-          items:
-            $ref: '#/components/schemas/ServiceOrderLineGroup'
-          title: Service Order Lines
-          type: array
-        pending_scope_commitments:
-          default: []
-          items:
-            $ref: '#/components/schemas/PendingScopeCommitmentResponse'
-          title: Pending Scope Commitments
-          type: array
-        missed_plans:
-          default: []
-          items:
-            $ref: '#/components/schemas/MissedPlanResponse'
-          title: Missed Plans
-          type: array
-        earliest_planned_start:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        description:
           anyOf:
-          - format: date-time
-            type: string
+          - type: string
           - type: 'null'
-          title: Earliest Planned Start
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        project_location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Location Name
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        members:
+          items:
+            $ref: '#/components/schemas/ResourceSetMemberResponse'
+          title: Members
+          type: array
       required:
-      - resource_sets
-      - workorders
-      - service_order_lines
-      title: BoardDataResponse
+      - id
+      - name
+      - members
+      title: DispatchResourceSetResponse
       type: object
-    AdoptionTableResponse:
+    PendingScopeCommitmentResponse:
+      additionalProperties: false
+      description: One PENDING scope-dispatch commitment (DISP-3249) -- no SOL/Workorder yet.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        project_resource_set_id:
+          title: Project Resource Set Id
+          type: integer
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+      required:
+      - id
+      - service_id
+      - project_resource_set_id
+      - planned_start_datetime
+      - planned_end_datetime
+      title: PendingScopeCommitmentResponse
+      type: object
+    ProjectCoverageDay:
+      additionalProperties: false
+      description: One day's worth of resource-set coverage for a project.
+      properties:
+        date:
+          title: Date
+          type: string
+        filled:
+          title: Filled
+          type: integer
+      required:
+      - date
+      - filled
+      title: ProjectCoverageDay
+      type: object
+    BoardTurbinesResponse:
       additionalProperties: false
       properties:
-        since:
-          title: Since
-          type: string
-        until:
-          title: Until
-          type: string
-        days:
+        turbines:
           items:
-            type: string
-          title: Days
-          type: array
-        rows:
-          items:
-            $ref: '#/components/schemas/AdoptionRow'
-          title: Rows
+            $ref: '#/components/schemas/BoardTurbineResponse'
+          title: Turbines
           type: array
       required:
-      - since
-      - until
-      - days
-      - rows
-      title: AdoptionTableResponse
+      - turbines
+      title: BoardTurbinesResponse
       type: object
     BoardWorkorderActivityResponse:
       additionalProperties: false
@@ -1570,141 +1845,49 @@ components:
       - id
       title: BoardWorkorderActivityResponse
       type: object
-    MissedPlanResponse:
+    BoardWeatherResponse:
       additionalProperties: false
-      description: 'A planned slot the board still shows on its original day -- a
+      description: 'Hourly weather for the dispatching day-Gantt.
 
-        historical, non-interactive record. ``kind`` ``MISSED``: not completed by
 
-        its planned day and returned to the backlog / cancelled. ``MOVED``: an
+        ``available`` is False (with an empty ``hours`` list) when the project''s
 
-        in-progress workorder dragged to another day; ``source_workorder_id``
+        primary location has no coordinates or the forecast cache has no data for
 
-        lets the board say where it went.'
+        that day — the board renders regardless.'
       properties:
-        id:
-          title: Id
-          type: integer
-        project_resource_set_id:
-          title: Project Resource Set Id
-          type: integer
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          format: date-time
-          title: Planned End Datetime
-          type: string
-        label:
-          title: Label
-          type: string
-        kind:
-          title: Kind
-          type: string
-        source_workorder_id:
+        available:
+          title: Available
+          type: boolean
+        location_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Source Workorder Id
-      required:
-      - id
-      - project_resource_set_id
-      - planned_start_datetime
-      - planned_end_datetime
-      - label
-      - kind
-      title: MissedPlanResponse
-      type: object
-    ServiceOrderLineGroup:
-      additionalProperties: false
-      description: A service order line with its child workorders.
-      properties:
-        id:
-          title: Id
-          type: integer
-        service_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order Id
-        service_order_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Order Number
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Name
+          title: Location Id
         location_name:
           anyOf:
           - type: string
           - type: 'null'
           title: Location Name
-        component_id:
+        latitude:
           anyOf:
-          - type: integer
+          - type: number
           - type: 'null'
-          title: Component Id
-        component_position:
+          title: Latitude
+        longitude:
           anyOf:
-          - type: string
+          - type: number
           - type: 'null'
-          title: Component Position
-        workorder_ids:
+          title: Longitude
+        hours:
           items:
-            type: integer
-          title: Workorder Ids
+            $ref: '#/components/schemas/WeatherHourResponse'
+          title: Hours
           type: array
       required:
-      - id
-      - workorder_ids
-      title: ServiceOrderLineGroup
-      type: object
-    AdoptionWorkorderItem:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        status:
-          title: Status
-          type: string
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-      required:
-      - id
-      - name
-      - status
-      title: AdoptionWorkorderItem
+      - available
+      - hours
+      title: BoardWeatherResponse
       type: object
     AdoptionPendingItem:
       additionalProperties: false
@@ -1725,189 +1908,6 @@ components:
       required:
       - id
       title: AdoptionPendingItem
-      type: object
-    WeatherHourResponse:
-      additionalProperties: false
-      description: 'One hour of forecast weather for the project''s location.
-
-
-        Units reflect what the Gust gateway returns (assumed m/s for wind,
-
-        degrees C for temperature/dew point, mm for precipitation, degrees for
-
-        direction) — see the units open point on Wrike 4506011329.'
-      properties:
-        time:
-          title: Time
-          type: string
-        temperature_c:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Temperature C
-        humidity_pct:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Humidity Pct
-        dew_point_c:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Dew Point C
-        wind_speed_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Wind Speed Ms
-        wind_gust_ms:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Wind Gust Ms
-        wind_direction_deg:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Wind Direction Deg
-        precipitation_mm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Precipitation Mm
-      required:
-      - time
-      title: WeatherHourResponse
-      type: object
-    BoardTurbineActivityGroupResponse:
-      additionalProperties: false
-      description: 'One activity group (ServiceItem phase) on a turbine, with how many of
-
-        its activities are completed vs the total (excludes CANCELLED activities).'
-      properties:
-        name:
-          title: Name
-          type: string
-        completed:
-          title: Completed
-          type: integer
-        total:
-          title: Total
-          type: integer
-      required:
-      - name
-      - completed
-      - total
-      title: BoardTurbineActivityGroupResponse
-      type: object
-    BacklogFacetCount:
-      additionalProperties: false
-      description: 'One facet value with its count.
-
-
-        List-of-objects rather than a value-keyed dict so the frontend''s
-
-        camel/snake response transform can''t mangle enum-ish keys like
-
-        ``NOT_STARTED``.'
-      properties:
-        key:
-          title: Key
-          type: string
-        count:
-          title: Count
-          type: integer
-      required:
-      - key
-      - count
-      title: BacklogFacetCount
-      type: object
-    BoardTurbinesResponse:
-      additionalProperties: false
-      properties:
-        turbines:
-          items:
-            $ref: '#/components/schemas/BoardTurbineResponse'
-          title: Turbines
-          type: array
-      required:
-      - turbines
-      title: BoardTurbinesResponse
-      type: object
-    DispatchResourceSetResponse:
-      additionalProperties: false
-      description: A project resource set with its members.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Location Id
-        project_location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Project Location Name
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        members:
-          items:
-            $ref: '#/components/schemas/ResourceSetMemberResponse'
-          title: Members
-          type: array
-      required:
-      - id
-      - name
-      - members
-      title: DispatchResourceSetResponse
-      type: object
-    ProjectCoverageDay:
-      additionalProperties: false
-      description: One day's worth of resource-set coverage for a project.
-      properties:
-        date:
-          title: Date
-          type: string
-        filled:
-          title: Filled
-          type: integer
-      required:
-      - date
-      - filled
-      title: ProjectCoverageDay
-      type: object
-    AdoptionMissedItem:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        label:
-          title: Label
-          type: string
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-      required:
-      - id
-      - label
-      title: AdoptionMissedItem
       type: object
   securitySchemes:
     APIKeyAuth:

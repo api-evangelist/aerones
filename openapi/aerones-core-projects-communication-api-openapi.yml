@@ -305,6 +305,26 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    CommunicationAttachment:
+      additionalProperties: false
+      description: A file attached to a communication note or task comment.
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+      required:
+      - id
+      - file_name
+      - file_type
+      title: CommunicationAttachment
+      type: object
     ProjectCommentUpdate:
       additionalProperties: false
       description: Edit a project communication note (author only).
@@ -343,56 +363,6 @@ components:
           description: Replacement attachment set. None leaves it untouched, [] clears.
           title: Attachment File Ids
       title: ProjectCommentUpdate
-      type: object
-    MentionCandidateListResponse:
-      additionalProperties: false
-      properties:
-        candidates:
-          items:
-            $ref: '#/components/schemas/MentionCandidate'
-          title: Candidates
-          type: array
-      title: MentionCandidateListResponse
-      type: object
-    MentionCandidate:
-      additionalProperties: false
-      description: One user available for @-mention in a Set Request note.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: MentionCandidate
-      type: object
-    CommunicationAttachment:
-      additionalProperties: false
-      description: A file attached to a communication note or task comment.
-      properties:
-        id:
-          format: uuid
-          title: Id
-          type: string
-        file_name:
-          title: File Name
-          type: string
-        file_type:
-          title: File Type
-          type: string
-      required:
-      - id
-      - file_name
-      - file_type
-      title: CommunicationAttachment
       type: object
     ProjectCommentResponse:
       additionalProperties: false
@@ -448,109 +418,15 @@ components:
       - created_at
       title: ProjectCommentResponse
       type: object
-    ProjectCommentCreate:
+    MentionCandidateListResponse:
       additionalProperties: false
-      description: Create a project communication note.
       properties:
-        body:
-          description: Note body.
-          minLength: 1
-          title: Body
-          type: string
-        body_format:
-          default: text
-          description: How `body` is encoded.
-          enum:
-          - text
-          - markdown
-          title: Body Format
-          type: string
-        mentioned_user_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: User ids @-mentioned in the note. Ignored for body_format='markdown' — mentions are parsed from the body instead.
-          title: Mentioned User Ids
-        attachment_file_ids:
-          anyOf:
-          - items:
-              format: uuid
-              type: string
-            type: array
-          - type: 'null'
-          description: Storage ids of files attached to the note.
-          title: Attachment File Ids
-      required:
-      - body
-      title: ProjectCommentCreate
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CommunicationUser:
-      additionalProperties: false
-      description: Lightweight user reference used in communication payloads.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: CommunicationUser
-      type: object
-    RoleMemberListResponse:
-      additionalProperties: false
-      description: 'The people a role mention notifies, for the reader-facing role chip.
-
-
-        Reuses ``MentionCandidate`` so one shape describes a person in the picker
-
-        and in this list. ``total`` is the whole role; ``members`` is one page.'
-      properties:
-        members:
+        candidates:
           items:
             $ref: '#/components/schemas/MentionCandidate'
-          title: Members
+          title: Candidates
           type: array
-        total:
-          default: 0
-          title: Total
-          type: integer
-        has_more:
-          default: false
-          title: Has More
-          type: boolean
-      required:
-      - members
-      title: RoleMemberListResponse
+      title: MentionCandidateListResponse
       type: object
     CommunicationFeedEntry:
       additionalProperties: false
@@ -624,6 +500,130 @@ components:
       - body
       - created_at
       title: CommunicationFeedEntry
+      type: object
+    ProjectCommentCreate:
+      additionalProperties: false
+      description: Create a project communication note.
+      properties:
+        body:
+          description: Note body.
+          minLength: 1
+          title: Body
+          type: string
+        body_format:
+          default: text
+          description: How `body` is encoded.
+          enum:
+          - text
+          - markdown
+          title: Body Format
+          type: string
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: User ids @-mentioned in the note. Ignored for body_format='markdown' — mentions are parsed from the body instead.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Storage ids of files attached to the note.
+          title: Attachment File Ids
+      required:
+      - body
+      title: ProjectCommentCreate
+      type: object
+    CommunicationUser:
+      additionalProperties: false
+      description: Lightweight user reference used in communication payloads.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: CommunicationUser
+      type: object
+    MentionCandidate:
+      additionalProperties: false
+      description: One user available for @-mention in a Set Request note.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: MentionCandidate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    RoleMemberListResponse:
+      additionalProperties: false
+      description: 'The people a role mention notifies, for the reader-facing role chip.
+
+
+        Reuses ``MentionCandidate`` so one shape describes a person in the picker
+
+        and in this list. ``total`` is the whole role; ``members`` is one page.'
+      properties:
+        members:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Members
+          type: array
+        total:
+          default: 0
+          title: Total
+          type: integer
+        has_more:
+          default: false
+          title: Has More
+          type: boolean
+      required:
+      - members
+      title: RoleMemberListResponse
       type: object
   securitySchemes:
     APIKeyAuth:

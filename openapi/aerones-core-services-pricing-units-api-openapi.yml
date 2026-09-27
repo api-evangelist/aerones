@@ -92,17 +92,51 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
     ServicePricingUnitResponse:
       additionalProperties: false
       description: Schema for ServicePricingUnit response.
@@ -134,31 +168,6 @@ components:
       - pricing_unit
       title: ServicePricingUnitResponse
       type: object
-    ServiceObject:
-      additionalProperties: false
-      description: Nested service object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
-      required:
-      - id
-      - code
-      - is_service
-      title: ServiceObject
-      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -173,26 +182,17 @@ components:
       - message
       title: Error
       type: object
-    PricingUnitNestedResponse:
-      additionalProperties: false
-      description: Nested response for pricing unit in service response (no timestamps in nested objects).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        netsuite_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Netsuite Id
-      required:
-      - id
-      - name
-      title: PricingUnitNestedResponse
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -279,79 +279,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomReportService:
-      additionalProperties: false
-      description: 'One "Service" choice of a family: the service code and the label the portal shows.'
-      properties:
-        code:
-          title: Code
-          type: string
-        label:
-          title: Label
-          type: string
-      required:
-      - code
-      - label
-      title: CustomReportService
-      type: object
-    FinalReportStatusResponse:
-      additionalProperties: false
-      description: Polling response for an in-flight final-report generation.
-      properties:
-        generation_id:
-          title: Generation Id
-          type: integer
-        status:
-          description: pending | complete | failed
-          title: Status
-          type: string
-        generated_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Generated At
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      required:
-      - generation_id
-      - status
-      title: FinalReportStatusResponse
-      type: object
-    FinalReportDownloadRequest:
-      additionalProperties: false
-      description: Request body for generating a final (SOL) report from the client portal.
-      properties:
-        service_order_line_id:
-          description: Service order line ID to generate the final report for
-          title: Service Order Line Id
-          type: integer
-      required:
-      - service_order_line_id
-      title: FinalReportDownloadRequest
-      type: object
-    DailyReportDownloadRequest:
-      additionalProperties: false
-      description: Request body for generating a daily report from the client portal.
-      properties:
-        service_order_line_id:
-          description: Service order line ID to generate the report for
-          title: Service Order Line Id
-          type: integer
-        date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Optional report date (YYYY-MM-DD). If omitted, the report covers all activity dates for the SOL.
-          title: Date
-      required:
-      - service_order_line_id
-      title: DailyReportDownloadRequest
-      type: object
     FinalReportStartResponse:
       additionalProperties: false
       description: Response after kicking off async final-report generation.
@@ -400,6 +327,93 @@ components:
       - services
       - max_selection_lines
       title: CustomReportType
+      type: object
+    CustomReportService:
+      additionalProperties: false
+      description: 'One "Service" choice of a family: the service code and the label the portal shows.'
+      properties:
+        code:
+          title: Code
+          type: string
+        label:
+          title: Label
+          type: string
+      required:
+      - code
+      - label
+      title: CustomReportService
+      type: object
+    FinalReportDownloadRequest:
+      additionalProperties: false
+      description: Request body for generating a final (SOL) report from the client portal.
+      properties:
+        service_order_line_id:
+          description: Service order line ID to generate the final report for
+          title: Service Order Line Id
+          type: integer
+      required:
+      - service_order_line_id
+      title: FinalReportDownloadRequest
+      type: object
+    CustomReportSummary:
+      additionalProperties: false
+      description: One custom report request as the portal lists it.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        report_type:
+          title: Report Type
+          type: string
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+        selection:
+          title: Selection
+          type: object
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - report_type
+      - status
+      - selection
+      title: CustomReportSummary
+      type: object
+    DailyReportDownloadRequest:
+      additionalProperties: false
+      description: Request body for generating a daily report from the client portal.
+      properties:
+        service_order_line_id:
+          description: Service order line ID to generate the report for
+          title: Service Order Line Id
+          type: integer
+        date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Optional report date (YYYY-MM-DD). If omitted, the report covers all activity dates for the SOL.
+          title: Date
+      required:
+      - service_order_line_id
+      title: DailyReportDownloadRequest
       type: object
     CustomReportRequest:
       additionalProperties: false
@@ -459,29 +473,17 @@ components:
       - report_type
       title: CustomReportRequest
       type: object
-    CustomReportSummary:
+    FinalReportStatusResponse:
       additionalProperties: false
-      description: One custom report request as the portal lists it.
+      description: Polling response for an in-flight final-report generation.
       properties:
         generation_id:
           title: Generation Id
           type: integer
-        report_type:
-          title: Report Type
-          type: string
         status:
           description: pending | complete | failed
           title: Status
           type: string
-        selection:
-          title: Selection
-          type: object
-        started_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Started At
         generated_at:
           anyOf:
           - format: date-time
@@ -495,10 +497,8 @@ components:
           title: Error
       required:
       - generation_id
-      - report_type
       - status
-      - selection
-      title: CustomReportSummary
+      title: FinalReportStatusResponse
       type: object
   securitySchemes:
     APIKeyAuth:

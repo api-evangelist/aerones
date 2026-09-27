@@ -225,30 +225,85 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Error:
+    BillingStatementUpdate:
       additionalProperties: false
-      description: Error response schema.
+      description: Schema for updating a BillingStatement.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer ID
+          title: Customer Id
+        date_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period start date (YYYY-MM-DD)
+          title: Date From
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period end date (YYYY-MM-DD)
+          title: Date To
+        billing_period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing period (WEEK, MONTH)
+          title: Billing Period
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status
+          title: Status
+      title: BillingStatementUpdate
+      type: object
+    BillingStatementCreate:
+      additionalProperties: false
+      description: Schema for creating a BillingStatement.
+      properties:
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        date_from:
+          description: Period start date (YYYY-MM-DD)
+          title: Date From
           type: string
+        date_to:
+          description: Period end date (YYYY-MM-DD)
+          title: Date To
+          type: string
+        billing_period:
+          description: Billing period (WEEK, MONTH)
+          title: Billing Period
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status (defaults to DRAFT)
+          title: Status
       required:
-      - code
-      - message
-      title: Error
+      - project_id
+      - customer_id
+      - date_from
+      - date_to
+      - billing_period
+      title: BillingStatementCreate
       type: object
     BillingStatementResponse:
       additionalProperties: false
@@ -306,43 +361,19 @@ components:
       - updated_at
       title: BillingStatementResponse
       type: object
-    BillingStatementCreate:
+    Error:
       additionalProperties: false
-      description: Schema for creating a BillingStatement.
+      description: Error response schema.
       properties:
-        project_id:
-          description: Project ID
-          title: Project Id
-          type: integer
-        customer_id:
-          description: Customer ID
-          title: Customer Id
-          type: integer
-        date_from:
-          description: Period start date (YYYY-MM-DD)
-          title: Date From
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
-        date_to:
-          description: Period end date (YYYY-MM-DD)
-          title: Date To
-          type: string
-        billing_period:
-          description: Billing period (WEEK, MONTH)
-          title: Billing Period
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status (defaults to DRAFT)
-          title: Status
       required:
-      - project_id
-      - customer_id
-      - date_from
-      - date_to
-      - billing_period
-      title: BillingStatementCreate
+      - code
+      - message
+      title: Error
       type: object
     Success:
       additionalProperties: false
@@ -364,48 +395,17 @@ components:
           type: boolean
       title: Success
       type: object
-    BillingStatementUpdate:
-      additionalProperties: false
-      description: Schema for updating a BillingStatement.
-      properties:
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project ID
-          title: Project Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer ID
-          title: Customer Id
-        date_from:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Period start date (YYYY-MM-DD)
-          title: Date From
-        date_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Period end date (YYYY-MM-DD)
-          title: Date To
-        billing_period:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Billing period (WEEK, MONTH)
-          title: Billing Period
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status
-          title: Status
-      title: BillingStatementUpdate
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

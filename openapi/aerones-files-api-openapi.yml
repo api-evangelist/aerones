@@ -174,30 +174,19 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    FileList:
+    Error:
       additionalProperties: false
-      description: Response schema for listing all files.
+      description: Error response schema.
       properties:
-        files:
-          description: List of all files in the system.
-          items:
-            $ref: '#/components/schemas/FileAttachment'
-          title: Files
-          type: array
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
       required:
-      - files
-      title: FileList
+      - code
+      - message
+      title: Error
       type: object
     FileAttachment:
       additionalProperties: false
@@ -225,19 +214,19 @@ components:
       - file_type
       title: FileAttachment
       type: object
-    Error:
+    FileList:
       additionalProperties: false
-      description: Error response schema.
+      description: Response schema for listing all files.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
+        files:
+          description: List of all files in the system.
+          items:
+            $ref: '#/components/schemas/FileAttachment'
+          title: Files
+          type: array
       required:
-      - code
-      - message
-      title: Error
+      - files
+      title: FileList
       type: object
     Success:
       additionalProperties: false
@@ -259,6 +248,17 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

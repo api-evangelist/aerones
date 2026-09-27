@@ -80,78 +80,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    BladeWithReceptorsObject:
-      additionalProperties: false
-      description: 'One blade plus its receptor children — building block for the turbine
-
-        convenience GET that returns all blades + receptors in one round-trip.'
-      properties:
-        blade:
-          $ref: '#/components/schemas/_ReceptorBladeSummary'
-        receptors:
-          items:
-            $ref: '#/components/schemas/ReceptorObject'
-          title: Receptors
-          type: array
-      required:
-      - blade
-      title: BladeWithReceptorsObject
-      type: object
-    InitTurbineFromPresetResponse:
-      additionalProperties: false
-      description: 'POST ``/turbines/{id}/receptors/init-from-preset`` — summary + the
-
-        refreshed per-turbine blade/receptor tree so the UI can re-render without
-
-        a follow-up GET.'
-      properties:
-        preset_id:
-          title: Preset Id
-          type: integer
-        preset_name:
-          title: Preset Name
-          type: string
-        blade_count:
-          description: How many blades the turbine has (and therefore got the bulk-create applied).
-          title: Blade Count
-          type: integer
-        receptor_template_count:
-          description: How many receptor entries the chosen preset contains. Zero means the preset is empty — no rows were created on any blade.
-          title: Receptor Template Count
-          type: integer
-        created:
-          description: Total new TurbineComponent rows created across all blades.
-          title: Created
-          type: integer
-        skipped_existing:
-          description: Total receptor templates skipped because a same-named receptor already existed on the blade (idempotent merge, never clobbers).
-          title: Skipped Existing
-          type: integer
-        blades:
-          items:
-            $ref: '#/components/schemas/BladeWithReceptorsObject'
-          title: Blades
-          type: array
-      required:
-      - preset_id
-      - preset_name
-      - blade_count
-      - receptor_template_count
-      - created
-      - skipped_existing
-      title: InitTurbineFromPresetResponse
-      type: object
     ReceptorObject:
       additionalProperties: false
       description: Single receptor row in a GET response (includes ``updated_at``).
@@ -219,19 +147,16 @@ components:
       - serial_number
       title: _ReceptorBladeSummary
       type: object
-    Error:
+    TurbineReceptorsResponse:
       additionalProperties: false
-      description: Error response schema.
+      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+        blades:
+          items:
+            $ref: '#/components/schemas/BladeWithReceptorsObject'
+          title: Blades
+          type: array
+      title: TurbineReceptorsResponse
       type: object
     InitTurbineFromPresetBody:
       additionalProperties: false
@@ -247,17 +172,92 @@ components:
       - preset_id
       title: InitTurbineFromPresetBody
       type: object
-    TurbineReceptorsResponse:
+    Error:
       additionalProperties: false
-      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
+      description: Error response schema.
       properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    InitTurbineFromPresetResponse:
+      additionalProperties: false
+      description: 'POST ``/turbines/{id}/receptors/init-from-preset`` — summary + the
+
+        refreshed per-turbine blade/receptor tree so the UI can re-render without
+
+        a follow-up GET.'
+      properties:
+        preset_id:
+          title: Preset Id
+          type: integer
+        preset_name:
+          title: Preset Name
+          type: string
+        blade_count:
+          description: How many blades the turbine has (and therefore got the bulk-create applied).
+          title: Blade Count
+          type: integer
+        receptor_template_count:
+          description: How many receptor entries the chosen preset contains. Zero means the preset is empty — no rows were created on any blade.
+          title: Receptor Template Count
+          type: integer
+        created:
+          description: Total new TurbineComponent rows created across all blades.
+          title: Created
+          type: integer
+        skipped_existing:
+          description: Total receptor templates skipped because a same-named receptor already existed on the blade (idempotent merge, never clobbers).
+          title: Skipped Existing
+          type: integer
         blades:
           items:
             $ref: '#/components/schemas/BladeWithReceptorsObject'
           title: Blades
           type: array
-      title: TurbineReceptorsResponse
+      required:
+      - preset_id
+      - preset_name
+      - blade_count
+      - receptor_template_count
+      - created
+      - skipped_existing
+      title: InitTurbineFromPresetResponse
       type: object
+    BladeWithReceptorsObject:
+      additionalProperties: false
+      description: 'One blade plus its receptor children — building block for the turbine
+
+        convenience GET that returns all blades + receptors in one round-trip.'
+      properties:
+        blade:
+          $ref: '#/components/schemas/_ReceptorBladeSummary'
+        receptors:
+          items:
+            $ref: '#/components/schemas/ReceptorObject'
+          title: Receptors
+          type: array
+      required:
+      - blade
+      title: BladeWithReceptorsObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

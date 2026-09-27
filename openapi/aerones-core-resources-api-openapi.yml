@@ -223,17 +223,79 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    ResourceCertificateOutput:
+      additionalProperties: false
+      description: 'Output schema for a resource''s certificate (embedded in ResourceResponse).
+
+
+        Exposes every non-audit ResourceCertificate field. ``certificate_id`` /
+
+        ``certificate_name`` / ``expiry_date`` are retained for backward
+
+        compatibility; the remaining fields mirror the standalone
+
+        ``/resources/{id}/certificates`` endpoint (``ResourceCertificateResponse``).'
+      properties:
+        id:
+          description: ResourceCertificate row ID
+          title: Id
+          type: integer
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        certificate_name:
+          description: Certificate name
+          title: Certificate Name
+          type: string
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      required:
+      - id
+      - certificate_id
+      - certificate_name
+      title: ResourceCertificateOutput
+      type: object
     ResourceCertificateInput:
       additionalProperties: false
       description: 'Input schema for a resource''s certificate (used in Resource create/update).
@@ -307,6 +369,92 @@ components:
           description: Identifier of the source row in the origin system
           title: Source Id
       title: ResourceCertificateInput
+      type: object
+    ResourceUpdate:
+      additionalProperties: false
+      description: 'Schema for updating a Resource.
+
+
+        Employment contract, qualifications, certificates, and the BambooHR /
+
+        TalentLMS links can be updated. `bamboohr_employee_id` and
+
+        `talentlms_user_id` are three-state: omit the key to leave the link
+
+        untouched, pass `null` to unlink, or pass a string to create/replace
+
+        the link.'
+      properties:
+        employment_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment contract details
+          title: Employment Contract
+        qualifications:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Qualifications as JSON list
+          title: Qualifications
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceCertificateInput'
+            type: array
+          - type: 'null'
+          description: Certificates to assign to this resource
+          title: Certificates
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External BambooHR employee ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
+          title: Bamboohr Employee Id
+        talentlms_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External TalentLMS user ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
+          title: Talentlms User Id
+      title: ResourceUpdate
+      type: object
+    ResourceSummary:
+      additionalProperties: false
+      description: Summary of dispatch resources.
+      properties:
+        total:
+          description: Total number of resources
+          title: Total
+          type: integer
+        technicians:
+          description: Number of technician resources
+          title: Technicians
+          type: integer
+        teams:
+          description: Number of resource teams
+          title: Teams
+          type: integer
+      required:
+      - total
+      - technicians
+      - teams
+      title: ResourceSummary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ResourceResponse:
       additionalProperties: false
@@ -386,163 +534,6 @@ components:
       - full_name
       title: ResourceResponse
       type: object
-    ResourceCertificateOutput:
-      additionalProperties: false
-      description: 'Output schema for a resource''s certificate (embedded in ResourceResponse).
-
-
-        Exposes every non-audit ResourceCertificate field. ``certificate_id`` /
-
-        ``certificate_name`` / ``expiry_date`` are retained for backward
-
-        compatibility; the remaining fields mirror the standalone
-
-        ``/resources/{id}/certificates`` endpoint (``ResourceCertificateResponse``).'
-      properties:
-        id:
-          description: ResourceCertificate row ID
-          title: Id
-          type: integer
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
-          type: integer
-        certificate_name:
-          description: Certificate name
-          title: Certificate Name
-          type: string
-        issuer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Issuer FK
-          title: Issuer Id
-        certificate_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External certificate number
-          title: Certificate Number
-        issued_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Issue date (YYYY-MM-DD)
-          title: Issued Date
-        expiry_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Expiry date (YYYY-MM-DD)
-          title: Expiry Date
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional info
-          title: Additional Info
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External system this row was ingested from
-          title: Source
-        source_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Identifier of the source row in the origin system
-          title: Source Id
-      required:
-      - id
-      - certificate_id
-      - certificate_name
-      title: ResourceCertificateOutput
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ResourceUpdate:
-      additionalProperties: false
-      description: 'Schema for updating a Resource.
-
-
-        Employment contract, qualifications, certificates, and the BambooHR /
-
-        TalentLMS links can be updated. `bamboohr_employee_id` and
-
-        `talentlms_user_id` are three-state: omit the key to leave the link
-
-        untouched, pass `null` to unlink, or pass a string to create/replace
-
-        the link.'
-      properties:
-        employment_contract:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Employment contract details
-          title: Employment Contract
-        qualifications:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Qualifications as JSON list
-          title: Qualifications
-        certificates:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ResourceCertificateInput'
-            type: array
-          - type: 'null'
-          description: Certificates to assign to this resource
-          title: Certificates
-        bamboohr_employee_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External BambooHR employee ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
-          title: Bamboohr Employee Id
-        talentlms_user_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External TalentLMS user ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
-          title: Talentlms User Id
-      title: ResourceUpdate
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
     ResourceCreate:
       additionalProperties: false
       description: 'Schema for creating a Resource.
@@ -621,28 +612,37 @@ components:
           title: Resource Type
       title: ResourceCreate
       type: object
-    ResourceSummary:
+    Success:
       additionalProperties: false
-      description: Summary of dispatch resources.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        total:
-          description: Total number of resources
-          title: Total
-          type: integer
-        technicians:
-          description: Number of technician resources
-          title: Technicians
-          type: integer
-        teams:
-          description: Number of resource teams
-          title: Teams
-          type: integer
-      required:
-      - total
-      - technicians
-      - teams
-      title: ResourceSummary
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -333,164 +333,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectResourceSetActivityDay:
-      additionalProperties: false
-      description: One worked day of a project resource set within the queried window.
-      properties:
-        day:
-          description: SOL-local calendar day
-          format: date
-          title: Day
-          type: string
-        service_order_line_ids:
-          description: SOLs the set ran activities on during this day
-          items:
-            type: integer
-          title: Service Order Line Ids
-          type: array
-        has_activity:
-          default: false
-          description: The set ran at least one workorder activity this day
-          title: Has Activity
-          type: boolean
-        has_delay:
-          default: false
-          description: The set logged at least one delay/idle this day
-          title: Has Delay
-          type: boolean
-      required:
-      - day
-      title: ProjectResourceSetActivityDay
-      type: object
-    NestedIdOnly:
-      additionalProperties: false
-      description: Generic nested object with just id (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: NestedIdOnly
-      type: object
-    ProjectObject:
-      additionalProperties: false
-      description: Nested project object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: ProjectObject
-      type: object
-    ProjectResourceSetCreate:
-      additionalProperties: false
-      description: Schema for creating a ProjectResourceSet.
-      properties:
-        name:
-          description: Set name
-          minLength: 1
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        set_items:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ProjectResourceSetItemInput'
-            type: array
-          - type: 'null'
-          description: Resource set items to create with the set
-          title: Set Items
-      required:
-      - name
-      title: ProjectResourceSetCreate
-      type: object
-    ProjectResourceSetItemInput:
-      additionalProperties: false
-      description: Input schema for project resource set item in create/update requests.
-      properties:
-        resource_id:
-          description: Resource ID
-          title: Resource Id
-          type: integer
-        resource_type:
-          description: Resource type (ROBOT or TECHNICIAN)
-          title: Resource Type
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is team lead
-          title: Is Lead
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Start date
-          title: Start Date
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: End date
-          title: End Date
-      required:
-      - resource_id
-      - resource_type
-      title: ProjectResourceSetItemInput
-      type: object
-    MaterializePlannedInput:
-      additionalProperties: false
-      description: Body for promoting a planned resource set into a roster set.
-      properties:
-        planned_resource_set_id:
-          title: Planned Resource Set Id
-          type: integer
-        resource_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Resource Ids
-      required:
-      - planned_resource_set_id
-      title: MaterializePlannedInput
-      type: object
     ProjectResourceSetResponse:
       additionalProperties: false
       description: Schema for ProjectResourceSet response.
@@ -554,72 +396,97 @@ components:
       - name
       title: ProjectResourceSetResponse
       type: object
-    ProjectResourceSetUpdate:
+    ProjectResourceSetItemInput:
       additionalProperties: false
-      description: Schema for updating a ProjectResourceSet.
+      description: Input schema for project resource set item in create/update requests.
       properties:
-        name:
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
           anyOf:
-          - minLength: 1
-            type: string
+          - type: boolean
           - type: 'null'
-          description: Set name
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
+          description: Is team lead
+          title: Is Lead
         project_location_id:
           anyOf:
           - type: integer
           - type: 'null'
           description: Project location ID
           title: Project Location Id
-        set_items:
+        start_date:
           anyOf:
-          - items:
-              $ref: '#/components/schemas/ProjectResourceSetItemInput'
-            type: array
+          - type: string
           - type: 'null'
-          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
-          title: Set Items
-      title: ProjectResourceSetUpdate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
       required:
-      - code
-      - message
-      title: Error
+      - resource_id
+      - resource_type
+      title: ProjectResourceSetItemInput
       type: object
-    Success:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    NestedIdOnly:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Generic nested object with just id (no timestamps).
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: NestedIdOnly
+      type: object
+    ProjectResourceSetActivityDay:
+      additionalProperties: false
+      description: One worked day of a project resource set within the queried window.
+      properties:
+        day:
+          description: SOL-local calendar day
+          format: date
+          title: Day
+          type: string
+        service_order_line_ids:
+          description: SOLs the set ran activities on during this day
+          items:
+            type: integer
+          title: Service Order Line Ids
+          type: array
+        has_activity:
+          default: false
+          description: The set ran at least one workorder activity this day
+          title: Has Activity
           type: boolean
-      title: Success
+        has_delay:
+          default: false
+          description: The set logged at least one delay/idle this day
+          title: Has Delay
+          type: boolean
+      required:
+      - day
+      title: ProjectResourceSetActivityDay
       type: object
     ProjectResourceSetItemOutput:
       additionalProperties: false
@@ -679,6 +546,106 @@ components:
       - resource_type
       title: ProjectResourceSetItemOutput
       type: object
+    ProjectResourceSetCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectResourceSet.
+      properties:
+        name:
+          description: Set name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items to create with the set
+          title: Set Items
+      required:
+      - name
+      title: ProjectResourceSetCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectObject:
+      additionalProperties: false
+      description: Nested project object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: ProjectObject
+      type: object
+    MaterializePlannedInput:
+      additionalProperties: false
+      description: Body for promoting a planned resource set into a roster set.
+      properties:
+        planned_resource_set_id:
+          title: Planned Resource Set Id
+          type: integer
+        resource_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Resource Ids
+      required:
+      - planned_resource_set_id
+      title: MaterializePlannedInput
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     ProjectResourceSetActivityDaysResponse:
       additionalProperties: false
       description: Per-set workorder-activity days for the execution overview team grid.
@@ -696,6 +663,39 @@ components:
       required:
       - project_resource_set_id
       title: ProjectResourceSetActivityDaysResponse
+      type: object
+    ProjectResourceSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectResourceSet.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Set name
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
+          title: Set Items
+      title: ProjectResourceSetUpdate
       type: object
   securitySchemes:
     APIKeyAuth:

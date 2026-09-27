@@ -167,17 +167,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ErpPartUpdate:
       additionalProperties: false
       description: Schema for flagging an ERP part — only the category is editable.
@@ -189,6 +178,39 @@ components:
           description: Item category to assign; null clears the flag
           title: Category Id
       title: ErpPartUpdate
+      type: object
+    ErpPartCategoryObject:
+      additionalProperties: false
+      description: Nested item-category object for ERP part responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ErpPartCategoryObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ErpPartCodeObject:
       additionalProperties: false
@@ -208,20 +230,6 @@ components:
       - code
       - description
       title: ErpPartCodeObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     ErpPartResponse:
       additionalProperties: false
@@ -276,25 +284,17 @@ components:
       - part_number
       title: ErpPartResponse
       type: object
-    ErpPartCategoryObject:
-      additionalProperties: false
-      description: Nested item-category object for ERP part responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          title: Description
-          type: string
-      required:
-      - id
-      - code
-      - description
-      title: ErpPartCategoryObject
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http
