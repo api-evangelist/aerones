@@ -234,70 +234,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectPlannedResourceSetStatus:
-      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
-
-
-        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
-
-        in sync.'
-      enum:
-      - PLANNED
-      - SUGGESTED
-      - APPROVED
-      - PLANNING
-      - EXECUTION
-      - FIELD_COMPLETED
-      - REJECTED
-      title: ProjectPlannedResourceSetStatus
-      type: string
-    ProjectPlannedResourceSetItemCreate:
-      additionalProperties: false
-      description: Schema for creating a ProjectPlannedResourceSetItem.
-      properties:
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Resource ID. Omit or send null to book an unassigned ROBOT leg (dates now, set chosen later); allowed only while the leg is PLANNED.
-          title: Resource Id
-        resource_type:
-          description: Resource type (ROBOT or TECHNICIAN)
-          title: Resource Type
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is team lead
-          title: Is Lead
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Start date
-          title: Start Date
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: End date
-          title: End Date
-        status:
-          allOf:
-          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          default: PLANNED
-          description: Approval lifecycle status
-      required:
-      - resource_type
-      title: ProjectPlannedResourceSetItemCreate
-      type: object
     ProjectPlannedResourceSetItemResponse:
       additionalProperties: false
       description: Schema for ProjectPlannedResourceSetItem response.
@@ -372,20 +308,17 @@ components:
       - status
       title: ProjectPlannedResourceSetItemResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -453,16 +386,83 @@ components:
           description: Approval lifecycle status
       title: ProjectPlannedResourceSetItemUpdate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectPlannedResourceSetItemCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectPlannedResourceSetItem.
+      properties:
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource ID. Omit or send null to book an unassigned ROBOT leg (dates now, set chosen later); allowed only while the leg is PLANNED.
+          title: Resource Id
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          default: PLANNED
+          description: Approval lifecycle status
+      required:
+      - resource_type
+      title: ProjectPlannedResourceSetItemCreate
+      type: object
+    ProjectPlannedResourceSetStatus:
+      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
+
+
+        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
+
+        in sync.'
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - PLANNED
+      - SUGGESTED
+      - APPROVED
+      - PLANNING
+      - EXECUTION
+      - FIELD_COMPLETED
+      - REJECTED
+      title: ProjectPlannedResourceSetStatus
       type: string
   securitySchemes:
     APIKeyAuth:

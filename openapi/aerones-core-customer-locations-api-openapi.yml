@@ -116,6 +116,18 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
     LocationObjectWithType:
       additionalProperties: false
       description: Nested location object for responses (no timestamps), including type.
@@ -137,32 +149,17 @@ components:
       - id
       title: LocationObjectWithType
       type: object
-    LocationType:
-      description: Allowed location type values in location.
+    ErrorCode:
+      description: Error codes for API errors.
       enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
       type: string
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     RelationshipTypeObject:
       additionalProperties: false
       description: Nested relationship type object for responses (no timestamps).
@@ -182,6 +179,20 @@ components:
       - id
       - code
       title: RelationshipTypeObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     CustomerLocationResponse:
       additionalProperties: false
@@ -215,17 +226,6 @@ components:
       - location
       title: CustomerLocationResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

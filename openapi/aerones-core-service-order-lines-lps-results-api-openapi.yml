@@ -72,62 +72,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    LpsResultsUpsertCell:
-      additionalProperties: false
-      description: One row of the upsert payload.
-      properties:
-        receptor_id:
-          description: TurbineComponent.id of the receptor (NOT the blade).
-          title: Receptor Id
-          type: integer
-        side:
-          description: SUCTION_SIDE or PRESSURE_SIDE.
-          title: Side
-          type: string
-        reading:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Reading
-        unit:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Unit
-        no_reading:
-          default: false
-          title: No Reading
-          type: boolean
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional operator comment. When the key is omitted entirely, any stored comment is preserved (the OpsHub UI no longer sends it).
-          title: Comment
-      required:
-      - receptor_id
-      - side
-      title: LpsResultsUpsertCell
-      type: object
-    LpsResultsContextResponse:
-      additionalProperties: false
-      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
-      properties:
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        turbine:
-          $ref: '#/components/schemas/LpsResultsTurbineObject'
-        blades:
-          items:
-            $ref: '#/components/schemas/LpsResultBlade'
-          title: Blades
-          type: array
-      required:
-      - service_order_line_id
-      - turbine
-      title: LpsResultsContextResponse
-      type: object
     LpsResultReceptor:
       additionalProperties: false
       properties:
@@ -171,6 +115,95 @@ components:
       - component_type_id
       title: LpsResultReceptor
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    LpsResultsContextResponse:
+      additionalProperties: false
+      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/LpsResultsTurbineObject'
+        blades:
+          items:
+            $ref: '#/components/schemas/LpsResultBlade'
+          title: Blades
+          type: array
+      required:
+      - service_order_line_id
+      - turbine
+      title: LpsResultsContextResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    LpsResultBlade:
+      additionalProperties: false
+      properties:
+        blade:
+          additionalProperties:
+            anyOf:
+            - {}
+            - type: 'null'
+          description: 'Blade summary: {id, serial_number, position}.'
+          title: Blade
+          type: object
+        receptors:
+          items:
+            $ref: '#/components/schemas/LpsResultReceptor'
+          title: Receptors
+          type: array
+        dataplate_image:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultBladeDataplate'
+          - type: 'null'
+          description: Most-recent BLADE_DATAPLATE FileEntityLink for this blade, when one exists. The FE composes a download URL via the standard core file helpers.
+      required:
+      - blade
+      title: LpsResultBlade
+      type: object
+    LpsResultsTurbineObject:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Manufacturer Turbine Model Id
+      required:
+      - id
+      title: LpsResultsTurbineObject
+      type: object
     LpsResultsUpsertResponse:
       additionalProperties: false
       description: PUT response = the upsert count + the refreshed capture context.
@@ -194,68 +227,6 @@ components:
       - turbine
       - upserted
       title: LpsResultsUpsertResponse
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    LpsResultsUpsertBody:
-      additionalProperties: false
-      properties:
-        cells:
-          description: Flat list of cell updates.
-          items:
-            $ref: '#/components/schemas/LpsResultsUpsertCell'
-          title: Cells
-          type: array
-      required:
-      - cells
-      title: LpsResultsUpsertBody
-      type: object
-    LpsResultsTurbineObject:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        manufacturer_turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Manufacturer Turbine Model Id
-      required:
-      - id
-      title: LpsResultsTurbineObject
-      type: object
-    LpsResultBladeDataplate:
-      additionalProperties: false
-      description: Latest BLADE_DATAPLATE image attached to a blade TurbineComponent.
-      properties:
-        file_id:
-          title: File Id
-          type: integer
-        file_name:
-          title: File Name
-          type: string
-      required:
-      - file_id
-      - file_name
-      title: LpsResultBladeDataplate
       type: object
     LpsResultCell:
       additionalProperties: false
@@ -291,41 +262,70 @@ components:
           title: Comment
       title: LpsResultCell
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    LpsResultBlade:
+    LpsResultsUpsertBody:
       additionalProperties: false
       properties:
-        blade:
-          additionalProperties:
-            anyOf:
-            - {}
-            - type: 'null'
-          description: 'Blade summary: {id, serial_number, position}.'
-          title: Blade
-          type: object
-        receptors:
+        cells:
+          description: Flat list of cell updates.
           items:
-            $ref: '#/components/schemas/LpsResultReceptor'
-          title: Receptors
+            $ref: '#/components/schemas/LpsResultsUpsertCell'
+          title: Cells
           type: array
-        dataplate_image:
-          anyOf:
-          - $ref: '#/components/schemas/LpsResultBladeDataplate'
-          - type: 'null'
-          description: Most-recent BLADE_DATAPLATE FileEntityLink for this blade, when one exists. The FE composes a download URL via the standard core file helpers.
       required:
-      - blade
-      title: LpsResultBlade
+      - cells
+      title: LpsResultsUpsertBody
+      type: object
+    LpsResultsUpsertCell:
+      additionalProperties: false
+      description: One row of the upsert payload.
+      properties:
+        receptor_id:
+          description: TurbineComponent.id of the receptor (NOT the blade).
+          title: Receptor Id
+          type: integer
+        side:
+          description: SUCTION_SIDE or PRESSURE_SIDE.
+          title: Side
+          type: string
+        reading:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Reading
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        no_reading:
+          default: false
+          title: No Reading
+          type: boolean
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional operator comment. When the key is omitted entirely, any stored comment is preserved (the OpsHub UI no longer sends it).
+          title: Comment
+      required:
+      - receptor_id
+      - side
+      title: LpsResultsUpsertCell
+      type: object
+    LpsResultBladeDataplate:
+      additionalProperties: false
+      description: Latest BLADE_DATAPLATE image attached to a blade TurbineComponent.
+      properties:
+        file_id:
+          title: File Id
+          type: integer
+        file_name:
+          title: File Name
+          type: string
+      required:
+      - file_id
+      - file_name
+      title: LpsResultBladeDataplate
       type: object
   securitySchemes:
     APIKeyAuth:

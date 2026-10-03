@@ -372,21 +372,60 @@ components:
       - name
       title: ComponentTypeObject
       type: object
-    ManufacturerObject:
+    ComponentImportResponse:
       additionalProperties: false
-      description: Nested manufacturer object for responses.
       properties:
-        id:
-          title: Id
+        created_count:
+          default: 0
+          title: Created Count
           type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerObject
+        errors:
+          default: []
+          items:
+            $ref: '#/components/schemas/ComponentImportRowError'
+          title: Errors
+          type: array
+      title: ComponentImportResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
     ComponentImportRowError:
       additionalProperties: false
       properties:
@@ -403,9 +442,9 @@ components:
       - errors
       title: ComponentImportRowError
       type: object
-    TurbineObject:
+    ManufacturerComponentModelObject:
       additionalProperties: false
-      description: Nested turbine object for responses.
+      description: Nested manufacturer component model object for responses.
       properties:
         id:
           title: Id
@@ -416,52 +455,45 @@ components:
       required:
       - id
       - name
-      title: TurbineObject
+      title: ManufacturerComponentModelObject
       type: object
-    UserObject:
+    TurbineComponentReassignmentHistoryResponse:
       additionalProperties: false
-      description: Nested user object for responses (no timestamps).
+      description: Response schema for a single blade component reassignment event.
+      properties:
+        reassigned_at:
+          format: date-time
+          title: Reassigned At
+          type: string
+        from_turbine:
+          $ref: '#/components/schemas/TurbineObject'
+        to_turbine:
+          $ref: '#/components/schemas/TurbineObject'
+        reassigned_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+      required:
+      - reassigned_at
+      - from_turbine
+      - to_turbine
+      - reassigned_by
+      title: TurbineComponentReassignmentHistoryResponse
+      type: object
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
       properties:
         id:
           title: Id
           type: integer
-        username:
-          title: Username
+        name:
+          title: Name
           type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
       required:
       - id
-      - username
-      title: UserObject
-      type: object
-    ComponentImportResponse:
-      additionalProperties: false
-      properties:
-        created_count:
-          default: 0
-          title: Created Count
-          type: integer
-        errors:
-          default: []
-          items:
-            $ref: '#/components/schemas/ComponentImportRowError'
-          title: Errors
-          type: array
-      title: ComponentImportResponse
+      - name
+      title: ManufacturerObject
       type: object
     Error:
       additionalProperties: false
@@ -477,14 +509,6 @@ components:
       - message
       title: Error
       type: object
-    PositionEnum:
-      description: Enum for turbine component positions.
-      enum:
-      - A
-      - B
-      - C
-      title: PositionEnum
-      type: string
     TurbineComponentCreate:
       additionalProperties: false
       description: Schema for creating a TurbineComponent.
@@ -568,21 +592,6 @@ components:
       - serial_number
       - turbine_id
       title: TurbineComponentCreate
-      type: object
-    ManufacturerComponentModelObject:
-      additionalProperties: false
-      description: Nested manufacturer component model object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerComponentModelObject
       type: object
     TurbineComponentResponse:
       additionalProperties: false
@@ -674,25 +683,50 @@ components:
       - blade_tip
       title: TurbineComponentResponse
       type: object
-    Success:
+    TurbineObject:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Nested turbine object for responses.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineObject
+      type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
       type: object
     TurbineComponentUpdate:
       additionalProperties: false
@@ -781,40 +815,6 @@ components:
           title: Additional Information
       title: TurbineComponentUpdate
       type: object
-    TurbineComponentReassignmentHistoryResponse:
-      additionalProperties: false
-      description: Response schema for a single blade component reassignment event.
-      properties:
-        reassigned_at:
-          format: date-time
-          title: Reassigned At
-          type: string
-        from_turbine:
-          $ref: '#/components/schemas/TurbineObject'
-        to_turbine:
-          $ref: '#/components/schemas/TurbineObject'
-        reassigned_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-      required:
-      - reassigned_at
-      - from_turbine
-      - to_turbine
-      - reassigned_by
-      title: TurbineComponentReassignmentHistoryResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

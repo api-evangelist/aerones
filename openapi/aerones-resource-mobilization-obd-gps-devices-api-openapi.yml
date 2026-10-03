@@ -289,28 +289,68 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ObdGpsDeviceUpdate:
+    NavirecSyncErrorItem:
       additionalProperties: false
       properties:
         imei:
+          title: Imei
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+      - imei
+      - reason
+      title: NavirecSyncErrorItem
+      type: object
+    ObdGpsAssignmentVehicle:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        license_plate:
+          title: License Plate
+          type: string
+        make:
+          title: Make
+          type: string
+        model:
+          title: Model
+          type: string
+      required:
+      - id
+      - license_plate
+      - make
+      - model
+      title: ObdGpsAssignmentVehicle
+      type: object
+    ObdGpsDeviceAssignmentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        assignee_user:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+        vehicle:
+          anyOf:
+          - $ref: '#/components/schemas/ObdGpsAssignmentVehicle'
+          - type: 'null'
+        start_date:
+          title: Start Date
+          type: string
+        end_date:
           anyOf:
           - type: string
           - type: 'null'
-          title: Imei
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        telematics_provider:
-          anyOf:
-          - enum:
-            - NAVIREC
-            - MOTIVE
-            type: string
-          - type: 'null'
-          title: Telematics Provider
-      title: ObdGpsDeviceUpdate
+          title: End Date
+      required:
+      - id
+      - start_date
+      title: ObdGpsDeviceAssignmentResponse
       type: object
     NavirecLiveState:
       additionalProperties: false
@@ -359,6 +399,201 @@ components:
       - status
       - is_active
       title: NavirecLiveState
+      type: object
+    ObdGpsDeviceUpdate:
+      additionalProperties: false
+      properties:
+        imei:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Imei
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        telematics_provider:
+          anyOf:
+          - enum:
+            - NAVIREC
+            - MOTIVE
+            type: string
+          - type: 'null'
+          title: Telematics Provider
+      title: ObdGpsDeviceUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ObdGpsDeviceCreate:
+      additionalProperties: false
+      properties:
+        imei:
+          title: Imei
+          type: string
+        location_id:
+          title: Location Id
+          type: integer
+        telematics_provider:
+          anyOf:
+          - enum:
+            - NAVIREC
+            - MOTIVE
+            type: string
+          - type: 'null'
+          title: Telematics Provider
+      required:
+      - imei
+      - location_id
+      title: ObdGpsDeviceCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ObdGpsDeviceResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        imei:
+          title: Imei
+          type: string
+        location_id:
+          title: Location Id
+          type: integer
+        telematics_provider:
+          title: Telematics Provider
+          type: string
+        current_assignment:
+          anyOf:
+          - $ref: '#/components/schemas/ObdGpsDeviceAssignmentResponse'
+          - type: 'null'
+        live_state:
+          anyOf:
+          - $ref: '#/components/schemas/NavirecLiveState'
+          - type: 'null'
+        updated_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Updated At
+      required:
+      - id
+      - imei
+      - location_id
+      - telematics_provider
+      title: ObdGpsDeviceResponse
+      type: object
+    ObdGpsDeviceAssignSchema:
+      additionalProperties: false
+      properties:
+        assignee_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee User Id
+        vehicle_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vehicle Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+      required:
+      - start_date
+      title: ObdGpsDeviceAssignSchema
+      type: object
+    ObdGpsDeviceEndAssignmentSchema:
+      additionalProperties: false
+      properties:
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+      required:
+      - end_date
+      title: ObdGpsDeviceEndAssignmentSchema
+      type: object
+    ObdGpsDeviceAssignmentFullResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        device_id:
+          title: Device Id
+          type: integer
+        assignee_user:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+        vehicle:
+          anyOf:
+          - $ref: '#/components/schemas/ObdGpsAssignmentVehicle'
+          - type: 'null'
+        start_date:
+          title: Start Date
+          type: string
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - id
+      - device_id
+      - start_date
+      - created_at
+      title: ObdGpsDeviceAssignmentFullResponse
       type: object
     UserObject:
       additionalProperties: false
@@ -415,241 +650,6 @@ components:
       - skipped
       title: NavirecSyncResponse
       type: object
-    ObdGpsDeviceAssignSchema:
-      additionalProperties: false
-      properties:
-        assignee_user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Assignee User Id
-        vehicle_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Vehicle Id
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Start Date
-      required:
-      - start_date
-      title: ObdGpsDeviceAssignSchema
-      type: object
-    ObdGpsAssignmentVehicle:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        license_plate:
-          title: License Plate
-          type: string
-        make:
-          title: Make
-          type: string
-        model:
-          title: Model
-          type: string
-      required:
-      - id
-      - license_plate
-      - make
-      - model
-      title: ObdGpsAssignmentVehicle
-      type: object
-    NavirecSyncErrorItem:
-      additionalProperties: false
-      properties:
-        imei:
-          title: Imei
-          type: string
-        reason:
-          title: Reason
-          type: string
-      required:
-      - imei
-      - reason
-      title: NavirecSyncErrorItem
-      type: object
-    ObdGpsDeviceAssignmentFullResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        device_id:
-          title: Device Id
-          type: integer
-        assignee_user:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-        vehicle:
-          anyOf:
-          - $ref: '#/components/schemas/ObdGpsAssignmentVehicle'
-          - type: 'null'
-        start_date:
-          title: Start Date
-          type: string
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: End Date
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-      required:
-      - id
-      - device_id
-      - start_date
-      - created_at
-      title: ObdGpsDeviceAssignmentFullResponse
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ObdGpsDeviceResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        imei:
-          title: Imei
-          type: string
-        location_id:
-          title: Location Id
-          type: integer
-        telematics_provider:
-          title: Telematics Provider
-          type: string
-        current_assignment:
-          anyOf:
-          - $ref: '#/components/schemas/ObdGpsDeviceAssignmentResponse'
-          - type: 'null'
-        live_state:
-          anyOf:
-          - $ref: '#/components/schemas/NavirecLiveState'
-          - type: 'null'
-        updated_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Updated At
-      required:
-      - id
-      - imei
-      - location_id
-      - telematics_provider
-      title: ObdGpsDeviceResponse
-      type: object
-    ObdGpsDeviceAssignmentResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        assignee_user:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-        vehicle:
-          anyOf:
-          - $ref: '#/components/schemas/ObdGpsAssignmentVehicle'
-          - type: 'null'
-        start_date:
-          title: Start Date
-          type: string
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: End Date
-      required:
-      - id
-      - start_date
-      title: ObdGpsDeviceAssignmentResponse
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ObdGpsDeviceEndAssignmentSchema:
-      additionalProperties: false
-      properties:
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: End Date
-      required:
-      - end_date
-      title: ObdGpsDeviceEndAssignmentSchema
-      type: object
-    ObdGpsDeviceCreate:
-      additionalProperties: false
-      properties:
-        imei:
-          title: Imei
-          type: string
-        location_id:
-          title: Location Id
-          type: integer
-        telematics_provider:
-          anyOf:
-          - enum:
-            - NAVIREC
-            - MOTIVE
-            type: string
-          - type: 'null'
-          title: Telematics Provider
-      required:
-      - imei
-      - location_id
-      title: ObdGpsDeviceCreate
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

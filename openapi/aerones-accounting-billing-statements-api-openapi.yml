@@ -225,48 +225,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    BillingStatementUpdate:
-      additionalProperties: false
-      description: Schema for updating a BillingStatement.
-      properties:
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project ID
-          title: Project Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer ID
-          title: Customer Id
-        date_from:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Period start date (YYYY-MM-DD)
-          title: Date From
-        date_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Period end date (YYYY-MM-DD)
-          title: Date To
-        billing_period:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Billing period (WEEK, MONTH)
-          title: Billing Period
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status
-          title: Status
-      title: BillingStatementUpdate
-      type: object
     BillingStatementCreate:
       additionalProperties: false
       description: Schema for creating a BillingStatement.
@@ -304,6 +262,37 @@ components:
       - date_to
       - billing_period
       title: BillingStatementCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     BillingStatementResponse:
       additionalProperties: false
@@ -375,37 +364,48 @@ components:
       - message
       title: Error
       type: object
-    Success:
+    BillingStatementUpdate:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for updating a BillingStatement.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer ID
+          title: Customer Id
+        date_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period start date (YYYY-MM-DD)
+          title: Date From
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Period end date (YYYY-MM-DD)
+          title: Date To
+        billing_period:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing period (WEEK, MONTH)
+          title: Billing Period
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status
+          title: Status
+      title: BillingStatementUpdate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

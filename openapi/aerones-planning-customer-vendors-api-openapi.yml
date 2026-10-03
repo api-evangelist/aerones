@@ -189,14 +189,19 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningCustomerVendorUpdate:
+    PlanningCustomerVendorCreate:
+      additionalProperties: false
       properties:
+        customer_id:
+          title: Customer Id
+          type: integer
         vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
           title: Vendor Id
-      title: PlanningCustomerVendorUpdate
+          type: integer
+      required:
+      - customer_id
+      - vendor_id
+      title: PlanningCustomerVendorCreate
       type: object
     PlanningNestedVendor:
       properties:
@@ -246,19 +251,36 @@ components:
       - updated_at
       title: PlanningCustomerVendorResponse
       type: object
-    PlanningCustomerVendorCreate:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
       additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        customer_id:
-          title: Customer Id
-          type: integer
-        vendor_id:
-          title: Vendor Id
-          type: integer
-      required:
-      - customer_id
-      - vendor_id
-      title: PlanningCustomerVendorCreate
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     PlanningNestedCustomer:
       properties:
@@ -287,37 +309,15 @@ components:
       - message
       title: Error
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+    PlanningCustomerVendorUpdate:
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+      title: PlanningCustomerVendorUpdate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

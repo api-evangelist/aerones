@@ -244,12 +244,17 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerLocationCreateMode:
-      description: Supported create flows for customer locations.
+    LocationType:
+      description: Allowed location type values in location.
       enum:
-      - share
-      - create
-      title: CustomerLocationCreateMode
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
       type: string
     LocationObjectWithType:
       additionalProperties: false
@@ -271,6 +276,128 @@ components:
       required:
       - id
       title: LocationObjectWithType
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    RelationshipTypeObject:
+      additionalProperties: false
+      description: Nested relationship type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: RelationshipTypeObject
+      type: object
+    CustomerLocationCreateMode:
+      description: Supported create flows for customer locations.
+      enum:
+      - share
+      - create
+      title: CustomerLocationCreateMode
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerLocationUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerLocation.
+      properties:
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID
+          title: Location Id
+        relationship_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Relationship type ID
+          title: Relationship Id
+      title: CustomerLocationUpdate
+      type: object
+    CustomerLocationResponse:
+      additionalProperties: false
+      description: Schema for CustomerLocation response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Customer location ID
+          title: Id
+          type: integer
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/LocationObjectWithType'
+          description: Location information
+        relationship:
+          anyOf:
+          - $ref: '#/components/schemas/RelationshipTypeObject'
+          - type: 'null'
+          description: Relationship type information
+      required:
+      - updated_at
+      - id
+      - customer_id
+      - location
+      title: CustomerLocationResponse
       type: object
     CustomerLocationCreate:
       additionalProperties: false
@@ -424,133 +551,6 @@ components:
       - certificate_id
       title: LocationCertificateInput
       type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    RelationshipTypeObject:
-      additionalProperties: false
-      description: Nested relationship type object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      required:
-      - id
-      - code
-      title: RelationshipTypeObject
-      type: object
-    CustomerLocationUpdate:
-      additionalProperties: false
-      description: Schema for updating a CustomerLocation.
-      properties:
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Location ID
-          title: Location Id
-        relationship_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Relationship type ID
-          title: Relationship Id
-      title: CustomerLocationUpdate
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CustomerLocationResponse:
-      additionalProperties: false
-      description: Schema for CustomerLocation response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Customer location ID
-          title: Id
-          type: integer
-        customer_id:
-          description: Customer ID
-          title: Customer Id
-          type: integer
-        location:
-          $ref: '#/components/schemas/LocationObjectWithType'
-          description: Location information
-        relationship:
-          anyOf:
-          - $ref: '#/components/schemas/RelationshipTypeObject'
-          - type: 'null'
-          description: Relationship type information
-      required:
-      - updated_at
-      - id
-      - customer_id
-      - location
-      title: CustomerLocationResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -234,6 +234,17 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     UserTosAcceptanceCreate:
       additionalProperties: false
       description: Schema for creating a User ToS Acceptance.
@@ -258,6 +269,20 @@ components:
       required:
       - tos_id
       title: UserTosAcceptanceCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     TermsOfServiceResponse:
       additionalProperties: false
@@ -345,31 +370,6 @@ components:
       - created_at
       title: UserTosAcceptanceResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

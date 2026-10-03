@@ -205,6 +205,85 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    SalesInvoiceCreate:
+      additionalProperties: false
+      description: Schema for creating a SalesInvoice.
+      properties:
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sales order ID
+          title: Sales Order Id
+        currency_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO 4217 currency code
+          title: Currency Code
+        netsuite_invoice_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite invoice ID
+          title: Netsuite Invoice Id
+        invoice_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice date (YYYY-MM-DD)
+          title: Invoice Date
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Invoice status
+          title: Status
+        due_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Due date (YYYY-MM-DD)
+          title: Due Date
+        invoice_final_sent:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the final invoice has been sent
+          title: Invoice Final Sent
+      title: SalesInvoiceCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     SalesInvoiceResponse:
       additionalProperties: false
       description: Schema for SalesInvoice response.
@@ -271,6 +350,20 @@ components:
       - updated_at
       title: SalesInvoiceResponse
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     SalesInvoiceUpdate:
       additionalProperties: false
       description: Schema for updating a SalesInvoice.
@@ -319,99 +412,6 @@ components:
           title: Invoice Final Sent
       title: SalesInvoiceUpdate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    SalesInvoiceCreate:
-      additionalProperties: false
-      description: Schema for creating a SalesInvoice.
-      properties:
-        sales_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Sales order ID
-          title: Sales Order Id
-        currency_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ISO 4217 currency code
-          title: Currency Code
-        netsuite_invoice_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite invoice ID
-          title: Netsuite Invoice Id
-        invoice_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Invoice date (YYYY-MM-DD)
-          title: Invoice Date
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Invoice status
-          title: Status
-        due_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Due date (YYYY-MM-DD)
-          title: Due Date
-        invoice_final_sent:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether the final invoice has been sent
-          title: Invoice Final Sent
-      title: SalesInvoiceCreate
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

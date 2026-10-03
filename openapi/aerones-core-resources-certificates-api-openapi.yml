@@ -215,6 +215,37 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     ResourceCertificateResponse:
       additionalProperties: false
       description: Schema for ResourceCertificate response.
@@ -299,60 +330,6 @@ components:
       - name
       title: CertificateObject
       type: object
-    ResourceCertificateCreate:
-      additionalProperties: false
-      description: Schema for creating a ResourceCertificate under a resource.
-      properties:
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
-          type: integer
-        issuer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Issuer FK
-          title: Issuer Id
-        certificate_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External certificate number
-          title: Certificate Number
-        issued_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Issue date (YYYY-MM-DD)
-          title: Issued Date
-        expiry_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Expiry date (YYYY-MM-DD)
-          title: Expiry Date
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional info
-          title: Additional Info
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External system this row was ingested from (e.g. "bamboohr")
-          title: Source
-        source_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Identifier of the source row in the origin system
-          title: Source Id
-      required:
-      - certificate_id
-      title: ResourceCertificateCreate
-      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -422,37 +399,60 @@ components:
           title: Source Id
       title: ResourceCertificateUpdate
       type: object
-    Success:
+    ResourceCertificateCreate:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for creating a ResourceCertificate under a resource.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from (e.g. "bamboohr")
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
+      required:
+      - certificate_id
+      title: ResourceCertificateCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

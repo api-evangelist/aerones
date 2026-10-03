@@ -124,24 +124,116 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    WorkorderNestedIdName:
+    AdminWorkorderAssignee:
       additionalProperties: false
-      description: Nested object with id and name.
+      description: Assignee for admin workorder.
       properties:
         id:
-          description: ID
+          description: User ID
           title: Id
           type: integer
-        name:
+        full_name:
           anyOf:
           - type: string
           - type: 'null'
-          description: Name
-          title: Name
+          description: Full name
+          title: Full Name
       required:
       - id
-      title: WorkorderNestedIdName
+      title: AdminWorkorderAssignee
       type: object
+    ProjectWorkorderListItem:
+      additionalProperties: false
+      description: Workorder list item for project workorders tab.
+      properties:
+        id:
+          description: Workorder ID
+          title: Id
+          type: integer
+        workorder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder ID string
+          title: Workorder Id
+        name:
+          description: Workorder name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder type
+          title: Type
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Workorder status
+          title: Status
+        service_item:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderNestedIdName'
+          - type: 'null'
+          description: Service item
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderNestedIdName'
+          - type: 'null'
+          description: Component type
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderNestedIdSerial'
+          - type: 'null'
+          description: Turbine component
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order line ID (for SERVICE workorders)
+          title: Service Order Line Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (for SERVICE workorders)
+          title: Service Order Id
+        planned_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Planned start datetime
+          title: Planned Start Datetime
+      required:
+      - id
+      - name
+      - created_at
+      title: ProjectWorkorderListItem
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     WorkorderActivityResourceLink:
       additionalProperties: false
       description: 'Resource assignment row on a workorder activity.
@@ -179,65 +271,37 @@ components:
       - resource_id
       title: WorkorderActivityResourceLink
       type: object
-    WorkorderNestedIdSerial:
+    Error:
       additionalProperties: false
-      description: Nested object with id and serial.
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    WorkorderNestedIdName:
+      additionalProperties: false
+      description: Nested object with id and name.
       properties:
         id:
           description: ID
           title: Id
           type: integer
-        serial:
+        name:
           anyOf:
           - type: string
           - type: 'null'
-          description: Serial number
-          title: Serial
+          description: Name
+          title: Name
       required:
       - id
-      title: WorkorderNestedIdSerial
-      type: object
-    WorkorderResource:
-      additionalProperties: false
-      description: Resource assigned to a workorder.
-      properties:
-        id:
-          description: Resource ID
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource full name
-          title: Full Name
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ROBOT or TECHNICIAN
-          title: Resource Type
-      required:
-      - id
-      title: WorkorderResource
-      type: object
-    AdminWorkorderAssignee:
-      additionalProperties: false
-      description: Assignee for admin workorder.
-      properties:
-        id:
-          description: User ID
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full name
-          title: Full Name
-      required:
-      - id
-      title: AdminWorkorderAssignee
+      title: WorkorderNestedIdName
       type: object
     AdminWorkorderDetail:
       additionalProperties: false
@@ -447,112 +511,48 @@ components:
       - id
       title: AdminWorkorderActivity
       type: object
-    Error:
+    WorkorderResource:
       additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ProjectWorkorderListItem:
-      additionalProperties: false
-      description: Workorder list item for project workorders tab.
+      description: Resource assigned to a workorder.
       properties:
         id:
-          description: Workorder ID
+          description: Resource ID
           title: Id
           type: integer
-        workorder_id:
+        full_name:
           anyOf:
           - type: string
           - type: 'null'
-          description: Workorder ID string
-          title: Workorder Id
-        name:
-          description: Workorder name
-          title: Name
-          type: string
-        type:
+          description: Resource full name
+          title: Full Name
+        resource_type:
           anyOf:
           - type: string
           - type: 'null'
-          description: Workorder type
-          title: Type
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Workorder status
-          title: Status
-        service_item:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderNestedIdName'
-          - type: 'null'
-          description: Service item
-        component_type:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderNestedIdName'
-          - type: 'null'
-          description: Component type
-        turbine_component:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderNestedIdSerial'
-          - type: 'null'
-          description: Turbine component
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Description
-          title: Description
-        created_at:
-          description: Creation timestamp
-          format: date-time
-          title: Created At
-          type: string
-        service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service order line ID (for SERVICE workorders)
-          title: Service Order Line Id
-        service_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service order ID (for SERVICE workorders)
-          title: Service Order Id
-        planned_start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Planned start datetime
-          title: Planned Start Datetime
+          description: ROBOT or TECHNICIAN
+          title: Resource Type
       required:
       - id
-      - name
-      - created_at
-      title: ProjectWorkorderListItem
+      title: WorkorderResource
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    WorkorderNestedIdSerial:
+      additionalProperties: false
+      description: Nested object with id and serial.
+      properties:
+        id:
+          description: ID
+          title: Id
+          type: integer
+        serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Serial number
+          title: Serial
+      required:
+      - id
+      title: WorkorderNestedIdSerial
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

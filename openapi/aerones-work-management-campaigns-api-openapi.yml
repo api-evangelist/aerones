@@ -336,20 +336,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CampaignWithScopeResponse:
-      properties:
-        campaign:
-          $ref: '#/components/schemas/NestedCampaign'
-        work_packages:
-          items:
-            $ref: '#/components/schemas/NestedWorkPackage'
-          title: Work Packages
-          type: array
-      required:
-      - campaign
-      - work_packages
-      title: CampaignWithScopeResponse
-      type: object
     AttachmentResponse:
       additionalProperties: false
       properties:
@@ -371,104 +357,6 @@ components:
       - id
       - storage_id
       title: AttachmentResponse
-      type: object
-    CampaignCreate:
-      additionalProperties: false
-      properties:
-        name:
-          title: Name
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: draft
-          title: Status
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Start Date
-        due_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Due Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      required:
-      - name
-      title: CampaignCreate
-      type: object
-    NestedWorkPackage:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        campaign:
-          anyOf:
-          - $ref: '#/components/schemas/NestedCampaign'
-          - type: 'null'
-      required:
-      - id
-      - name
-      title: NestedWorkPackage
-      type: object
-    AttachmentCreate:
-      additionalProperties: false
-      properties:
-        storage_id:
-          title: Storage Id
-          type: string
-        file_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: ''
-          title: File Name
-        file_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: ''
-          title: File Type
-      required:
-      - storage_id
-      title: AttachmentCreate
-      type: object
-    NestedCampaign:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: NestedCampaign
       type: object
     CampaignWithScopeCreate:
       additionalProperties: false
@@ -527,19 +415,78 @@ components:
       - location_ids
       title: CampaignWithScopeCreate
       type: object
-    Error:
+    CommentCreate:
       additionalProperties: false
-      description: Error response schema.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+        body:
+          title: Body
           type: string
       required:
-      - code
-      - message
-      title: Error
+      - body
+      title: CommentCreate
+      type: object
+    CampaignWithScopeResponse:
+      properties:
+        campaign:
+          $ref: '#/components/schemas/NestedCampaign'
+        work_packages:
+          items:
+            $ref: '#/components/schemas/NestedWorkPackage'
+          title: Work Packages
+          type: array
+      required:
+      - campaign
+      - work_packages
+      title: CampaignWithScopeResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    NestedWorkPackage:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        campaign:
+          anyOf:
+          - $ref: '#/components/schemas/NestedCampaign'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: NestedWorkPackage
       type: object
     CampaignUpdate:
       properties:
@@ -650,15 +597,99 @@ components:
       - updated_at
       title: CampaignResponse
       type: object
-    CommentCreate:
+    NestedCampaign:
       additionalProperties: false
       properties:
-        body:
-          title: Body
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
           type: string
       required:
-      - body
-      title: CommentCreate
+      - id
+      - name
+      title: NestedCampaign
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    AttachmentCreate:
+      additionalProperties: false
+      properties:
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Type
+      required:
+      - storage_id
+      title: AttachmentCreate
+      type: object
+    CampaignCreate:
+      additionalProperties: false
+      properties:
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: draft
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - name
+      title: CampaignCreate
       type: object
     CommentResponse:
       additionalProperties: false
@@ -685,37 +716,6 @@ components:
       - body
       title: CommentResponse
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

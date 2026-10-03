@@ -230,53 +230,143 @@ components:
       - is_service
       title: ServiceObject
       type: object
-    ServiceStandardItemCreate:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
       additionalProperties: false
-      description: Schema for creating a standard-set line.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        service_id:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErpPartCategoryObject:
+      additionalProperties: false
+      description: Nested item-category object for ERP part responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ErpPartCategoryObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErpPartObject:
+      additionalProperties: false
+      description: Nested ERP part object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        part_number:
+          title: Part Number
+          type: string
+        description:
+          default: ''
+          title: Description
+          type: string
+        unit:
+          default: ''
+          title: Unit
+          type: string
+        category:
           anyOf:
-          - type: integer
+          - $ref: '#/components/schemas/ErpPartCategoryObject'
           - type: 'null'
-          description: Service; omit for a region-common line
-          title: Service Id
+      required:
+      - id
+      - part_number
+      title: ErpPartObject
+      type: object
+    ServiceStandardItemResponse:
+      additionalProperties: false
+      description: Schema for one standard-set line of a service.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Standard item ID
+          title: Id
+          type: integer
         region:
-          default: EU
-          description: Region
-          enum:
-          - EU
-          - NA
+          description: Region the line applies to (EU/NA)
           title: Region
           type: string
-        part_id:
-          description: ERP part ID (Ops Hub id)
-          title: Part Id
-          type: integer
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+          description: Service; null = applies to all services in the region
+        part:
+          $ref: '#/components/schemas/ErpPartObject'
+          description: Monitor ERP part
         quantity:
-          default: 1
           description: Quantity per scope
-          exclusiveMinimum: 0.0
           title: Quantity
           type: number
         unit:
           description: Unit (pcs, pair, set, ...)
-          minLength: 1
           title: Unit
           type: string
         scope:
-          default: PER_SET
-          description: Whether quantity is per set, per person, per wind turbine, or per blade
-          enum:
-          - PER_SET
-          - PER_PERSON
-          - PER_WTG
-          - PER_BLADE
+          description: PER_SET, PER_PERSON, PER_WTG or PER_BLADE
           title: Scope
           type: string
       required:
-      - part_id
+      - updated_at
+      - id
+      - region
+      - part
+      - quantity
       - unit
-      title: ServiceStandardItemCreate
+      - scope
+      title: ServiceStandardItemResponse
       type: object
     ServiceStandardItemUpdate:
       additionalProperties: false
@@ -330,144 +420,54 @@ components:
           title: Scope
       title: ServiceStandardItemUpdate
       type: object
-    ErpPartCategoryObject:
+    ServiceStandardItemCreate:
       additionalProperties: false
-      description: Nested item-category object for ERP part responses (no timestamps).
+      description: Schema for creating a standard-set line.
       properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          title: Description
-          type: string
-      required:
-      - id
-      - code
-      - description
-      title: ErpPartCategoryObject
-      type: object
-    ErpPartObject:
-      additionalProperties: false
-      description: Nested ERP part object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        part_number:
-          title: Part Number
-          type: string
-        description:
-          default: ''
-          title: Description
-          type: string
-        unit:
-          default: ''
-          title: Unit
-          type: string
-        category:
+        service_id:
           anyOf:
-          - $ref: '#/components/schemas/ErpPartCategoryObject'
+          - type: integer
           - type: 'null'
-      required:
-      - id
-      - part_number
-      title: ErpPartObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ServiceStandardItemResponse:
-      additionalProperties: false
-      description: Schema for one standard-set line of a service.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Standard item ID
-          title: Id
-          type: integer
+          description: Service; omit for a region-common line
+          title: Service Id
         region:
-          description: Region the line applies to (EU/NA)
+          default: EU
+          description: Region
+          enum:
+          - EU
+          - NA
           title: Region
           type: string
-        service:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceObject'
-          - type: 'null'
-          description: Service; null = applies to all services in the region
-        part:
-          $ref: '#/components/schemas/ErpPartObject'
-          description: Monitor ERP part
+        part_id:
+          description: ERP part ID (Ops Hub id)
+          title: Part Id
+          type: integer
         quantity:
+          default: 1
           description: Quantity per scope
+          exclusiveMinimum: 0.0
           title: Quantity
           type: number
         unit:
           description: Unit (pcs, pair, set, ...)
+          minLength: 1
           title: Unit
           type: string
         scope:
-          description: PER_SET, PER_PERSON, PER_WTG or PER_BLADE
+          default: PER_SET
+          description: Whether quantity is per set, per person, per wind turbine, or per blade
+          enum:
+          - PER_SET
+          - PER_PERSON
+          - PER_WTG
+          - PER_BLADE
           title: Scope
           type: string
       required:
-      - updated_at
-      - id
-      - region
-      - part
-      - quantity
+      - part_id
       - unit
-      - scope
-      title: ServiceStandardItemResponse
+      title: ServiceStandardItemCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

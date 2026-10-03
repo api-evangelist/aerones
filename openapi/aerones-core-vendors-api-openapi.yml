@@ -232,6 +232,28 @@ components:
       - display_name
       title: ParentVendorObject
       type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -243,6 +265,48 @@ components:
       - generic
       title: ErrorCode
       type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
     VendorCreate:
       additionalProperties: false
       description: Schema for creating a Vendor. Number is auto-generated.
@@ -315,42 +379,6 @@ components:
       required:
       - display_name
       title: VendorCreate
-      type: object
-    CurrencyObject:
-      additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
-        code:
-          description: Currency code (ISO 4217)
-          title: Code
-          type: string
-        name:
-          description: Currency name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CurrencyObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     VendorUpdate:
       additionalProperties: false
@@ -432,47 +460,19 @@ components:
           title: Netsuite Vendor Id
       title: VendorUpdate
       type: object
-    Success:
+    Error:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Error response schema.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
         code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
       required:
-      - id
       - code
-      - name
-      title: CountryObject
+      - message
+      title: Error
       type: object
     VendorResponse:
       additionalProperties: false

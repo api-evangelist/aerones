@@ -189,30 +189,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CwmVendorUpdate:
-      additionalProperties: false
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-      title: CwmVendorUpdate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     CwmVendorCreate:
       additionalProperties: false
       properties:
@@ -223,25 +199,27 @@ components:
       - name
       title: CwmVendorCreate
       type: object
-    CwmVendorResponse:
+    CwmVendorUpdate:
       additionalProperties: false
       properties:
-        id:
-          title: Id
-          type: integer
         name:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
-          type: string
-        updated_at:
-          format: date-time
-          title: Updated At
-          type: string
-      required:
-      - id
-      - name
-      - updated_at
-      title: CwmVendorResponse
+      title: CwmVendorUpdate
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -262,17 +240,39 @@ components:
           type: boolean
       title: Success
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CwmVendorResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - name
+      - updated_at
+      title: CwmVendorResponse
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

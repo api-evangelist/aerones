@@ -255,43 +255,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerTurbineUpdate:
-      additionalProperties: false
-      description: Schema for updating a CustomerTurbine.
-      properties:
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine ID
-          title: Turbine Id
-        relationship_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Relationship type ID
-          title: Relationship Id
-      title: CustomerTurbineUpdate
-      type: object
-    LocationObject:
-      additionalProperties: false
-      description: Nested location object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-      required:
-      - id
-      - name
-      title: LocationObject
-      type: object
     LocationType:
       description: Allowed location type values in location.
       enum:
@@ -303,35 +266,6 @@ components:
       - FACTORY
       - OFFICE
       title: LocationType
-      type: string
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PositionEnum:
-      description: Enum for turbine component positions.
-      enum:
-      - A
-      - B
-      - C
-      title: PositionEnum
-      type: string
-    CustomerTurbineCreateMode:
-      description: Supported create flows for customer turbines.
-      enum:
-      - share
-      - create
-      title: CustomerTurbineCreateMode
       type: string
     TurbineComponentInput:
       additionalProperties: false
@@ -392,25 +326,42 @@ components:
       - serial_number
       title: TurbineComponentInput
       type: object
-    RelationshipTypeObject:
+    LocationObject:
       additionalProperties: false
-      description: Nested relationship type object for responses (no timestamps).
+      description: Nested location object for responses (no timestamps).
       properties:
         id:
           title: Id
           type: integer
-        code:
-          title: Code
+        name:
+          title: Name
           type: string
-        description:
+        type:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/LocationType'
           - type: 'null'
-          title: Description
       required:
       - id
-      - code
-      title: RelationshipTypeObject
+      - name
+      title: LocationObject
+      type: object
+    CustomerTurbineUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerTurbine.
+      properties:
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine ID
+          title: Turbine Id
+        relationship_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Relationship type ID
+          title: Relationship Id
+      title: CustomerTurbineUpdate
       type: object
     CustomerTurbineResponse:
       additionalProperties: false
@@ -607,6 +558,66 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    RelationshipTypeObject:
+      additionalProperties: false
+      description: Nested relationship type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: RelationshipTypeObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CustomerTurbineCreateMode:
+      description: Supported create flows for customer turbines.
+      enum:
+      - share
+      - create
+      title: CustomerTurbineCreateMode
+      type: string
     TurbineWithLocationObject:
       additionalProperties: false
       description: Nested turbine object with location for customer turbine responses.
@@ -627,17 +638,6 @@ components:
       - id
       title: TurbineWithLocationObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -1156,6 +1156,378 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    WorkorderCancelInput:
+      additionalProperties: false
+      description: Payload for cancelling a workorder.
+      properties:
+        reason:
+          title: Reason
+          type: string
+      required:
+      - reason
+      title: WorkorderCancelInput
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    WorkorderStatusChange:
+      additionalProperties: false
+      description: Dispatch workorder status change log.
+      properties:
+        id:
+          title: Id
+          type: integer
+        workorder:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder
+        old_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Old Status
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Reason
+        change_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Change Note
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Status
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By
+      required:
+      - id
+      title: WorkorderStatusChange
+      type: object
+    WorkTimeLog:
+      additionalProperties: false
+      description: Dispatch work time log.
+      properties:
+        id:
+          title: Id
+          type: integer
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Activity Id
+        resource:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ended At
+        duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Min
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Timezone Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        activity_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Activity Start Datetime
+        activity_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Activity End Datetime
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By
+        corrected_entry_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Corrected Entry Id
+        work_time_category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Time Category Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        status_changed_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Changed By
+        status_change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Change Reason
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        pay_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pay Type
+        approved_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Approved By
+        approved_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Approved At
+        approver_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approver Comment
+        is_approved:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Approved
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
+      required:
+      - id
+      title: WorkTimeLog
+      type: object
+    WorkorderSummary:
+      additionalProperties: false
+      description: Workorder summary response.
+      properties:
+        total:
+          title: Total
+          type: integer
+        by_status:
+          items:
+            type: object
+          title: By Status
+          type: array
+        by_type:
+          items:
+            type: object
+          title: By Type
+          type: array
+      required:
+      - total
+      - by_status
+      - by_type
+      title: WorkorderSummary
+      type: object
+    WorkorderInput:
+      additionalProperties: false
+      description: Payload for creating/updating workorders.
+      properties:
+        service_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order
+        service_order_line:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line
+        service_item:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        planned_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned Start Datetime
+        planned_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Planned End Datetime
+        windpark_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Windpark Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        is_rework:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Rework
+        status_change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Change Reason
+        status_change_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Change By
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        mandatory_start_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Mandatory Start Date
+        mandatory_due_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Mandatory Due Date
+        assignee_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Assignee User Id
+        activities:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AdminWorkorderActivityInput'
+            type: array
+          - type: 'null'
+          title: Activities
+      title: WorkorderInput
+      type: object
     Workorder:
       additionalProperties: false
       description: Dispatch workorder.
@@ -1295,476 +1667,6 @@ components:
       - id
       title: Workorder
       type: object
-    WorkorderActivityInput:
-      additionalProperties: false
-      description: Payload for creating/updating workorder activities.
-      properties:
-        workorder:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder
-        service_item:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item
-        service_item_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item Activity Id
-        portal_service_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Portal Service Activity Id
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: End Datetime
-        resources:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Resources
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        is_internal:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Internal
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        activity_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Description
-        anomaly_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Id
-        status_change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status Change Reason
-        status_change_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Status Change By
-        custom_fields:
-          anyOf:
-          - items: {}
-            type: array
-          - type: object
-          - type: 'null'
-          title: Custom Fields
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-        ref_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ref Id
-        preset_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Preset Id
-      title: WorkorderActivityInput
-      type: object
-    WorkorderActivityCreateInput:
-      additionalProperties: false
-      description: 'Payload for creating a workorder activity.
-
-
-        Extends the base input with `is_optional`, which is only valid on create.
-
-        Clients may send `is_optional=True` when a sibling already exists for the
-
-        same workorder+SIA (duplicate); the backend rejects it with a ValidationError
-
-        otherwise.  Omitting the field triggers auto-detection.  See Wrike 4462483155.'
-      properties:
-        workorder:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder
-        service_item:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item
-        service_item_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item Activity Id
-        portal_service_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Portal Service Activity Id
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: End Datetime
-        resources:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Resources
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        is_internal:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Internal
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        activity_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Description
-        anomaly_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Id
-        status_change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status Change Reason
-        status_change_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Status Change By
-        custom_fields:
-          anyOf:
-          - items: {}
-            type: array
-          - type: object
-          - type: 'null'
-          title: Custom Fields
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-        ref_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ref Id
-        preset_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Preset Id
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Optional
-      title: WorkorderActivityCreateInput
-      type: object
-    WorkorderActivityCount:
-      additionalProperties: false
-      description: Workorder activity count.
-      properties:
-        workorder_id:
-          title: Workorder Id
-          type: integer
-        count:
-          title: Count
-          type: integer
-      required:
-      - workorder_id
-      - count
-      title: WorkorderActivityCount
-      type: object
-    WorkorderStatusChange:
-      additionalProperties: false
-      description: Dispatch workorder status change log.
-      properties:
-        id:
-          title: Id
-          type: integer
-        workorder:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder
-        old_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Old Status
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Change Reason
-        change_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Change Note
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: New Status
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Created At
-        created_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Created By
-      required:
-      - id
-      title: WorkorderStatusChange
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    WorkorderInput:
-      additionalProperties: false
-      description: Payload for creating/updating workorders.
-      properties:
-        service_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order
-        service_order_line:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order Line
-        service_item:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        planned_start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Planned Start Datetime
-        planned_end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Planned End Datetime
-        windpark_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Windpark Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        is_internal:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Internal
-        is_rework:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Rework
-        status_change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status Change Reason
-        status_change_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Status Change By
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        mandatory_start_date:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Mandatory Start Date
-        mandatory_due_date:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Mandatory Due Date
-        assignee_user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Assignee User Id
-        activities:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/AdminWorkorderActivityInput'
-            type: array
-          - type: 'null'
-          title: Activities
-      title: WorkorderInput
-      type: object
     WorkorderPlanInput:
       additionalProperties: false
       description: Payload for creating/updating workorder plans.
@@ -1820,269 +1722,6 @@ components:
           - type: 'null'
           title: Resources
       title: WorkorderPlanInput
-      type: object
-    WorkorderActivityBulkUpdateInput:
-      additionalProperties: false
-      description: Payload for bulk-updating workorder activities (and optionally delay teams).
-      properties:
-        activities:
-          default: []
-          items:
-            $ref: '#/components/schemas/WorkorderActivityBulkUpdateItem'
-          title: Activities
-          type: array
-        delays:
-          default: []
-          items:
-            $ref: '#/components/schemas/DelayBulkTeamUpdateItem'
-          title: Delays
-          type: array
-        resource_change_comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Change Comment
-        preset_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Preset Id
-      title: WorkorderActivityBulkUpdateInput
-      type: object
-    WorkorderActivityBulkUpdateItem:
-      additionalProperties: false
-      description: Single workorder activity patch item for bulk update.
-      properties:
-        workorder:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder
-        service_item:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item
-        service_item_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item Activity Id
-        portal_service_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Portal Service Activity Id
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: End Datetime
-        resources:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Resources
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        is_internal:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Internal
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        activity_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Description
-        anomaly_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Id
-        status_change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status Change Reason
-        status_change_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Status Change By
-        custom_fields:
-          anyOf:
-          - items: {}
-            type: array
-          - type: object
-          - type: 'null'
-          title: Custom Fields
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-        ref_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ref Id
-        preset_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Preset Id
-        activity_id:
-          title: Activity Id
-          type: integer
-      required:
-      - activity_id
-      title: WorkorderActivityBulkUpdateItem
-      type: object
-    WorkorderActivityTimeEdit:
-      additionalProperties: false
-      description: Audit row for a start/end datetime change on a workorder activity.
-      properties:
-        id:
-          title: Id
-          type: integer
-        workorder_activity_id:
-          title: Workorder Activity Id
-          type: integer
-        old_start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Old Start Datetime
-        new_start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: New Start Datetime
-        old_end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Old End Datetime
-        new_end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: New End Datetime
-        reason_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reason Code
-        reason_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reason Name
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-        source:
-          title: Source
-          type: string
-        edited_at:
-          format: date-time
-          title: Edited At
-          type: string
-        edited_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Edited By
-      required:
-      - id
-      - workorder_activity_id
-      - source
-      - edited_at
-      title: WorkorderActivityTimeEdit
-      type: object
-    WorkorderActivityCountsResponse:
-      additionalProperties: false
-      description: Workorder activity counts response.
-      properties:
-        results:
-          items:
-            $ref: '#/components/schemas/WorkorderActivityCount'
-          title: Results
-          type: array
-      required:
-      - results
-      title: WorkorderActivityCountsResponse
-      type: object
-    WorkorderSummary:
-      additionalProperties: false
-      description: Workorder summary response.
-      properties:
-        total:
-          title: Total
-          type: integer
-        by_status:
-          items:
-            type: object
-          title: By Status
-          type: array
-        by_type:
-          items:
-            type: object
-          title: By Type
-          type: array
-      required:
-      - total
-      - by_status
-      - by_type
-      title: WorkorderSummary
       type: object
     WorkorderPlan:
       additionalProperties: false
@@ -2151,6 +1790,28 @@ components:
       - planned_end_at
       - status
       title: WorkorderPlan
+      type: object
+    DelayBulkTeamUpdateItem:
+      additionalProperties: false
+      description: Single delay team update item for bulk update.
+      properties:
+        delay_id:
+          title: Delay Id
+          type: integer
+        team_resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Team Resources
+        team_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Team Robot Set Id
+      required:
+      - delay_id
+      title: DelayBulkTeamUpdateItem
       type: object
     WorkorderActivity:
       additionalProperties: false
@@ -2322,6 +1983,300 @@ components:
       - activity_description
       title: AdminWorkorderActivityInput
       type: object
+    WorkorderActivityCreateInput:
+      additionalProperties: false
+      description: 'Payload for creating a workorder activity.
+
+
+        Extends the base input with `is_optional`, which is only valid on create.
+
+        Clients may send `is_optional=True` when a sibling already exists for the
+
+        same workorder+SIA (duplicate); the backend rejects it with a ValidationError
+
+        otherwise.  Omitting the field triggers auto-detection.  See Wrike 4462483155.'
+      properties:
+        workorder:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder
+        service_item:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item
+        service_item_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item Activity Id
+        portal_service_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Portal Service Activity Id
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Resources
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Id
+        status_change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Change Reason
+        status_change_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Change By
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        ref_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ref Id
+        preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Preset Id
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+      title: WorkorderActivityCreateInput
+      type: object
+    WorkorderActivityCountsResponse:
+      additionalProperties: false
+      description: Workorder activity counts response.
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/WorkorderActivityCount'
+          title: Results
+          type: array
+      required:
+      - results
+      title: WorkorderActivityCountsResponse
+      type: object
+    WorkorderActivityCount:
+      additionalProperties: false
+      description: Workorder activity count.
+      properties:
+        workorder_id:
+          title: Workorder Id
+          type: integer
+        count:
+          title: Count
+          type: integer
+      required:
+      - workorder_id
+      - count
+      title: WorkorderActivityCount
+      type: object
+    WorkorderActivityInput:
+      additionalProperties: false
+      description: Payload for creating/updating workorder activities.
+      properties:
+        workorder:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder
+        service_item:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item
+        service_item_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item Activity Id
+        portal_service_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Portal Service Activity Id
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Resources
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Id
+        status_change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Change Reason
+        status_change_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Change By
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        ref_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ref Id
+        preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Preset Id
+      title: WorkorderActivityInput
+      type: object
     WorkTimeLogInput:
       additionalProperties: false
       description: Payload for creating/updating work time logs.
@@ -2460,27 +2415,232 @@ components:
           title: Service Order Line Id
       title: WorkTimeLogInput
       type: object
-    DelayBulkTeamUpdateItem:
+    WorkorderActivityBulkUpdateItem:
       additionalProperties: false
-      description: Single delay team update item for bulk update.
+      description: Single workorder activity patch item for bulk update.
       properties:
-        delay_id:
-          title: Delay Id
-          type: integer
-        team_resources:
+        workorder:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder
+        service_item:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item
+        service_item_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Item Activity Id
+        portal_service_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Portal Service Activity Id
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        resources:
           anyOf:
           - items: {}
             type: array
           - type: 'null'
-          title: Team Resources
-        team_robot_set_id:
+          title: Resources
+        robot_set_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Team Robot Set Id
+          title: Robot Set Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        is_internal:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Internal
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Id
+        status_change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Change Reason
+        status_change_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Status Change By
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        ref_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ref Id
+        preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Preset Id
+        activity_id:
+          title: Activity Id
+          type: integer
       required:
-      - delay_id
-      title: DelayBulkTeamUpdateItem
+      - activity_id
+      title: WorkorderActivityBulkUpdateItem
+      type: object
+    WorkorderActivityBulkUpdateInput:
+      additionalProperties: false
+      description: Payload for bulk-updating workorder activities (and optionally delay teams).
+      properties:
+        activities:
+          default: []
+          items:
+            $ref: '#/components/schemas/WorkorderActivityBulkUpdateItem'
+          title: Activities
+          type: array
+        delays:
+          default: []
+          items:
+            $ref: '#/components/schemas/DelayBulkTeamUpdateItem'
+          title: Delays
+          type: array
+        resource_change_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Change Comment
+        preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Preset Id
+      title: WorkorderActivityBulkUpdateInput
+      type: object
+    WorkorderActivityTimeEdit:
+      additionalProperties: false
+      description: Audit row for a start/end datetime change on a workorder activity.
+      properties:
+        id:
+          title: Id
+          type: integer
+        workorder_activity_id:
+          title: Workorder Activity Id
+          type: integer
+        old_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Old Start Datetime
+        new_start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: New Start Datetime
+        old_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Old End Datetime
+        new_end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: New End Datetime
+        reason_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason Code
+        reason_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason Name
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        source:
+          title: Source
+          type: string
+        edited_at:
+          format: date-time
+          title: Edited At
+          type: string
+        edited_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Edited By
+      required:
+      - id
+      - workorder_activity_id
+      - source
+      - edited_at
+      title: WorkorderActivityTimeEdit
       type: object
     WorkorderBulkInput:
       additionalProperties: false
@@ -2494,166 +2654,6 @@ components:
       required:
       - workorders
       title: WorkorderBulkInput
-      type: object
-    WorkTimeLog:
-      additionalProperties: false
-      description: Dispatch work time log.
-      properties:
-        id:
-          title: Id
-          type: integer
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder Id
-        activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Activity Id
-        resource:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource
-        started_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Started At
-        ended_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Ended At
-        duration_min:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Duration Min
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-        timezone_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Timezone Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        activity_start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Activity Start Datetime
-        activity_end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Activity End Datetime
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Custom Fields
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Created At
-        created_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Created By
-        corrected_entry_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Corrected Entry Id
-        work_time_category_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Work Time Category Id
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        status_changed_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Status Changed By
-        status_change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status Change Reason
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        pay_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Pay Type
-        approved_by:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Approved By
-        approved_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Approved At
-        approver_comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Approver Comment
-        is_approved:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Approved
-        service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order Line Id
-      required:
-      - id
-      title: WorkTimeLog
-      type: object
-    WorkorderCancelInput:
-      additionalProperties: false
-      description: Payload for cancelling a workorder.
-      properties:
-        reason:
-          title: Reason
-          type: string
-      required:
-      - reason
-      title: WorkorderCancelInput
       type: object
   securitySchemes:
     APIKeyAuth:

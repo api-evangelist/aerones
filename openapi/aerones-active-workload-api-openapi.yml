@@ -541,168 +541,96 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    WOActivityInfo:
-      additionalProperties: false
-      description: Nested activity for WO detail.
-      properties:
-        id:
-          title: Id
-          type: integer
-        activity_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Activity Description
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: End Datetime
-        duration_min:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Duration Min
-        estimated_duration_min:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Estimated Duration Min
-        component_type_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Component Type Name
-        location_timezone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Timezone
-      required:
-      - id
-      title: WOActivityInfo
-      type: object
-    InspectionSectionInfo:
+    TurbineInfo:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
         name:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
-          type: string
-        status:
-          title: Status
-          type: string
-        video_files_count:
-          default: 0
-          title: Video Files Count
-          type: integer
-        rosbags_count:
-          default: 0
-          title: Rosbags Count
-          type: integer
-        photos_count:
-          default: 0
-          title: Photos Count
-          type: integer
       required:
       - id
-      - name
-      - status
-      title: InspectionSectionInfo
+      title: TurbineInfo
       type: object
-    ServiceOrderLineInfo:
+    ActiveWorkloadFiltersResponse:
       additionalProperties: false
+      description: Response schema for filter options endpoint.
       properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Name
-        so_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: So Number
-      required:
-      - id
-      title: ServiceOrderLineInfo
-      type: object
-    InspectionDetail:
-      additionalProperties: false
-      properties:
-        sections_total:
-          default: 0
-          title: Sections Total
-          type: integer
-        sections_completed:
-          default: 0
-          title: Sections Completed
-          type: integer
-        video_files_count:
-          default: 0
-          title: Video Files Count
-          type: integer
-        rosbags_count:
-          default: 0
-          title: Rosbags Count
-          type: integer
-        photos_count:
-          default: 0
-          title: Photos Count
-          type: integer
-        components:
+        projects:
           default: []
           items:
-            $ref: '#/components/schemas/InspectionComponentInfo'
-          title: Components
+            $ref: '#/components/schemas/ProjectInfo'
+          title: Projects
           type: array
-      title: InspectionDetail
+        customers:
+          default: []
+          items:
+            $ref: '#/components/schemas/CustomerInfo'
+          title: Customers
+          type: array
+        locations:
+          default: []
+          items:
+            $ref: '#/components/schemas/LocationInfo'
+          title: Locations
+          type: array
+        countries:
+          default: []
+          items:
+            $ref: '#/components/schemas/CountryFilterOption'
+          title: Countries
+          type: array
+        statuses:
+          allOf:
+          - $ref: '#/components/schemas/FilterStatusGroup'
+          default:
+            sol: []
+            wo: []
+        turbines:
+          default: []
+          items:
+            $ref: '#/components/schemas/TurbineInfo'
+          title: Turbines
+          type: array
+        component_types:
+          default: []
+          items:
+            $ref: '#/components/schemas/ComponentInfo'
+          title: Component Types
+          type: array
+        resources:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceInfo'
+          title: Resources
+          type: array
+        resource_sets:
+          default: []
+          items:
+            $ref: '#/components/schemas/ResourceSetFilterOption'
+          title: Resource Sets
+          type: array
+        wo_types:
+          default: []
+          items:
+            $ref: '#/components/schemas/WOTypeOption'
+          title: Wo Types
+          type: array
+        service_codes:
+          default: []
+          items:
+            type: string
+          title: Service Codes
+          type: array
+      title: ActiveWorkloadFiltersResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    CustomerInfo:
+    WOResourceSetDetail:
       additionalProperties: false
+      description: Resource set with members for WO detail.
       properties:
         id:
           title: Id
@@ -712,31 +640,17 @@ components:
           - type: string
           - type: 'null'
           title: Name
-      required:
-      - id
-      title: CustomerInfo
-      type: object
-    InspectionComponentInfo:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        sections:
+        members:
           default: []
           items:
-            $ref: '#/components/schemas/InspectionSectionInfo'
-          title: Sections
+            $ref: '#/components/schemas/WOResourceSetMember'
+          title: Members
           type: array
       required:
       - id
-      - name
-      title: InspectionComponentInfo
+      title: WOResourceSetDetail
       type: object
-    CountryFilterOption:
+    LocationInfo:
       additionalProperties: false
       properties:
         id:
@@ -747,13 +661,33 @@ components:
           - type: string
           - type: 'null'
           title: Name
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Country
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State Region
+        timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timezone
       required:
       - id
-      title: CountryFilterOption
+      title: LocationInfo
       type: object
-    ActiveWorkloadSOLResponse:
+    ActiveWorkloadSOLDetailResponse:
       additionalProperties: false
-      description: Response schema for a single service order line in the active workload list.
+      description: Detail response for a service order line (modal).
       properties:
         id:
           title: Id
@@ -795,6 +729,12 @@ components:
           anyOf:
           - $ref: '#/components/schemas/LocationInfo'
           - type: 'null'
+        service_order_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Service Order Date
         turbine_name:
           anyOf:
           - type: string
@@ -805,50 +745,40 @@ components:
           - type: string
           - type: 'null'
           title: Component Type Name
-        workorders_count:
-          default: 0
-          title: Workorders Count
-          type: integer
+        workorders:
+          default: []
+          items:
+            $ref: '#/components/schemas/SOLWorkorderInfo'
+          title: Workorders
+          type: array
       required:
       - id
-      title: ActiveWorkloadSOLResponse
+      title: ActiveWorkloadSOLDetailResponse
       type: object
-    FilterStatusGroup:
+    WOResourceSetMember:
       additionalProperties: false
-      properties:
-        sol:
-          default: []
-          items:
-            type: string
-          title: Sol
-          type: array
-        wo:
-          default: []
-          items:
-            type: string
-          title: Wo
-          type: array
-      title: FilterStatusGroup
-      type: object
-    ProjectInfo:
-      additionalProperties: false
+      description: Resource within a resource set.
       properties:
         id:
           title: Id
           type: integer
-        code:
+        full_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Code
-        project_builder_id:
+          title: Full Name
+        resource_type:
           anyOf:
           - type: string
           - type: 'null'
-          title: Project Builder Id
+          title: Resource Type
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
       required:
       - id
-      title: ProjectInfo
+      title: WOResourceSetMember
       type: object
     SOLWorkorderInfo:
       additionalProperties: false
@@ -895,9 +825,8 @@ components:
       - id
       title: SOLWorkorderInfo
       type: object
-    WOResourceSetMember:
+    ResourceInfo:
       additionalProperties: false
-      description: Resource within a resource set.
       properties:
         id:
           title: Id
@@ -918,11 +847,51 @@ components:
           type: boolean
       required:
       - id
-      title: WOResourceSetMember
+      title: ResourceInfo
       type: object
-    WOResourceSetDetail:
+    ResourceSetFilterOption:
       additionalProperties: false
-      description: Resource set with members for WO detail.
+      properties:
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: ResourceSetFilterOption
+      type: object
+    WOTypeOption:
+      additionalProperties: false
+      properties:
+        value:
+          title: Value
+          type: string
+        label:
+          title: Label
+          type: string
+      required:
+      - value
+      - label
+      title: WOTypeOption
+      type: object
+    FilterStatusGroup:
+      additionalProperties: false
+      properties:
+        sol:
+          default: []
+          items:
+            type: string
+          title: Sol
+          type: array
+        wo:
+          default: []
+          items:
+            type: string
+          title: Wo
+          type: array
+      title: FilterStatusGroup
+      type: object
+    ResourceSetInfo:
+      additionalProperties: false
       properties:
         id:
           title: Id
@@ -932,15 +901,9 @@ components:
           - type: string
           - type: 'null'
           title: Name
-        members:
-          default: []
-          items:
-            $ref: '#/components/schemas/WOResourceSetMember'
-          title: Members
-          type: array
       required:
       - id
-      title: WOResourceSetDetail
+      title: ResourceSetInfo
       type: object
     ActiveWorkloadWODetailResponse:
       additionalProperties: false
@@ -1030,6 +993,76 @@ components:
       - id
       title: ActiveWorkloadWODetailResponse
       type: object
+    ComponentInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: ComponentInfo
+      type: object
+    InspectionComponentInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        sections:
+          default: []
+          items:
+            $ref: '#/components/schemas/InspectionSectionInfo'
+          title: Sections
+          type: array
+      required:
+      - id
+      - name
+      title: InspectionComponentInfo
+      type: object
+    InspectionSectionInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+        video_files_count:
+          default: 0
+          title: Video Files Count
+          type: integer
+        rosbags_count:
+          default: 0
+          title: Rosbags Count
+          type: integer
+        photos_count:
+          default: 0
+          title: Photos Count
+          type: integer
+      required:
+      - id
+      - name
+      - status
+      title: InspectionSectionInfo
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -1044,31 +1077,7 @@ components:
       - message
       title: Error
       type: object
-    ResourceInfo:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Full Name
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Type
-        is_lead:
-          default: false
-          title: Is Lead
-          type: boolean
-      required:
-      - id
-      title: ResourceInfo
-      type: object
-    TurbineInfo:
+    CountryFilterOption:
       additionalProperties: false
       properties:
         id:
@@ -1081,11 +1090,161 @@ components:
           title: Name
       required:
       - id
-      title: TurbineInfo
+      title: CountryFilterOption
       type: object
-    ActiveWorkloadSOLDetailResponse:
+    ProjectInfo:
       additionalProperties: false
-      description: Detail response for a service order line (modal).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Builder Id
+      required:
+      - id
+      title: ProjectInfo
+      type: object
+    InspectionDetail:
+      additionalProperties: false
+      properties:
+        sections_total:
+          default: 0
+          title: Sections Total
+          type: integer
+        sections_completed:
+          default: 0
+          title: Sections Completed
+          type: integer
+        video_files_count:
+          default: 0
+          title: Video Files Count
+          type: integer
+        rosbags_count:
+          default: 0
+          title: Rosbags Count
+          type: integer
+        photos_count:
+          default: 0
+          title: Photos Count
+          type: integer
+        components:
+          default: []
+          items:
+            $ref: '#/components/schemas/InspectionComponentInfo'
+          title: Components
+          type: array
+      title: InspectionDetail
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CustomerInfo:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: CustomerInfo
+      type: object
+    WOActivityInfo:
+      additionalProperties: false
+      description: Nested activity for WO detail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Activity Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End Datetime
+        duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Min
+        estimated_duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration Min
+        component_type_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Type Name
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+      required:
+      - id
+      title: WOActivityInfo
+      type: object
+    InspectionSummary:
+      additionalProperties: false
+      properties:
+        sections_total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sections Total
+        sections_completed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sections Completed
+        video_files_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Video Files Count
+      title: InspectionSummary
+      type: object
+    ActiveWorkloadSOLResponse:
+      additionalProperties: false
+      description: Response schema for a single service order line in the active workload list.
       properties:
         id:
           title: Id
@@ -1127,12 +1286,6 @@ components:
           anyOf:
           - $ref: '#/components/schemas/LocationInfo'
           - type: 'null'
-        service_order_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Service Order Date
         turbine_name:
           anyOf:
           - type: string
@@ -1143,187 +1296,48 @@ components:
           - type: string
           - type: 'null'
           title: Component Type Name
-        workorders:
-          default: []
-          items:
-            $ref: '#/components/schemas/SOLWorkorderInfo'
-          title: Workorders
-          type: array
+        workorders_count:
+          default: 0
+          title: Workorders Count
+          type: integer
       required:
       - id
-      title: ActiveWorkloadSOLDetailResponse
+      title: ActiveWorkloadSOLResponse
       type: object
-    LocationInfo:
+    ServiceOrderLineInfo:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        name:
+        number:
           anyOf:
           - type: string
           - type: 'null'
-          title: Name
-        country:
+          title: Number
+        service_code:
           anyOf:
           - type: string
           - type: 'null'
-          title: Country
-        city:
+          title: Service Code
+        status:
           anyOf:
           - type: string
           - type: 'null'
-          title: City
-        state_region:
+          title: Status
+        turbine_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: State Region
-        timezone:
+          title: Turbine Name
+        so_number:
           anyOf:
           - type: string
           - type: 'null'
-          title: Timezone
+          title: So Number
       required:
       - id
-      title: LocationInfo
-      type: object
-    InspectionSummary:
-      additionalProperties: false
-      properties:
-        sections_total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sections Total
-        sections_completed:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sections Completed
-        video_files_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Video Files Count
-      title: InspectionSummary
-      type: object
-    ResourceSetInfo:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-      required:
-      - id
-      title: ResourceSetInfo
-      type: object
-    ComponentInfo:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Serial Number
-      required:
-      - id
-      title: ComponentInfo
-      type: object
-    ResourceSetFilterOption:
-      additionalProperties: false
-      properties:
-        name:
-          title: Name
-          type: string
-      required:
-      - name
-      title: ResourceSetFilterOption
-      type: object
-    ActiveWorkloadFiltersResponse:
-      additionalProperties: false
-      description: Response schema for filter options endpoint.
-      properties:
-        projects:
-          default: []
-          items:
-            $ref: '#/components/schemas/ProjectInfo'
-          title: Projects
-          type: array
-        customers:
-          default: []
-          items:
-            $ref: '#/components/schemas/CustomerInfo'
-          title: Customers
-          type: array
-        locations:
-          default: []
-          items:
-            $ref: '#/components/schemas/LocationInfo'
-          title: Locations
-          type: array
-        countries:
-          default: []
-          items:
-            $ref: '#/components/schemas/CountryFilterOption'
-          title: Countries
-          type: array
-        statuses:
-          allOf:
-          - $ref: '#/components/schemas/FilterStatusGroup'
-          default:
-            sol: []
-            wo: []
-        turbines:
-          default: []
-          items:
-            $ref: '#/components/schemas/TurbineInfo'
-          title: Turbines
-          type: array
-        component_types:
-          default: []
-          items:
-            $ref: '#/components/schemas/ComponentInfo'
-          title: Component Types
-          type: array
-        resources:
-          default: []
-          items:
-            $ref: '#/components/schemas/ResourceInfo'
-          title: Resources
-          type: array
-        resource_sets:
-          default: []
-          items:
-            $ref: '#/components/schemas/ResourceSetFilterOption'
-          title: Resource Sets
-          type: array
-        wo_types:
-          default: []
-          items:
-            $ref: '#/components/schemas/WOTypeOption'
-          title: Wo Types
-          type: array
-        service_codes:
-          default: []
-          items:
-            type: string
-          title: Service Codes
-          type: array
-      title: ActiveWorkloadFiltersResponse
+      title: ServiceOrderLineInfo
       type: object
     ActiveWorkloadWOResponse:
       additionalProperties: false
@@ -1417,20 +1431,6 @@ components:
       required:
       - id
       title: ActiveWorkloadWOResponse
-      type: object
-    WOTypeOption:
-      additionalProperties: false
-      properties:
-        value:
-          title: Value
-          type: string
-        label:
-          title: Label
-          type: string
-      required:
-      - value
-      - label
-      title: WOTypeOption
       type: object
   securitySchemes:
     APIKeyAuth:

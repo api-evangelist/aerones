@@ -195,82 +195,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ManufacturerObject:
-      additionalProperties: false
-      description: Nested manufacturer object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerObject
-      type: object
-    TurbineModelResponse:
-      additionalProperties: false
-      description: Schema for TurbineModel response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Turbine model ID
-          title: Id
-          type: integer
-        name:
-          description: Turbine model name
-          title: Name
-          type: string
-        manufacturer:
-          $ref: '#/components/schemas/ManufacturerObject'
-          description: Manufacturer details
-        nominal_power:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Nominal power in kW
-          title: Nominal Power
-        center_to_root_offset:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
-          title: Center To Root Offset
-        rotor_radius:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Rotor radius in meters
-          title: Rotor Radius
-        hub_height:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Hub height in meters
-          title: Hub Height
-        double_receptors:
-          description: Has double receptors
-          title: Double Receptors
-          type: boolean
-        hv_double_receptors:
-          description: Has HV double receptors
-          title: Hv Double Receptors
-          type: boolean
-      required:
-      - updated_at
-      - id
-      - name
-      - manufacturer
-      - double_receptors
-      - hv_double_receptors
-      title: TurbineModelResponse
-      type: object
     TurbineModelUpdate:
       additionalProperties: false
       description: Schema for updating a TurbineModel.
@@ -380,20 +304,17 @@ components:
       - manufacturer_id
       title: TurbineModelCreate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -414,17 +335,96 @@ components:
           type: boolean
       title: Success
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    TurbineModelResponse:
+      additionalProperties: false
+      description: Schema for TurbineModel response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Turbine model ID
+          title: Id
+          type: integer
+        name:
+          description: Turbine model name
+          title: Name
+          type: string
+        manufacturer:
+          $ref: '#/components/schemas/ManufacturerObject'
+          description: Manufacturer details
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        center_to_root_offset:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
+          title: Center To Root Offset
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        double_receptors:
+          description: Has double receptors
+          title: Double Receptors
+          type: boolean
+        hv_double_receptors:
+          description: Has HV double receptors
+          title: Hv Double Receptors
+          type: boolean
+      required:
+      - updated_at
+      - id
+      - name
+      - manufacturer
+      - double_receptors
+      - hv_double_receptors
+      title: TurbineModelResponse
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

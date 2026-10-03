@@ -126,102 +126,79 @@ paths:
       - Email
 components:
   schemas:
-    SendEmailResponse:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    EmailContext:
       additionalProperties: false
-      description: Response for a successful (or dev-mode-skipped) `/email` call.
+      description: 'Define the template context for an email.
+
+
+        Email context defines which template and with what variables are to be
+
+        sent.'
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNames'
+          description: Template name without file extension
+        variables:
+          description: Key-value data for template placeholders
+          title: Variables
+          type: object
+      required:
+      - template
+      title: EmailContext
+      type: object
+    SentEmailStatusResponse:
+      additionalProperties: false
+      description: Response for `GET /email/{tracking_id}/status`.
+      properties:
+        status:
+          description: One of SENT, OPENED, BOUNCED
+          title: Status
+          type: string
+        sent_at:
+          description: ISO timestamp the email was queued
+          title: Sent At
+          type: string
+        status_changed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO timestamp of the last status transition, if any
+          title: Status Changed At
+      required:
+      - status
+      - sent_at
+      title: SentEmailStatusResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
         success:
-          description: Whether the email was queued for sending
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
           title: Success
           type: boolean
-        tracking_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Id to poll `/email/{tracking_id}/status` with. Null when success is false.
-          title: Tracking Id
-      required:
-      - success
-      title: SendEmailResponse
-      type: object
-    EmailTemplateNames:
-      description: Definitions of available email templates.
-      enum:
-      - builder.travelorder.technician
-      - builder.travelorder.teamlead
-      - builder.travelorder.supervisor
-      - builder.travelorder.pm-sales
-      - builder.travelorder.teamlead-reminder
-      - builder.travelorder.supervisor-action-required
-      - builder.travelorder.data-operator
-      - builder.travelorder.questionnaire-complete
-      - builder.travelorder.supervisor-questionnaire-complete
-      - builder.offer.required-approval
-      - builder.offer.watcher-require-approval-notification
-      - builder.offer.watcher-offer-notification
-      - builder.offer.offer-notification
-      - builder.prejob.submission-notification
-      - builder.rams.hse-review
-      - builder.rams.customer-review
-      - builder.rams.technician-signing
-      - builder.rams.rejected
-      - builder.rams.approved
-      - builder.team_request.dc-review
-      - builder.team_request.planner-handoff
-      - builder.team_request.verification-ready
-      - builder.team_request.slot-rejection
-      - builder.team_request.rejected
-      - builder.team_request.note-mention
-      - builder.rotation.approved
-      - builder.project_task.comment-mention
-      - builder.set_request.submitted
-      - builder.set_request.mro-ready
-      - builder.set_request.it-starlink
-      - builder.set_request.ready
-      - builder.set_request.picked-up
-      - builder.set_request.rejected
-      - builder.set_request.set-changed
-      - builder.set_request.ppe-prep
-      - builder.set_demob.detected
-      - builder.set_demob.it-starlink
-      - builder.set_demob.mro-arrival
-      - datatools.payrollweeklyreport.weekly-report
-      - portal.feedback-form
-      - portal.accept-invitation
-      - auth.create-user
-      - auth.reset-password
-      - po-center.po-extension.internal-70
-      - po-center.po-extension.internal-80
-      - po-center.po-extension.internal-90
-      - po-center.po-extension.internal-100-active
-      - po-center.po-extension.internal-100-invoices
-      - po-center.po-extension.client-70
-      - po-center.po-extension.client-80
-      - po-center.po-extension.client-90
-      - po-center.po-extension.client-active
-      - po-center.po-extension.client-invoices
-      - po-center.digest.missing-pos
-      - po-center.digest.no-pm
-      - po-center.draft-charges.heads-up
-      - po-center.draft-charges.client
-      - po-center.overdue-invoice.heads-up
-      - po-center.overdue-invoice.client
-      title: EmailTemplateNames
-      type: string
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      title: Success
       type: object
     EmailRequest:
       additionalProperties: false
@@ -295,80 +272,103 @@ components:
       - context
       title: EmailRequest
       type: object
-    EmailContext:
+    Error:
       additionalProperties: false
-      description: 'Define the template context for an email.
-
-
-        Email context defines which template and with what variables are to be
-
-        sent.'
+      description: Error response schema.
       properties:
-        template:
-          $ref: '#/components/schemas/EmailTemplateNames'
-          description: Template name without file extension
-        variables:
-          description: Key-value data for template placeholders
-          title: Variables
-          type: object
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
       required:
-      - template
-      title: EmailContext
+      - code
+      - message
+      title: Error
       type: object
-    Success:
+    EmailTemplateNames:
+      description: Definitions of available email templates.
+      enum:
+      - builder.travelorder.technician
+      - builder.travelorder.teamlead
+      - builder.travelorder.supervisor
+      - builder.travelorder.pm-sales
+      - builder.travelorder.teamlead-reminder
+      - builder.travelorder.supervisor-action-required
+      - builder.travelorder.data-operator
+      - builder.travelorder.questionnaire-complete
+      - builder.travelorder.supervisor-questionnaire-complete
+      - builder.offer.required-approval
+      - builder.offer.watcher-require-approval-notification
+      - builder.offer.watcher-offer-notification
+      - builder.offer.offer-notification
+      - builder.prejob.submission-notification
+      - builder.rams.hse-review
+      - builder.rams.customer-review
+      - builder.rams.technician-signing
+      - builder.rams.rejected
+      - builder.rams.approved
+      - builder.team_request.dc-review
+      - builder.team_request.planner-handoff
+      - builder.team_request.verification-ready
+      - builder.team_request.slot-rejection
+      - builder.team_request.rejected
+      - builder.team_request.note-mention
+      - builder.rotation.approved
+      - builder.project_task.comment-mention
+      - builder.set_request.submitted
+      - builder.set_request.mro-ready
+      - builder.set_request.it-starlink
+      - builder.set_request.ready
+      - builder.set_request.picked-up
+      - builder.set_request.rejected
+      - builder.set_request.set-changed
+      - builder.set_request.ppe-prep
+      - builder.set_demob.detected
+      - builder.set_demob.it-starlink
+      - builder.set_demob.mro-arrival
+      - datatools.payrollweeklyreport.weekly-report
+      - portal.feedback-form
+      - portal.accept-invitation
+      - auth.create-user
+      - auth.reset-password
+      - po-center.po-extension.internal-70
+      - po-center.po-extension.internal-80
+      - po-center.po-extension.internal-90
+      - po-center.po-extension.internal-100-active
+      - po-center.po-extension.internal-100-invoices
+      - po-center.po-extension.client-70
+      - po-center.po-extension.client-80
+      - po-center.po-extension.client-90
+      - po-center.po-extension.client-active
+      - po-center.po-extension.client-invoices
+      - po-center.digest.missing-pos
+      - po-center.digest.no-pm
+      - po-center.draft-charges.heads-up
+      - po-center.draft-charges.client
+      - po-center.overdue-invoice.heads-up
+      - po-center.overdue-invoice.client
+      title: EmailTemplateNames
+      type: string
+    SendEmailResponse:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Response for a successful (or dev-mode-skipped) `/email` call.
       properties:
         success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          description: Whether the email was queued for sending
           title: Success
           type: boolean
-      title: Success
-      type: object
-    SentEmailStatusResponse:
-      additionalProperties: false
-      description: Response for `GET /email/{tracking_id}/status`.
-      properties:
-        status:
-          description: One of SENT, OPENED, BOUNCED
-          title: Status
-          type: string
-        sent_at:
-          description: ISO timestamp the email was queued
-          title: Sent At
-          type: string
-        status_changed_at:
+        tracking_id:
           anyOf:
-          - type: string
+          - format: uuid
+            type: string
           - type: 'null'
-          description: ISO timestamp of the last status transition, if any
-          title: Status Changed At
+          description: Id to poll `/email/{tracking_id}/status` with. Null when success is false.
+          title: Tracking Id
       required:
-      - status
-      - sent_at
-      title: SentEmailStatusResponse
+      - success
+      title: SendEmailResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

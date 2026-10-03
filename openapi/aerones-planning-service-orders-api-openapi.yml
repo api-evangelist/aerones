@@ -221,108 +221,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningServiceOrderUpdate:
-      properties:
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Vendor Id
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Location Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        anomaly_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Anomaly Ids
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        priority:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Priority
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-        actual_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Actual Start Date
-        actual_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Actual End Date
-        planned_cost:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Planned Cost
-        actual_cost:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Actual Cost
-      title: PlanningServiceOrderUpdate
-      type: object
     PlanningNestedVendor:
       properties:
         id:
@@ -336,23 +234,59 @@ components:
       - display_name
       title: PlanningNestedVendor
       type: object
-    PlanningNestedService:
+    PlanningNestedCustomerVendor:
       properties:
         id:
           title: Id
           type: integer
-        code:
-          title: Code
-          type: string
-        description:
+        vendor_id:
+          title: Vendor Id
+          type: integer
+        vendor:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/PlanningNestedVendor'
           - type: 'null'
-          title: Description
       required:
       - id
-      - code
-      title: PlanningNestedService
+      - vendor_id
+      title: PlanningNestedCustomerVendor
+      type: object
+    PlanningNestedProject:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PlanningNestedProject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
       type: object
     PlanningServiceOrderResponse:
       properties:
@@ -493,48 +427,25 @@ components:
       - updated_at
       title: PlanningServiceOrderResponse
       type: object
-    PlanningNestedCustomerVendor:
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        id:
-          title: Id
-          type: integer
-        vendor_id:
-          title: Vendor Id
-          type: integer
-        vendor:
-          anyOf:
-          - $ref: '#/components/schemas/PlanningNestedVendor'
-          - type: 'null'
-      required:
-      - id
-      - vendor_id
-      title: PlanningNestedCustomerVendor
-      type: object
-    PlanningNestedProject:
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: PlanningNestedProject
-      type: object
-    PlanningNestedCustomer:
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: PlanningNestedCustomer
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     Error:
       additionalProperties: false
@@ -549,6 +460,108 @@ components:
       - code
       - message
       title: Error
+      type: object
+    PlanningServiceOrderUpdate:
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Location Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        anomaly_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Anomaly Ids
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        planned_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Planned Cost
+        actual_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Actual Cost
+      title: PlanningServiceOrderUpdate
       type: object
     PlanningServiceOrderCreate:
       additionalProperties: false
@@ -658,37 +671,24 @@ components:
       - service_id
       title: PlanningServiceOrderCreate
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+    PlanningNestedService:
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedService
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

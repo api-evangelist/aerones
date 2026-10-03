@@ -433,33 +433,16 @@ components:
       - turbine_id
       title: ResolveScopeCommitmentPayload
       type: object
-    CreateScopeWorkorderResponse:
+    ScopeDispatchCommitmentItem:
       additionalProperties: false
-      description: '`quantity` independent pending commitments, window split evenly.'
+      description: One pending commitment row.
       properties:
-        commitments:
-          items:
-            $ref: '#/components/schemas/ScopeDispatchCommitmentItem'
-          title: Commitments
-          type: array
-        quantity:
-          title: Quantity
+        id:
+          title: Id
           type: integer
-        unit:
-          title: Unit
+        status:
+          title: Status
           type: string
-      required:
-      - commitments
-      - quantity
-      - unit
-      title: CreateScopeWorkorderResponse
-      type: object
-    RescheduleScopeCommitmentPayload:
-      additionalProperties: false
-      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
-
-        scope-dispatch commitment.'
-      properties:
         planned_start_datetime:
           format: date-time
           title: Planned Start Datetime
@@ -468,15 +451,79 @@ components:
           format: date-time
           title: Planned End Datetime
           type: string
-        resource_set_id:
+      required:
+      - id
+      - status
+      - planned_start_datetime
+      - planned_end_datetime
+      title: ScopeDispatchCommitmentItem
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ScopeGroupResponse:
+      additionalProperties: false
+      description: 'One scope bucket. `remaining` = total minus pending commitments and
+
+        items already claimed by an actively dispatched workorder.
+
+
+        ``default_kpi_minutes`` is the benchmark minutes per unit; it prefills
+
+        (and stays editable as) the dispatcher''s per-unit duration when planning
+
+        by scope. This project''s own ``ProjectServiceKpi`` override, when set,
+
+        wins over this flat value -- see ``ProjectServiceKpiManager``.'
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        component_type_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Resource Set Id
+          title: Component Type Id
+        total:
+          title: Total
+          type: integer
+        remaining:
+          title: Remaining
+          type: integer
+        unit:
+          title: Unit
+          type: string
+        default_kpi_minutes:
+          title: Default Kpi Minutes
+          type: integer
       required:
-      - planned_start_datetime
-      - planned_end_datetime
-      title: RescheduleScopeCommitmentPayload
+      - service_id
+      - service_code
+      - total
+      - remaining
+      - unit
+      - default_kpi_minutes
+      title: ScopeGroupResponse
       type: object
     ScopeCommitmentTurbineOption:
       additionalProperties: false
@@ -540,83 +587,33 @@ components:
       - planned_end_datetime
       title: CreateScopeWorkorderPayload
       type: object
-    ScopeGroupResponse:
+    CreateScopeWorkorderResponse:
       additionalProperties: false
-      description: 'One scope bucket. `remaining` = total minus pending commitments and
-
-        items already claimed by an actively dispatched workorder.
-
-
-        ``default_kpi_minutes`` is the benchmark minutes per unit; it prefills
-
-        (and stays editable as) the dispatcher''s per-unit duration when planning
-
-        by scope. This project''s own ``ProjectServiceKpi`` override, when set,
-
-        wins over this flat value -- see ``ProjectServiceKpiManager``.'
+      description: '`quantity` independent pending commitments, window split evenly.'
       properties:
-        service_id:
-          title: Service Id
-          type: integer
-        service_code:
-          title: Service Code
-          type: string
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        total:
-          title: Total
-          type: integer
-        remaining:
-          title: Remaining
+        commitments:
+          items:
+            $ref: '#/components/schemas/ScopeDispatchCommitmentItem'
+          title: Commitments
+          type: array
+        quantity:
+          title: Quantity
           type: integer
         unit:
           title: Unit
           type: string
-        default_kpi_minutes:
-          title: Default Kpi Minutes
-          type: integer
       required:
-      - service_id
-      - service_code
-      - total
-      - remaining
+      - commitments
+      - quantity
       - unit
-      - default_kpi_minutes
-      title: ScopeGroupResponse
+      title: CreateScopeWorkorderResponse
       type: object
-    Success:
+    RescheduleScopeCommitmentPayload:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
+      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
 
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+        scope-dispatch commitment.'
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ScopeDispatchCommitmentItem:
-      additionalProperties: false
-      description: One pending commitment row.
-      properties:
-        id:
-          title: Id
-          type: integer
-        status:
-          title: Status
-          type: string
         planned_start_datetime:
           format: date-time
           title: Planned Start Datetime
@@ -625,12 +622,15 @@ components:
           format: date-time
           title: Planned End Datetime
           type: string
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
       required:
-      - id
-      - status
       - planned_start_datetime
       - planned_end_datetime
-      title: ScopeDispatchCommitmentItem
+      title: RescheduleScopeCommitmentPayload
       type: object
   securitySchemes:
     APIKeyAuth:

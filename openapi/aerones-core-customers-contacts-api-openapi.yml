@@ -215,15 +215,17 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerContactCreate:
+    CustomerContactUpdate:
       additionalProperties: false
-      description: Schema for creating a CustomerContact.
+      description: Schema for updating a CustomerContact.
       properties:
         name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
           description: Contact name
-          minLength: 1
           title: Name
-          type: string
         customer_location_id:
           anyOf:
           - type: integer
@@ -255,19 +257,49 @@ components:
           description: Phone number
           title: Phone
         is_primary:
-          default: false
+          anyOf:
+          - type: boolean
+          - type: 'null'
           description: Is primary contact
           title: Is Primary
-          type: boolean
         additional_info:
           anyOf:
           - type: string
           - type: 'null'
           description: Additional information
           title: Additional Info
-      required:
-      - name
-      title: CustomerContactCreate
+      title: CustomerContactUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     CustomerContactResponse:
       additionalProperties: false
@@ -339,17 +371,15 @@ components:
       - is_primary
       title: CustomerContactResponse
       type: object
-    CustomerContactUpdate:
+    CustomerContactCreate:
       additionalProperties: false
-      description: Schema for updating a CustomerContact.
+      description: Schema for creating a CustomerContact.
       properties:
         name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
           description: Contact name
+          minLength: 1
           title: Name
+          type: string
         customer_location_id:
           anyOf:
           - type: integer
@@ -381,18 +411,19 @@ components:
           description: Phone number
           title: Phone
         is_primary:
-          anyOf:
-          - type: boolean
-          - type: 'null'
+          default: false
           description: Is primary contact
           title: Is Primary
+          type: boolean
         additional_info:
           anyOf:
           - type: string
           - type: 'null'
           description: Additional information
           title: Additional Info
-      title: CustomerContactUpdate
+      required:
+      - name
+      title: CustomerContactCreate
       type: object
     Error:
       additionalProperties: false
@@ -408,37 +439,6 @@ components:
       - message
       title: Error
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

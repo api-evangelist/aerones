@@ -429,6 +429,47 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    CategoryStatusResponse:
+      additionalProperties: false
+      properties:
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+      required:
+      - name
+      - status
+      title: CategoryStatusResponse
+      type: object
+    QuestionAnswerResponse:
+      additionalProperties: false
+      properties:
+        key:
+          title: Key
+          type: string
+        category_name:
+          title: Category Name
+          type: string
+        text:
+          title: Text
+          type: string
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - key
+      - category_name
+      - text
+      title: QuestionAnswerResponse
+      type: object
     MemberProgressResponse:
       additionalProperties: false
       properties:
@@ -464,6 +505,175 @@ components:
       - total
       - flagged
       title: MemberProgressResponse
+      type: object
+    ResendResult:
+      additionalProperties: false
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        ok:
+          title: Ok
+          type: boolean
+      required:
+      - resource_id
+      - ok
+      title: ResendResult
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    TravelOrderAnswerValue:
+      description: 'Canonical answer values, stored lowercase in the answers JSONB to match
+
+        the design ids (`yes` | `no` | `need_info`).'
+      enum:
+      - 'yes'
+      - 'no'
+      - need_info
+      title: TravelOrderAnswerValue
+      type: string
+    SubmitAnswerSchema:
+      additionalProperties: false
+      properties:
+        value:
+          $ref: '#/components/schemas/TravelOrderAnswerValue'
+        note:
+          default: ''
+          title: Note
+          type: string
+      required:
+      - value
+      title: SubmitAnswerSchema
+      type: object
+    TeamMemberResponse:
+      additionalProperties: false
+      properties:
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        qualifications:
+          default: []
+          items:
+            type: string
+          title: Qualifications
+          type: array
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+        membership_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Membership Status
+        joined_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Joined At
+        removed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Removed At
+      title: TeamMemberResponse
+      type: object
+    TravelOrderUpdateSchema:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        supervisor_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Supervisor User Ids
+        drive_folder_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drive Folder Url
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      title: TravelOrderUpdateSchema
+      type: object
+    SupervisorResponse:
+      additionalProperties: false
+      description: One assigned supervisor (an OpsHub user) for the supervisors panel chips.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: SupervisorResponse
       type: object
     SiteContactResponse:
       additionalProperties: false
@@ -756,39 +966,52 @@ components:
       - updated_at
       title: TravelOrderResponse
       type: object
-    CategoryStatusResponse:
+    TravelOrderCreateSchema:
       additionalProperties: false
       properties:
-        name:
-          title: Name
-          type: string
-        status:
-          title: Status
-          type: string
-      required:
-      - name
-      - status
-      title: CategoryStatusResponse
-      type: object
-    SupervisorResponse:
-      additionalProperties: false
-      description: One assigned supervisor (an OpsHub user) for the supervisors panel chips.
-      properties:
-        id:
-          title: Id
+        project_location_id:
+          title: Project Location Id
           type: integer
-        name:
-          title: Name
-          type: string
-        email:
+        resource_set_id:
+          title: Resource Set Id
+          type: integer
+        service_id:
+          title: Service Id
+          type: integer
+        supervisor_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Supervisor User Ids
+        drive_folder_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Email
+          title: Drive Folder Url
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
       required:
-      - id
-      - name
-      title: SupervisorResponse
+      - project_location_id
+      - resource_set_id
+      - service_id
+      title: TravelOrderCreateSchema
       type: object
     QuestionnaireRecipientResponse:
       additionalProperties: false
@@ -839,229 +1062,6 @@ components:
       - questionnaire_id
       - resource_id
       title: QuestionnaireRecipientResponse
-      type: object
-    TravelOrderCreateSchema:
-      additionalProperties: false
-      properties:
-        project_location_id:
-          title: Project Location Id
-          type: integer
-        resource_set_id:
-          title: Resource Set Id
-          type: integer
-        service_id:
-          title: Service Id
-          type: integer
-        supervisor_user_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Supervisor User Ids
-        drive_folder_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Drive Folder Url
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-      required:
-      - project_location_id
-      - resource_set_id
-      - service_id
-      title: TravelOrderCreateSchema
-      type: object
-    TravelOrderAnswerValue:
-      description: 'Canonical answer values, stored lowercase in the answers JSONB to match
-
-        the design ids (`yes` | `no` | `need_info`).'
-      enum:
-      - 'yes'
-      - 'no'
-      - need_info
-      title: TravelOrderAnswerValue
-      type: string
-    QuestionAnswerResponse:
-      additionalProperties: false
-      properties:
-        key:
-          title: Key
-          type: string
-        category_name:
-          title: Category Name
-          type: string
-        text:
-          title: Text
-          type: string
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Value
-        note:
-          default: ''
-          title: Note
-          type: string
-      required:
-      - key
-      - category_name
-      - text
-      title: QuestionAnswerResponse
-      type: object
-    TeamMemberResponse:
-      additionalProperties: false
-      properties:
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        qualifications:
-          default: []
-          items:
-            type: string
-          title: Qualifications
-          type: array
-        is_lead:
-          default: false
-          title: Is Lead
-          type: boolean
-        membership_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Membership Status
-        joined_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Joined At
-        removed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Removed At
-      title: TeamMemberResponse
-      type: object
-    ResendResult:
-      additionalProperties: false
-      properties:
-        resource_id:
-          title: Resource Id
-          type: integer
-        ok:
-          title: Ok
-          type: boolean
-      required:
-      - resource_id
-      - ok
-      title: ResendResult
-      type: object
-    TravelOrderUpdateSchema:
-      additionalProperties: false
-      properties:
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Location Id
-        resource_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Set Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        supervisor_user_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Supervisor User Ids
-        drive_folder_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Drive Folder Url
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      title: TravelOrderUpdateSchema
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    SubmitAnswerSchema:
-      additionalProperties: false
-      properties:
-        value:
-          $ref: '#/components/schemas/TravelOrderAnswerValue'
-        note:
-          default: ''
-          title: Note
-          type: string
-      required:
-      - value
-      title: SubmitAnswerSchema
       type: object
   securitySchemes:
     APIKeyAuth:

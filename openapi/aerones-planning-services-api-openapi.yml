@@ -205,29 +205,49 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningServiceUpdate:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        core_service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Core Service Id
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Active
-      title: PlanningServiceUpdate
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
       type: object
     PlanningServiceCreate:
       additionalProperties: false
@@ -275,18 +295,29 @@ components:
       - code
       title: PlanningNestedCoreService
       type: object
-    PlanningNestedCustomer:
+    PlanningServiceUpdate:
       properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: PlanningNestedCustomer
+        core_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+      title: PlanningServiceUpdate
       type: object
     Error:
       additionalProperties: false
@@ -351,37 +382,6 @@ components:
       - updated_at
       title: PlanningServiceResponse
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

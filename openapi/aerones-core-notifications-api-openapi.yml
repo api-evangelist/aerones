@@ -310,6 +310,18 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    NotificationSeenResponse:
+      additionalProperties: false
+      description: Response for the batch mark-as-seen action.
+      properties:
+        updated:
+          description: How many rows got a seen_at stamp. Already-seen rows are not re-stamped, so a repeat call returns 0.
+          title: Updated
+          type: integer
+      required:
+      - updated
+      title: NotificationSeenResponse
+      type: object
     NotificationPreferenceItem:
       additionalProperties: false
       description: 'One category''s channel opt-outs, used for both request and response.
@@ -333,22 +345,17 @@ components:
       - push
       title: NotificationPreferenceItem
       type: object
-    NotificationUpdate:
-      additionalProperties: false
-      description: Schema for updating notification read/archived status.
-      properties:
-        is_read:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Read
-        is_archived:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Archived
-      title: NotificationUpdate
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     NotificationCategory:
       description: 'The unit a user unsubscribes from.
 
@@ -368,16 +375,25 @@ components:
       - ROTATIONS
       title: NotificationCategory
       type: string
-    NotificationMarkAllReadResponse:
+    NotificationSeenRequest:
       additionalProperties: false
-      description: Response for mark-all-read action.
+      description: 'Body for the batch mark-as-seen action.
+
+
+        The cap stops one request issuing an unbounded UPDATE; the bell panel only ever
+
+        reports the rows it rendered.'
       properties:
-        updated_count:
-          title: Updated Count
-          type: integer
+        ids:
+          description: Notification ids that were displayed. At most 200 per call; ids belonging to another user are ignored.
+          items:
+            type: integer
+          maxItems: 200
+          title: Ids
+          type: array
       required:
-      - updated_count
-      title: NotificationMarkAllReadResponse
+      - ids
+      title: NotificationSeenRequest
       type: object
     NotificationUnreadCountResponse:
       additionalProperties: false
@@ -389,6 +405,20 @@ components:
       required:
       - count
       title: NotificationUnreadCountResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     NotificationResponse:
       additionalProperties: false
@@ -480,63 +510,33 @@ components:
       - created_at
       title: NotificationResponse
       type: object
-    Error:
+    NotificationMarkAllReadResponse:
       additionalProperties: false
-      description: Error response schema.
+      description: Response for mark-all-read action.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    NotificationSeenRequest:
-      additionalProperties: false
-      description: 'Body for the batch mark-as-seen action.
-
-
-        The cap stops one request issuing an unbounded UPDATE; the bell panel only ever
-
-        reports the rows it rendered.'
-      properties:
-        ids:
-          description: Notification ids that were displayed. At most 200 per call; ids belonging to another user are ignored.
-          items:
-            type: integer
-          maxItems: 200
-          title: Ids
-          type: array
-      required:
-      - ids
-      title: NotificationSeenRequest
-      type: object
-    NotificationSeenResponse:
-      additionalProperties: false
-      description: Response for the batch mark-as-seen action.
-      properties:
-        updated:
-          description: How many rows got a seen_at stamp. Already-seen rows are not re-stamped, so a repeat call returns 0.
-          title: Updated
+        updated_count:
+          title: Updated Count
           type: integer
       required:
-      - updated
-      title: NotificationSeenResponse
+      - updated_count
+      title: NotificationMarkAllReadResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    NotificationUpdate:
+      additionalProperties: false
+      description: Schema for updating notification read/archived status.
+      properties:
+        is_read:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Read
+        is_archived:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Archived
+      title: NotificationUpdate
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

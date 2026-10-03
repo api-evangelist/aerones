@@ -215,20 +215,49 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CertificateOfferingUpdate:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
       additionalProperties: false
-      description: Schema for updating a CertificateOffering (partial).
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CertificateOfferingCreate:
+      additionalProperties: false
+      description: Schema for creating a CertificateOffering.
       properties:
         certificate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
+          description: Certificate FK
           title: Certificate Id
+          type: integer
         issuer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
+          description: Issuer FK
           title: Issuer Id
+          type: integer
         country_id:
           anyOf:
           - type: integer
@@ -249,6 +278,7 @@ components:
           anyOf:
           - type: integer
           - type: 'null'
+          description: Overrides Certificate.default_validity_months
           title: Validity Months
         format:
           anyOf:
@@ -276,11 +306,13 @@ components:
           - type: 'null'
           title: Additional Info
         is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
+          default: true
           title: Is Active
-      title: CertificateOfferingUpdate
+          type: boolean
+      required:
+      - certificate_id
+      - issuer_id
+      title: CertificateOfferingCreate
       type: object
     CertificateOfferingResponse:
       additionalProperties: false
@@ -357,18 +389,34 @@ components:
       - is_active
       title: CertificateOfferingResponse
       type: object
-    CertificateOfferingCreate:
+    Error:
       additionalProperties: false
-      description: Schema for creating a CertificateOffering.
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CertificateOfferingUpdate:
+      additionalProperties: false
+      description: Schema for updating a CertificateOffering (partial).
       properties:
         certificate_id:
-          description: Certificate FK
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Certificate Id
-          type: integer
         issuer_id:
-          description: Issuer FK
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Issuer Id
-          type: integer
         country_id:
           anyOf:
           - type: integer
@@ -389,7 +437,6 @@ components:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Overrides Certificate.default_validity_months
           title: Validity Months
         format:
           anyOf:
@@ -417,59 +464,12 @@ components:
           - type: 'null'
           title: Additional Info
         is_active:
-          default: true
+          anyOf:
+          - type: boolean
+          - type: 'null'
           title: Is Active
-          type: boolean
-      required:
-      - certificate_id
-      - issuer_id
-      title: CertificateOfferingCreate
+      title: CertificateOfferingUpdate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

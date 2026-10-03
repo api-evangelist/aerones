@@ -273,34 +273,47 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PurchaseOrderVersionUpdate:
+    PurchaseOrderVersionFileReplaceRequest:
       additionalProperties: false
-      description: 'Partial update of a version''s scalar fields.
-
-
-        Does not change `version_number` or swap the attached file. To replace
-
-        the file, use POST /purchase-order-versions/{id}/file.'
+      description: Replace the active file linked to a version.
       properties:
-        order_number:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          title: Order Number
-        issue_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Issue Date
-        amount:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Amount
-      title: PurchaseOrderVersionUpdate
+        file_id:
+          title: File Id
+          type: integer
+      required:
+      - file_id
+      title: PurchaseOrderVersionFileReplaceRequest
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     PurchaseOrderVersionCreate:
       additionalProperties: false
@@ -330,6 +343,20 @@ components:
       - issue_date
       - amount
       title: PurchaseOrderVersionCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     PurchaseOrderVersionResponse:
       additionalProperties: false
@@ -376,62 +403,35 @@ components:
       - amount
       title: PurchaseOrderVersionResponse
       type: object
-    Error:
+    PurchaseOrderVersionUpdate:
       additionalProperties: false
-      description: Error response schema.
+      description: 'Partial update of a version''s scalar fields.
+
+
+        Does not change `version_number` or swap the attached file. To replace
+
+        the file, use POST /purchase-order-versions/{id}/file.'
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+        order_number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          title: Order Number
+        issue_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Issue Date
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Amount
+      title: PurchaseOrderVersionUpdate
       type: object
-    PurchaseOrderVersionFileReplaceRequest:
-      additionalProperties: false
-      description: Replace the active file linked to a version.
-      properties:
-        file_id:
-          title: File Id
-          type: integer
-      required:
-      - file_id
-      title: PurchaseOrderVersionFileReplaceRequest
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

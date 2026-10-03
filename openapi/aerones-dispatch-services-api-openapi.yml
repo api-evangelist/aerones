@@ -869,192 +869,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ServiceOrderHeader:
-      additionalProperties: false
-      description: Dispatch service order header.
-      properties:
-        id:
-          title: Id
-          type: integer
-        sales_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sales Order Id
-        project_id:
-          title: Project Id
-          type: integer
-        project_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Project Name
-        customer_id:
-          title: Customer Id
-          type: integer
-        windpark_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Windpark Id
-        client_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Client Name
-        service_order_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Service Order Date
-        service_order_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Order Number
-        service_order_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Order Type
-        project_manager_user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Manager User Id
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-      required:
-      - id
-      - project_id
-      - customer_id
-      title: ServiceOrderHeader
-      type: object
-    ServiceItemActivityInstructionLink:
-      additionalProperties: false
-      description: Web link on a service-item-activity instruction.
-      properties:
-        id:
-          title: Id
-          type: integer
-        url:
-          title: Url
-          type: string
-        label:
-          title: Label
-          type: string
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-      required:
-      - id
-      - url
-      - label
-      title: ServiceItemActivityInstructionLink
-      type: object
-    ServiceItem:
-      additionalProperties: false
-      description: Dispatch service item.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        component:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component
-        component_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Component Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Optional
-        service:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-      required:
-      - id
-      - code
-      title: ServiceItem
-      type: object
-    ServiceItemActivityInstruction:
-      additionalProperties: false
-      description: One ordered procedure step on a service-item-activity.
-      properties:
-        id:
-          title: Id
-          type: integer
-        title:
-          title: Title
-          type: string
-        body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Body
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        attachments:
-          default: []
-          items:
-            $ref: '#/components/schemas/ServiceItemActivityAttachment'
-          title: Attachments
-          type: array
-        links:
-          default: []
-          items:
-            $ref: '#/components/schemas/ServiceItemActivityInstructionLink'
-          title: Links
-          type: array
-      required:
-      - id
-      - title
-      title: ServiceItemActivityInstruction
-      type: object
-    ServiceOrderTypeCount:
-      additionalProperties: false
-      description: Count of service orders by type.
-      properties:
-        service_order_type:
-          title: Service Order Type
-          type: string
-        count:
-          title: Count
-          type: integer
-      required:
-      - service_order_type
-      - count
-      title: ServiceOrderTypeCount
-      type: object
     ServiceOrderLine:
       additionalProperties: false
       description: Dispatch service order line.
@@ -1167,53 +981,172 @@ components:
       - id
       title: ServiceOrderLine
       type: object
-    ServiceOrderSummary:
+    ServiceItemActivity:
       additionalProperties: false
-      description: Service order summary response.
-      properties:
-        total:
-          title: Total
-          type: integer
-        by_type:
-          items:
-            $ref: '#/components/schemas/ServiceOrderTypeCount'
-          title: By Type
-          type: array
-        by_client:
-          items:
-            $ref: '#/components/schemas/ServiceOrderClientCount'
-          title: By Client
-          type: array
-      required:
-      - total
-      - by_type
-      - by_client
-      title: ServiceOrderSummary
-      type: object
-    DispatchService:
-      additionalProperties: false
-      description: Dispatch service.
+      description: Dispatch service item activity.
       properties:
         id:
           title: Id
           type: integer
-        code:
+        service_item:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Code
+          title: Service Item
         description:
           anyOf:
           - type: string
           - type: 'null'
           title: Description
-        is_configured:
-          title: Is Configured
-          type: boolean
+        requires_robot_set:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Robot Set
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        instructions:
+          default: []
+          items:
+            $ref: '#/components/schemas/ServiceItemActivityInstruction'
+          title: Instructions
+          type: array
       required:
       - id
-      - is_configured
-      title: DispatchService
+      title: ServiceItemActivity
+      type: object
+    ServiceItemActivityInstructionLink:
+      additionalProperties: false
+      description: Web link on a service-item-activity instruction.
+      properties:
+        id:
+          title: Id
+          type: integer
+        url:
+          title: Url
+          type: string
+        label:
+          title: Label
+          type: string
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      required:
+      - id
+      - url
+      - label
+      title: ServiceItemActivityInstructionLink
+      type: object
+    ServiceOrderHeader:
+      additionalProperties: false
+      description: Dispatch service order header.
+      properties:
+        id:
+          title: Id
+          type: integer
+        sales_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sales Order Id
+        project_id:
+          title: Project Id
+          type: integer
+        project_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Name
+        customer_id:
+          title: Customer Id
+          type: integer
+        windpark_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Windpark Id
+        client_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Name
+        service_order_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Service Order Date
+        service_order_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Order Number
+        service_order_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Order Type
+        project_manager_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Manager User Id
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - project_id
+      - customer_id
+      title: ServiceOrderHeader
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ServiceOrderLineInput:
       additionalProperties: false
@@ -1313,52 +1246,28 @@ components:
           title: Billable
       title: ServiceOrderLineInput
       type: object
-    ServiceItemActivity:
+    ServiceOrderSummary:
       additionalProperties: false
-      description: Dispatch service item activity.
+      description: Service order summary response.
       properties:
-        id:
-          title: Id
+        total:
+          title: Total
           type: integer
-        service_item:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Item
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        requires_robot_set:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Requires Robot Set
-        estimated_duration:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Estimated Duration
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Optional
-        instructions:
-          default: []
+        by_type:
           items:
-            $ref: '#/components/schemas/ServiceItemActivityInstruction'
-          title: Instructions
+            $ref: '#/components/schemas/ServiceOrderTypeCount'
+          title: By Type
+          type: array
+        by_client:
+          items:
+            $ref: '#/components/schemas/ServiceOrderClientCount'
+          title: By Client
           type: array
       required:
-      - id
-      title: ServiceItemActivity
+      - total
+      - by_type
+      - by_client
+      title: ServiceOrderSummary
       type: object
     Error:
       additionalProperties: false
@@ -1374,20 +1283,118 @@ components:
       - message
       title: Error
       type: object
-    ServiceOrderClientCount:
+    ServiceItemActivityAttachment:
       additionalProperties: false
-      description: Count of service orders by client.
+      description: 'File (image or video) attached to a service-item-activity instruction.
+
+
+        Mirrors the GraphQL `ServiceItemActivityAttachment` type. `url` is
+
+        an authenticated proxy URL through `/api/files/{id}/download` — the
+
+        underlying GCS bucket stays private and the URL itself does not
+
+        expire.'
       properties:
-        client_name:
-          title: Client Name
-          type: string
-        count:
-          title: Count
+        id:
+          title: Id
           type: integer
+        caption:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caption
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
       required:
-      - client_name
-      - count
-      title: ServiceOrderClientCount
+      - id
+      - file_name
+      - file_type
+      title: ServiceItemActivityAttachment
+      type: object
+    DispatchService:
+      additionalProperties: false
+      description: Dispatch service.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_configured:
+          title: Is Configured
+          type: boolean
+      required:
+      - id
+      - is_configured
+      title: DispatchService
+      type: object
+    ServiceItem:
+      additionalProperties: false
+      description: Dispatch service item.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        component:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        service:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      required:
+      - id
+      - code
+      title: ServiceItem
       type: object
     ServiceOrderHeaderInput:
       additionalProperties: false
@@ -1451,80 +1458,73 @@ components:
           title: Status
       title: ServiceOrderHeaderInput
       type: object
-    ServiceItemActivityAttachment:
+    ServiceOrderClientCount:
       additionalProperties: false
-      description: 'File (image or video) attached to a service-item-activity instruction.
-
-
-        Mirrors the GraphQL `ServiceItemActivityAttachment` type. `url` is
-
-        an authenticated proxy URL through `/api/files/{id}/download` — the
-
-        underlying GCS bucket stays private and the URL itself does not
-
-        expire.'
+      description: Count of service orders by client.
+      properties:
+        client_name:
+          title: Client Name
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - client_name
+      - count
+      title: ServiceOrderClientCount
+      type: object
+    ServiceOrderTypeCount:
+      additionalProperties: false
+      description: Count of service orders by type.
+      properties:
+        service_order_type:
+          title: Service Order Type
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - service_order_type
+      - count
+      title: ServiceOrderTypeCount
+      type: object
+    ServiceItemActivityInstruction:
+      additionalProperties: false
+      description: One ordered procedure step on a service-item-activity.
       properties:
         id:
           title: Id
           type: integer
-        caption:
+        title:
+          title: Title
+          type: string
+        body:
           anyOf:
           - type: string
           - type: 'null'
-          title: Caption
+          title: Body
         sort_order:
           anyOf:
           - type: integer
           - type: 'null'
           title: Sort Order
-        file_name:
-          title: File Name
-          type: string
-        file_type:
-          title: File Type
-          type: string
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/ServiceItemActivityAttachment'
+          title: Attachments
+          type: array
+        links:
+          default: []
+          items:
+            $ref: '#/components/schemas/ServiceItemActivityInstructionLink'
+          title: Links
+          type: array
       required:
       - id
-      - file_name
-      - file_type
-      title: ServiceItemActivityAttachment
+      - title
+      title: ServiceItemActivityInstruction
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

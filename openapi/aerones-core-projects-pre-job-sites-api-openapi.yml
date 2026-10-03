@@ -92,6 +92,124 @@ components:
       - name
       title: PreJobSuggestedCertificationObject
       type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PreJobSitesResponse:
+      additionalProperties: false
+      description: Top-level response for the pre-job sites aggregation endpoint.
+      properties:
+        sites:
+          items:
+            $ref: '#/components/schemas/PreJobSiteObject'
+          title: Sites
+          type: array
+        om_building_address:
+          anyOf:
+          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
+          - type: 'null'
+          description: Mirror of the first site's ``om_building_address`` in list order when present; null when that site has no ``ProjectLocation.om_building_customer_address``. Prefer each site object for per-location O&M.
+      required:
+      - sites
+      title: PreJobSitesResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PreJobSiteOMBuildingObject:
+      additionalProperties: false
+      description: O&M building address in the pre-job sites response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        address_line1:
+          title: Address Line1
+          type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line2
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+      required:
+      - id
+      - address_line1
+      title: PreJobSiteOMBuildingObject
+      type: object
     PreJobSiteObject:
       additionalProperties: false
       description: Single site (project location) in the pre-job sites response.
@@ -152,41 +270,6 @@ components:
       - project_location_id
       - location
       title: PreJobSiteObject
-      type: object
-    PreJobSiteContactObject:
-      additionalProperties: false
-      description: Contact within a site response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        is_qhse:
-          default: false
-          title: Is Qhse
-          type: boolean
-      required:
-      - id
-      title: PreJobSiteContactObject
       type: object
     PreJobSiteLocationObject:
       additionalProperties: false
@@ -249,39 +332,40 @@ components:
       - name
       title: PreJobSiteLocationObject
       type: object
-    Error:
+    PreJobSiteContactObject:
       additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PreJobSiteFileObject:
-      additionalProperties: false
-      description: File link within a site response.
+      description: Contact within a site response.
       properties:
         id:
           title: Id
           type: integer
-        file_id:
-          title: File Id
-          type: integer
-        additional_information:
+        name:
           anyOf:
-          - type: object
+          - type: string
           - type: 'null'
-          title: Additional Information
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+        is_qhse:
+          default: false
+          title: Is Qhse
+          type: boolean
       required:
       - id
-      - file_id
-      title: PreJobSiteFileObject
+      title: PreJobSiteContactObject
       type: object
     TimezoneObject:
       additionalProperties: false
@@ -312,110 +396,26 @@ components:
       - timezone
       title: TimezoneObject
       type: object
-    PreJobSiteOMBuildingObject:
+    PreJobSiteFileObject:
       additionalProperties: false
-      description: O&M building address in the pre-job sites response.
+      description: File link within a site response.
       properties:
         id:
           title: Id
           type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        address_line1:
-          title: Address Line1
-          type: string
-        address_line2:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Address Line2
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: City
-        state_region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State Region
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Postal Code
-        country:
-          anyOf:
-          - $ref: '#/components/schemas/CountryObject'
-          - type: 'null'
-        timezone:
-          anyOf:
-          - $ref: '#/components/schemas/TimezoneObject'
-          - type: 'null'
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Additional Info
-      required:
-      - id
-      - address_line1
-      title: PreJobSiteOMBuildingObject
-      type: object
-    PreJobSitesResponse:
-      additionalProperties: false
-      description: Top-level response for the pre-job sites aggregation endpoint.
-      properties:
-        sites:
-          items:
-            $ref: '#/components/schemas/PreJobSiteObject'
-          title: Sites
-          type: array
-        om_building_address:
-          anyOf:
-          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
-          - type: 'null'
-          description: Mirror of the first site's ``om_building_address`` in list order when present; null when that site has no ``ProjectLocation.om_building_customer_address``. Prefer each site object for per-location O&M.
-      required:
-      - sites
-      title: PreJobSitesResponse
-      type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
+        file_id:
+          title: File Id
           type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Additional Information
       required:
       - id
-      - code
-      - name
-      title: CountryObject
+      - file_id
+      title: PreJobSiteFileObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

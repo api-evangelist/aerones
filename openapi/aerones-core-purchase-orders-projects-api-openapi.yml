@@ -170,6 +170,20 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    PurchaseOrderProjectUpdate:
+      additionalProperties: false
+      description: Update the allocation for an existing PO-project link.
+      properties:
+        allocated_amount:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Set to a value to cap this project's PO budget, or null to use the full PO amount.
+          title: Allocated Amount
+      title: PurchaseOrderProjectUpdate
+      type: object
     PurchaseOrderProjectResponse:
       additionalProperties: false
       description: PurchaseOrderProject link response.
@@ -221,34 +235,17 @@ components:
       - project_id
       title: PurchaseOrderProjectResponse
       type: object
-    PurchaseOrderProjectUpdate:
-      additionalProperties: false
-      description: Update the allocation for an existing PO-project link.
-      properties:
-        allocated_amount:
-          anyOf:
-          - exclusiveMinimum: 0.0
-            type: number
-          - type: string
-          - type: 'null'
-          description: Set to a value to cap this project's PO budget, or null to use the full PO amount.
-          title: Allocated Amount
-      title: PurchaseOrderProjectUpdate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -269,17 +266,20 @@ components:
           type: boolean
       title: Success
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     PurchaseOrderProjectCreate:
       additionalProperties: false
       description: Link a project to a PO.

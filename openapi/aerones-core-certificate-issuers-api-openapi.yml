@@ -205,57 +205,36 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CertificateIssuerCreate:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
       additionalProperties: false
-      description: Schema for creating a CertificateIssuer.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        name:
-          description: Issuer name
-          minLength: 1
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        website:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Website
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Address
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Country Id
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Additional Info
-        is_active:
+        success:
           default: true
-          title: Is Active
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
           type: boolean
-      required:
-      - name
-      title: CertificateIssuerCreate
+      title: Success
       type: object
     CertificateIssuerResponse:
       additionalProperties: false
@@ -316,6 +295,58 @@ components:
       - name
       - is_active
       title: CertificateIssuerResponse
+      type: object
+    CertificateIssuerCreate:
+      additionalProperties: false
+      description: Schema for creating a CertificateIssuer.
+      properties:
+        name:
+          description: Issuer name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        website:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Website
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+      required:
+      - name
+      title: CertificateIssuerCreate
       type: object
     Error:
       additionalProperties: false
@@ -383,37 +414,6 @@ components:
           title: Is Active
       title: CertificateIssuerUpdate
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

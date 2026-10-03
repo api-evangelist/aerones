@@ -237,6 +237,260 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ServiceOrderLineStatusCounts:
+      additionalProperties: false
+      description: Per-stage status counters for a single service order line.
+      properties:
+        id:
+          title: Id
+          type: integer
+        total_files:
+          description: Distinct tracked files. Every stage's buckets sum to this value.
+          title: Total Files
+          type: integer
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Most recent change across the line's rows; null when none.
+          title: Updated At
+        stages:
+          additionalProperties:
+            additionalProperties:
+              type: integer
+            type: object
+          description: 'Open map of stage key -> {status: count}. Statuses are the verbatim DataTrackingStatus values; zero buckets are omitted.'
+          title: Stages
+          type: object
+      required:
+      - id
+      - total_files
+      - stages
+      title: ServiceOrderLineStatusCounts
+      type: object
+    DataTrackingStatusCountsResponse:
+      additionalProperties: false
+      description: Aggregated data-tracking status counters for a batch of lines.
+      properties:
+        generated_at:
+          format: date-time
+          title: Generated At
+          type: string
+        service_order_lines:
+          items:
+            $ref: '#/components/schemas/ServiceOrderLineStatusCounts'
+          title: Service Order Lines
+          type: array
+        missing_ids:
+          description: Requested ids that do not exist or the caller cannot access.
+          items:
+            type: integer
+          title: Missing Ids
+          type: array
+        failed_ids:
+          description: Requested ids the aggregate could not be computed for.
+          items:
+            type: integer
+          title: Failed Ids
+          type: array
+      required:
+      - generated_at
+      - service_order_lines
+      - missing_ids
+      - failed_ids
+      title: DataTrackingStatusCountsResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    DataTrackingUpdateRequest:
+      additionalProperties: false
+      description: Request body for updating a tracked file.
+      properties:
+        file_path:
+          minLength: 1
+          title: File Path
+          type: string
+        upload_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        upload_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Error
+        process_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        process_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Error
+        archive_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        archive_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Error
+        import_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        import_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Import Error
+      required:
+      - file_path
+      title: DataTrackingUpdateRequest
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    DataTrackingResponse:
+      additionalProperties: false
+      description: Tracked file status response (flat, aggregated across stage rows).
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        file_path:
+          title: File Path
+          type: string
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Activity Id
+        upload_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Status
+        upload_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Error
+        upload_started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Started At
+        upload_finished_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Finished At
+        process_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Status
+        process_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Error
+        process_started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Started At
+        process_finished_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Finished At
+        process_logfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Logfile
+        archive_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Status
+        archive_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Error
+        archive_started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Started At
+        archive_finished_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Finished At
+        archive_logfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Logfile
+        import_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Import Status
+        import_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Import Error
+        import_started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Import Started At
+        import_finished_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Import Finished At
+      required:
+      - updated_at
+      - file_path
+      title: DataTrackingResponse
+      type: object
     DataTrackingCreateRequest:
       additionalProperties: false
       description: Request body for creating a tracked file.
@@ -285,6 +539,17 @@ components:
       - file_path
       title: DataTrackingCreateRequest
       type: object
+    DataTrackingStatus:
+      description: Allowed API status values for data tracking updates.
+      enum:
+      - NOT_STARTED
+      - INITIALISED
+      - IN-PROGRESS
+      - COMPLETED
+      - FAILED
+      - ABANDONED
+      title: DataTrackingStatus
+      type: string
     DataTrackingBatchResponse:
       additionalProperties: false
       description: 'Tracked file status response carrying its owning service order line.
@@ -413,271 +678,6 @@ components:
       - service_order_line_id
       title: DataTrackingBatchResponse
       type: object
-    DataTrackingStatus:
-      description: Allowed API status values for data tracking updates.
-      enum:
-      - NOT_STARTED
-      - INITIALISED
-      - IN-PROGRESS
-      - COMPLETED
-      - FAILED
-      - ABANDONED
-      title: DataTrackingStatus
-      type: string
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    DataTrackingStatusCountsResponse:
-      additionalProperties: false
-      description: Aggregated data-tracking status counters for a batch of lines.
-      properties:
-        generated_at:
-          format: date-time
-          title: Generated At
-          type: string
-        service_order_lines:
-          items:
-            $ref: '#/components/schemas/ServiceOrderLineStatusCounts'
-          title: Service Order Lines
-          type: array
-        missing_ids:
-          description: Requested ids that do not exist or the caller cannot access.
-          items:
-            type: integer
-          title: Missing Ids
-          type: array
-        failed_ids:
-          description: Requested ids the aggregate could not be computed for.
-          items:
-            type: integer
-          title: Failed Ids
-          type: array
-      required:
-      - generated_at
-      - service_order_lines
-      - missing_ids
-      - failed_ids
-      title: DataTrackingStatusCountsResponse
-      type: object
-    DataTrackingResponse:
-      additionalProperties: false
-      description: Tracked file status response (flat, aggregated across stage rows).
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        file_path:
-          title: File Path
-          type: string
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder Id
-        workorder_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder Activity Id
-        upload_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Upload Status
-        upload_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Upload Error
-        upload_started_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Upload Started At
-        upload_finished_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Upload Finished At
-        process_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Status
-        process_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Error
-        process_started_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Started At
-        process_finished_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Finished At
-        process_logfile:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Logfile
-        archive_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Status
-        archive_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Error
-        archive_started_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Started At
-        archive_finished_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Finished At
-        archive_logfile:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Logfile
-        import_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Import Status
-        import_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Import Error
-        import_started_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Import Started At
-        import_finished_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Import Finished At
-      required:
-      - updated_at
-      - file_path
-      title: DataTrackingResponse
-      type: object
-    ServiceOrderLineStatusCounts:
-      additionalProperties: false
-      description: Per-stage status counters for a single service order line.
-      properties:
-        id:
-          title: Id
-          type: integer
-        total_files:
-          description: Distinct tracked files. Every stage's buckets sum to this value.
-          title: Total Files
-          type: integer
-        updated_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Most recent change across the line's rows; null when none.
-          title: Updated At
-        stages:
-          additionalProperties:
-            additionalProperties:
-              type: integer
-            type: object
-          description: 'Open map of stage key -> {status: count}. Statuses are the verbatim DataTrackingStatus values; zero buckets are omitted.'
-          title: Stages
-          type: object
-      required:
-      - id
-      - total_files
-      - stages
-      title: ServiceOrderLineStatusCounts
-      type: object
-    DataTrackingUpdateRequest:
-      additionalProperties: false
-      description: Request body for updating a tracked file.
-      properties:
-        file_path:
-          minLength: 1
-          title: File Path
-          type: string
-        upload_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        upload_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Upload Error
-        process_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        process_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Error
-        archive_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        archive_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Error
-        import_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        import_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Import Error
-      required:
-      - file_path
-      title: DataTrackingUpdateRequest
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

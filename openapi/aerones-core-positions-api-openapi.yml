@@ -195,24 +195,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PositionCreate:
-      additionalProperties: false
-      description: Schema for creating a Position.
-      properties:
-        name:
-          description: Position name
-          minLength: 1
-          title: Name
-          type: string
-        is_lead:
-          default: false
-          description: Whether this position is a lead role
-          title: Is Lead
-          type: boolean
-      required:
-      - name
-      title: PositionCreate
-      type: object
     PositionResponse:
       additionalProperties: false
       description: Schema for Position response.
@@ -241,38 +223,17 @@ components:
       - is_lead
       title: PositionResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PositionUpdate:
-      additionalProperties: false
-      description: Schema for updating a Position.
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Position name
-          title: Name
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether this position is a lead role
-          title: Is Lead
-      title: PositionUpdate
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -293,17 +254,56 @@ components:
           type: boolean
       title: Success
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    PositionUpdate:
+      additionalProperties: false
+      description: Schema for updating a Position.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Position name
+          title: Name
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether this position is a lead role
+          title: Is Lead
+      title: PositionUpdate
+      type: object
+    PositionCreate:
+      additionalProperties: false
+      description: Schema for creating a Position.
+      properties:
+        name:
+          description: Position name
+          minLength: 1
+          title: Name
+          type: string
+        is_lead:
+          default: false
+          description: Whether this position is a lead role
+          title: Is Lead
+          type: boolean
+      required:
+      - name
+      title: PositionCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

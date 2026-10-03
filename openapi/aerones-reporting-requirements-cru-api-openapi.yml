@@ -360,20 +360,30 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    GateCheckResponse:
+    RequirementVersionResponse:
       additionalProperties: false
       properties:
-        familiar:
-          title: Familiar
-          type: boolean
-        missing_requirements:
-          items:
-            $ref: '#/components/schemas/GateMissingRequirement'
-          title: Missing Requirements
-          type: array
+        version:
+          title: Version
+          type: integer
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
       required:
-      - familiar
-      title: GateCheckResponse
+      - version
+      - created_at
+      title: RequirementVersionResponse
       type: object
     CruProjectRequirementCreate:
       additionalProperties: false
@@ -420,6 +430,44 @@ components:
       - body
       title: CruProjectRequirementCreate
       type: object
+    GateCheckResponse:
+      additionalProperties: false
+      properties:
+        familiar:
+          title: Familiar
+          type: boolean
+        missing_requirements:
+          items:
+            $ref: '#/components/schemas/GateMissingRequirement'
+          title: Missing Requirements
+          type: array
+      required:
+      - familiar
+      title: GateCheckResponse
+      type: object
+    FamiliarityResponse:
+      additionalProperties: false
+      properties:
+        requirement_id:
+          title: Requirement Id
+          type: integer
+        user_sub:
+          title: User Sub
+          type: string
+        version:
+          title: Version
+          type: integer
+        familiarized_at:
+          format: date-time
+          title: Familiarized At
+          type: string
+      required:
+      - requirement_id
+      - user_sub
+      - version
+      - familiarized_at
+      title: FamiliarityResponse
+      type: object
     ApplicabilityInput:
       additionalProperties: false
       description: 'Typed-FK applicability row. Scope is read from the populated columns; at
@@ -448,53 +496,21 @@ components:
           title: Service Id
       title: ApplicabilityInput
       type: object
-    RequirementVersionResponse:
+    FamiliarityCreate:
       additionalProperties: false
       properties:
-        version:
-          title: Version
+        requirement_id:
+          title: Requirement Id
           type: integer
-        body:
+        operator_sub:
           anyOf:
           - type: string
           - type: 'null'
-          title: Body
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        created_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created By Name
+          description: Keycloak sub; defaults to the caller's.
+          title: Operator Sub
       required:
-      - version
-      - created_at
-      title: RequirementVersionResponse
-      type: object
-    GateMissingRequirement:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        title:
-          title: Title
-          type: string
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        current_version:
-          title: Current Version
-          type: integer
-      required:
-      - id
-      - title
-      - current_version
-      title: GateMissingRequirement
+      - requirement_id
+      title: FamiliarityCreate
       type: object
     ApplicabilityResponse:
       additionalProperties: false
@@ -526,21 +542,40 @@ components:
       - id
       title: ApplicabilityResponse
       type: object
-    FamiliarityCreate:
+    ProjectRequirementUpdate:
       additionalProperties: false
       properties:
-        requirement_id:
-          title: Requirement Id
-          type: integer
-        operator_sub:
+        title:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          title: Title
+        body:
           anyOf:
           - type: string
           - type: 'null'
-          description: Keycloak sub; defaults to the caller's.
-          title: Operator Sub
-      required:
-      - requirement_id
-      title: FamiliarityCreate
+          title: Body
+        attachment_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Attachment File Ids
+        applicabilities:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ApplicabilityInput'
+            type: array
+          - type: 'null'
+          title: Applicabilities
+        re_familiarize:
+          default: true
+          description: 'true (default): invalidate operator familiarity — live acks are tombstoned, operators must re-acknowledge. false: carry acks forward. Applies to any edit, body or scope.'
+          title: Re Familiarize
+          type: boolean
+      title: ProjectRequirementUpdate
       type: object
     ProjectRequirementResponse:
       additionalProperties: false
@@ -613,63 +648,28 @@ components:
       - updated_at
       title: ProjectRequirementResponse
       type: object
-    FamiliarityResponse:
+    GateMissingRequirement:
       additionalProperties: false
       properties:
-        requirement_id:
-          title: Requirement Id
+        id:
+          title: Id
           type: integer
-        user_sub:
-          title: User Sub
-          type: string
-        version:
-          title: Version
-          type: integer
-        familiarized_at:
-          format: date-time
-          title: Familiarized At
-          type: string
-      required:
-      - requirement_id
-      - user_sub
-      - version
-      - familiarized_at
-      title: FamiliarityResponse
-      type: object
-    ProjectRequirementUpdate:
-      additionalProperties: false
-      properties:
         title:
-          anyOf:
-          - maxLength: 255
-            type: string
-          - type: 'null'
           title: Title
-        body:
+          type: string
+        customer_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Body
-        attachment_file_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Attachment File Ids
-        applicabilities:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ApplicabilityInput'
-            type: array
-          - type: 'null'
-          title: Applicabilities
-        re_familiarize:
-          default: true
-          description: 'true (default): invalidate operator familiarity — live acks are tombstoned, operators must re-acknowledge. false: carry acks forward. Applies to any edit, body or scope.'
-          title: Re Familiarize
-          type: boolean
-      title: ProjectRequirementUpdate
+          title: Customer Id
+        current_version:
+          title: Current Version
+          type: integer
+      required:
+      - id
+      - title
+      - current_version
+      title: GateMissingRequirement
       type: object
   securitySchemes:
     APIKeyAuth:

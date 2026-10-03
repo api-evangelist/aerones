@@ -234,95 +234,50 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CertificateExpenseResponse:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
       additionalProperties: false
-      description: Schema for CertificateExpense response.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
-        id:
-          title: Id
-          type: integer
-        resource_id:
-          title: Resource Id
-          type: integer
-        certificate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Certificate Id
-        resource_certificate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Certificate Id
-        issuer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Issuer Id
-        issuer_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Issuer Name
-        offering_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Offering Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        amount:
-          anyOf:
-          - type: number
-          - type: string
-          title: Amount
-        currency_id:
-          title: Currency Id
-          type: integer
-        status:
-          $ref: '#/components/schemas/CertificateExpenseStatus'
-        order_date:
-          format: date
-          title: Order Date
-          type: string
-        completion_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completion Date
-        invoice_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Invoice Number
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Reason
       required:
-      - updated_at
-      - id
-      - resource_id
-      - amount
-      - currency_id
-      - status
-      - order_date
-      title: CertificateExpenseResponse
+      - code
+      - message
+      title: Error
       type: object
     CertificateExpenseUpdate:
       additionalProperties: false
@@ -415,19 +370,95 @@ components:
       - CANCELLED
       title: CertificateExpenseStatus
       type: string
-    Error:
+    CertificateExpenseResponse:
       additionalProperties: false
-      description: Error response schema.
+      description: Schema for CertificateExpense response.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
           type: string
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Certificate Id
+        resource_certificate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Certificate Id
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Issuer Id
+        issuer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Issuer Name
+        offering_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Offering Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        currency_id:
+          title: Currency Id
+          type: integer
+        status:
+          $ref: '#/components/schemas/CertificateExpenseStatus'
+        order_date:
+          format: date
+          title: Order Date
+          type: string
+        completion_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completion Date
+        invoice_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Invoice Number
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
       required:
-      - code
-      - message
-      title: Error
+      - updated_at
+      - id
+      - resource_id
+      - amount
+      - currency_id
+      - status
+      - order_date
+      title: CertificateExpenseResponse
       type: object
     CertificateExpenseCreate:
       additionalProperties: false
@@ -519,37 +550,6 @@ components:
       - order_date
       title: CertificateExpenseCreate
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

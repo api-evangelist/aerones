@@ -327,83 +327,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    SetDemobEventResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        event_type:
-          title: Event Type
-          type: string
-        old_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Old Status
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: New Status
-        old_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Old Date
-        new_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: New Date
-        description:
-          default: ''
-          title: Description
-          type: string
-        actor_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Actor Name
-        updated_at:
-          format: date-time
-          title: Updated At
-          type: string
-      required:
-      - id
-      - event_type
-      - updated_at
-      title: SetDemobEventResponse
-      type: object
-    SetDemobApprove:
-      additionalProperties: false
-      properties:
-        demob_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Return date to confirm. Defaults to the set's PPRSI end date (auto_demob_date) when omitted.
-          title: Demob Date
-        note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Note
-      title: SetDemobApprove
-      type: object
-    SetDemobCancel:
-      additionalProperties: false
-      properties:
-        note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Note
-      title: SetDemobCancel
-      type: object
     SetDemobResponse:
       additionalProperties: false
       properties:
@@ -500,27 +423,67 @@ components:
       - updated_at
       title: SetDemobResponse
       type: object
-    SetDemobCreate:
+    SetDemobReject:
       additionalProperties: false
       properties:
-        pprsi_id:
-          description: The ROBOT PPRSI (robot-set deployment line) to anchor the demob on. The demob is bound to that line's parent PPRS.
-          title: Pprsi Id
-          type: integer
-        demob_date:
-          description: The PM-committed demobilization date (the project end date), stored as the override. Must be today or later.
-          format: date
-          title: Demob Date
+        reason:
+          description: Why this demob is rejected. Required.
+          minLength: 1
+          title: Reason
           type: string
-        note:
+      required:
+      - reason
+      title: SetDemobReject
+      type: object
+    SetDemobEventResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        event_type:
+          title: Event Type
+          type: string
+        old_status:
           anyOf:
           - type: string
           - type: 'null'
-          title: Note
+          title: Old Status
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: New Status
+        old_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Old Date
+        new_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: New Date
+        description:
+          default: ''
+          title: Description
+          type: string
+        actor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Name
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
       required:
-      - pprsi_id
-      - demob_date
-      title: SetDemobCreate
+      - id
+      - event_type
+      - updated_at
+      title: SetDemobEventResponse
       type: object
     SetDemobAdjustDate:
       additionalProperties: false
@@ -538,18 +501,6 @@ components:
       required:
       - demob_date
       title: SetDemobAdjustDate
-      type: object
-    SetDemobReject:
-      additionalProperties: false
-      properties:
-        reason:
-          description: Why this demob is rejected. Required.
-          minLength: 1
-          title: Reason
-          type: string
-      required:
-      - reason
-      title: SetDemobReject
       type: object
     SetDemobAnchorCandidate:
       additionalProperties: false
@@ -587,6 +538,55 @@ components:
       - pprsi_id
       - pprs_id
       title: SetDemobAnchorCandidate
+      type: object
+    SetDemobCancel:
+      additionalProperties: false
+      properties:
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      title: SetDemobCancel
+      type: object
+    SetDemobCreate:
+      additionalProperties: false
+      properties:
+        pprsi_id:
+          description: The ROBOT PPRSI (robot-set deployment line) to anchor the demob on. The demob is bound to that line's parent PPRS.
+          title: Pprsi Id
+          type: integer
+        demob_date:
+          description: The PM-committed demobilization date (the project end date), stored as the override. Must be today or later.
+          format: date
+          title: Demob Date
+          type: string
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      required:
+      - pprsi_id
+      - demob_date
+      title: SetDemobCreate
+      type: object
+    SetDemobApprove:
+      additionalProperties: false
+      properties:
+        demob_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Return date to confirm. Defaults to the set's PPRSI end date (auto_demob_date) when omitted.
+          title: Demob Date
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Note
+      title: SetDemobApprove
       type: object
   securitySchemes:
     APIKeyAuth:

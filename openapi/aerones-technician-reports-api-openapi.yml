@@ -369,53 +369,28 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    FinalReportGenerationSummary:
+    FinalReportRequest:
       additionalProperties: false
-      description: A single final-report generation, used in the modal state payload.
+      description: Request body for generating a final report for a single SOL.
       properties:
-        generation_id:
-          title: Generation Id
+        service_order_line_id:
+          description: Service order line ID
+          title: Service Order Line Id
           type: integer
-        status:
-          title: Status
+        format:
+          default: pdf
+          description: Output format (pdf, html)
+          title: Format
           type: string
-        generated_at:
-          anyOf:
-          - format: date-time
+        exclude_fields:
+          description: Optional report field names to exclude (e.g. comments, description)
+          items:
             type: string
-          - type: 'null'
-          title: Generated At
-        generated_by_user:
-          anyOf:
-          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
-          - type: 'null'
-        started_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Started At
+          title: Exclude Fields
+          type: array
       required:
-      - generation_id
-      - status
-      title: FinalReportGenerationSummary
-      type: object
-    FinalReportStartResponse:
-      additionalProperties: false
-      description: Response after kicking off async final-report generation.
-      properties:
-        generation_id:
-          description: Report row ID
-          title: Generation Id
-          type: integer
-        status:
-          description: pending | complete | failed
-          title: Status
-          type: string
-      required:
-      - generation_id
-      - status
-      title: FinalReportStartResponse
+      - service_order_line_id
+      title: FinalReportRequest
       type: object
     SendReportRequest:
       additionalProperties: false
@@ -465,6 +440,98 @@ components:
       - date
       title: SendReportRequest
       type: object
+    FinalReportStatusResponse:
+      additionalProperties: false
+      description: Polling response for an in-flight final-report generation.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - status
+      title: FinalReportStatusResponse
+      type: object
+    FinalReportStateResponse:
+      additionalProperties: false
+      description: 'State the Final Report modal needs on open.
+
+
+        ``latest_completed`` drives the "Previously generated report" button and its
+
+        tooltip; ``in_progress`` lets the modal resume the "Generating..." state.'
+      properties:
+        latest_completed:
+          anyOf:
+          - $ref: '#/components/schemas/FinalReportGenerationSummary'
+          - type: 'null'
+        in_progress:
+          anyOf:
+          - $ref: '#/components/schemas/FinalReportGenerationSummary'
+          - type: 'null'
+      title: FinalReportStateResponse
+      type: object
+    DailyReportSubmittedByUser:
+      additionalProperties: false
+      description: Submitted-by user identity for selected-date draft metadata.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: DailyReportSubmittedByUser
+      type: object
+    FinalReportGenerationSummary:
+      additionalProperties: false
+      description: A single final-report generation, used in the modal state payload.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        generated_by_user:
+          anyOf:
+          - $ref: '#/components/schemas/DailyReportSubmittedByUser'
+          - type: 'null'
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+      required:
+      - generation_id
+      - status
+      title: FinalReportGenerationSummary
+      type: object
     SendReportResponse:
       additionalProperties: false
       description: Response payload for successful daily report send action.
@@ -488,21 +555,6 @@ components:
       - message
       - recipients_count
       title: SendReportResponse
-      type: object
-    DailyReportSubmittedByUser:
-      additionalProperties: false
-      description: Submitted-by user identity for selected-date draft metadata.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: DailyReportSubmittedByUser
       type: object
     DailyReportSolResponse:
       additionalProperties: false
@@ -682,24 +734,22 @@ components:
       - id
       title: DailyReportSolResponse
       type: object
-    FinalReportStateResponse:
+    FinalReportStartResponse:
       additionalProperties: false
-      description: 'State the Final Report modal needs on open.
-
-
-        ``latest_completed`` drives the "Previously generated report" button and its
-
-        tooltip; ``in_progress`` lets the modal resume the "Generating..." state.'
+      description: Response after kicking off async final-report generation.
       properties:
-        latest_completed:
-          anyOf:
-          - $ref: '#/components/schemas/FinalReportGenerationSummary'
-          - type: 'null'
-        in_progress:
-          anyOf:
-          - $ref: '#/components/schemas/FinalReportGenerationSummary'
-          - type: 'null'
-      title: FinalReportStateResponse
+        generation_id:
+          description: Report row ID
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+      required:
+      - generation_id
+      - status
+      title: FinalReportStartResponse
       type: object
     DownloadReportRequest:
       additionalProperties: false
@@ -741,56 +791,6 @@ components:
       required:
       - date
       title: DownloadReportRequest
-      type: object
-    FinalReportRequest:
-      additionalProperties: false
-      description: Request body for generating a final report for a single SOL.
-      properties:
-        service_order_line_id:
-          description: Service order line ID
-          title: Service Order Line Id
-          type: integer
-        format:
-          default: pdf
-          description: Output format (pdf, html)
-          title: Format
-          type: string
-        exclude_fields:
-          description: Optional report field names to exclude (e.g. comments, description)
-          items:
-            type: string
-          title: Exclude Fields
-          type: array
-      required:
-      - service_order_line_id
-      title: FinalReportRequest
-      type: object
-    FinalReportStatusResponse:
-      additionalProperties: false
-      description: Polling response for an in-flight final-report generation.
-      properties:
-        generation_id:
-          title: Generation Id
-          type: integer
-        status:
-          description: pending | complete | failed
-          title: Status
-          type: string
-        generated_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Generated At
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      required:
-      - generation_id
-      - status
-      title: FinalReportStatusResponse
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -453,6 +453,36 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    CommentCreate:
+      additionalProperties: false
+      properties:
+        body:
+          title: Body
+          type: string
+      required:
+      - body
+      title: CommentCreate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     NestedWorkPackage:
       additionalProperties: false
       properties:
@@ -470,6 +500,460 @@ components:
       - id
       - name
       title: NestedWorkPackage
+      type: object
+    NestedCampaign:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedCampaign
+      type: object
+    AttachmentCreate:
+      additionalProperties: false
+      properties:
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Name
+        file_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: ''
+          title: File Type
+      required:
+      - storage_id
+      title: AttachmentCreate
+      type: object
+    NestedSite:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedSite
+      type: object
+    CommentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By Id
+      required:
+      - id
+      - body
+      title: CommentResponse
+      type: object
+    NestedTurbine:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: NestedTurbine
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    NestedTurbineComponent:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: NestedTurbineComponent
+      type: object
+    CwmApplyTemplatePayload:
+      additionalProperties: false
+      properties:
+        template_id:
+          title: Template Id
+          type: integer
+      required:
+      - template_id
+      title: CwmApplyTemplatePayload
+      type: object
+    CompleteWorkOrdersPayload:
+      additionalProperties: false
+      description: Mark one or more work orders complete (+ cascade linked anomalies).
+      properties:
+        work_order_ids:
+          items:
+            type: integer
+          title: Work Order Ids
+          type: array
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+      required:
+      - work_order_ids
+      title: CompleteWorkOrdersPayload
+      type: object
+    ClientWorkOrderCreate:
+      additionalProperties: false
+      properties:
+        task_type:
+          title: Task Type
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: draft
+          title: Status
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        work_package_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Package Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Id
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+      required:
+      - task_type
+      title: ClientWorkOrderCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CompleteWorkOrdersResponse:
+      additionalProperties: false
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/CompleteWorkOrderResult'
+          title: Results
+          type: array
+      required:
+      - results
+      title: CompleteWorkOrdersResponse
+      type: object
+    NestedVendor:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: NestedVendor
+      type: object
+    AttachmentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        storage_id:
+          title: Storage Id
+          type: string
+        file_name:
+          default: ''
+          title: File Name
+          type: string
+        file_type:
+          default: ''
+          title: File Type
+          type: string
+      required:
+      - id
+      - storage_id
+      title: AttachmentResponse
+      type: object
+    CwmActivityResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        client_work_order_id:
+          title: Client Work Order Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        completed:
+          default: false
+          title: Completed
+          type: boolean
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          default: []
+          items: {}
+          title: Custom Fields
+          type: array
+        comments:
+          default: []
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+          title: Comments
+          type: array
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+          title: Attachments
+          type: array
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - client_work_order_id
+      - updated_at
+      title: CwmActivityResponse
+      type: object
+    ClientWorkOrderUpdate:
+      properties:
+        task_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Type
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        work_package_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Work Package Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vendor Id
+        anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Id
+        site_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Site Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+      title: ClientWorkOrderUpdate
       type: object
     ClientWorkOrderResponse:
       properties:
@@ -613,350 +1097,6 @@ components:
       - updated_at
       title: ClientWorkOrderResponse
       type: object
-    AttachmentResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        storage_id:
-          title: Storage Id
-          type: string
-        file_name:
-          default: ''
-          title: File Name
-          type: string
-        file_type:
-          default: ''
-          title: File Type
-          type: string
-      required:
-      - id
-      - storage_id
-      title: AttachmentResponse
-      type: object
-    CommentResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        body:
-          title: Body
-          type: string
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Created At
-        created_by_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Created By Id
-      required:
-      - id
-      - body
-      title: CommentResponse
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ClientWorkOrderUpdate:
-      properties:
-        task_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Task Type
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        priority:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Priority
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Start Date
-        due_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Due Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        campaign_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Campaign Id
-        work_package_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Work Package Id
-        vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Vendor Id
-        anomaly_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Id
-        site_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Site Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-      title: ClientWorkOrderUpdate
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    NestedTurbine:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-      required:
-      - id
-      title: NestedTurbine
-      type: object
-    CwmActivityResponse:
-      properties:
-        id:
-          title: Id
-          type: integer
-        client_work_order_id:
-          title: Client Work Order Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        completed:
-          default: false
-          title: Completed
-          type: boolean
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        due_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Due Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        position:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Position
-        custom_fields:
-          default: []
-          items: {}
-          title: Custom Fields
-          type: array
-        comments:
-          default: []
-          items:
-            $ref: '#/components/schemas/CommentResponse'
-          title: Comments
-          type: array
-        attachments:
-          default: []
-          items:
-            $ref: '#/components/schemas/AttachmentResponse'
-          title: Attachments
-          type: array
-        updated_at:
-          format: date-time
-          title: Updated At
-          type: string
-      required:
-      - id
-      - client_work_order_id
-      - updated_at
-      title: CwmActivityResponse
-      type: object
-    CompleteWorkOrdersResponse:
-      additionalProperties: false
-      properties:
-        results:
-          items:
-            $ref: '#/components/schemas/CompleteWorkOrderResult'
-          title: Results
-          type: array
-      required:
-      - results
-      title: CompleteWorkOrdersResponse
-      type: object
-    CwmApplyTemplatePayload:
-      additionalProperties: false
-      properties:
-        template_id:
-          title: Template Id
-          type: integer
-      required:
-      - template_id
-      title: CwmApplyTemplatePayload
-      type: object
-    NestedTurbineComponent:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Serial Number
-      required:
-      - id
-      title: NestedTurbineComponent
-      type: object
-    CompleteWorkOrdersPayload:
-      additionalProperties: false
-      description: Mark one or more work orders complete (+ cascade linked anomalies).
-      properties:
-        work_order_ids:
-          items:
-            type: integer
-          title: Work Order Ids
-          type: array
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-      required:
-      - work_order_ids
-      title: CompleteWorkOrdersPayload
-      type: object
-    NestedSite:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: NestedSite
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    NestedVendor:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: NestedVendor
-      type: object
     CompleteWorkOrderResult:
       description: Per-work-order outcome of the atomic complete + cascade (AECP-333).
       properties:
@@ -984,146 +1124,6 @@ components:
       - status_updated
       - cascade
       title: CompleteWorkOrderResult
-      type: object
-    NestedCampaign:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: NestedCampaign
-      type: object
-    AttachmentCreate:
-      additionalProperties: false
-      properties:
-        storage_id:
-          title: Storage Id
-          type: string
-        file_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: ''
-          title: File Name
-        file_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: ''
-          title: File Type
-      required:
-      - storage_id
-      title: AttachmentCreate
-      type: object
-    CommentCreate:
-      additionalProperties: false
-      properties:
-        body:
-          title: Body
-          type: string
-      required:
-      - body
-      title: CommentCreate
-      type: object
-    ClientWorkOrderCreate:
-      additionalProperties: false
-      properties:
-        task_type:
-          title: Task Type
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: draft
-          title: Status
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        priority:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Priority
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Start Date
-        due_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Due Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        campaign_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Campaign Id
-        work_package_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Work Package Id
-        vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Vendor Id
-        anomaly_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Id
-        site_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Site Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        template_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Template Id
-      required:
-      - task_type
-      title: ClientWorkOrderCreate
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -225,6 +225,91 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CertificateCreate:
+      additionalProperties: false
+      description: Schema for creating a Certificate.
+      properties:
+        name:
+          description: Certificate name
+          minLength: 1
+          title: Name
+          type: string
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Unique short code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Description
+          title: Description
+        default_validity_months:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Default expiry window in months. Omit / null for non-expiring certificates.
+          title: Default Validity Months
+        is_active:
+          default: true
+          description: Whether the certificate is active
+          title: Is Active
+          type: boolean
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country the certificate is intrinsic to. Omit for global.
+          title: Country Id
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Category FK
+          title: Category Id
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Origin system (e.g. "bamboohr")
+          title: Source
+      required:
+      - name
+      title: CertificateCreate
+      type: object
     CertificateResponse:
       additionalProperties: false
       description: Schema for Certificate response.
@@ -289,6 +374,20 @@ components:
       - is_active
       title: CertificateResponse
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     CertificateUpdate:
       additionalProperties: false
       description: Schema for updating a Certificate (partial).
@@ -336,105 +435,6 @@ components:
           title: Source
       title: CertificateUpdate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CertificateCreate:
-      additionalProperties: false
-      description: Schema for creating a Certificate.
-      properties:
-        name:
-          description: Certificate name
-          minLength: 1
-          title: Name
-          type: string
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Unique short code
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Description
-          title: Description
-        default_validity_months:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Default expiry window in months. Omit / null for non-expiring certificates.
-          title: Default Validity Months
-        is_active:
-          default: true
-          description: Whether the certificate is active
-          title: Is Active
-          type: boolean
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country the certificate is intrinsic to. Omit for global.
-          title: Country Id
-        category_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Category FK
-          title: Category Id
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Origin system (e.g. "bamboohr")
-          title: Source
-      required:
-      - name
-      title: CertificateCreate
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

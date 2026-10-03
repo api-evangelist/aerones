@@ -72,6 +72,318 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ProjectContactRole:
+      description: 'All possible roles for ProjectContact (used in responses).
+
+
+        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
+
+        intentionally preserve it for API compatibility.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - SITE_CONTACT
+      - QHSE_CONTACT
+      title: ProjectContactRole
+      type: string
+    RfiBillingCompositeUpdate:
+      additionalProperties: false
+      description: 'Partial update for the RFI Billing composite (ProjectBilling + linked POs).
+
+
+        Use ``project_billing`` with partial fields per ``exclude_unset`` semantics.
+
+        For ``linked_purchase_order_ids``: include the field to reconcile junction rows
+
+        to that exact id set (``[]`` clears all links). Omit the field entirely to leave
+
+        existing links unchanged.'
+      properties:
+        project_billing:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectBillingUpdate'
+          - type: 'null'
+          description: Partial ProjectBilling fields; omit to skip billing mutation
+        linked_purchase_order_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Core purchase_order ids linked to this project. Present (even as []) reconciles links; omit to leave links untouched.
+          title: Linked Purchase Order Ids
+      title: RfiBillingCompositeUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    PurchaseOrderVersionObject:
+      additionalProperties: false
+      description: Nested purchase order version object (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        version_number:
+          title: Version Number
+          type: integer
+        order_number:
+          title: Order Number
+          type: string
+        issue_date:
+          format: date
+          title: Issue Date
+          type: string
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          title: Amount
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+      required:
+      - id
+      - version_number
+      - order_number
+      - issue_date
+      - amount
+      title: PurchaseOrderVersionObject
+      type: object
+    VendorObject:
+      additionalProperties: false
+      description: Nested vendor object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: VendorObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PurchaseOrderResponse:
+      additionalProperties: false
+      description: PurchaseOrder with its current version inlined for list/detail use.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderCustomerRef'
+          - type: 'null'
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyObject'
+          - type: 'null'
+        current_version:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderVersionObject'
+          - type: 'null'
+        project_ids:
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+      required:
+      - updated_at
+      - id
+      title: PurchaseOrderResponse
+      type: object
+    PurchaseOrderCustomerRef:
+      additionalProperties: false
+      description: 'Slim customer reference for PurchaseOrder responses.
+
+
+        Intentionally does not nest the customer''s own currency — a PO carries
+
+        its own currency, independent of the customer''s default.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      - display_name
+      title: PurchaseOrderCustomerRef
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
+      type: object
+    RfiBillingCompositeResponse:
+      additionalProperties: false
+      description: 'Project billing snapshot plus purchase orders linked for RFI Billing.
+
+
+        ``updated_at`` is the canonical ``ProjectBilling`` row timestamp (same row as
+
+        ``project_billing``).'
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        project_id:
+          description: Core project ID
+          title: Project Id
+          type: integer
+        offer_status:
+          description: 'Effective offer status: the latest ProjectOffer.status, or ''Draft'' when the project has no offer yet. RFI Billing gates currency editing on this (editable only while ''Draft'').'
+          title: Offer Status
+          type: string
+        project_billing:
+          $ref: '#/components/schemas/ProjectBillingResponse'
+          description: Canonical ProjectBilling row for this project
+        linked_purchase_orders:
+          description: Purchase orders linked via PurchaseOrderProject
+          items:
+            $ref: '#/components/schemas/PurchaseOrderResponse'
+          title: Linked Purchase Orders
+          type: array
+      required:
+      - updated_at
+      - project_id
+      - offer_status
+      - project_billing
+      title: RfiBillingCompositeResponse
+      type: object
+    ProjectContactObject:
+      additionalProperties: false
+      description: Nested project contact object for Project response (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactRole'
+          - type: 'null'
+        customer_contact_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Contact Name
+        customer_type:
+          title: Customer Type
+          type: string
+      required:
+      - id
+      - customer_type
+      title: ProjectContactObject
+      type: object
     ProjectBillingResponse:
       additionalProperties: false
       description: Schema for ProjectBilling response.
@@ -240,259 +552,6 @@ components:
       - project_id
       title: ProjectBillingResponse
       type: object
-    PurchaseOrderResponse:
-      additionalProperties: false
-      description: PurchaseOrder with its current version inlined for list/detail use.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          title: Id
-          type: integer
-        customer:
-          anyOf:
-          - $ref: '#/components/schemas/PurchaseOrderCustomerRef'
-          - type: 'null'
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyObject'
-          - type: 'null'
-        current_version:
-          anyOf:
-          - $ref: '#/components/schemas/PurchaseOrderVersionObject'
-          - type: 'null'
-        project_ids:
-          items:
-            type: integer
-          title: Project Ids
-          type: array
-      required:
-      - updated_at
-      - id
-      title: PurchaseOrderResponse
-      type: object
-    PurchaseOrderCustomerRef:
-      additionalProperties: false
-      description: 'Slim customer reference for PurchaseOrder responses.
-
-
-        Intentionally does not nest the customer''s own currency — a PO carries
-
-        its own currency, independent of the customer''s default.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-      required:
-      - id
-      - display_name
-      title: PurchaseOrderCustomerRef
-      type: object
-    ProjectContactRole:
-      description: 'All possible roles for ProjectContact (used in responses).
-
-
-        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
-
-        intentionally preserve it for API compatibility.'
-      enum:
-      - PRIMARY_CONTACT
-      - REPORT_RECEPIENT
-      - INVOICE_APPROVER
-      - SITE_CONTACT
-      - QHSE_CONTACT
-      title: ProjectContactRole
-      type: string
-    RfiBillingCompositeResponse:
-      additionalProperties: false
-      description: 'Project billing snapshot plus purchase orders linked for RFI Billing.
-
-
-        ``updated_at`` is the canonical ``ProjectBilling`` row timestamp (same row as
-
-        ``project_billing``).'
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        project_id:
-          description: Core project ID
-          title: Project Id
-          type: integer
-        offer_status:
-          description: 'Effective offer status: the latest ProjectOffer.status, or ''Draft'' when the project has no offer yet. RFI Billing gates currency editing on this (editable only while ''Draft'').'
-          title: Offer Status
-          type: string
-        project_billing:
-          $ref: '#/components/schemas/ProjectBillingResponse'
-          description: Canonical ProjectBilling row for this project
-        linked_purchase_orders:
-          description: Purchase orders linked via PurchaseOrderProject
-          items:
-            $ref: '#/components/schemas/PurchaseOrderResponse'
-          title: Linked Purchase Orders
-          type: array
-      required:
-      - updated_at
-      - project_id
-      - offer_status
-      - project_billing
-      title: RfiBillingCompositeResponse
-      type: object
-    CustomerObject:
-      additionalProperties: false
-      description: Nested customer object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyIdCodeObject'
-          - type: 'null'
-          description: Customer currency (id and code only)
-      required:
-      - id
-      - display_name
-      title: CustomerObject
-      type: object
-    PurchaseOrderVersionObject:
-      additionalProperties: false
-      description: Nested purchase order version object (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        version_number:
-          title: Version Number
-          type: integer
-        order_number:
-          title: Order Number
-          type: string
-        issue_date:
-          format: date
-          title: Issue Date
-          type: string
-        amount:
-          anyOf:
-          - type: number
-          - type: string
-          title: Amount
-        file_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: File Id
-      required:
-      - id
-      - version_number
-      - order_number
-      - issue_date
-      - amount
-      title: PurchaseOrderVersionObject
-      type: object
-    ProjectContactObject:
-      additionalProperties: false
-      description: Nested project contact object for Project response (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        role:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectContactRole'
-          - type: 'null'
-        customer_contact_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Customer Contact Name
-        customer_type:
-          title: Customer Type
-          type: string
-      required:
-      - id
-      - customer_type
-      title: ProjectContactObject
-      type: object
-    CurrencyObject:
-      additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
-        code:
-          description: Currency code (ISO 4217)
-          title: Code
-          type: string
-        name:
-          description: Currency name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CurrencyObject
-      type: object
-    CurrencyIdCodeObject:
-      additionalProperties: false
-      description: Nested currency object with only id and code (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: CurrencyIdCodeObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     ProjectBillingUpdate:
       additionalProperties: false
       description: Schema for updating a ProjectBilling (partial).
@@ -647,65 +706,6 @@ components:
           title: Vendor Id
       title: ProjectBillingUpdate
       type: object
-    RfiBillingCompositeUpdate:
-      additionalProperties: false
-      description: 'Partial update for the RFI Billing composite (ProjectBilling + linked POs).
-
-
-        Use ``project_billing`` with partial fields per ``exclude_unset`` semantics.
-
-        For ``linked_purchase_order_ids``: include the field to reconcile junction rows
-
-        to that exact id set (``[]`` clears all links). Omit the field entirely to leave
-
-        existing links unchanged.'
-      properties:
-        project_billing:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectBillingUpdate'
-          - type: 'null'
-          description: Partial ProjectBilling fields; omit to skip billing mutation
-        linked_purchase_order_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Core purchase_order ids linked to this project. Present (even as []) reconciles links; omit to leave links untouched.
-          title: Linked Purchase Order Ids
-      title: RfiBillingCompositeUpdate
-      type: object
-    VendorObject:
-      additionalProperties: false
-      description: Nested vendor object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: VendorObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http
