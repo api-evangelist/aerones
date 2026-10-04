@@ -358,47 +358,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectAssetTableResponse:
-      additionalProperties: false
-      description: Schema for project assets table response.
-      properties:
-        assets:
-          description: List of assets with their relationships and details
-          items:
-            $ref: '#/components/schemas/ProjectAsset'
-          title: Assets
-          type: array
-      required:
-      - assets
-      title: ProjectAssetTableResponse
-      type: object
-    MessageWithSuccess:
-      additionalProperties: false
-      description: Success response schema with message.
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-        message:
-          title: Message
-          type: string
-      required:
-      - message
-      title: MessageWithSuccess
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ProjectAssetCreate:
       additionalProperties: false
       description: Schema for creating a new WTG asset.
@@ -456,6 +415,20 @@ components:
       - site
       title: ProjectAssetCreate
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     ProjectAssetPatch:
       additionalProperties: false
       description: 'Schema for patching a ProjectAsset.
@@ -497,20 +470,33 @@ components:
           title: Longitude
       title: ProjectAssetPatch
       type: object
-    Error:
+    MessageWithSuccess:
       additionalProperties: false
-      description: Error response schema.
+      description: Success response schema with message.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
         message:
           title: Message
           type: string
       required:
-      - code
       - message
-      title: Error
+      title: MessageWithSuccess
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ProjectAsset:
       additionalProperties: false
       description: Schema for a single project asset.
@@ -664,6 +650,20 @@ components:
       - latitude
       - longitude
       title: ProjectAsset
+      type: object
+    ProjectAssetTableResponse:
+      additionalProperties: false
+      description: Schema for project assets table response.
+      properties:
+        assets:
+          description: List of assets with their relationships and details
+          items:
+            $ref: '#/components/schemas/ProjectAsset'
+          title: Assets
+          type: array
+      required:
+      - assets
+      title: ProjectAssetTableResponse
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -215,34 +215,41 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectReportRecipientObject:
+    ProjectReportTypeUpdate:
       additionalProperties: false
-      description: Nested report recipient object (a linked project contact).
+      description: Schema for updating a ProjectReportType (partial).
       properties:
-        id:
-          description: ProjectReportRecipient link ID
-          title: Id
-          type: integer
-        project_contact_id:
-          description: Linked project contact ID
-          title: Project Contact Id
-          type: integer
-        project_contact_name:
+        requirement_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Specific report requirement attachment file IDs
+          title: Requirement File Ids
+        requirement_notes:
           anyOf:
           - type: string
           - type: 'null'
-          description: Linked contact's name
-          title: Project Contact Name
-        project_contact_email:
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipient_project_contact_ids:
           anyOf:
-          - type: string
+          - items:
+              type: integer
+            type: array
           - type: 'null'
-          description: Linked contact's email
-          title: Project Contact Email
-      required:
-      - id
-      - project_contact_id
-      title: ProjectReportRecipientObject
+          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
+          title: Recipient Project Contact Ids
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails (None leaves them unchanged, [] clears them)
+          title: Recipient Emails
+      title: ProjectReportTypeUpdate
       type: object
     ProjectReportTypeCreate:
       additionalProperties: false
@@ -282,36 +289,19 @@ components:
       - report_type_id
       title: ProjectReportTypeCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
+    Error:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Error response schema.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ReportTypeObject:
       additionalProperties: false
@@ -331,56 +321,6 @@ components:
       - code
       - name
       title: ReportTypeObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ProjectReportTypeUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectReportType (partial).
-      properties:
-        requirement_file_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Specific report requirement attachment file IDs
-          title: Requirement File Ids
-        requirement_notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text specific report requirements
-          title: Requirement Notes
-        recipient_project_contact_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
-          title: Recipient Project Contact Ids
-        recipient_emails:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Selected recipient emails (None leaves them unchanged, [] clears them)
-          title: Recipient Emails
-      title: ProjectReportTypeUpdate
       type: object
     ProjectReportTypeResponse:
       additionalProperties: false
@@ -434,6 +374,66 @@ components:
       - project_id
       - report_type
       title: ProjectReportTypeResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectReportRecipientObject:
+      additionalProperties: false
+      description: Nested report recipient object (a linked project contact).
+      properties:
+        id:
+          description: ProjectReportRecipient link ID
+          title: Id
+          type: integer
+        project_contact_id:
+          description: Linked project contact ID
+          title: Project Contact Id
+          type: integer
+        project_contact_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Linked contact's name
+          title: Project Contact Name
+        project_contact_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Linked contact's email
+          title: Project Contact Email
+      required:
+      - id
+      - project_contact_id
+      title: ProjectReportRecipientObject
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -530,72 +530,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectLocationUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectLocation.
-      properties:
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Location ID
-          title: Location Id
-        project_contact_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project contact ID
-          title: Project Contact Id
-        additional_information:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: Additional information as JSON
-          title: Additional Information
-      title: ProjectLocationUpdate
-      type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
     PreJobPrefillSourceProject:
       additionalProperties: false
       description: Another project usable as a pre-job prefill source. Paginated list row.
@@ -630,124 +564,488 @@ components:
       - code
       title: PreJobPrefillSourceProject
       type: object
-    PreJobSiteCompositeContactItem:
+    ProjectLocationUpdate:
       additionalProperties: false
-      description: 'One contact row in a composite PUT (upsert: set id to update, omit to create).'
+      description: Schema for updating a ProjectLocation.
+      properties:
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID
+          title: Location Id
+        project_contact_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project contact ID
+          title: Project Contact Id
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      title: ProjectLocationUpdate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectLocationResponse:
+      additionalProperties: false
+      description: Schema for ProjectLocation response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project location ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/LocationObjectExpanded'
+          description: Expanded location information with full details
+        project_contact_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project contact ID
+          title: Project Contact Id
+        om_building_customer_address_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'Pre-job O&M building: optional FK to ``CustomerAddress`` (``OM_BUILDING``); null when not linked'
+          title: Om Building Customer Address Id
+        contact:
+          anyOf:
+          - $ref: '#/components/schemas/CustomerContactObject'
+          - type: 'null'
+          description: Customer contact information
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      required:
+      - updated_at
+      - id
+      - project_id
+      - location
+      title: ProjectLocationResponse
+      type: object
+    PreJobSiteOMBuildingObject:
+      additionalProperties: false
+      description: O&M building address in the pre-job sites response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        address_line1:
+          title: Address Line1
+          type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line2
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
+      required:
+      - id
+      - address_line1
+      title: PreJobSiteOMBuildingObject
+      type: object
+    PreJobSiteCompositeOMBuildingPatch:
+      additionalProperties: false
+      description: 'Partial upsert for this project location''s O&M ``CustomerAddress`` (``OM_BUILDING``).
+
+
+        Persisted link is ``ProjectLocation.om_building_customer_address``; composite
+
+        writes do not use ``CustomerAddress.location_id`` as the join key.'
       properties:
         id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Existing CustomerContact id; omit for a new row
+          description: Existing CustomerAddress id when updating
           title: Id
         name:
           anyOf:
           - minLength: 1
             type: string
           - type: 'null'
-          description: Contact name
+          description: Address label
           title: Name
-        title:
+        additional_info:
           anyOf:
           - type: string
           - type: 'null'
-          description: Title / role shown as `role` in pre-job read payloads
-          title: Title
-        department:
+          description: Additional info
+          title: Additional Info
+        address_line1:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Address line 1
+          title: Address Line1
+        address_line2:
           anyOf:
           - type: string
           - type: 'null'
-          description: Department
-          title: Department
+          description: Address line 2
+          title: Address Line2
+        city:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: City
+          title: City
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Postal code
+          title: Postal Code
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+      title: PreJobSiteCompositeOMBuildingPatch
+      type: object
+    PreJobSiteContactObject:
+      additionalProperties: false
+      description: Contact within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
         email:
           anyOf:
           - type: string
           - type: 'null'
-          description: Email
           title: Email
         phone:
           anyOf:
           - type: string
           - type: 'null'
-          description: Phone
           title: Phone
-        is_primary:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Primary flag
-          title: Is Primary
-        additional_info:
+        role:
           anyOf:
           - type: string
           - type: 'null'
-          description: Extra notes
-          title: Additional Info
+          title: Role
         is_qhse:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Mark this contact as the QHSE contact (manages a QHSE_CONTACT ProjectContact row)
+          default: false
           title: Is Qhse
-      title: PreJobSiteCompositeContactItem
+          type: boolean
+      required:
+      - id
+      title: PreJobSiteContactObject
       type: object
-    PreJobSiteCompositeUpdate:
+    LocationObjectExpanded:
       additionalProperties: false
-      description: Partial update body for PUT .../locations/{id}/pre-job (all sections optional).
+      description: Expanded location object with full details for ProjectLocation responses.
       properties:
-        location_custom_fields:
+        id:
+          title: Id
+          type: integer
+        name:
           anyOf:
-          - type: object
+          - type: string
           - type: 'null'
-          description: Patch for Location.custom_fields; keys must be a subset of the pre-job allow-list (see OpenAPI / terrain and regulations fields).
-          title: Location Custom Fields
-        customer_location_metadata:
+          title: Name
+        type:
           anyOf:
-          - type: object
+          - type: string
           - type: 'null'
-          description: Patch for CustomerLocation.metadata (access, schedule, certification flags).
-          title: Customer Location Metadata
+          description: Location type (WIND_PARK, etc.)
+          title: Type
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full address (computed from address fields)
+          title: Address
+        state_region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: State or region
+          title: State Region
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+          description: Country details
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+          description: Timezone details
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: GPS latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: GPS longitude
+          title: Longitude
+        certificates:
+          description: Required certificates with id, name, is_mandatory
+          items:
+            type: object
+          title: Certificates
+          type: array
+      required:
+      - id
+      title: LocationObjectExpanded
+      type: object
+    PreJobSiteCompositeResponse:
+      additionalProperties: false
+      description: 'Full pre-job payload for one project location (GET .../locations/{id}/pre-job).
+
+
+        `location_id` in the route is ProjectLocation.id. Includes the CustomerLocation
+
+        row when the requesting customer is linked to the underlying Location.
+
+
+        ``updated_at`` is the ``ProjectLocation`` row timestamp (same entity as
+
+        ``project_location_id``).'
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        project_location_id:
+          title: Project Location Id
+          type: integer
+        location:
+          $ref: '#/components/schemas/PreJobSiteLocationObject'
+        customer_location:
+          anyOf:
+          - $ref: '#/components/schemas/PreJobSiteCompositeCustomerLocationObject'
+          - type: 'null'
+          description: Customer–location link for this site, if it exists
+        contact:
+          anyOf:
+          - $ref: '#/components/schemas/PreJobSiteContactObject'
+          - type: 'null'
+          description: Primary contact from ProjectContact
+        customer_contacts:
+          description: Contacts linked to the customer-location relationship
+          items:
+            $ref: '#/components/schemas/PreJobSiteContactObject'
+          title: Customer Contacts
+          type: array
+        pre_job_answers:
+          items:
+            $ref: '#/components/schemas/PreJobSiteAnswerObject'
+          title: Pre Job Answers
+          type: array
+        files:
+          items:
+            $ref: '#/components/schemas/PreJobSiteFileObject'
+          title: Files
+          type: array
         additional_information:
           anyOf:
           - type: object
           - type: 'null'
-          description: Replace ProjectLocation.additional_information
+          description: ProjectLocation.additional_information (JSON)
           title: Additional Information
-        contacts:
+        om_building_address:
           anyOf:
-          - items:
-              $ref: '#/components/schemas/PreJobSiteCompositeContactItem'
-            type: array
+          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
           - type: 'null'
-          description: Desired CustomerContact rows for this customer_location (sync semantics in handler)
-          title: Contacts
-        om_building:
+          description: O&M building for this project location when ``ProjectLocation.om_building_customer_address`` is set (same customer, type ``OM_BUILDING``). Omitted or null when no address is linked for this site.
+        required_certifications:
+          description: Per-project required certifications. Primary source is ``CustomerLocation.metadata.required_certifications``; falls back to legacy ``projects.Site.required_certifications`` (matched by site name) when the metadata entry is missing. Mirrors the list endpoint's field for uniform consumption.
+          items:
+            type: string
+          title: Required Certifications
+          type: array
+        other_certification_details:
+          default: ''
+          description: Free-text certification details. Primary source is ``CustomerLocation.metadata.other_certification_details``; falls back to legacy ``projects.Site.other_certification_details`` when the metadata entry is missing. Mirrors the list endpoint's field for uniform consumption.
+          title: Other Certification Details
+          type: string
+        suggested_certifications:
+          description: Certificates auto-assigned to this site by the certificate mapping rules (``core.certificate_requirement_rule``), resolved from the site's region and its scope-item services. Not removable on the pre-job form.
+          items:
+            $ref: '#/components/schemas/PreJobSuggestedCertificationObject'
+          title: Suggested Certifications
+          type: array
+      required:
+      - updated_at
+      - project_location_id
+      - location
+      title: PreJobSiteCompositeResponse
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
+      type: object
+    PreJobSiteFileObject:
+      additionalProperties: false
+      description: File link within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        file_id:
+          title: File Id
+          type: integer
+        additional_information:
           anyOf:
-          - $ref: '#/components/schemas/PreJobSiteCompositeOMBuildingPatch'
+          - type: object
           - type: 'null'
-          description: Upsert O&M building for this project location, or JSON ``null`` to clear the link (``ProjectLocation.om_building_customer_address`` only; does not delete the ``CustomerAddress`` row)
-        file_links:
+          title: Additional Information
+      required:
+      - id
+      - file_id
+      title: PreJobSiteFileObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PreJobSiteAnswerObject:
+      additionalProperties: false
+      description: Pre-job answer within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        question_id:
+          title: Question Id
+          type: integer
+        key:
           anyOf:
-          - items:
-              $ref: '#/components/schemas/PreJobSiteCompositeFileLinkPatch'
-            type: array
+          - type: string
           - type: 'null'
-          description: Upsert pre-job file links on the customer location
-          title: File Links
-        remove_file_link_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: FileEntityLink ids to remove
-          title: Remove File Link Ids
-        attach_to_project_fallback:
-          default: false
-          description: If true, enable project-level file-link fallback behavior defined by the handler (including operations when CustomerLocation context is unavailable)
-          title: Attach To Project Fallback
-          type: boolean
-      title: PreJobSiteCompositeUpdate
+          description: Question config key for programmatic access
+          title: Key
+        title:
+          title: Title
+          type: string
+        answer:
+          title: Answer
+      required:
+      - id
+      - question_id
+      - title
+      - answer
+      title: PreJobSiteAnswerObject
       type: object
     PreJobSiteLocationObject:
       additionalProperties: false
@@ -834,519 +1132,124 @@ components:
       - file_id
       title: PreJobSiteCompositeFileLinkPatch
       type: object
-    PreJobSiteFileObject:
+    PreJobSiteCompositeUpdate:
       additionalProperties: false
-      description: File link within a site response.
+      description: Partial update body for PUT .../locations/{id}/pre-job (all sections optional).
       properties:
-        id:
-          title: Id
-          type: integer
-        file_id:
-          title: File Id
-          type: integer
+        location_custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Patch for Location.custom_fields; keys must be a subset of the pre-job allow-list (see OpenAPI / terrain and regulations fields).
+          title: Location Custom Fields
+        customer_location_metadata:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Patch for CustomerLocation.metadata (access, schedule, certification flags).
+          title: Customer Location Metadata
         additional_information:
           anyOf:
           - type: object
           - type: 'null'
+          description: Replace ProjectLocation.additional_information
           title: Additional Information
-      required:
-      - id
-      - file_id
-      title: PreJobSiteFileObject
-      type: object
-    ProjectLocationBulkCreate:
-      additionalProperties: false
-      description: Schema for bulk-creating ProjectLocations.
-      properties:
-        location_ids:
-          description: List of Location IDs to assign to project
-          items:
-            type: integer
-          minItems: 1
-          title: Location Ids
-          type: array
-      required:
-      - location_ids
-      title: ProjectLocationBulkCreate
-      type: object
-    CustomerContactObject:
-      additionalProperties: false
-      description: Nested customer contact object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
+        contacts:
           anyOf:
-          - type: string
+          - items:
+              $ref: '#/components/schemas/PreJobSiteCompositeContactItem'
+            type: array
           - type: 'null'
-          title: Email
-        phone:
+          description: Desired CustomerContact rows for this customer_location (sync semantics in handler)
+          title: Contacts
+        om_building:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/PreJobSiteCompositeOMBuildingPatch'
           - type: 'null'
-          title: Phone
-      required:
-      - id
-      - name
-      title: CustomerContactObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PreJobSiteOMBuildingObject:
-      additionalProperties: false
-      description: O&M building address in the pre-job sites response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
+          description: Upsert O&M building for this project location, or JSON ``null`` to clear the link (``ProjectLocation.om_building_customer_address`` only; does not delete the ``CustomerAddress`` row)
+        file_links:
           anyOf:
-          - type: string
+          - items:
+              $ref: '#/components/schemas/PreJobSiteCompositeFileLinkPatch'
+            type: array
           - type: 'null'
-          title: Name
-        address_line1:
-          title: Address Line1
-          type: string
-        address_line2:
+          description: Upsert pre-job file links on the customer location
+          title: File Links
+        remove_file_link_ids:
           anyOf:
-          - type: string
+          - items:
+              type: integer
+            type: array
           - type: 'null'
-          title: Address Line2
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: City
-        state_region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: State Region
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Postal Code
-        country:
-          anyOf:
-          - $ref: '#/components/schemas/CountryObject'
-          - type: 'null'
-        timezone:
-          anyOf:
-          - $ref: '#/components/schemas/TimezoneObject'
-          - type: 'null'
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Additional Info
-      required:
-      - id
-      - address_line1
-      title: PreJobSiteOMBuildingObject
-      type: object
-    TimezoneObject:
-      additionalProperties: false
-      description: Nested timezone object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Timezone ID
-          title: Id
-          type: integer
-        timezone:
-          description: Timezone name (e.g., Europe/Riga)
-          title: Timezone
-          type: string
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: City name
-          title: City
-        utc_offset:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: UTC offset (e.g., +02:00)
-          title: Utc Offset
-      required:
-      - id
-      - timezone
-      title: TimezoneObject
-      type: object
-    PreJobSiteAnswerObject:
-      additionalProperties: false
-      description: Pre-job answer within a site response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        question_id:
-          title: Question Id
-          type: integer
-        key:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Question config key for programmatic access
-          title: Key
-        title:
-          title: Title
-          type: string
-        answer:
-          title: Answer
-      required:
-      - id
-      - question_id
-      - title
-      - answer
-      title: PreJobSiteAnswerObject
-      type: object
-    PreJobSiteCompositeOMBuildingPatch:
-      additionalProperties: false
-      description: 'Partial upsert for this project location''s O&M ``CustomerAddress`` (``OM_BUILDING``).
-
-
-        Persisted link is ``ProjectLocation.om_building_customer_address``; composite
-
-        writes do not use ``CustomerAddress.location_id`` as the join key.'
-      properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Existing CustomerAddress id when updating
-          title: Id
-        name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Address label
-          title: Name
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional info
-          title: Additional Info
-        address_line1:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Address line 1
-          title: Address Line1
-        address_line2:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Address line 2
-          title: Address Line2
-        city:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: City
-          title: City
-        state_region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: State or region
-          title: State Region
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Postal code
-          title: Postal Code
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        timezone_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Timezone ID
-          title: Timezone Id
-      title: PreJobSiteCompositeOMBuildingPatch
-      type: object
-    PreJobSuggestedCertificationObject:
-      additionalProperties: false
-      description: One certificate auto-assigned to a site by the certificate mapping rules.
-      properties:
-        id:
-          description: Certificate ID
-          title: Id
-          type: integer
-        name:
-          description: Certificate name
-          title: Name
-          type: string
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Condition note from the matching rule
-          title: Comment
-      required:
-      - id
-      - name
-      title: PreJobSuggestedCertificationObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    PreJobPrefillSourceSiteService:
-      additionalProperties: false
-      description: One service the source project has at the shared site (chip in the picker).
-      properties:
-        id:
-          description: Service id
-          title: Id
-          type: integer
-        code:
-          description: Service code
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Service display name
-          title: Description
-      required:
-      - id
-      - code
-      title: PreJobPrefillSourceSiteService
-      type: object
-    PreJobSiteContactObject:
-      additionalProperties: false
-      description: Contact within a site response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        is_qhse:
+          description: FileEntityLink ids to remove
+          title: Remove File Link Ids
+        attach_to_project_fallback:
           default: false
-          title: Is Qhse
+          description: If true, enable project-level file-link fallback behavior defined by the handler (including operations when CustomerLocation context is unavailable)
+          title: Attach To Project Fallback
           type: boolean
-      required:
-      - id
-      title: PreJobSiteContactObject
+      title: PreJobSiteCompositeUpdate
       type: object
-    PreJobPrefillSourceSite:
+    PreJobSiteCompositeContactItem:
       additionalProperties: false
-      description: One site on a source project, surfaced to the prefill picker. Paginated list row.
+      description: 'One contact row in a composite PUT (upsert: set id to update, omit to create).'
       properties:
         id:
-          description: ProjectLocation id (use for pre-job composite GET)
-          title: Id
-          type: integer
-        location_id:
-          description: Underlying core.Location id
-          title: Location Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Site (location) name
-          title: Name
-      required:
-      - id
-      - location_id
-      title: PreJobPrefillSourceSite
-      type: object
-    LocationObjectExpanded:
-      additionalProperties: false
-      description: Expanded location object with full details for ProjectLocation responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Location type (WIND_PARK, etc.)
-          title: Type
-        address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full address (computed from address fields)
-          title: Address
-        state_region:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: State or region
-          title: State Region
-        country:
-          anyOf:
-          - $ref: '#/components/schemas/CountryObject'
-          - type: 'null'
-          description: Country details
-        timezone:
-          anyOf:
-          - $ref: '#/components/schemas/TimezoneObject'
-          - type: 'null'
-          description: Timezone details
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: GPS latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: GPS longitude
-          title: Longitude
-        certificates:
-          description: Required certificates with id, name, is_mandatory
-          items:
-            type: object
-          title: Certificates
-          type: array
-      required:
-      - id
-      title: LocationObjectExpanded
-      type: object
-    ProjectLocationServicesResponse:
-      additionalProperties: false
-      description: 'Services commercially available at one project location — the union of
-
-        services on approved commercial-offer items and project scope items there.
-
-        General-purpose (offer∪scope coverage per site); any feature can use it to
-
-        constrain a (site, service) choice to what the project actually sells.'
-      properties:
-        project_location_id:
-          description: ProjectLocation id
-          title: Project Location Id
-          type: integer
-        location_id:
-          description: Underlying Location id
-          title: Location Id
-          type: integer
-        service_ids:
-          description: Ids of services offered (approved offer) or scoped at this site
-          items:
-            type: integer
-          title: Service Ids
-          type: array
-      required:
-      - project_location_id
-      - location_id
-      title: ProjectLocationServicesResponse
-      type: object
-    ProjectLocationResponse:
-      additionalProperties: false
-      description: Schema for ProjectLocation response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Project location ID
-          title: Id
-          type: integer
-        project_id:
-          description: Project ID
-          title: Project Id
-          type: integer
-        location:
-          $ref: '#/components/schemas/LocationObjectExpanded'
-          description: Expanded location information with full details
-        project_contact_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Project contact ID
-          title: Project Contact Id
-        om_building_customer_address_id:
+          description: Existing CustomerContact id; omit for a new row
+          title: Id
+        name:
           anyOf:
-          - type: integer
+          - minLength: 1
+            type: string
           - type: 'null'
-          description: 'Pre-job O&M building: optional FK to ``CustomerAddress`` (``OM_BUILDING``); null when not linked'
-          title: Om Building Customer Address Id
-        contact:
+          description: Contact name
+          title: Name
+        title:
           anyOf:
-          - $ref: '#/components/schemas/CustomerContactObject'
+          - type: string
           - type: 'null'
-          description: Customer contact information
-        additional_information:
+          description: Title / role shown as `role` in pre-job read payloads
+          title: Title
+        department:
           anyOf:
-          - type: object
+          - type: string
           - type: 'null'
-          description: Additional information as JSON
-          title: Additional Information
-      required:
-      - updated_at
-      - id
-      - project_id
-      - location
-      title: ProjectLocationResponse
+          description: Department
+          title: Department
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone
+          title: Phone
+        is_primary:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Primary flag
+          title: Is Primary
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Extra notes
+          title: Additional Info
+        is_qhse:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Mark this contact as the QHSE contact (manages a QHSE_CONTACT ProjectContact row)
+          title: Is Qhse
+      title: PreJobSiteCompositeContactItem
       type: object
     PreJobSiteCompositeCustomerLocationObject:
       additionalProperties: false
@@ -1382,89 +1285,186 @@ components:
       - location_id
       title: PreJobSiteCompositeCustomerLocationObject
       type: object
-    PreJobSiteCompositeResponse:
+    PreJobPrefillSourceSite:
       additionalProperties: false
-      description: 'Full pre-job payload for one project location (GET .../locations/{id}/pre-job).
-
-
-        `location_id` in the route is ProjectLocation.id. Includes the CustomerLocation
-
-        row when the requesting customer is linked to the underlying Location.
-
-
-        ``updated_at`` is the ``ProjectLocation`` row timestamp (same entity as
-
-        ``project_location_id``).'
+      description: One site on a source project, surfaced to the prefill picker. Paginated list row.
       properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        project_location_id:
-          title: Project Location Id
+        id:
+          description: ProjectLocation id (use for pre-job composite GET)
+          title: Id
           type: integer
-        location:
-          $ref: '#/components/schemas/PreJobSiteLocationObject'
-        customer_location:
+        location_id:
+          description: Underlying core.Location id
+          title: Location Id
+          type: integer
+        name:
           anyOf:
-          - $ref: '#/components/schemas/PreJobSiteCompositeCustomerLocationObject'
+          - type: string
           - type: 'null'
-          description: Customer–location link for this site, if it exists
-        contact:
-          anyOf:
-          - $ref: '#/components/schemas/PreJobSiteContactObject'
-          - type: 'null'
-          description: Primary contact from ProjectContact
-        customer_contacts:
-          description: Contacts linked to the customer-location relationship
-          items:
-            $ref: '#/components/schemas/PreJobSiteContactObject'
-          title: Customer Contacts
-          type: array
-        pre_job_answers:
-          items:
-            $ref: '#/components/schemas/PreJobSiteAnswerObject'
-          title: Pre Job Answers
-          type: array
-        files:
-          items:
-            $ref: '#/components/schemas/PreJobSiteFileObject'
-          title: Files
-          type: array
-        additional_information:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: ProjectLocation.additional_information (JSON)
-          title: Additional Information
-        om_building_address:
-          anyOf:
-          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
-          - type: 'null'
-          description: O&M building for this project location when ``ProjectLocation.om_building_customer_address`` is set (same customer, type ``OM_BUILDING``). Omitted or null when no address is linked for this site.
-        required_certifications:
-          description: Per-project required certifications. Primary source is ``CustomerLocation.metadata.required_certifications``; falls back to legacy ``projects.Site.required_certifications`` (matched by site name) when the metadata entry is missing. Mirrors the list endpoint's field for uniform consumption.
-          items:
-            type: string
-          title: Required Certifications
-          type: array
-        other_certification_details:
-          default: ''
-          description: Free-text certification details. Primary source is ``CustomerLocation.metadata.other_certification_details``; falls back to legacy ``projects.Site.other_certification_details`` when the metadata entry is missing. Mirrors the list endpoint's field for uniform consumption.
-          title: Other Certification Details
+          description: Site (location) name
+          title: Name
+      required:
+      - id
+      - location_id
+      title: PreJobPrefillSourceSite
+      type: object
+    PreJobSuggestedCertificationObject:
+      additionalProperties: false
+      description: One certificate auto-assigned to a site by the certificate mapping rules.
+      properties:
+        id:
+          description: Certificate ID
+          title: Id
+          type: integer
+        name:
+          description: Certificate name
+          title: Name
           type: string
-        suggested_certifications:
-          description: Certificates auto-assigned to this site by the certificate mapping rules (``core.certificate_requirement_rule``), resolved from the site's region and its scope-item services. Not removable on the pre-job form.
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note from the matching rule
+          title: Comment
+      required:
+      - id
+      - name
+      title: PreJobSuggestedCertificationObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectLocationBulkCreate:
+      additionalProperties: false
+      description: Schema for bulk-creating ProjectLocations.
+      properties:
+        location_ids:
+          description: List of Location IDs to assign to project
           items:
-            $ref: '#/components/schemas/PreJobSuggestedCertificationObject'
-          title: Suggested Certifications
+            type: integer
+          minItems: 1
+          title: Location Ids
           type: array
       required:
-      - updated_at
+      - location_ids
+      title: ProjectLocationBulkCreate
+      type: object
+    ProjectLocationServicesResponse:
+      additionalProperties: false
+      description: 'Services commercially available at one project location — the union of
+
+        services on approved commercial-offer items and project scope items there.
+
+        General-purpose (offer∪scope coverage per site); any feature can use it to
+
+        constrain a (site, service) choice to what the project actually sells.'
+      properties:
+        project_location_id:
+          description: ProjectLocation id
+          title: Project Location Id
+          type: integer
+        location_id:
+          description: Underlying Location id
+          title: Location Id
+          type: integer
+        service_ids:
+          description: Ids of services offered (approved offer) or scoped at this site
+          items:
+            type: integer
+          title: Service Ids
+          type: array
+      required:
       - project_location_id
-      - location
-      title: PreJobSiteCompositeResponse
+      - location_id
+      title: ProjectLocationServicesResponse
+      type: object
+    CustomerContactObject:
+      additionalProperties: false
+      description: Nested customer contact object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+      required:
+      - id
+      - name
+      title: CustomerContactObject
+      type: object
+    PreJobPrefillSourceSiteService:
+      additionalProperties: false
+      description: One service the source project has at the shared site (chip in the picker).
+      properties:
+        id:
+          description: Service id
+          title: Id
+          type: integer
+        code:
+          description: Service code
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service display name
+          title: Description
+      required:
+      - id
+      - code
+      title: PreJobPrefillSourceSiteService
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
       type: object
   securitySchemes:
     APIKeyAuth:

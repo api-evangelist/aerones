@@ -505,58 +505,17 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
+    ProjectOfferRejectRequest:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Body for rejecting a pending offer.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CurrencyObject:
-      additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
-        code:
-          description: Currency code (ISO 4217)
-          title: Code
-          type: string
-        name:
-          description: Currency name
-          title: Name
+        message:
+          description: Rejection reason (stored in change_reason)
+          title: Message
           type: string
       required:
-      - id
-      - code
-      - name
-      title: CurrencyObject
+      - message
+      title: ProjectOfferRejectRequest
       type: object
     ProjectOfferUpdate:
       additionalProperties: false
@@ -807,6 +766,165 @@ components:
       - message
       title: Error
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectOfferSendForApprovalRequest:
+      additionalProperties: false
+      description: Body for sending a draft offer for approval.
+      properties:
+        sales_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales comment/context shown to the approver
+          title: Sales Comment
+      title: ProjectOfferSendForApprovalRequest
+      type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectOfferCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectOffer.
+      properties:
+        currency_id:
+          description: Currency ID
+          title: Currency Id
+          type: integer
+        discount:
+          default: 0
+          description: Discount amount
+          title: Discount
+          type: number
+        status:
+          default: Draft
+          description: Offer status
+          title: Status
+          type: string
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+      required:
+      - currency_id
+      title: ProjectOfferCreate
+      type: object
     ProjectOfferResponse:
       additionalProperties: false
       description: Schema for ProjectOffer response.
@@ -920,124 +1038,6 @@ components:
       - total_amount
       - status
       title: ProjectOfferResponse
-      type: object
-    ProjectOfferCreate:
-      additionalProperties: false
-      description: Schema for creating a ProjectOffer.
-      properties:
-        currency_id:
-          description: Currency ID
-          title: Currency Id
-          type: integer
-        discount:
-          default: 0
-          description: Discount amount
-          title: Discount
-          type: number
-        status:
-          default: Draft
-          description: Offer status
-          title: Status
-          type: string
-        version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Version number
-          title: Version
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Offer type (main, amendment)
-          title: Type
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Reason for change
-          title: Change Reason
-        reviewer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Reviewer user ID
-          title: Reviewer Id
-        gross_margin:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Gross margin percentage
-          title: Gross Margin
-        adjusted_gross_margin:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Adjusted gross margin percentage
-          title: Adjusted Gross Margin
-        crew_size:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Technicians in one crew
-          examples:
-          - 3
-          title: Crew Size
-        crew_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Number of crews working the deal
-          examples:
-          - 1
-          title: Crew Count
-        working_days:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Working days on site, taken from the longest-running crew
-          examples:
-          - 15.0
-          title: Working Days
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Comments
-          title: Comment
-        required_approver_role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Required approver role
-          title: Required Approver Role
-      required:
-      - currency_id
-      title: ProjectOfferCreate
-      type: object
-    ProjectOfferSendForApprovalRequest:
-      additionalProperties: false
-      description: Body for sending a draft offer for approval.
-      properties:
-        sales_comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Sales comment/context shown to the approver
-          title: Sales Comment
-      title: ProjectOfferSendForApprovalRequest
-      type: object
-    ProjectOfferRejectRequest:
-      additionalProperties: false
-      description: Body for rejecting a pending offer.
-      properties:
-        message:
-          description: Rejection reason (stored in change_reason)
-          title: Message
-          type: string
-      required:
-      - message
-      title: ProjectOfferRejectRequest
       type: object
   securitySchemes:
     APIKeyAuth:

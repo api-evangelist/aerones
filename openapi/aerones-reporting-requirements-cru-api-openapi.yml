@@ -360,6 +360,22 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    FamiliarityCreate:
+      additionalProperties: false
+      properties:
+        requirement_id:
+          title: Requirement Id
+          type: integer
+        operator_sub:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Keycloak sub; defaults to the caller's.
+          title: Operator Sub
+      required:
+      - requirement_id
+      title: FamiliarityCreate
+      type: object
     RequirementVersionResponse:
       additionalProperties: false
       properties:
@@ -385,132 +401,28 @@ components:
       - created_at
       title: RequirementVersionResponse
       type: object
-    CruProjectRequirementCreate:
+    GateMissingRequirement:
       additionalProperties: false
-      description: 'cru data-operator create. customer_id is the requirement''s owning (root)
-
-        customer; null for Aerones-owned / project / turbine-general requirements.'
       properties:
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
+        id:
+          title: Id
+          type: integer
         title:
-          maxLength: 255
           title: Title
           type: string
-        body:
-          title: Body
-          type: string
-        status:
-          anyOf:
-          - enum:
-            - DRAFT
-            - PENDING
-            - ACTIVE
-            - INACTIVE
-            type: string
-          - type: 'null'
-          description: Defaults to ACTIVE. DECLINED is reachable only via /decline.
-          title: Status
-        attachment_file_ids:
-          items:
-            type: string
-          title: Attachment File Ids
-          type: array
-        applicabilities:
-          description: Explicit applicability rows; empty = whole customer.
-          items:
-            $ref: '#/components/schemas/ApplicabilityInput'
-          title: Applicabilities
-          type: array
-      required:
-      - title
-      - body
-      title: CruProjectRequirementCreate
-      type: object
-    GateCheckResponse:
-      additionalProperties: false
-      properties:
-        familiar:
-          title: Familiar
-          type: boolean
-        missing_requirements:
-          items:
-            $ref: '#/components/schemas/GateMissingRequirement'
-          title: Missing Requirements
-          type: array
-      required:
-      - familiar
-      title: GateCheckResponse
-      type: object
-    FamiliarityResponse:
-      additionalProperties: false
-      properties:
-        requirement_id:
-          title: Requirement Id
-          type: integer
-        user_sub:
-          title: User Sub
-          type: string
-        version:
-          title: Version
-          type: integer
-        familiarized_at:
-          format: date-time
-          title: Familiarized At
-          type: string
-      required:
-      - requirement_id
-      - user_sub
-      - version
-      - familiarized_at
-      title: FamiliarityResponse
-      type: object
-    ApplicabilityInput:
-      additionalProperties: false
-      description: 'Typed-FK applicability row. Scope is read from the populated columns; at
-
-        most one of {project_id, turbine_id}; project rows never carry customer_id.'
-      properties:
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
         customer_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Customer Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-      title: ApplicabilityInput
-      type: object
-    FamiliarityCreate:
-      additionalProperties: false
-      properties:
-        requirement_id:
-          title: Requirement Id
+        current_version:
+          title: Current Version
           type: integer
-        operator_sub:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Keycloak sub; defaults to the caller's.
-          title: Operator Sub
       required:
-      - requirement_id
-      title: FamiliarityCreate
+      - id
+      - title
+      - current_version
+      title: GateMissingRequirement
       type: object
     ApplicabilityResponse:
       additionalProperties: false
@@ -648,28 +560,116 @@ components:
       - updated_at
       title: ProjectRequirementResponse
       type: object
-    GateMissingRequirement:
+    ApplicabilityInput:
       additionalProperties: false
+      description: 'Typed-FK applicability row. Scope is read from the populated columns; at
+
+        most one of {project_id, turbine_id}; project rows never carry customer_id.'
       properties:
-        id:
-          title: Id
-          type: integer
-        title:
-          title: Title
-          type: string
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
         customer_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Customer Id
-        current_version:
-          title: Current Version
-          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      title: ApplicabilityInput
+      type: object
+    GateCheckResponse:
+      additionalProperties: false
+      properties:
+        familiar:
+          title: Familiar
+          type: boolean
+        missing_requirements:
+          items:
+            $ref: '#/components/schemas/GateMissingRequirement'
+          title: Missing Requirements
+          type: array
       required:
-      - id
+      - familiar
+      title: GateCheckResponse
+      type: object
+    CruProjectRequirementCreate:
+      additionalProperties: false
+      description: 'cru data-operator create. customer_id is the requirement''s owning (root)
+
+        customer; null for Aerones-owned / project / turbine-general requirements.'
+      properties:
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        title:
+          maxLength: 255
+          title: Title
+          type: string
+        body:
+          title: Body
+          type: string
+        status:
+          anyOf:
+          - enum:
+            - DRAFT
+            - PENDING
+            - ACTIVE
+            - INACTIVE
+            type: string
+          - type: 'null'
+          description: Defaults to ACTIVE. DECLINED is reachable only via /decline.
+          title: Status
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        applicabilities:
+          description: Explicit applicability rows; empty = whole customer.
+          items:
+            $ref: '#/components/schemas/ApplicabilityInput'
+          title: Applicabilities
+          type: array
+      required:
       - title
-      - current_version
-      title: GateMissingRequirement
+      - body
+      title: CruProjectRequirementCreate
+      type: object
+    FamiliarityResponse:
+      additionalProperties: false
+      properties:
+        requirement_id:
+          title: Requirement Id
+          type: integer
+        user_sub:
+          title: User Sub
+          type: string
+        version:
+          title: Version
+          type: integer
+        familiarized_at:
+          format: date-time
+          title: Familiarized At
+          type: string
+      required:
+      - requirement_id
+      - user_sub
+      - version
+      - familiarized_at
+      title: FamiliarityResponse
       type: object
   securitySchemes:
     APIKeyAuth:

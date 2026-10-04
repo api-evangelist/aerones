@@ -356,46 +356,6 @@ components:
       - status
       title: Offer
       type: object
-    OfferChangeSummary:
-      additionalProperties: false
-      description: Schema for high-level changes between offer versions.
-      properties:
-        manual_price_changes:
-          description: List of line item modifications (price, quantity, discount, etc.)
-          items:
-            type: string
-          title: Manual Price Changes
-          type: array
-        new_services:
-          description: List of new services added
-          items:
-            type: string
-          title: New Services
-          type: array
-        removed_services:
-          description: List of services removed
-          items:
-            type: string
-          title: Removed Services
-          type: array
-        price_increase:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total price increase
-          title: Price Increase
-        price_decrease:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total price decrease
-          title: Price Decrease
-      required:
-      - manual_price_changes
-      - new_services
-      - removed_services
-      title: OfferChangeSummary
-      type: object
     ServiceRef:
       additionalProperties: false
       description: Nested service reference.
@@ -419,23 +379,15 @@ components:
       - code
       title: ServiceRef
       type: object
-    CodeWithName:
-      additionalProperties: false
-      description: Schema for code and name.
-      properties:
-        code:
-          description: Unique code.
-          title: Code
-          type: string
-        name:
-          description: Human readable name.
-          title: Name
-          type: string
-      required:
-      - code
-      - name
-      title: CodeWithName
-      type: object
+    OfferStatus:
+      description: Individual offer level status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      title: OfferStatus
+      type: string
     IDWithName:
       additionalProperties: false
       description: Schema for ID with name.
@@ -453,90 +405,36 @@ components:
       - name
       title: IDWithName
       type: object
-    ProjectOffer:
+    CodeWithName:
       additionalProperties: false
-      description: Schema for project offer response.
+      description: Schema for code and name.
       properties:
-        offer:
-          $ref: '#/components/schemas/Offer'
-          description: Project offer
-          examples:
-          - currency:
-              code: EUR
-              id: 1
-            line_items:
-            - category:
-                code: 01INS
-                name: Inspections
-              code: IIN-ONS
-              discount: 10.0
-              location:
-                id: 10
-                name: Site A
-              price: 100.5
-              quantity: 5
-              row_id: 1
-              service:
-                code: IIN-ONS
-                id: 123
-                name: Internal inspection
-              turbine_manufacturer:
-                id: 2
-                name: Vestas
-              turbine_model:
-                id: 5
-                name: V150
-      required:
-      - offer
-      title: ProjectOffer
-      type: object
-    CurrencyRef:
-      additionalProperties: false
-      description: Nested currency reference.
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
         code:
-          description: Currency code
+          description: Unique code.
           title: Code
           type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
       required:
-      - id
       - code
-      title: CurrencyRef
+      - name
+      title: CodeWithName
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
+    Error:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Error response schema.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     LineItem:
       additionalProperties: false
@@ -732,26 +630,203 @@ components:
       - category
       title: LineItem
       type: object
-    OfferStatus:
-      description: Individual offer level status.
-      enum:
-      - Draft
-      - Pending
-      - Approved
-      - Rejected
-      title: OfferStatus
-      type: string
-    OfferApprovalRequest:
+    ProjectOffer:
       additionalProperties: false
-      description: Schema for enhanced offer approval request.
+      description: Schema for project offer response.
       properties:
-        sales_comment:
+        offer:
+          $ref: '#/components/schemas/Offer'
+          description: Project offer
+          examples:
+          - currency:
+              code: EUR
+              id: 1
+            line_items:
+            - category:
+                code: 01INS
+                name: Inspections
+              code: IIN-ONS
+              discount: 10.0
+              location:
+                id: 10
+                name: Site A
+              price: 100.5
+              quantity: 5
+              row_id: 1
+              service:
+                code: IIN-ONS
+                id: 123
+                name: Internal inspection
+              turbine_manufacturer:
+                id: 2
+                name: Vestas
+              turbine_model:
+                id: 5
+                name: V150
+      required:
+      - offer
+      title: ProjectOffer
+      type: object
+    OfferComparison:
+      additionalProperties: false
+      description: Schema for offer version comparison.
+      properties:
+        version1:
+          description: First version number
+          title: Version1
+          type: integer
+        version2:
+          description: Second version number
+          title: Version2
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyRef'
+          description: Currency of the offers
+        changes_summary:
+          $ref: '#/components/schemas/OfferChangeSummary'
+          description: Summary of changes between versions
+        line_item_diffs:
+          description: Detailed line item differences
+          items:
+            $ref: '#/components/schemas/LineItemDiff'
+          title: Line Item Diffs
+          type: array
+        final_sum_old:
+          description: Final sum of the first version
+          title: Final Sum Old
+          type: number
+        final_sum_new:
+          description: Final sum of the second version
+          title: Final Sum New
+          type: number
+        version1_date:
           anyOf:
-          - type: string
+          - format: date-time
+            type: string
           - type: 'null'
-          description: Sales context for approver (pricing logic, discounts, etc.)
-          title: Sales Comment
-      title: OfferApprovalRequest
+          description: Date of first version
+          title: Version1 Date
+        version2_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Date of second version
+          title: Version2 Date
+      required:
+      - version1
+      - version2
+      - currency
+      - changes_summary
+      - line_item_diffs
+      - final_sum_old
+      - final_sum_new
+      title: OfferComparison
+      type: object
+    PricingUnitRef:
+      additionalProperties: false
+      description: Nested pricing unit reference.
+      properties:
+        id:
+          description: Pricing unit ID
+          title: Id
+          type: integer
+        name:
+          description: Pricing unit name
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PricingUnitRef
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CurrencyRef:
+      additionalProperties: false
+      description: Nested currency reference.
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyRef
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    OfferChangeSummary:
+      additionalProperties: false
+      description: Schema for high-level changes between offer versions.
+      properties:
+        manual_price_changes:
+          description: List of line item modifications (price, quantity, discount, etc.)
+          items:
+            type: string
+          title: Manual Price Changes
+          type: array
+        new_services:
+          description: List of new services added
+          items:
+            type: string
+          title: New Services
+          type: array
+        removed_services:
+          description: List of services removed
+          items:
+            type: string
+          title: Removed Services
+          type: array
+        price_increase:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total price increase
+          title: Price Increase
+        price_decrease:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total price decrease
+          title: Price Decrease
+      required:
+      - manual_price_changes
+      - new_services
+      - removed_services
+      title: OfferChangeSummary
       type: object
     OfferRejectRequest:
       additionalProperties: false
@@ -764,20 +839,6 @@ components:
       required:
       - message
       title: OfferRejectRequest
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     ItemCoefficient:
       additionalProperties: false
@@ -935,78 +996,17 @@ components:
       - category
       title: LineItemDiff
       type: object
-    PricingUnitRef:
+    OfferApprovalRequest:
       additionalProperties: false
-      description: Nested pricing unit reference.
+      description: Schema for enhanced offer approval request.
       properties:
-        id:
-          description: Pricing unit ID
-          title: Id
-          type: integer
-        name:
-          description: Pricing unit name
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: PricingUnitRef
-      type: object
-    OfferComparison:
-      additionalProperties: false
-      description: Schema for offer version comparison.
-      properties:
-        version1:
-          description: First version number
-          title: Version1
-          type: integer
-        version2:
-          description: Second version number
-          title: Version2
-          type: integer
-        currency:
-          $ref: '#/components/schemas/CurrencyRef'
-          description: Currency of the offers
-        changes_summary:
-          $ref: '#/components/schemas/OfferChangeSummary'
-          description: Summary of changes between versions
-        line_item_diffs:
-          description: Detailed line item differences
-          items:
-            $ref: '#/components/schemas/LineItemDiff'
-          title: Line Item Diffs
-          type: array
-        final_sum_old:
-          description: Final sum of the first version
-          title: Final Sum Old
-          type: number
-        final_sum_new:
-          description: Final sum of the second version
-          title: Final Sum New
-          type: number
-        version1_date:
+        sales_comment:
           anyOf:
-          - format: date-time
-            type: string
+          - type: string
           - type: 'null'
-          description: Date of first version
-          title: Version1 Date
-        version2_date:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Date of second version
-          title: Version2 Date
-      required:
-      - version1
-      - version2
-      - currency
-      - changes_summary
-      - line_item_diffs
-      - final_sum_old
-      - final_sum_new
-      title: OfferComparison
+          description: Sales context for approver (pricing logic, discounts, etc.)
+          title: Sales Comment
+      title: OfferApprovalRequest
       type: object
   securitySchemes:
     APIKeyAuth:

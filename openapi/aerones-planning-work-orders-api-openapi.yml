@@ -213,6 +213,226 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    PlanningNestedWorkOrderType:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedWorkOrderType
+      type: object
+    PlanningWorkOrderUpdate:
+      properties:
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Id
+        type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Type Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      title: PlanningWorkOrderUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningNestedServiceOrder:
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      title: PlanningNestedServiceOrder
+      type: object
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
+      type: object
+    PlanningWorkOrderCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        service_order_id:
+          title: Service Order Id
+          type: integer
+        type_id:
+          title: Type Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: PLANNED
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Custom Fields
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+      required:
+      - customer_id
+      - service_order_id
+      - type_id
+      - name
+      title: PlanningWorkOrderCreate
+      type: object
     PlanningWorkOrderResponse:
       properties:
         id:
@@ -301,226 +521,6 @@ components:
       - created_at
       - updated_at
       title: PlanningWorkOrderResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    PlanningNestedCustomer:
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: PlanningNestedCustomer
-      type: object
-    PlanningNestedServiceOrder:
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-      required:
-      - id
-      title: PlanningNestedServiceOrder
-      type: object
-    PlanningWorkOrderCreate:
-      additionalProperties: false
-      properties:
-        customer_id:
-          title: Customer Id
-          type: integer
-        service_order_id:
-          title: Service Order Id
-          type: integer
-        type_id:
-          title: Type Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: PLANNED
-          title: Status
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        position:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Position
-        custom_fields:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Custom Fields
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source
-      required:
-      - customer_id
-      - service_order_id
-      - type_id
-      - name
-      title: PlanningWorkOrderCreate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PlanningWorkOrderUpdate:
-      properties:
-        service_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order Id
-        type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Type Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        position:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Position
-        custom_fields:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Custom Fields
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Source
-      title: PlanningWorkOrderUpdate
-      type: object
-    PlanningNestedWorkOrderType:
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      required:
-      - id
-      - code
-      title: PlanningNestedWorkOrderType
       type: object
   securitySchemes:
     APIKeyAuth:

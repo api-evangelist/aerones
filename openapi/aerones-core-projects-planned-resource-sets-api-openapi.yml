@@ -234,47 +234,20 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectPlannedResourceSetCreate:
+    Error:
       additionalProperties: false
-      description: Schema for creating a ProjectPlannedResourceSet.
+      description: Error response schema.
       properties:
-        name:
-          description: Set name
-          minLength: 1
-          title: Name
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        status:
-          allOf:
-          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          default: APPROVED
-          description: Set-deployment status (defaults to APPROVED on create)
       required:
-      - name
-      title: ProjectPlannedResourceSetCreate
+      - code
+      - message
+      title: Error
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -295,153 +268,16 @@ components:
           type: boolean
       title: Success
       type: object
-    ProjectPlannedResourceSetResponse:
-      additionalProperties: false
-      description: Schema for ProjectPlannedResourceSet response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Planned resource set ID
-          title: Id
-          type: integer
-        project:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectObject'
-          - type: 'null'
-          description: Project information
-        project_location:
-          anyOf:
-          - $ref: '#/components/schemas/NestedIdOnly'
-          - type: 'null'
-          description: Project location information
-        name:
-          description: Set name
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        status:
-          $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          description: Approval lifecycle status
-        set_items:
-          description: Planned resource set items
-          items:
-            $ref: '#/components/schemas/ProjectPlannedResourceSetItemEmbeddedOutput'
-          title: Set Items
-          type: array
-        planned_start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Earliest planned start across set items (min, NULL if none)
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Latest planned end across set items (max, NULL if none)
-          title: Planned End Date
-      required:
-      - updated_at
-      - id
-      - name
-      - status
-      title: ProjectPlannedResourceSetResponse
-      type: object
-    NestedIdOnly:
-      additionalProperties: false
-      description: Generic nested object with just id (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: NestedIdOnly
-      type: object
-    ProjectObject:
-      additionalProperties: false
-      description: Nested project object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: ProjectObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ProjectPlannedResourceSetUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectPlannedResourceSet.
-      properties:
-        name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Set name
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        status:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          - type: 'null'
-          description: Approval lifecycle status
-      title: ProjectPlannedResourceSetUpdate
-      type: object
-    ProjectPlannedResourceSetStatus:
-      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
-
-
-        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
-
-        in sync.'
+    ErrorCode:
+      description: Error codes for API errors.
       enum:
-      - PLANNED
-      - SUGGESTED
-      - APPROVED
-      - PLANNING
-      - EXECUTION
-      - FIELD_COMPLETED
-      - REJECTED
-      title: ProjectPlannedResourceSetStatus
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
       type: string
     ProjectPlannedResourceSetItemEmbeddedOutput:
       additionalProperties: false
@@ -512,6 +348,170 @@ components:
       - resource_type
       - status
       title: ProjectPlannedResourceSetItemEmbeddedOutput
+      type: object
+    ProjectPlannedResourceSetStatus:
+      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
+
+
+        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
+
+        in sync.'
+      enum:
+      - PLANNED
+      - SUGGESTED
+      - APPROVED
+      - PLANNING
+      - EXECUTION
+      - FIELD_COMPLETED
+      - REJECTED
+      title: ProjectPlannedResourceSetStatus
+      type: string
+    ProjectObject:
+      additionalProperties: false
+      description: Nested project object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: ProjectObject
+      type: object
+    ProjectPlannedResourceSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectPlannedResourceSet.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Set name
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          - type: 'null'
+          description: Approval lifecycle status
+      title: ProjectPlannedResourceSetUpdate
+      type: object
+    ProjectPlannedResourceSetResponse:
+      additionalProperties: false
+      description: Schema for ProjectPlannedResourceSet response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Planned resource set ID
+          title: Id
+          type: integer
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectObject'
+          - type: 'null'
+          description: Project information
+        project_location:
+          anyOf:
+          - $ref: '#/components/schemas/NestedIdOnly'
+          - type: 'null'
+          description: Project location information
+        name:
+          description: Set name
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        status:
+          $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          description: Approval lifecycle status
+        set_items:
+          description: Planned resource set items
+          items:
+            $ref: '#/components/schemas/ProjectPlannedResourceSetItemEmbeddedOutput'
+          title: Set Items
+          type: array
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Earliest planned start across set items (min, NULL if none)
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Latest planned end across set items (max, NULL if none)
+          title: Planned End Date
+      required:
+      - updated_at
+      - id
+      - name
+      - status
+      title: ProjectPlannedResourceSetResponse
+      type: object
+    ProjectPlannedResourceSetCreate:
+      additionalProperties: false
+      description: Schema for creating a ProjectPlannedResourceSet.
+      properties:
+        name:
+          description: Set name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          default: APPROVED
+          description: Set-deployment status (defaults to APPROVED on create)
+      required:
+      - name
+      title: ProjectPlannedResourceSetCreate
+      type: object
+    NestedIdOnly:
+      additionalProperties: false
+      description: Generic nested object with just id (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: NestedIdOnly
       type: object
   securitySchemes:
     APIKeyAuth:

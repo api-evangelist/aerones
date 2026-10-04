@@ -215,17 +215,35 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    CertificateObject:
+      additionalProperties: false
+      description: Nested certificate object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertificateObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -315,34 +333,70 @@ components:
       - certificate
       title: ResourceCertificateResponse
       type: object
-    CertificateObject:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResourceCertificateCreate:
       additionalProperties: false
-      description: Nested certificate object for responses.
+      description: Schema for creating a ResourceCertificate under a resource.
       properties:
-        id:
-          title: Id
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
           type: integer
-        name:
-          title: Name
-          type: string
+        issuer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Issuer FK
+          title: Issuer Id
+        certificate_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External certificate number
+          title: Certificate Number
+        issued_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issued Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional info
+          title: Additional Info
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External system this row was ingested from (e.g. "bamboohr")
+          title: Source
+        source_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Identifier of the source row in the origin system
+          title: Source Id
       required:
-      - id
-      - name
-      title: CertificateObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      - certificate_id
+      title: ResourceCertificateCreate
       type: object
     ResourceCertificateUpdate:
       additionalProperties: false
@@ -398,60 +452,6 @@ components:
           description: Identifier of the source row in the origin system
           title: Source Id
       title: ResourceCertificateUpdate
-      type: object
-    ResourceCertificateCreate:
-      additionalProperties: false
-      description: Schema for creating a ResourceCertificate under a resource.
-      properties:
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
-          type: integer
-        issuer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Issuer FK
-          title: Issuer Id
-        certificate_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External certificate number
-          title: Certificate Number
-        issued_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Issue date (YYYY-MM-DD)
-          title: Issued Date
-        expiry_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Expiry date (YYYY-MM-DD)
-          title: Expiry Date
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional info
-          title: Additional Info
-        source:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External system this row was ingested from (e.g. "bamboohr")
-          title: Source
-        source_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Identifier of the source row in the origin system
-          title: Source Id
-      required:
-      - certificate_id
-      title: ResourceCertificateCreate
       type: object
   securitySchemes:
     APIKeyAuth:

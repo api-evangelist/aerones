@@ -433,16 +433,33 @@ components:
       - turbine_id
       title: ResolveScopeCommitmentPayload
       type: object
-    ScopeDispatchCommitmentItem:
+    CreateScopeWorkorderPayload:
       additionalProperties: false
-      description: One pending commitment row.
+      description: 'Payload for dispatching a team against a scope bucket. ``component_type_id``
+
+        identifies which bucket''s ProjectScopeItems this dispatch targets when a
+
+        service spans more than one component type (e.g. both blade-level and
+
+        whole-turbine scope) -- must match exactly what ``list_scope_groups``
+
+        reported for the chosen bucket, including ``None``. Buckets are not
+
+        site-scoped: a single commitment can be resolved against a turbine at
+
+        any site offering this service.'
       properties:
-        id:
-          title: Id
+        service_id:
+          title: Service Id
           type: integer
-        status:
-          title: Status
-          type: string
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        resource_set_id:
+          title: Resource Set Id
+          type: integer
         planned_start_datetime:
           format: date-time
           title: Planned Start Datetime
@@ -451,12 +468,16 @@ components:
           format: date-time
           title: Planned End Datetime
           type: string
+        quantity:
+          default: 1
+          title: Quantity
+          type: integer
       required:
-      - id
-      - status
+      - service_id
+      - resource_set_id
       - planned_start_datetime
       - planned_end_datetime
-      title: ScopeDispatchCommitmentItem
+      title: CreateScopeWorkorderPayload
       type: object
     Success:
       additionalProperties: false
@@ -477,6 +498,22 @@ components:
           title: Success
           type: boolean
       title: Success
+      type: object
+    ScopeCommitmentTurbineOption:
+      additionalProperties: false
+      description: A turbine this commitment can actually resolve to.
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+      required:
+      - turbine_id
+      title: ScopeCommitmentTurbineOption
       type: object
     ScopeGroupResponse:
       additionalProperties: false
@@ -525,68 +562,6 @@ components:
       - default_kpi_minutes
       title: ScopeGroupResponse
       type: object
-    ScopeCommitmentTurbineOption:
-      additionalProperties: false
-      description: A turbine this commitment can actually resolve to.
-      properties:
-        turbine_id:
-          title: Turbine Id
-          type: integer
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Name
-      required:
-      - turbine_id
-      title: ScopeCommitmentTurbineOption
-      type: object
-    CreateScopeWorkorderPayload:
-      additionalProperties: false
-      description: 'Payload for dispatching a team against a scope bucket. ``component_type_id``
-
-        identifies which bucket''s ProjectScopeItems this dispatch targets when a
-
-        service spans more than one component type (e.g. both blade-level and
-
-        whole-turbine scope) -- must match exactly what ``list_scope_groups``
-
-        reported for the chosen bucket, including ``None``. Buckets are not
-
-        site-scoped: a single commitment can be resolved against a turbine at
-
-        any site offering this service.'
-      properties:
-        service_id:
-          title: Service Id
-          type: integer
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        resource_set_id:
-          title: Resource Set Id
-          type: integer
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          format: date-time
-          title: Planned End Datetime
-          type: string
-        quantity:
-          default: 1
-          title: Quantity
-          type: integer
-      required:
-      - service_id
-      - resource_set_id
-      - planned_start_datetime
-      - planned_end_datetime
-      title: CreateScopeWorkorderPayload
-      type: object
     CreateScopeWorkorderResponse:
       additionalProperties: false
       description: '`quantity` independent pending commitments, window split evenly.'
@@ -607,6 +582,31 @@ components:
       - quantity
       - unit
       title: CreateScopeWorkorderResponse
+      type: object
+    ScopeDispatchCommitmentItem:
+      additionalProperties: false
+      description: One pending commitment row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+      required:
+      - id
+      - status
+      - planned_start_datetime
+      - planned_end_datetime
+      title: ScopeDispatchCommitmentItem
       type: object
     RescheduleScopeCommitmentPayload:
       additionalProperties: false

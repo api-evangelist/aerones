@@ -93,29 +93,39 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    RosbagBlobSchema:
+    AnomalyCustomValueOutput:
+      additionalProperties: false
+      description: Schema for a custom field value in an anomaly response.
       properties:
-        url:
+        id:
+          description: Custom value ID
+          title: Id
+          type: integer
+        custom_field_id:
+          description: Customer custom field ID
+          title: Custom Field Id
+          type: integer
+        custom_field_name:
+          description: Field name
+          title: Custom Field Name
+          type: string
+        custom_field_type:
+          description: Field data type
+          title: Custom Field Type
+          type: string
+        value:
           anyOf:
           - type: string
           - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        kind:
-          $ref: '#/components/schemas/RosbagBlobKind'
+          description: Value for the field
+          title: Value
       required:
       - id
-      - kind
-      title: RosbagBlobSchema
+      - custom_field_id
+      - custom_field_name
+      - custom_field_type
+      title: AnomalyCustomValueOutput
       type: object
-    RosbagBlobKind:
-      enum:
-      - QR_RANGES
-      - POINTCLOUD_MD
-      title: RosbagBlobKind
-      type: string
     AnomalyCreate:
       additionalProperties: false
       description: Schema for creating Anomaly.
@@ -477,24 +487,6 @@ components:
       - distance_to_root
       - internal_external
       title: AnomalyCreate
-      type: object
-    AnomalyCustomValueInput:
-      additionalProperties: false
-      description: Schema for setting one custom field value on an anomaly.
-      properties:
-        custom_field_id:
-          description: Customer custom field ID
-          title: Custom Field Id
-          type: integer
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Value for the field. Null or empty clears it.
-          title: Value
-      required:
-      - custom_field_id
-      title: AnomalyCustomValueInput
       type: object
     RosbagSchema:
       properties:
@@ -952,38 +944,46 @@ components:
       - registered_by
       title: AnomalyResponse
       type: object
-    AnomalyCustomValueOutput:
+    RosbagBlobKind:
+      enum:
+      - QR_RANGES
+      - POINTCLOUD_MD
+      title: RosbagBlobKind
+      type: string
+    AnomalyCustomValueInput:
       additionalProperties: false
-      description: Schema for a custom field value in an anomaly response.
+      description: Schema for setting one custom field value on an anomaly.
       properties:
-        id:
-          description: Custom value ID
-          title: Id
-          type: integer
         custom_field_id:
           description: Customer custom field ID
           title: Custom Field Id
           type: integer
-        custom_field_name:
-          description: Field name
-          title: Custom Field Name
-          type: string
-        custom_field_type:
-          description: Field data type
-          title: Custom Field Type
-          type: string
         value:
           anyOf:
           - type: string
           - type: 'null'
-          description: Value for the field
+          description: Value for the field. Null or empty clears it.
           title: Value
       required:
-      - id
       - custom_field_id
-      - custom_field_name
-      - custom_field_type
-      title: AnomalyCustomValueOutput
+      title: AnomalyCustomValueInput
+      type: object
+    RosbagBlobSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        kind:
+          $ref: '#/components/schemas/RosbagBlobKind'
+      required:
+      - id
+      - kind
+      title: RosbagBlobSchema
       type: object
   securitySchemes:
     APIKeyAuth:

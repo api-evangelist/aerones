@@ -205,98 +205,7 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningProjectCreate:
-      additionalProperties: false
-      properties:
-        customer_id:
-          title: Customer Id
-          type: integer
-        campaign_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Campaign Id
-        core_project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Core Project Id
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-        name:
-          title: Name
-          type: string
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          default: PLANNED
-          title: Status
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        priority:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Priority
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-        actual_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Actual Start Date
-        actual_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Actual End Date
-        planned_cost:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Planned Cost
-        actual_cost:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Actual Cost
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Currency Id
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      required:
-      - customer_id
-      - name
-      title: PlanningProjectCreate
-      type: object
-    PlanningNestedCurrency:
+    PlanningNestedCoreProject:
       properties:
         id:
           title: Id
@@ -304,26 +213,38 @@ components:
         code:
           title: Code
           type: string
+      required:
+      - id
+      - code
+      title: PlanningNestedCoreProject
+      type: object
+    PlanningNestedCampaign:
+      properties:
+        id:
+          title: Id
+          type: integer
         name:
           title: Name
           type: string
       required:
       - id
-      - code
       - name
-      title: PlanningNestedCurrency
+      title: PlanningNestedCampaign
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -344,6 +265,34 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningNestedCurrency:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: PlanningNestedCurrency
+      type: object
     PlanningNestedCustomer:
       properties:
         id:
@@ -356,33 +305,6 @@ components:
       - id
       - display_name
       title: PlanningNestedCustomer
-      type: object
-    PlanningNestedCoreProject:
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: PlanningNestedCoreProject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     PlanningProjectResponse:
       properties:
@@ -502,19 +424,6 @@ components:
       - updated_at
       title: PlanningProjectResponse
       type: object
-    PlanningNestedCampaign:
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: PlanningNestedCampaign
-      type: object
     PlanningProjectUpdate:
       properties:
         campaign_id:
@@ -599,6 +508,97 @@ components:
           - type: 'null'
           title: Notes
       title: PlanningProjectUpdate
+      type: object
+    PlanningProjectCreate:
+      additionalProperties: false
+      properties:
+        customer_id:
+          title: Customer Id
+          type: integer
+        campaign_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Campaign Id
+        core_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Project Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: PLANNED
+          title: Status
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        priority:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Actual End Date
+        planned_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Planned Cost
+        actual_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Actual Cost
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Currency Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      required:
+      - customer_id
+      - name
+      title: PlanningProjectCreate
       type: object
   securitySchemes:
     APIKeyAuth:

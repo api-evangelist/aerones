@@ -378,6 +378,21 @@ components:
       - comment
       title: DelayResponse
       type: object
+    ResourceObject:
+      additionalProperties: false
+      description: Nested resource object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        full_name:
+          title: Full Name
+          type: string
+      required:
+      - id
+      - full_name
+      title: ResourceObject
+      type: object
     LocationType:
       description: Allowed location type values in location.
       enum:
@@ -390,6 +405,159 @@ components:
       - OFFICE
       title: LocationType
       type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    DelayUpdate:
+      additionalProperties: false
+      description: Schema for updating a Delay.
+      properties:
+        delay_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Delay type ID
+          title: Delay Type Id
+        comment:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Delay comment
+          title: Comment
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Delay description
+          title: Description
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay start date and time
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay end date and time
+          title: End Datetime
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Duration in minutes
+          title: Duration Minutes
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID (cause)
+          title: Robot Set Id
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource ID (cause)
+          title: Resource Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID (cause)
+          title: Location Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (impact)
+          title: Project Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (impact)
+          title: Service Order Id
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder ID (impact)
+          title: Workorder Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder activity ID (impact)
+          title: Workorder Activity Id
+        team_resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Team resources JSON (same shape as activity resources)
+          title: Team Resources
+        team_preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource preset ID — used to sync WorkorderResource is_lead
+          title: Team Preset Id
+      title: DelayUpdate
+      type: object
     LocationObject:
       additionalProperties: false
       description: Nested location object for responses (no timestamps).
@@ -514,174 +682,6 @@ components:
       - start_datetime
       title: DelayCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    DelayUpdate:
-      additionalProperties: false
-      description: Schema for updating a Delay.
-      properties:
-        delay_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Delay type ID
-          title: Delay Type Id
-        comment:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Delay comment
-          title: Comment
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Delay description
-          title: Description
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Delay start date and time
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Delay end date and time
-          title: End Datetime
-        duration_minutes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Duration in minutes
-          title: Duration Minutes
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields as JSON (object or array)
-          title: Custom Fields
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Robot set ID (cause)
-          title: Robot Set Id
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Resource ID (cause)
-          title: Resource Id
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Location ID (cause)
-          title: Location Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project ID (impact)
-          title: Project Id
-        service_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service order ID (impact)
-          title: Service Order Id
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Workorder ID (impact)
-          title: Workorder Id
-        workorder_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Workorder activity ID (impact)
-          title: Workorder Activity Id
-        team_resources:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Team resources JSON (same shape as activity resources)
-          title: Team Resources
-        team_preset_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Resource preset ID — used to sync WorkorderResource is_lead
-          title: Team Preset Id
-      title: DelayUpdate
-      type: object
-    DelayTypeObject:
-      additionalProperties: false
-      description: Nested delay type object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: DelayTypeObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     RobotSetObject:
       additionalProperties: false
       description: Nested robot set object for responses (no timestamps).
@@ -697,20 +697,20 @@ components:
       - name
       title: RobotSetObject
       type: object
-    ResourceObject:
+    DelayTypeObject:
       additionalProperties: false
-      description: Nested resource object for responses (no timestamps).
+      description: Nested delay type object for responses (no timestamps).
       properties:
         id:
           title: Id
           type: integer
-        full_name:
-          title: Full Name
+        code:
+          title: Code
           type: string
       required:
       - id
-      - full_name
-      title: ResourceObject
+      - code
+      title: DelayTypeObject
       type: object
   securitySchemes:
     APIKeyAuth:

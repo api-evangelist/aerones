@@ -225,43 +225,16 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
+    ServiceChargeResponse:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for ServiceCharge response.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ServiceChargeCreate:
-      additionalProperties: false
-      description: Schema for creating a ServiceCharge.
-      properties:
+        id:
+          description: Charge ID
+          title: Id
+          type: integer
         charge_date:
-          description: Charge date (YYYY-MM-DD)
+          description: Charge date
           format: date
           title: Charge Date
           type: string
@@ -299,7 +272,7 @@ components:
           anyOf:
           - type: string
           - type: 'null'
-          description: Source system (OPSHUB, NETSUITE)
+          description: Source system
           title: Source System
         price:
           anyOf:
@@ -364,9 +337,16 @@ components:
           - type: 'null'
           description: Billing statement ID
           title: Billing Statement Id
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
       required:
+      - id
       - charge_date
-      title: ServiceChargeCreate
+      - updated_at
+      title: ServiceChargeResponse
       type: object
     ServiceChargeUpdate:
       additionalProperties: false
@@ -494,16 +474,43 @@ components:
       - message
       title: Error
       type: object
-    ServiceChargeResponse:
+    Success:
       additionalProperties: false
-      description: Schema for ServiceCharge response.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        id:
-          description: Charge ID
-          title: Id
-          type: integer
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ServiceChargeCreate:
+      additionalProperties: false
+      description: Schema for creating a ServiceCharge.
+      properties:
         charge_date:
-          description: Charge date
+          description: Charge date (YYYY-MM-DD)
           format: date
           title: Charge Date
           type: string
@@ -541,7 +548,7 @@ components:
           anyOf:
           - type: string
           - type: 'null'
-          description: Source system
+          description: Source system (OPSHUB, NETSUITE)
           title: Source System
         price:
           anyOf:
@@ -606,16 +613,9 @@ components:
           - type: 'null'
           description: Billing statement ID
           title: Billing Statement Id
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
       required:
-      - id
       - charge_date
-      - updated_at
-      title: ServiceChargeResponse
+      title: ServiceChargeCreate
       type: object
   securitySchemes:
     APIKeyAuth:

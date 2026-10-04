@@ -156,25 +156,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    DailyWeatherListResponse:
-      additionalProperties: false
-      description: Response schema for weather data list.
-      properties:
-        weather:
-          description: Weather data by date
-          items:
-            $ref: '#/components/schemas/DailyWeatherSchema'
-          title: Weather
-          type: array
-        hasCoordinates:
-          description: Whether project has site coordinates
-          title: Hascoordinates
-          type: boolean
-      required:
-      - weather
-      - hasCoordinates
-      title: DailyWeatherListResponse
-      type: object
     WeatherValueUpdate:
       additionalProperties: false
       description: Schema for updating a single weather value.
@@ -199,23 +180,29 @@ components:
       - period
       title: WeatherValueUpdate
       type: object
-    WeatherResetRequest:
+    TimePeriodWeather:
       additionalProperties: false
-      description: Schema for resetting weather values to API values.
+      description: Weather values for a single time period.
       properties:
-        weather_type:
+        morning:
           anyOf:
+          - type: number
           - type: string
           - type: 'null'
-          description: Type to reset, or all if not specified
-          title: Weather Type
-        period:
+          title: Morning
+        day:
           anyOf:
+          - type: number
           - type: string
           - type: 'null'
-          description: Period to reset, or all if not specified
-          title: Period
-      title: WeatherResetRequest
+          title: Day
+        afternoon:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Afternoon
+      title: TimePeriodWeather
       type: object
     DailyWeatherSchema:
       additionalProperties: false
@@ -250,29 +237,42 @@ components:
       - precipitation
       title: DailyWeatherSchema
       type: object
-    TimePeriodWeather:
+    WeatherResetRequest:
       additionalProperties: false
-      description: Weather values for a single time period.
+      description: Schema for resetting weather values to API values.
       properties:
-        morning:
+        weather_type:
           anyOf:
-          - type: number
           - type: string
           - type: 'null'
-          title: Morning
-        day:
+          description: Type to reset, or all if not specified
+          title: Weather Type
+        period:
           anyOf:
-          - type: number
           - type: string
           - type: 'null'
-          title: Day
-        afternoon:
-          anyOf:
-          - type: number
-          - type: string
-          - type: 'null'
-          title: Afternoon
-      title: TimePeriodWeather
+          description: Period to reset, or all if not specified
+          title: Period
+      title: WeatherResetRequest
+      type: object
+    DailyWeatherListResponse:
+      additionalProperties: false
+      description: Response schema for weather data list.
+      properties:
+        weather:
+          description: Weather data by date
+          items:
+            $ref: '#/components/schemas/DailyWeatherSchema'
+          title: Weather
+          type: array
+        hasCoordinates:
+          description: Whether project has site coordinates
+          title: Hascoordinates
+          type: boolean
+      required:
+      - weather
+      - hasCoordinates
+      title: DailyWeatherListResponse
       type: object
   securitySchemes:
     APIKeyAuth:

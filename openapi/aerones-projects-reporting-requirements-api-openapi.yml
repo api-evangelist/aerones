@@ -239,6 +239,38 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ProjectRequirementCreate:
+      additionalProperties: false
+      properties:
+        title:
+          maxLength: 255
+          title: Title
+          type: string
+        body:
+          title: Body
+          type: string
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer the requirement belongs to (null = Aerones-owned). Defaults to the URL project's requesting customer.
+          title: Customer Id
+        applicabilities:
+          description: Explicit typed-FK rows; empty = whole project.
+          items:
+            $ref: '#/components/schemas/ApplicabilityInput'
+          title: Applicabilities
+          type: array
+      required:
+      - title
+      - body
+      title: ProjectRequirementCreate
+      type: object
     AssetOption:
       additionalProperties: false
       description: A pickable turbine (v1 assets are turbine-only).
@@ -254,12 +286,17 @@ components:
       - name
       title: AssetOption
       type: object
-    ApplicabilityInput:
+    ApplicabilityResponse:
       additionalProperties: false
-      description: 'Typed-FK applicability row. Scope is read from the populated columns; at
-
-        most one of {project_id, turbine_id}; project rows never carry customer_id.'
       properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
         project_id:
           anyOf:
           - type: integer
@@ -270,36 +307,14 @@ components:
           - type: integer
           - type: 'null'
           title: Turbine Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
         service_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Service Id
-      title: ApplicabilityInput
-      type: object
-    ServiceOption:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
       required:
       - id
-      - code
-      title: ServiceOption
+      title: ApplicabilityResponse
       type: object
     ProjectRequirementUpdate:
       additionalProperties: false
@@ -336,6 +351,53 @@ components:
           type: boolean
       title: ProjectRequirementUpdate
       type: object
+    ServiceOption:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: ServiceOption
+      type: object
+    ApplicabilityInput:
+      additionalProperties: false
+      description: 'Typed-FK applicability row. Scope is read from the populated columns; at
+
+        most one of {project_id, turbine_id}; project rows never carry customer_id.'
+      properties:
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      title: ApplicabilityInput
+      type: object
     ProjectRequirementOptionsResponse:
       additionalProperties: false
       description: 'Pickable options for the modal: services from the project''s latest offer +
@@ -360,36 +422,6 @@ components:
           - type: 'null'
           title: Current Project Id
       title: ProjectRequirementOptionsResponse
-      type: object
-    ApplicabilityResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-      required:
-      - id
-      title: ApplicabilityResponse
       type: object
     ProjectRequirementResponse:
       additionalProperties: false
@@ -461,38 +493,6 @@ components:
       - created_at
       - updated_at
       title: ProjectRequirementResponse
-      type: object
-    ProjectRequirementCreate:
-      additionalProperties: false
-      properties:
-        title:
-          maxLength: 255
-          title: Title
-          type: string
-        body:
-          title: Body
-          type: string
-        attachment_file_ids:
-          items:
-            type: string
-          title: Attachment File Ids
-          type: array
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer the requirement belongs to (null = Aerones-owned). Defaults to the URL project's requesting customer.
-          title: Customer Id
-        applicabilities:
-          description: Explicit typed-FK rows; empty = whole project.
-          items:
-            $ref: '#/components/schemas/ApplicabilityInput'
-          title: Applicabilities
-          type: array
-      required:
-      - title
-      - body
-      title: ProjectRequirementCreate
       type: object
   securitySchemes:
     APIKeyAuth:

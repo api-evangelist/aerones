@@ -3427,6 +3427,67 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    MissingChargesSyncResponse:
+      additionalProperties: false
+      description: Response for missing charges sync endpoint.
+      properties:
+        total_records:
+          description: Total records synced
+          title: Total Records
+          type: integer
+        deleted:
+          description: Records deleted from cache
+          title: Deleted
+          type: integer
+        created:
+          description: Records created in cache
+          title: Created
+          type: integer
+        duration_seconds:
+          description: Sync duration in seconds
+          title: Duration Seconds
+          type: number
+        synced_at:
+          description: Sync timestamp (ISO format)
+          title: Synced At
+          type: string
+      required:
+      - total_records
+      - deleted
+      - created
+      - duration_seconds
+      - synced_at
+      title: MissingChargesSyncResponse
+      type: object
+    ChargeBulkReview:
+      additionalProperties: false
+      description: 'Input for bulk PM/customer review-status transitions.
+
+
+        Exactly one of `ids` or `email_send_log_id` must be set. `ids` names the
+
+        charges directly; `email_send_log_id` resolves to every charge linked to
+
+        that sent email (`EmailSendLogCharge`).'
+      properties:
+        ids:
+          anyOf:
+          - items:
+              type: integer
+            minItems: 1
+            type: array
+          - type: 'null'
+          description: List of charge IDs to transition
+          title: Ids
+        email_send_log_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Transition every charge linked to this sent email
+          title: Email Send Log Id
+      title: ChargeBulkReview
+      type: object
     Country:
       additionalProperties: false
       description: Schema for Country.
@@ -3450,94 +3511,70 @@ components:
       - name
       title: Country
       type: object
-    Client:
-      additionalProperties: false
-      description: Schema for client.
-      properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Client name.
-          title: Name
-      title: Client
-      type: object
-    MissingChargesAffectedProject:
-      additionalProperties: false
-      description: Project impacted by missing charges.
-      properties:
-        project_code:
-          description: Project code
-          title: Project Code
-          type: string
-        project_id:
-          description: Project UUID
-          title: Project Id
-          type: string
-      required:
-      - project_code
-      - project_id
-      title: MissingChargesAffectedProject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
+    AccountingOverviewSortBy:
+      description: Sortable fields for accounting overview.
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - code
+      - robot_set_name
+      - client
+      - country
+      - total_quantity
+      - total_revenue
+      - total_revenue_eur
+      - total_revenue_usd
+      - total_revenue_aud
+      - added_to_invoice_revenue
+      - added_to_invoice_revenue_eur
+      - added_to_invoice_revenue_usd
+      - added_to_invoice_revenue_aud
+      - invoiced_revenue
+      - invoiced_revenue_eur
+      - invoiced_revenue_usd
+      - invoiced_revenue_aud
+      - draft_charges
+      - draft_charges_eur
+      - draft_charges_usd
+      - draft_charges_aud
+      - approved_charges
+      - approved_charges_eur
+      - approved_charges_usd
+      - approved_charges_aud
+      - require_po_charges
+      - require_po_charges_eur
+      - require_po_charges_usd
+      - require_po_charges_aud
+      - currency
+      - actual_planned_quantity
+      - actual_planned_revenue
+      - actual_planned_revenue_eur
+      - actual_planned_revenue_usd
+      - actual_planned_revenue_aud
+      - fixed_planned_revenue
+      - fixed_planned_revenue_eur
+      - fixed_planned_revenue_usd
+      - fixed_planned_revenue_aud
+      - project_status
+      - service_codes
+      - service_unit_types
+      - closure_date
+      title: AccountingOverviewSortBy
       type: string
-    NetSuiteLocalSyncResponse:
+    MissingDataReasonBadge:
       additionalProperties: false
-      description: Response schema for the NetSuite local DB sync operation.
+      description: Badge showing reason for missing data.
       properties:
-        projects_synced:
-          description: Number of projects synced
-          title: Projects Synced
-          type: integer
-        sales_orders_upserted:
-          description: Sales orders upserted
-          title: Sales Orders Upserted
-          type: integer
-        line_items_upserted:
-          description: Line items upserted
-          title: Line Items Upserted
-          type: integer
-        charges_upserted:
-          description: Charges upserted
-          title: Charges Upserted
-          type: integer
-        invoices_upserted:
-          description: Invoices upserted
-          title: Invoices Upserted
-          type: integer
-        duration_seconds:
-          description: Sync duration in seconds
-          title: Duration Seconds
-          type: number
-        errors:
-          description: Per-project error messages
-          items:
-            type: string
-          title: Errors
-          type: array
+        type:
+          description: 'Reason type: ''charge-entry'' or ''sales-order-missing'''
+          title: Type
+          type: string
+        label:
+          description: Display text for the reason badge
+          title: Label
+          type: string
       required:
-      - projects_synced
-      - sales_orders_upserted
-      - line_items_upserted
-      - charges_upserted
-      - invoices_upserted
-      - duration_seconds
-      - errors
-      title: NetSuiteLocalSyncResponse
+      - type
+      - label
+      title: MissingDataReasonBadge
       type: object
     RobotSetMissingData:
       additionalProperties: false
@@ -3635,6 +3672,346 @@ components:
       - reasons
       title: RobotSetMissingData
       type: object
+    AccountingOverviewSummary:
+      additionalProperties: false
+      description: Summary schema for accounting overview aggregated data.
+      properties:
+        client_count:
+          description: Total amount of unique clients
+          title: Client Count
+          type: integer
+        project_count:
+          description: Total amount of projects
+          title: Project Count
+          type: integer
+        total_revenue_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total revenue in EUR
+          title: Total Revenue Eur
+        total_revenue_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total revenue in USD
+          title: Total Revenue Usd
+        total_revenue_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Total revenue in AUD
+          title: Total Revenue Aud
+        added_to_invoice_revenue_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Added to invoice revenue in EUR
+          title: Added To Invoice Revenue Eur
+        added_to_invoice_revenue_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Added to invoice revenue in USD
+          title: Added To Invoice Revenue Usd
+        added_to_invoice_revenue_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Added to invoice revenue in AUD
+          title: Added To Invoice Revenue Aud
+        invoiced_revenue_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Invoiced revenue in EUR (invoice_sent_status=Final)
+          title: Invoiced Revenue Eur
+        invoiced_revenue_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Invoiced revenue in USD (invoice_sent_status=Final)
+          title: Invoiced Revenue Usd
+        invoiced_revenue_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Invoiced revenue in AUD (invoice_sent_status=Final)
+          title: Invoiced Revenue Aud
+        draft_charges_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Draft charges in EUR
+          title: Draft Charges Eur
+        draft_charges_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Draft charges in USD
+          title: Draft Charges Usd
+        draft_charges_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Draft charges in AUD
+          title: Draft Charges Aud
+        approved_charges_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Approved charges in EUR
+          title: Approved Charges Eur
+        approved_charges_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Approved charges in USD
+          title: Approved Charges Usd
+        approved_charges_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Approved charges in AUD
+          title: Approved Charges Aud
+        require_po_charges_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Require-PO charges in EUR
+          title: Require Po Charges Eur
+        require_po_charges_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Require-PO charges in USD
+          title: Require Po Charges Usd
+        require_po_charges_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Require-PO charges in AUD
+          title: Require Po Charges Aud
+        actual_planned_revenue_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Actual planned revenue in EUR
+          title: Actual Planned Revenue Eur
+        actual_planned_revenue_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Actual planned revenue in USD
+          title: Actual Planned Revenue Usd
+        actual_planned_revenue_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Actual planned revenue in AUD
+          title: Actual Planned Revenue Aud
+        fixed_planned_revenue_eur:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Fixed planned revenue in EUR
+          title: Fixed Planned Revenue Eur
+        fixed_planned_revenue_usd:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Fixed planned revenue in USD
+          title: Fixed Planned Revenue Usd
+        fixed_planned_revenue_aud:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Fixed planned revenue in AUD
+          title: Fixed Planned Revenue Aud
+      required:
+      - client_count
+      - project_count
+      title: AccountingOverviewSummary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    MissingChargesTrackerResponse:
+      additionalProperties: false
+      description: Response for missing charges tracker endpoint.
+      properties:
+        total_missing_records:
+          description: Total number of robot sets with missing data
+          title: Total Missing Records
+          type: integer
+        projects_affected:
+          description: Number of unique projects affected
+          title: Projects Affected
+          type: integer
+        critical_count:
+          description: Number of records with 3+ days delay
+          title: Critical Count
+          type: integer
+        total_suggested_amount:
+          default: 0.0
+          description: Sum of suggested amounts across all missing records in project currency
+          title: Total Suggested Amount
+          type: number
+        total_suggested_amount_eur:
+          default: 0.0
+          description: Sum of suggested amounts converted to EUR
+          title: Total Suggested Amount Eur
+          type: number
+        total_suggested_amount_usd:
+          default: 0.0
+          description: Sum of suggested amounts converted to USD
+          title: Total Suggested Amount Usd
+          type: number
+        total_suggested_amount_aud:
+          default: 0.0
+          description: Sum of suggested amounts converted to AUD
+          title: Total Suggested Amount Aud
+          type: number
+        daily_reports_missing:
+          description: Legacy metric, kept for compatibility (always 0)
+          title: Daily Reports Missing
+          type: integer
+        available_project_codes:
+          description: List of available project codes after filters
+          items:
+            type: string
+          title: Available Project Codes
+          type: array
+        available_set_names:
+          description: List of available set names after filters
+          items:
+            type: string
+          title: Available Set Names
+          type: array
+        available_project_managers:
+          description: List of available project managers for filtering
+          items:
+            type: string
+          title: Available Project Managers
+          type: array
+        affected_projects:
+          description: List of affected projects after filters
+          items:
+            $ref: '#/components/schemas/MissingChargesAffectedProject'
+          title: Affected Projects
+          type: array
+        available_reasons:
+          description: List of all available reason badges for filtering
+          items:
+            $ref: '#/components/schemas/MissingDataReasonBadge'
+          title: Available Reasons
+          type: array
+        items:
+          description: List of robot sets with missing data
+          items:
+            $ref: '#/components/schemas/RobotSetMissingData'
+          title: Items
+          type: array
+        last_synced_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Timestamp of last cache sync (None if using live data)
+          title: Last Synced At
+        platform_projects_not_found:
+          description: Project codes not found in Platform API
+          items:
+            type: string
+          title: Platform Projects Not Found
+          type: array
+        projects_mapped:
+          default: 0
+          description: Projects mapped to internal IDs
+          title: Projects Mapped
+          type: integer
+        projects_total:
+          default: 0
+          description: Total projects observed in the data set
+          title: Projects Total
+          type: integer
+        workload_fetch_failed_count:
+          default: 0
+          description: Number of projects where workload fetch failed
+          title: Workload Fetch Failed Count
+          type: integer
+        workload_auth_missing:
+          default: false
+          description: True if workload fetch skipped due to missing auth
+          title: Workload Auth Missing
+          type: boolean
+        projects_missing_in_db:
+          description: Project codes missing in internal Projects table
+          items:
+            type: string
+          title: Projects Missing In Db
+          type: array
+        planned_projects_discovered:
+          default: 0
+          description: Number of project codes discovered from planned resource sets
+          title: Planned Projects Discovered
+          type: integer
+        planned_only_projects:
+          default: 0
+          description: Projects found via planned resource sets but not in NetSuite charges
+          title: Planned Only Projects
+          type: integer
+      required:
+      - total_missing_records
+      - projects_affected
+      - critical_count
+      - daily_reports_missing
+      - available_project_codes
+      - available_set_names
+      - affected_projects
+      - available_reasons
+      - items
+      title: MissingChargesTrackerResponse
+      type: object
+    MissingChargesAffectedProject:
+      additionalProperties: false
+      description: Project impacted by missing charges.
+      properties:
+        project_code:
+          description: Project code
+          title: Project Code
+          type: string
+        project_id:
+          description: Project UUID
+          title: Project Id
+          type: string
+      required:
+      - project_code
+      - project_id
+      title: MissingChargesAffectedProject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     MissingChargesCacheStatus:
       additionalProperties: false
       description: Response for cache status endpoint.
@@ -3658,86 +4035,6 @@ components:
       - is_empty
       title: MissingChargesCacheStatus
       type: object
-    MissingChargesSyncResponse:
-      additionalProperties: false
-      description: Response for missing charges sync endpoint.
-      properties:
-        total_records:
-          description: Total records synced
-          title: Total Records
-          type: integer
-        deleted:
-          description: Records deleted from cache
-          title: Deleted
-          type: integer
-        created:
-          description: Records created in cache
-          title: Created
-          type: integer
-        duration_seconds:
-          description: Sync duration in seconds
-          title: Duration Seconds
-          type: number
-        synced_at:
-          description: Sync timestamp (ISO format)
-          title: Synced At
-          type: string
-      required:
-      - total_records
-      - deleted
-      - created
-      - duration_seconds
-      - synced_at
-      title: MissingChargesSyncResponse
-      type: object
-    AccountingOverviewSortBy:
-      description: Sortable fields for accounting overview.
-      enum:
-      - code
-      - robot_set_name
-      - client
-      - country
-      - total_quantity
-      - total_revenue
-      - total_revenue_eur
-      - total_revenue_usd
-      - total_revenue_aud
-      - added_to_invoice_revenue
-      - added_to_invoice_revenue_eur
-      - added_to_invoice_revenue_usd
-      - added_to_invoice_revenue_aud
-      - invoiced_revenue
-      - invoiced_revenue_eur
-      - invoiced_revenue_usd
-      - invoiced_revenue_aud
-      - draft_charges
-      - draft_charges_eur
-      - draft_charges_usd
-      - draft_charges_aud
-      - approved_charges
-      - approved_charges_eur
-      - approved_charges_usd
-      - approved_charges_aud
-      - require_po_charges
-      - require_po_charges_eur
-      - require_po_charges_usd
-      - require_po_charges_aud
-      - currency
-      - actual_planned_quantity
-      - actual_planned_revenue
-      - actual_planned_revenue_eur
-      - actual_planned_revenue_usd
-      - actual_planned_revenue_aud
-      - fixed_planned_revenue
-      - fixed_planned_revenue_eur
-      - fixed_planned_revenue_usd
-      - fixed_planned_revenue_aud
-      - project_status
-      - service_codes
-      - service_unit_types
-      - closure_date
-      title: AccountingOverviewSortBy
-      type: string
     ProjectRevenue:
       additionalProperties: false
       description: Schema for project revenue.
@@ -4045,142 +4342,22 @@ components:
       - code
       title: ProjectRevenue
       type: object
-    MissingChargesTrackerResponse:
+    Client:
       additionalProperties: false
-      description: Response for missing charges tracker endpoint.
+      description: Schema for client.
       properties:
-        total_missing_records:
-          description: Total number of robot sets with missing data
-          title: Total Missing Records
-          type: integer
-        projects_affected:
-          description: Number of unique projects affected
-          title: Projects Affected
-          type: integer
-        critical_count:
-          description: Number of records with 3+ days delay
-          title: Critical Count
-          type: integer
-        total_suggested_amount:
-          default: 0.0
-          description: Sum of suggested amounts across all missing records in project currency
-          title: Total Suggested Amount
-          type: number
-        total_suggested_amount_eur:
-          default: 0.0
-          description: Sum of suggested amounts converted to EUR
-          title: Total Suggested Amount Eur
-          type: number
-        total_suggested_amount_usd:
-          default: 0.0
-          description: Sum of suggested amounts converted to USD
-          title: Total Suggested Amount Usd
-          type: number
-        total_suggested_amount_aud:
-          default: 0.0
-          description: Sum of suggested amounts converted to AUD
-          title: Total Suggested Amount Aud
-          type: number
-        daily_reports_missing:
-          description: Legacy metric, kept for compatibility (always 0)
-          title: Daily Reports Missing
-          type: integer
-        available_project_codes:
-          description: List of available project codes after filters
-          items:
-            type: string
-          title: Available Project Codes
-          type: array
-        available_set_names:
-          description: List of available set names after filters
-          items:
-            type: string
-          title: Available Set Names
-          type: array
-        available_project_managers:
-          description: List of available project managers for filtering
-          items:
-            type: string
-          title: Available Project Managers
-          type: array
-        affected_projects:
-          description: List of affected projects after filters
-          items:
-            $ref: '#/components/schemas/MissingChargesAffectedProject'
-          title: Affected Projects
-          type: array
-        available_reasons:
-          description: List of all available reason badges for filtering
-          items:
-            $ref: '#/components/schemas/MissingDataReasonBadge'
-          title: Available Reasons
-          type: array
-        items:
-          description: List of robot sets with missing data
-          items:
-            $ref: '#/components/schemas/RobotSetMissingData'
-          title: Items
-          type: array
-        last_synced_at:
+        id:
           anyOf:
-          - format: date-time
-            type: string
+          - type: integer
           - type: 'null'
-          description: Timestamp of last cache sync (None if using live data)
-          title: Last Synced At
-        platform_projects_not_found:
-          description: Project codes not found in Platform API
-          items:
-            type: string
-          title: Platform Projects Not Found
-          type: array
-        projects_mapped:
-          default: 0
-          description: Projects mapped to internal IDs
-          title: Projects Mapped
-          type: integer
-        projects_total:
-          default: 0
-          description: Total projects observed in the data set
-          title: Projects Total
-          type: integer
-        workload_fetch_failed_count:
-          default: 0
-          description: Number of projects where workload fetch failed
-          title: Workload Fetch Failed Count
-          type: integer
-        workload_auth_missing:
-          default: false
-          description: True if workload fetch skipped due to missing auth
-          title: Workload Auth Missing
-          type: boolean
-        projects_missing_in_db:
-          description: Project codes missing in internal Projects table
-          items:
-            type: string
-          title: Projects Missing In Db
-          type: array
-        planned_projects_discovered:
-          default: 0
-          description: Number of project codes discovered from planned resource sets
-          title: Planned Projects Discovered
-          type: integer
-        planned_only_projects:
-          default: 0
-          description: Projects found via planned resource sets but not in NetSuite charges
-          title: Planned Only Projects
-          type: integer
-      required:
-      - total_missing_records
-      - projects_affected
-      - critical_count
-      - daily_reports_missing
-      - available_project_codes
-      - available_set_names
-      - affected_projects
-      - available_reasons
-      - items
-      title: MissingChargesTrackerResponse
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Client name.
+          title: Name
+      title: Client
       type: object
     AccountingOverviewFilters:
       additionalProperties: false
@@ -4245,36 +4422,49 @@ components:
       - robot_set
       title: AccountingOverviewFilters
       type: object
-    Error:
+    NetSuiteLocalSyncResponse:
       additionalProperties: false
-      description: Error response schema.
+      description: Response schema for the NetSuite local DB sync operation.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
+        projects_synced:
+          description: Number of projects synced
+          title: Projects Synced
+          type: integer
+        sales_orders_upserted:
+          description: Sales orders upserted
+          title: Sales Orders Upserted
+          type: integer
+        line_items_upserted:
+          description: Line items upserted
+          title: Line Items Upserted
+          type: integer
+        charges_upserted:
+          description: Charges upserted
+          title: Charges Upserted
+          type: integer
+        invoices_upserted:
+          description: Invoices upserted
+          title: Invoices Upserted
+          type: integer
+        duration_seconds:
+          description: Sync duration in seconds
+          title: Duration Seconds
+          type: number
+        errors:
+          description: Per-project error messages
+          items:
+            type: string
+          title: Errors
+          type: array
       required:
-      - code
-      - message
-      title: Error
-      type: object
-    MissingDataReasonBadge:
-      additionalProperties: false
-      description: Badge showing reason for missing data.
-      properties:
-        type:
-          description: 'Reason type: ''charge-entry'' or ''sales-order-missing'''
-          title: Type
-          type: string
-        label:
-          description: Display text for the reason badge
-          title: Label
-          type: string
-      required:
-      - type
-      - label
-      title: MissingDataReasonBadge
+      - projects_synced
+      - sales_orders_upserted
+      - line_items_upserted
+      - charges_upserted
+      - invoices_upserted
+      - duration_seconds
+      - errors
+      title: NetSuiteLocalSyncResponse
       type: object
     ChargeBulkReviewResponse:
       additionalProperties: false
@@ -4289,196 +4479,6 @@ components:
       required:
       - updated_ids
       title: ChargeBulkReviewResponse
-      type: object
-    ChargeBulkReview:
-      additionalProperties: false
-      description: 'Input for bulk PM/customer review-status transitions.
-
-
-        Exactly one of `ids` or `email_send_log_id` must be set. `ids` names the
-
-        charges directly; `email_send_log_id` resolves to every charge linked to
-
-        that sent email (`EmailSendLogCharge`).'
-      properties:
-        ids:
-          anyOf:
-          - items:
-              type: integer
-            minItems: 1
-            type: array
-          - type: 'null'
-          description: List of charge IDs to transition
-          title: Ids
-        email_send_log_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Transition every charge linked to this sent email
-          title: Email Send Log Id
-      title: ChargeBulkReview
-      type: object
-    AccountingOverviewSummary:
-      additionalProperties: false
-      description: Summary schema for accounting overview aggregated data.
-      properties:
-        client_count:
-          description: Total amount of unique clients
-          title: Client Count
-          type: integer
-        project_count:
-          description: Total amount of projects
-          title: Project Count
-          type: integer
-        total_revenue_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total revenue in EUR
-          title: Total Revenue Eur
-        total_revenue_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total revenue in USD
-          title: Total Revenue Usd
-        total_revenue_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Total revenue in AUD
-          title: Total Revenue Aud
-        added_to_invoice_revenue_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Added to invoice revenue in EUR
-          title: Added To Invoice Revenue Eur
-        added_to_invoice_revenue_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Added to invoice revenue in USD
-          title: Added To Invoice Revenue Usd
-        added_to_invoice_revenue_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Added to invoice revenue in AUD
-          title: Added To Invoice Revenue Aud
-        invoiced_revenue_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Invoiced revenue in EUR (invoice_sent_status=Final)
-          title: Invoiced Revenue Eur
-        invoiced_revenue_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Invoiced revenue in USD (invoice_sent_status=Final)
-          title: Invoiced Revenue Usd
-        invoiced_revenue_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Invoiced revenue in AUD (invoice_sent_status=Final)
-          title: Invoiced Revenue Aud
-        draft_charges_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Draft charges in EUR
-          title: Draft Charges Eur
-        draft_charges_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Draft charges in USD
-          title: Draft Charges Usd
-        draft_charges_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Draft charges in AUD
-          title: Draft Charges Aud
-        approved_charges_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Approved charges in EUR
-          title: Approved Charges Eur
-        approved_charges_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Approved charges in USD
-          title: Approved Charges Usd
-        approved_charges_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Approved charges in AUD
-          title: Approved Charges Aud
-        require_po_charges_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Require-PO charges in EUR
-          title: Require Po Charges Eur
-        require_po_charges_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Require-PO charges in USD
-          title: Require Po Charges Usd
-        require_po_charges_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Require-PO charges in AUD
-          title: Require Po Charges Aud
-        actual_planned_revenue_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Actual planned revenue in EUR
-          title: Actual Planned Revenue Eur
-        actual_planned_revenue_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Actual planned revenue in USD
-          title: Actual Planned Revenue Usd
-        actual_planned_revenue_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Actual planned revenue in AUD
-          title: Actual Planned Revenue Aud
-        fixed_planned_revenue_eur:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Fixed planned revenue in EUR
-          title: Fixed Planned Revenue Eur
-        fixed_planned_revenue_usd:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Fixed planned revenue in USD
-          title: Fixed Planned Revenue Usd
-        fixed_planned_revenue_aud:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Fixed planned revenue in AUD
-          title: Fixed Planned Revenue Aud
-      required:
-      - client_count
-      - project_count
-      title: AccountingOverviewSummary
       type: object
   securitySchemes:
     APIKeyAuth:

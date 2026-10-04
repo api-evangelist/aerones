@@ -266,6 +266,118 @@ components:
       - quantity
       title: ProjectPlannedResourceSetItemCommitmentCreate
       type: object
+    ProjectPlannedResourceSetItemCommitmentUpdate:
+      additionalProperties: false
+      description: Schema for updating a planned scope commitment.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit (the unit) ID
+          title: Pricing Unit Id
+        quantity:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Committed quantity
+          title: Quantity
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional turbine model the commitment is specific to
+          title: Turbine Model Id
+      title: ProjectPlannedResourceSetItemCommitmentUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    TurbineModelObject:
+      additionalProperties: false
+      description: Nested turbine model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineModelObject
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
     ServiceObject:
       additionalProperties: false
       description: Nested service object for responses (no timestamps).
@@ -290,37 +402,6 @@ components:
       - code
       - is_service
       title: ServiceObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
       type: object
     ProjectPlannedResourceSetItemCommitmentResponse:
       additionalProperties: false
@@ -364,87 +445,6 @@ components:
       - service
       - pricing_unit
       title: ProjectPlannedResourceSetItemCommitmentResponse
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PricingUnitNestedResponse:
-      additionalProperties: false
-      description: Nested response for pricing unit in service response (no timestamps in nested objects).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        netsuite_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Netsuite Id
-      required:
-      - id
-      - name
-      title: PricingUnitNestedResponse
-      type: object
-    ProjectPlannedResourceSetItemCommitmentUpdate:
-      additionalProperties: false
-      description: Schema for updating a planned scope commitment.
-      properties:
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service ID
-          title: Service Id
-        pricing_unit_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pricing unit (the unit) ID
-          title: Pricing Unit Id
-        quantity:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: string
-          - type: 'null'
-          description: Committed quantity
-          title: Quantity
-        turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Optional turbine model the commitment is specific to
-          title: Turbine Model Id
-      title: ProjectPlannedResourceSetItemCommitmentUpdate
-      type: object
-    TurbineModelObject:
-      additionalProperties: false
-      description: Nested turbine model object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: TurbineModelObject
       type: object
   securitySchemes:
     APIKeyAuth:

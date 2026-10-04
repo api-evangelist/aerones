@@ -207,32 +207,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    TurbineInfo:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-      required:
-      - id
-      title: TurbineInfo
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     FilterServiceOption:
       additionalProperties: false
       description: Service option for filters endpoint.
@@ -249,20 +223,147 @@ components:
       - code
       title: FilterServiceOption
       type: object
-    ComponentTypeInfo:
+    FilterTurbineOption:
       additionalProperties: false
-      description: Nested component type info for service order line response.
+      description: Turbine option for filters endpoint.
       properties:
         id:
           title: Id
           type: integer
         name:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
-          type: string
       required:
       - id
-      - name
-      title: ComponentTypeInfo
+      title: FilterTurbineOption
+      type: object
+    TurbineComponentInfo:
+      additionalProperties: false
+      description: Nested turbine component info for service order line response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: TurbineComponentInfo
+      type: object
+    ServiceOrderLineResponse:
+      additionalProperties: false
+      description: Response schema for a single service order line.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineInfo'
+          - type: 'null'
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/ComponentTypeInfo'
+          - type: 'null'
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineComponentInfo'
+          - type: 'null'
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectInfo'
+          - type: 'null'
+        assigned_team_lead:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned Team Lead
+        activity_date_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Activity Date From
+        activity_date_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Activity Date To
+      required:
+      - id
+      title: ServiceOrderLineResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    FilterProjectOption:
+      additionalProperties: false
+      description: Project option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: FilterProjectOption
       type: object
     ServiceOrderLineDetailResponse:
       additionalProperties: false
@@ -335,36 +436,6 @@ components:
       - id
       title: ServiceOrderLineDetailResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    TurbineComponentInfo:
-      additionalProperties: false
-      description: Nested turbine component info for service order line response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Serial Number
-      required:
-      - id
-      title: TurbineComponentInfo
-      type: object
     ServiceOrderLineFiltersResponse:
       additionalProperties: false
       description: Response schema for SOL filters endpoint.
@@ -390,21 +461,20 @@ components:
       - services
       title: ServiceOrderLineFiltersResponse
       type: object
-    FilterTurbineOption:
+    ComponentTypeInfo:
       additionalProperties: false
-      description: Turbine option for filters endpoint.
+      description: Nested component type info for service order line response.
       properties:
         id:
           title: Id
           type: integer
         name:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Name
+          type: string
       required:
       - id
-      title: FilterTurbineOption
+      - name
+      title: ComponentTypeInfo
       type: object
     ProjectInfo:
       additionalProperties: false
@@ -426,90 +496,20 @@ components:
       - id
       title: ProjectInfo
       type: object
-    FilterProjectOption:
+    TurbineInfo:
       additionalProperties: false
-      description: Project option for filters endpoint.
       properties:
         id:
           title: Id
           type: integer
-        code:
+        name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Code
+          title: Name
       required:
       - id
-      title: FilterProjectOption
-      type: object
-    ServiceOrderLineResponse:
-      additionalProperties: false
-      description: Response schema for a single service order line.
-      properties:
-        id:
-          title: Id
-          type: integer
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        quantity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Quantity
-        turbine:
-          anyOf:
-          - $ref: '#/components/schemas/TurbineInfo'
-          - type: 'null'
-        component_type:
-          anyOf:
-          - $ref: '#/components/schemas/ComponentTypeInfo'
-          - type: 'null'
-        turbine_component:
-          anyOf:
-          - $ref: '#/components/schemas/TurbineComponentInfo'
-          - type: 'null'
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Name
-        project:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectInfo'
-          - type: 'null'
-        assigned_team_lead:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Assigned Team Lead
-        activity_date_from:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Activity Date From
-        activity_date_to:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Activity Date To
-      required:
-      - id
-      title: ServiceOrderLineResponse
+      title: TurbineInfo
       type: object
   securitySchemes:
     APIKeyAuth:

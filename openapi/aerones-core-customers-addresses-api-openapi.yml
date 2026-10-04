@@ -215,62 +215,9 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CountryObject:
+    CustomerAddressCreate:
       additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CustomerAddressUpdate:
-      additionalProperties: false
-      description: Schema for updating a CustomerAddress.
+      description: Schema for creating a CustomerAddress.
       properties:
         name:
           anyOf:
@@ -287,17 +234,14 @@ components:
           title: Additional Info
         type:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/CustomerAddressType'
           - type: 'null'
           description: Address type
-          title: Type
         address_line1:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
           description: Address line 1
+          minLength: 1
           title: Address Line1
+          type: string
         address_line2:
           anyOf:
           - type: string
@@ -335,7 +279,31 @@ components:
           - type: 'null'
           description: Timezone ID
           title: Timezone Id
-      title: CustomerAddressUpdate
+      required:
+      - address_line1
+      title: CustomerAddressCreate
+      type: object
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CountryObject
       type: object
     Error:
       additionalProperties: false
@@ -351,6 +319,37 @@ components:
       - message
       title: Error
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     CustomerAddressType:
       description: Enum for customer address types.
       enum:
@@ -443,9 +442,9 @@ components:
       - address_line1
       title: CustomerAddressResponse
       type: object
-    CustomerAddressCreate:
+    CustomerAddressUpdate:
       additionalProperties: false
-      description: Schema for creating a CustomerAddress.
+      description: Schema for updating a CustomerAddress.
       properties:
         name:
           anyOf:
@@ -462,14 +461,17 @@ components:
           title: Additional Info
         type:
           anyOf:
-          - $ref: '#/components/schemas/CustomerAddressType'
+          - type: string
           - type: 'null'
           description: Address type
+          title: Type
         address_line1:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
           description: Address line 1
-          minLength: 1
           title: Address Line1
-          type: string
         address_line2:
           anyOf:
           - type: string
@@ -507,9 +509,7 @@ components:
           - type: 'null'
           description: Timezone ID
           title: Timezone Id
-      required:
-      - address_line1
-      title: CustomerAddressCreate
+      title: CustomerAddressUpdate
       type: object
     TimezoneObject:
       additionalProperties: false

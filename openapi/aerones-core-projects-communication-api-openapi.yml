@@ -315,59 +315,31 @@ components:
           type: array
       title: MentionCandidateListResponse
       type: object
-    ProjectCommentResponse:
+    RoleMemberListResponse:
       additionalProperties: false
-      description: A single project communication note.
+      description: 'The people a role mention notifies, for the reader-facing role chip.
+
+
+        Reuses ``MentionCandidate`` so one shape describes a person in the picker
+
+        and in this list. ``total`` is the whole role; ``members`` is one page.'
       properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          title: Id
+        members:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Members
+          type: array
+        total:
+          default: 0
+          title: Total
           type: integer
-        body:
-          title: Body
-          type: string
-        body_format:
-          default: text
-          title: Body Format
-          type: string
-        author:
-          anyOf:
-          - $ref: '#/components/schemas/CommunicationUser'
-          - type: 'null'
-        edited_by:
-          anyOf:
-          - $ref: '#/components/schemas/CommunicationUser'
-          - type: 'null'
-          description: User who last updated the comment (domain rename of updated_by).
-        is_edited:
+        has_more:
           default: false
-          description: Whether the comment was edited after it was created.
-          title: Is Edited
+          title: Has More
           type: boolean
-        mentioned_users:
-          items:
-            $ref: '#/components/schemas/CommunicationUser'
-          title: Mentioned Users
-          type: array
-        attachments:
-          items:
-            $ref: '#/components/schemas/CommunicationAttachment'
-          title: Attachments
-          type: array
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
       required:
-      - updated_at
-      - id
-      - body
-      - created_at
-      title: ProjectCommentResponse
+      - members
+      title: RoleMemberListResponse
       type: object
     Success:
       additionalProperties: false
@@ -388,26 +360,6 @@ components:
           title: Success
           type: boolean
       title: Success
-      type: object
-    MentionCandidate:
-      additionalProperties: false
-      description: One user available for @-mention in a Set Request note.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: MentionCandidate
       type: object
     CommunicationFeedEntry:
       additionalProperties: false
@@ -482,48 +434,9 @@ components:
       - created_at
       title: CommunicationFeedEntry
       type: object
-    ProjectCommentUpdate:
+    MentionCandidate:
       additionalProperties: false
-      description: Edit a project communication note (author only).
-      properties:
-        body:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Note body.
-          title: Body
-        body_format:
-          anyOf:
-          - enum:
-            - text
-            - markdown
-            type: string
-          - type: 'null'
-          description: How `body` is encoded.
-          title: Body Format
-        mentioned_user_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Replacement mention set. None leaves it untouched, [] clears. Ignored for body_format='markdown'.
-          title: Mentioned User Ids
-        attachment_file_ids:
-          anyOf:
-          - items:
-              format: uuid
-              type: string
-            type: array
-          - type: 'null'
-          description: Replacement attachment set. None leaves it untouched, [] clears.
-          title: Attachment File Ids
-      title: ProjectCommentUpdate
-      type: object
-    CommunicationUser:
-      additionalProperties: false
-      description: Lightweight user reference used in communication payloads.
+      description: One user available for @-mention in a Set Request note.
       properties:
         id:
           title: Id
@@ -539,27 +452,7 @@ components:
       required:
       - id
       - name
-      title: CommunicationUser
-      type: object
-    CommunicationAttachment:
-      additionalProperties: false
-      description: A file attached to a communication note or task comment.
-      properties:
-        id:
-          format: uuid
-          title: Id
-          type: string
-        file_name:
-          title: File Name
-          type: string
-        file_type:
-          title: File Type
-          type: string
-      required:
-      - id
-      - file_name
-      - file_type
-      title: CommunicationAttachment
+      title: MentionCandidate
       type: object
     ProjectCommentCreate:
       additionalProperties: false
@@ -599,31 +492,138 @@ components:
       - body
       title: ProjectCommentCreate
       type: object
-    RoleMemberListResponse:
+    CommunicationUser:
       additionalProperties: false
-      description: 'The people a role mention notifies, for the reader-facing role chip.
-
-
-        Reuses ``MentionCandidate`` so one shape describes a person in the picker
-
-        and in this list. ``total`` is the whole role; ``members`` is one page.'
+      description: Lightweight user reference used in communication payloads.
       properties:
-        members:
-          items:
-            $ref: '#/components/schemas/MentionCandidate'
-          title: Members
-          type: array
-        total:
-          default: 0
-          title: Total
+        id:
+          title: Id
           type: integer
-        has_more:
-          default: false
-          title: Has More
-          type: boolean
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
       required:
-      - members
-      title: RoleMemberListResponse
+      - id
+      - name
+      title: CommunicationUser
+      type: object
+    ProjectCommentResponse:
+      additionalProperties: false
+      description: A single project communication note.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        body_format:
+          default: text
+          title: Body Format
+          type: string
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+        edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: User who last updated the comment (domain rename of updated_by).
+        is_edited:
+          default: false
+          description: Whether the comment was edited after it was created.
+          title: Is Edited
+          type: boolean
+        mentioned_users:
+          items:
+            $ref: '#/components/schemas/CommunicationUser'
+          title: Mentioned Users
+          type: array
+        attachments:
+          items:
+            $ref: '#/components/schemas/CommunicationAttachment'
+          title: Attachments
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - updated_at
+      - id
+      - body
+      - created_at
+      title: ProjectCommentResponse
+      type: object
+    ProjectCommentUpdate:
+      additionalProperties: false
+      description: Edit a project communication note (author only).
+      properties:
+        body:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Note body.
+          title: Body
+        body_format:
+          anyOf:
+          - enum:
+            - text
+            - markdown
+            type: string
+          - type: 'null'
+          description: How `body` is encoded.
+          title: Body Format
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Replacement mention set. None leaves it untouched, [] clears. Ignored for body_format='markdown'.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Replacement attachment set. None leaves it untouched, [] clears.
+          title: Attachment File Ids
+      title: ProjectCommentUpdate
+      type: object
+    CommunicationAttachment:
+      additionalProperties: false
+      description: A file attached to a communication note or task comment.
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+      required:
+      - id
+      - file_name
+      - file_type
+      title: CommunicationAttachment
       type: object
   securitySchemes:
     APIKeyAuth:

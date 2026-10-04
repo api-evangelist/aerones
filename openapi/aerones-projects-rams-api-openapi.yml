@@ -1007,60 +1007,47 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    RamsStatusResponse:
-      description: Lightweight status check response.
-      properties:
-        status:
-          title: Status
-          type: string
-        responded_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Responded At
-        auto_approved:
-          default: false
-          title: Auto Approved
-          type: boolean
-        client_feedback:
-          default: ''
-          title: Client Feedback
-          type: string
-        client_comments:
-          items: {}
-          title: Client Comments
-          type: array
-      required:
-      - status
-      title: RamsStatusResponse
-      type: object
-    RamsTechAckSummary:
-      description: Per-technician acknowledgement summary for the internal detail panel.
+    RamsAttachmentResponse:
+      description: Serialised RAMS attachment.
       properties:
         id:
           title: Id
           type: integer
-        technician_name:
-          title: Technician Name
+        file_name:
+          title: File Name
           type: string
-        technician_email:
-          title: Technician Email
+        file_size:
+          title: File Size
+          type: integer
+        content_type:
+          title: Content Type
           type: string
-        sent_at:
-          title: Sent At
+        uploaded_by:
+          title: Uploaded By
           type: string
-        acknowledged_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Acknowledged At
+        created_at:
+          title: Created At
+          type: string
+        share_url:
+          default: ''
+          title: Share Url
+          type: string
       required:
       - id
-      - technician_name
-      - technician_email
-      - sent_at
-      title: RamsTechAckSummary
+      - file_name
+      - file_size
+      - content_type
+      - uploaded_by
+      - created_at
+      title: RamsAttachmentResponse
       type: object
+    RosterSource:
+      description: Where the signing roster was derived from.
+      enum:
+      - pprs
+      - manual
+      title: RosterSource
+      type: string
     RamsDocumentUpdateBody:
       description: Body for patching a RAMS document.
       properties:
@@ -1152,46 +1139,32 @@ components:
           title: Technician Emails
       title: RamsDocumentUpdateBody
       type: object
-    RamsRosterCertificate:
+    RamsStatusResponse:
+      description: Lightweight status check response.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
+        status:
+          title: Status
           type: string
-      required:
-      - id
-      - name
-      title: RamsRosterCertificate
-      type: object
-    RamsSetOption:
-      properties:
-        pprs_id:
-          title: Pprs Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Location Id
-        dates_from:
+        responded_at:
           anyOf:
           - type: string
           - type: 'null'
-          title: Dates From
-        dates_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dates To
+          title: Responded At
+        auto_approved:
+          default: false
+          title: Auto Approved
+          type: boolean
+        client_feedback:
+          default: ''
+          title: Client Feedback
+          type: string
+        client_comments:
+          items: {}
+          title: Client Comments
+          type: array
       required:
-      - pprs_id
-      - name
-      title: RamsSetOption
+      - status
+      title: RamsStatusResponse
       type: object
     RamsRosterEntry:
       properties:
@@ -1251,79 +1224,208 @@ components:
       - ack_state
       title: RamsRosterEntry
       type: object
-    RamsDocumentCreateBody:
-      description: Body for creating a new RAMS document.
+    RamsRosterCertificate:
       properties:
-        pprs_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Pprs Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        template_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Template Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        project_location_ids:
-          items:
-            type: integer
-          title: Project Location Ids
-          type: array
-        region:
-          title: Region
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
           type: string
-        location_type:
-          title: Location Type
+      required:
+      - id
+      - name
+      title: RamsRosterCertificate
+      type: object
+    RamsApprovalResponse:
+      description: Serialised RAMS approval request.
+      properties:
+        id:
+          title: Id
+          type: integer
+        rams_document_id:
+          title: Rams Document Id
+          type: integer
+        service_type:
+          title: Service Type
+          type: string
+        service_family_code:
+          default: ''
+          title: Service Family Code
           type: string
         version:
-          default: '1.0'
           title: Version
           type: string
         status:
-          default: draft
           title: Status
           type: string
-        form_data:
-          title: Form Data
+        submitted_at:
+          title: Submitted At
+          type: string
+        response_deadline:
+          title: Response Deadline
+          type: string
+        responded_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Responded At
+        client_feedback:
+          default: ''
+          title: Client Feedback
+          type: string
+        client_comments:
+          items: {}
+          title: Client Comments
+          type: array
+        auto_approved:
+          default: false
+          title: Auto Approved
+          type: boolean
+        form_data_snapshot:
+          title: Form Data Snapshot
           type: object
-        prefill_snapshot:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Prefill Snapshot
+        attachments:
+          items: {}
+          title: Attachments
+          type: array
       required:
-      - region
-      - location_type
-      title: RamsDocumentCreateBody
+      - id
+      - rams_document_id
+      - service_type
+      - version
+      - status
+      - submitted_at
+      - response_deadline
+      title: RamsApprovalResponse
       type: object
-    RamsSendSelectionBody:
-      description: 'Optional recipient selection for the ``send-to-new-technicians`` top-up.
-
-
-        ``technician_emails`` restricts the top-up to the chosen crew members; an
-
-        omitted body (or ``None``) tops up every roster member with no active
-
-        acknowledgement row, matching the pre-selection behaviour.'
+    RamsClientRespondBody:
+      description: Body for client approval / rejection.
       properties:
-        technician_emails:
+        status:
+          description: '''approved'' or ''rejected'''
+          title: Status
+          type: string
+        feedback:
+          default: ''
+          title: Feedback
+          type: string
+        client_comments:
+          items: {}
+          title: Client Comments
+          type: array
+      required:
+      - status
+      title: RamsClientRespondBody
+      type: object
+    RamsSetOption:
+      properties:
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        project_location_id:
           anyOf:
-          - items:
-              type: string
-            type: array
+          - type: integer
           - type: 'null'
-          title: Technician Emails
-      title: RamsSendSelectionBody
+          title: Project Location Id
+        dates_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dates To
+      required:
+      - pprs_id
+      - name
+      title: RamsSetOption
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    RamsTechAckSummary:
+      description: Per-technician acknowledgement summary for the internal detail panel.
+      properties:
+        id:
+          title: Id
+          type: integer
+        technician_name:
+          title: Technician Name
+          type: string
+        technician_email:
+          title: Technician Email
+          type: string
+        sent_at:
+          title: Sent At
+          type: string
+        acknowledged_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acknowledged At
+      required:
+      - id
+      - technician_name
+      - technician_email
+      - sent_at
+      title: RamsTechAckSummary
+      type: object
+    AckState:
+      description: Per-person acknowledgement state on the signing roster.
+      enum:
+      - NOT_SENT
+      - SENT
+      - SIGNED
+      title: AckState
+      type: string
+    RamsSetOptionsResponse:
+      properties:
+        sets:
+          items:
+            $ref: '#/components/schemas/RamsSetOption'
+          title: Sets
+          type: array
+      title: RamsSetOptionsResponse
+      type: object
+    RamsRosterResponse:
+      properties:
+        source:
+          $ref: '#/components/schemas/RosterSource'
+        entries:
+          items:
+            $ref: '#/components/schemas/RamsRosterEntry'
+          title: Entries
+          type: array
+        required_certificates:
+          items:
+            $ref: '#/components/schemas/RamsRosterCertificate'
+          title: Required Certificates
+          type: array
+        pending_count:
+          default: 0
+          title: Pending Count
+          type: integer
+        not_sent_count:
+          default: 0
+          title: Not Sent Count
+          type: integer
+      required:
+      - source
+      title: RamsRosterResponse
       type: object
     Error:
       additionalProperties: false
@@ -1338,93 +1440,6 @@ components:
       - code
       - message
       title: Error
-      type: object
-    RamsDuplicateBody:
-      description: Body for duplicating a RAMS document.
-      properties:
-        pprs_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Pprs Id
-        project_location_ids:
-          items:
-            type: integer
-          title: Project Location Ids
-          type: array
-        form_data:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Form Data
-        prefill_snapshot:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Prefill Snapshot
-      title: RamsDuplicateBody
-      type: object
-    AckState:
-      description: Per-person acknowledgement state on the signing roster.
-      enum:
-      - NOT_SENT
-      - SENT
-      - SIGNED
-      title: AckState
-      type: string
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    RamsAttachmentResponse:
-      description: Serialised RAMS attachment.
-      properties:
-        id:
-          title: Id
-          type: integer
-        file_name:
-          title: File Name
-          type: string
-        file_size:
-          title: File Size
-          type: integer
-        content_type:
-          title: Content Type
-          type: string
-        uploaded_by:
-          title: Uploaded By
-          type: string
-        created_at:
-          title: Created At
-          type: string
-        share_url:
-          default: ''
-          title: Share Url
-          type: string
-      required:
-      - id
-      - file_name
-      - file_size
-      - content_type
-      - uploaded_by
-      - created_at
-      title: RamsAttachmentResponse
-      type: object
-    RamsSetOptionsResponse:
-      properties:
-        sets:
-          items:
-            $ref: '#/components/schemas/RamsSetOption'
-          title: Sets
-          type: array
-      title: RamsSetOptionsResponse
       type: object
     RamsDocumentResponse:
       description: Serialised RAMS document.
@@ -1595,119 +1610,104 @@ components:
       - updated_at
       title: RamsDocumentResponse
       type: object
-    RosterSource:
-      description: Where the signing roster was derived from.
-      enum:
-      - pprs
-      - manual
-      title: RosterSource
-      type: string
-    RamsApprovalResponse:
-      description: Serialised RAMS approval request.
+    RamsSendSelectionBody:
+      description: 'Optional recipient selection for the ``send-to-new-technicians`` top-up.
+
+
+        ``technician_emails`` restricts the top-up to the chosen crew members; an
+
+        omitted body (or ``None``) tops up every roster member with no active
+
+        acknowledgement row, matching the pre-selection behaviour.'
       properties:
-        id:
-          title: Id
-          type: integer
-        rams_document_id:
-          title: Rams Document Id
-          type: integer
-        service_type:
-          title: Service Type
+        technician_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Technician Emails
+      title: RamsSendSelectionBody
+      type: object
+    RamsDocumentCreateBody:
+      description: Body for creating a new RAMS document.
+      properties:
+        pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprs Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        project_location_ids:
+          items:
+            type: integer
+          title: Project Location Ids
+          type: array
+        region:
+          title: Region
           type: string
-        service_family_code:
-          default: ''
-          title: Service Family Code
+        location_type:
+          title: Location Type
           type: string
         version:
+          default: '1.0'
           title: Version
           type: string
         status:
+          default: draft
           title: Status
           type: string
-        submitted_at:
-          title: Submitted At
-          type: string
-        response_deadline:
-          title: Response Deadline
-          type: string
-        responded_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Responded At
-        client_feedback:
-          default: ''
-          title: Client Feedback
-          type: string
-        client_comments:
-          items: {}
-          title: Client Comments
-          type: array
-        auto_approved:
-          default: false
-          title: Auto Approved
-          type: boolean
-        form_data_snapshot:
-          title: Form Data Snapshot
+        form_data:
+          title: Form Data
           type: object
-        attachments:
-          items: {}
-          title: Attachments
-          type: array
+        prefill_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Prefill Snapshot
       required:
-      - id
-      - rams_document_id
-      - service_type
-      - version
-      - status
-      - submitted_at
-      - response_deadline
-      title: RamsApprovalResponse
+      - region
+      - location_type
+      title: RamsDocumentCreateBody
       type: object
-    RamsRosterResponse:
+    RamsDuplicateBody:
+      description: Body for duplicating a RAMS document.
       properties:
-        source:
-          $ref: '#/components/schemas/RosterSource'
-        entries:
+        pprs_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprs Id
+        project_location_ids:
           items:
-            $ref: '#/components/schemas/RamsRosterEntry'
-          title: Entries
+            type: integer
+          title: Project Location Ids
           type: array
-        required_certificates:
-          items:
-            $ref: '#/components/schemas/RamsRosterCertificate'
-          title: Required Certificates
-          type: array
-        pending_count:
-          default: 0
-          title: Pending Count
-          type: integer
-        not_sent_count:
-          default: 0
-          title: Not Sent Count
-          type: integer
-      required:
-      - source
-      title: RamsRosterResponse
-      type: object
-    RamsClientRespondBody:
-      description: Body for client approval / rejection.
-      properties:
-        status:
-          description: '''approved'' or ''rejected'''
-          title: Status
-          type: string
-        feedback:
-          default: ''
-          title: Feedback
-          type: string
-        client_comments:
-          items: {}
-          title: Client Comments
-          type: array
-      required:
-      - status
-      title: RamsClientRespondBody
+        form_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Form Data
+        prefill_snapshot:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Prefill Snapshot
+      title: RamsDuplicateBody
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -1462,155 +1462,56 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    Success:
+    AnomalyCustomValueOutput:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for a custom field value in an anomaly response.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    AnomalyRecommendationResponse:
-      additionalProperties: false
-      description: Schema for AnomalyRecommendation response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
         id:
-          description: Recommendation ID
+          description: Custom value ID
           title: Id
           type: integer
-        name:
-          description: Recommendation name
-          title: Name
-          type: string
-        action:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Recommended action
-          title: Action
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Recommendation type
-          title: Type
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Recommendation status
-          title: Status
-      required:
-      - updated_at
-      - id
-      - name
-      title: AnomalyRecommendationResponse
-      type: object
-    AnomalyRecommendationUpdate:
-      additionalProperties: false
-      description: Schema for updating AnomalyRecommendation.
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        action:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Action
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-      title: AnomalyRecommendationUpdate
-      type: object
-    FileResponse:
-      additionalProperties: false
-      description: Schema for File response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: File ID
-          title: Id
+        custom_field_id:
+          description: Customer custom field ID
+          title: Custom Field Id
           type: integer
-        name:
-          description: File name
-          title: Name
+        custom_field_name:
+          description: Field name
+          title: Custom Field Name
           type: string
-        type:
+        custom_field_type:
+          description: Field data type
+          title: Custom Field Type
+          type: string
+        value:
           anyOf:
           - type: string
           - type: 'null'
-          description: File type
-          title: Type
-        additional_information:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: Extra metadata from the entity link
-          title: Additional Information
+          description: Value for the field
+          title: Value
       required:
-      - updated_at
       - id
-      - name
-      title: FileResponse
+      - custom_field_id
+      - custom_field_name
+      - custom_field_type
+      title: AnomalyCustomValueOutput
       type: object
-    AnomalyMaterialResponse:
-      additionalProperties: false
-      description: Schema for AnomalyMaterial response.
+    BodyFile:
       properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
+        b64data:
+          title: B64Data
           type: string
-        id:
-          description: Material ID
-          title: Id
-          type: integer
         name:
-          description: Material name
           title: Name
           type: string
-        anomaly_type_id:
-          description: Anomaly type ID
-          title: Anomaly Type Id
-          type: integer
+        content_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Type
       required:
-      - updated_at
-      - id
+      - b64data
       - name
-      - anomaly_type_id
-      title: AnomalyMaterialResponse
+      title: BodyFile
       type: object
     AnomalyUpdate:
       additionalProperties: false
@@ -1971,113 +1872,6 @@ components:
           title: Ai Images V2
       title: AnomalyUpdate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    BodyFileWrapper:
-      description: 'Object form of a base64 upload request body.
-
-
-        Wraps the file list together with optional batch-level
-
-        ``additional_information`` metadata that is persisted on every
-
-        ``FileEntityLink`` created for the batch (mirroring the multipart
-
-        ``additional_information`` form field).'
-      properties:
-        files:
-          items:
-            $ref: '#/components/schemas/BodyFile'
-          title: Files
-          type: array
-        additional_information:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Additional Information
-      required:
-      - files
-      title: BodyFileWrapper
-      type: object
-    AnomalyCustomValueOutput:
-      additionalProperties: false
-      description: Schema for a custom field value in an anomaly response.
-      properties:
-        id:
-          description: Custom value ID
-          title: Id
-          type: integer
-        custom_field_id:
-          description: Customer custom field ID
-          title: Custom Field Id
-          type: integer
-        custom_field_name:
-          description: Field name
-          title: Custom Field Name
-          type: string
-        custom_field_type:
-          description: Field data type
-          title: Custom Field Type
-          type: string
-        value:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Value for the field
-          title: Value
-      required:
-      - id
-      - custom_field_id
-      - custom_field_name
-      - custom_field_type
-      title: AnomalyCustomValueOutput
-      type: object
-    AnomalyComponentResponse:
-      additionalProperties: false
-      description: Schema for AnomalyComponent response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Component ID
-          title: Id
-          type: integer
-        name:
-          description: Component name
-          title: Name
-          type: string
-        inspection_type:
-          description: Inspection type
-          title: Inspection Type
-          type: string
-        parent_anomaly_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent component ID
-          title: Parent Anomaly Component Id
-      required:
-      - updated_at
-      - id
-      - name
-      - inspection_type
-      title: AnomalyComponentResponse
-      type: object
     AnomalyCustomValueInput:
       additionalProperties: false
       description: Schema for setting one custom field value on an anomaly.
@@ -2096,110 +1890,367 @@ components:
       - custom_field_id
       title: AnomalyCustomValueInput
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    AnomalyComponentTypeMapResponse:
+    AnomalyCreate:
       additionalProperties: false
-      description: Schema for AnomalyComponentTypeMap response.
+      description: Schema for creating Anomaly.
       properties:
-        anomaly_component_id:
-          description: Anomaly component ID
-          title: Anomaly Component Id
-          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Anomaly name
+          title: Name
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine ID
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine component ID
+          title: Turbine Component Id
+        turbine_component_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine component serial number
+          title: Turbine Component Serial Number
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID
+          title: Project Id
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Work order ID
+          title: Workorder Id
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order line ID
+          title: Service Order Line Id
+        custom_values:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AnomalyCustomValueInput'
+            type: array
+          - type: 'null'
+          description: Client custom field values to set on the anomaly
+          title: Custom Values
+        distance_to_root:
+          description: Distance to root
+          title: Distance To Root
+          type: number
+        max_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Max distance
+          title: Max Distance
+        distance_to_leading_edge:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Distance to leading edge
+          title: Distance To Leading Edge
+        cross_section_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Cross section distance
+          title: Cross Section Distance
+        cross_section_chamber_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Cross section chamber distance
+          title: Cross Section Chamber Distance
+        width:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Width
+          title: Width
+        profile_depth_from:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Profile depth from
+          title: Profile Depth From
+        profile_depth_to:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Profile depth to
+          title: Profile Depth To
+        severity:
+          anyOf:
+          - enum:
+            - LEVEL_0
+            - LEVEL_1
+            - LEVEL_2
+            - LEVEL_3
+            - LEVEL_4
+            - LEVEL_5
+            type: string
+          - type: 'null'
+          description: Severity level
+          title: Severity
+        status:
+          default: NEW
+          description: Status
+          title: Status
+          type: string
+        stage:
+          default: RELEASED
+          description: Stage
+          title: Stage
+          type: string
+        internal_external:
+          description: Internal/External classification
+          title: Internal External
+          type: string
+        side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Side classification
+          title: Side
+        cross_section_side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Cross section side
+          title: Cross Section Side
+        cross_section_type:
+          default: DOUBLE_SHEAR_WEB
+          description: Cross section type
+          title: Cross Section Type
+          type: string
+        rib:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Rib classification
+          title: Rib
         anomaly_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
           description: Anomaly type ID
           title: Anomaly Type Id
-          type: integer
-      required:
-      - anomaly_component_id
-      - anomaly_type_id
-      title: AnomalyComponentTypeMapResponse
-      type: object
-    AnomalyRootCauseTypeResponse:
-      additionalProperties: false
-      description: Schema for AnomalyRootCauseType response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Root cause type ID
-          title: Id
-          type: integer
-        title:
+        anomaly_sub_type_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          description: Root cause title
-          title: Title
-      required:
-      - updated_at
-      - id
-      title: AnomalyRootCauseTypeResponse
-      type: object
-    AnomalyTypeResponse:
-      additionalProperties: false
-      description: Schema for AnomalyType response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Type ID
-          title: Id
-          type: integer
-        name:
-          description: Type name
-          title: Name
-          type: string
-        inspection_type:
+          description: Anomaly sub-type ID
+          title: Anomaly Sub Type Id
+        anomaly_major_component_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          description: Inspection type
-          title: Inspection Type
-        parent_anomaly_type_id:
+          description: Major component ID
+          title: Anomaly Major Component Id
+        anomaly_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component ID
+          title: Anomaly Component Id
+        anomaly_sub_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Sub-component ID
+          title: Anomaly Sub Component Id
+        anomaly_material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Material ID
+          title: Anomaly Material Id
+        parent_type_id:
           anyOf:
           - type: integer
           - type: 'null'
           description: Parent type ID
-          title: Parent Anomaly Type Id
-      required:
-      - updated_at
-      - id
-      - name
-      title: AnomalyTypeResponse
-      type: object
-    BodyFile:
-      properties:
-        b64data:
-          title: B64Data
-          type: string
-        name:
-          title: Name
-          type: string
-        content_type:
+          title: Parent Type Id
+        root_cause_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Root cause ID
+          title: Root Cause Id
+        client_status:
           anyOf:
           - type: string
           - type: 'null'
-          title: Content Type
+          description: Client status
+          title: Client Status
+        chargeable:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the anomaly is chargeable
+          title: Chargeable
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Anomaly description
+          title: Description
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comments
+        service_provider_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service provider ID
+          title: Service Provider Id
+        damage_cause:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Damage cause
+          title: Damage Cause
+        parent_anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          deprecated: true
+          description: 'Deprecated: No longer used. Use link_group instead.'
+          title: Parent Anomaly Id
+        cross_file_ids:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Cross file IDs as JSON
+          title: Cross File Ids
+        video_timestamp_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Video timestamp in milliseconds
+          title: Video Timestamp Ms
+        frame_blob_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: GCS path to the raw uncropped video frame this anomaly was detected in
+          title: Frame Blob Path
+        link_group:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Link group
+          title: Link Group
+        registered_by:
+          default: AERONES
+          description: Registered by
+          title: Registered By
+          type: string
+        registration_origin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration origin
+          title: Registration Origin
+        width_difference_since_previous:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Width difference since previous
+          title: Width Difference Since Previous
+        width_difference_since_oldest:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Width difference since oldest
+          title: Width Difference Since Oldest
+        length_difference_since_previous:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Length difference since previous
+          title: Length Difference Since Previous
+        length_difference_since_oldest:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Length difference since oldest
+          title: Length Difference Since Oldest
+        source_object:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: Inspection data file reference
+          title: Source Object
+        video_frame:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Video frame number where this anomaly is located
+          title: Video Frame
+        segmentation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Segmentation data as JSON (e.g., polygon coordinates)
+          title: Segmentation
+        segmentation_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version of the segmentation data format (defaults to 2 when omitted)
+          title: Segmentation Version
+        bbox:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bounding box as JSON string
+          title: Bbox
+        ai_status:
+          anyOf:
+          - enum:
+            - NEW
+            - QUALIFIED
+            - UNQUALIFIED
+            - CONFIRMED
+            - REJECTED
+            - DUPLICATE
+            type: string
+          - type: 'null'
+          description: Status of AI detection
+          title: Ai Status
+        ai_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Confidence score from AI detection
+          title: Ai Confidence
+        ai_images_v2:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the AI anomaly was imported from the JSON image reference format
+          title: Ai Images V2
       required:
-      - b64data
-      - name
-      title: BodyFile
+      - distance_to_root
+      - internal_external
+      title: AnomalyCreate
       type: object
     AnomalyResponse:
       additionalProperties: false
@@ -2648,6 +2699,145 @@ components:
       - registered_by
       title: AnomalyResponse
       type: object
+    AnomalyRecommendationResponse:
+      additionalProperties: false
+      description: Schema for AnomalyRecommendation response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Recommendation ID
+          title: Id
+          type: integer
+        name:
+          description: Recommendation name
+          title: Name
+          type: string
+        action:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Recommended action
+          title: Action
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Recommendation type
+          title: Type
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Recommendation status
+          title: Status
+      required:
+      - updated_at
+      - id
+      - name
+      title: AnomalyRecommendationResponse
+      type: object
+    AnomalyTypeResponse:
+      additionalProperties: false
+      description: Schema for AnomalyType response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Type ID
+          title: Id
+          type: integer
+        name:
+          description: Type name
+          title: Name
+          type: string
+        inspection_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Inspection type
+          title: Inspection Type
+        parent_anomaly_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent type ID
+          title: Parent Anomaly Type Id
+      required:
+      - updated_at
+      - id
+      - name
+      title: AnomalyTypeResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    AnomalyRecommendationUpdate:
+      additionalProperties: false
+      description: Schema for updating AnomalyRecommendation.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        action:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Action
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      title: AnomalyRecommendationUpdate
+      type: object
+    AnomalyComponentTypeMapResponse:
+      additionalProperties: false
+      description: Schema for AnomalyComponentTypeMap response.
+      properties:
+        anomaly_component_id:
+          description: Anomaly component ID
+          title: Anomaly Component Id
+          type: integer
+        anomaly_type_id:
+          description: Anomaly type ID
+          title: Anomaly Type Id
+          type: integer
+      required:
+      - anomaly_component_id
+      - anomaly_type_id
+      title: AnomalyComponentTypeMapResponse
+      type: object
     AnomalyParentTypeResponse:
       additionalProperties: false
       description: Schema for AnomalyParentType response.
@@ -2671,368 +2861,43 @@ components:
       - name
       title: AnomalyParentTypeResponse
       type: object
-    AnomalyCreate:
-      additionalProperties: false
-      description: Schema for creating Anomaly.
+    BodyFileWrapper:
+      description: 'Object form of a base64 upload request body.
+
+
+        Wraps the file list together with optional batch-level
+
+        ``additional_information`` metadata that is persisted on every
+
+        ``FileEntityLink`` created for the batch (mirroring the multipart
+
+        ``additional_information`` form field).'
       properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Anomaly name
-          title: Name
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine ID
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine component ID
-          title: Turbine Component Id
-        turbine_component_serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine component serial number
-          title: Turbine Component Serial Number
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project ID
-          title: Project Id
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Work order ID
-          title: Workorder Id
-        service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service order line ID
-          title: Service Order Line Id
-        custom_values:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/AnomalyCustomValueInput'
-            type: array
-          - type: 'null'
-          description: Client custom field values to set on the anomaly
-          title: Custom Values
-        distance_to_root:
-          description: Distance to root
-          title: Distance To Root
-          type: number
-        max_distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Max distance
-          title: Max Distance
-        distance_to_leading_edge:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Distance to leading edge
-          title: Distance To Leading Edge
-        cross_section_distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Cross section distance
-          title: Cross Section Distance
-        cross_section_chamber_distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Cross section chamber distance
-          title: Cross Section Chamber Distance
-        width:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Width
-          title: Width
-        profile_depth_from:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Profile depth from
-          title: Profile Depth From
-        profile_depth_to:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Profile depth to
-          title: Profile Depth To
-        severity:
-          anyOf:
-          - enum:
-            - LEVEL_0
-            - LEVEL_1
-            - LEVEL_2
-            - LEVEL_3
-            - LEVEL_4
-            - LEVEL_5
-            type: string
-          - type: 'null'
-          description: Severity level
-          title: Severity
-        status:
-          default: NEW
-          description: Status
-          title: Status
-          type: string
-        stage:
-          default: RELEASED
-          description: Stage
-          title: Stage
-          type: string
-        internal_external:
-          description: Internal/External classification
-          title: Internal External
-          type: string
-        side:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Side classification
-          title: Side
-        cross_section_side:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Cross section side
-          title: Cross Section Side
-        cross_section_type:
-          default: DOUBLE_SHEAR_WEB
-          description: Cross section type
-          title: Cross Section Type
-          type: string
-        rib:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Rib classification
-          title: Rib
-        anomaly_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Anomaly type ID
-          title: Anomaly Type Id
-        anomaly_sub_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Anomaly sub-type ID
-          title: Anomaly Sub Type Id
-        anomaly_major_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Major component ID
-          title: Anomaly Major Component Id
-        anomaly_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Component ID
-          title: Anomaly Component Id
-        anomaly_sub_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Sub-component ID
-          title: Anomaly Sub Component Id
-        anomaly_material_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Material ID
-          title: Anomaly Material Id
-        parent_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent type ID
-          title: Parent Type Id
-        root_cause_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Root cause ID
-          title: Root Cause Id
-        client_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Client status
-          title: Client Status
-        chargeable:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether the anomaly is chargeable
-          title: Chargeable
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Anomaly description
-          title: Description
-        comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Comments
-          title: Comments
-        service_provider_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service provider ID
-          title: Service Provider Id
-        damage_cause:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Damage cause
-          title: Damage Cause
-        parent_anomaly_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          deprecated: true
-          description: 'Deprecated: No longer used. Use link_group instead.'
-          title: Parent Anomaly Id
-        cross_file_ids:
+        files:
+          items:
+            $ref: '#/components/schemas/BodyFile'
+          title: Files
+          type: array
+        additional_information:
           anyOf:
           - type: object
-          - items: {}
-            type: array
           - type: 'null'
-          description: Cross file IDs as JSON
-          title: Cross File Ids
-        video_timestamp_ms:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Video timestamp in milliseconds
-          title: Video Timestamp Ms
-        frame_blob_path:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: GCS path to the raw uncropped video frame this anomaly was detected in
-          title: Frame Blob Path
-        link_group:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Link group
-          title: Link Group
-        registered_by:
-          default: AERONES
-          description: Registered by
-          title: Registered By
-          type: string
-        registration_origin:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Registration origin
-          title: Registration Origin
-        width_difference_since_previous:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Width difference since previous
-          title: Width Difference Since Previous
-        width_difference_since_oldest:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Width difference since oldest
-          title: Width Difference Since Oldest
-        length_difference_since_previous:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Length difference since previous
-          title: Length Difference Since Previous
-        length_difference_since_oldest:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Length difference since oldest
-          title: Length Difference Since Oldest
-        source_object:
-          anyOf:
-          - {}
-          - type: 'null'
-          description: Inspection data file reference
-          title: Source Object
-        video_frame:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Video frame number where this anomaly is located
-          title: Video Frame
-        segmentation:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Segmentation data as JSON (e.g., polygon coordinates)
-          title: Segmentation
-        segmentation_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Version of the segmentation data format (defaults to 2 when omitted)
-          title: Segmentation Version
-        bbox:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Bounding box as JSON string
-          title: Bbox
-        ai_status:
-          anyOf:
-          - enum:
-            - NEW
-            - QUALIFIED
-            - UNQUALIFIED
-            - CONFIRMED
-            - REJECTED
-            - DUPLICATE
-            type: string
-          - type: 'null'
-          description: Status of AI detection
-          title: Ai Status
-        ai_confidence:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Confidence score from AI detection
-          title: Ai Confidence
-        ai_images_v2:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether the AI anomaly was imported from the JSON image reference format
-          title: Ai Images V2
+          title: Additional Information
       required:
-      - distance_to_root
-      - internal_external
-      title: AnomalyCreate
+      - files
+      title: BodyFileWrapper
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     AnomalyRecommendationCreate:
       additionalProperties: false
       description: Schema for creating AnomalyRecommendation.
@@ -3062,6 +2927,141 @@ components:
       required:
       - name
       title: AnomalyRecommendationCreate
+      type: object
+    AnomalyComponentResponse:
+      additionalProperties: false
+      description: Schema for AnomalyComponent response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Component ID
+          title: Id
+          type: integer
+        name:
+          description: Component name
+          title: Name
+          type: string
+        inspection_type:
+          description: Inspection type
+          title: Inspection Type
+          type: string
+        parent_anomaly_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent component ID
+          title: Parent Anomaly Component Id
+      required:
+      - updated_at
+      - id
+      - name
+      - inspection_type
+      title: AnomalyComponentResponse
+      type: object
+    AnomalyRootCauseTypeResponse:
+      additionalProperties: false
+      description: Schema for AnomalyRootCauseType response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Root cause type ID
+          title: Id
+          type: integer
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Root cause title
+          title: Title
+      required:
+      - updated_at
+      - id
+      title: AnomalyRootCauseTypeResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    FileResponse:
+      additionalProperties: false
+      description: Schema for File response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: File ID
+          title: Id
+          type: integer
+        name:
+          description: File name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: File type
+          title: Type
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Extra metadata from the entity link
+          title: Additional Information
+      required:
+      - updated_at
+      - id
+      - name
+      title: FileResponse
+      type: object
+    AnomalyMaterialResponse:
+      additionalProperties: false
+      description: Schema for AnomalyMaterial response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Material ID
+          title: Id
+          type: integer
+        name:
+          description: Material name
+          title: Name
+          type: string
+        anomaly_type_id:
+          description: Anomaly type ID
+          title: Anomaly Type Id
+          type: integer
+      required:
+      - updated_at
+      - id
+      - name
+      - anomaly_type_id
+      title: AnomalyMaterialResponse
       type: object
   securitySchemes:
     APIKeyAuth:

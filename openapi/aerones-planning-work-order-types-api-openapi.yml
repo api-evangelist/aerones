@@ -189,31 +189,20 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningWorkOrderTypeUpdate:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
       properties:
         code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      title: PlanningWorkOrderTypeUpdate
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -234,6 +223,31 @@ components:
           type: boolean
       title: Success
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PlanningWorkOrderTypeUpdate:
+      properties:
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      title: PlanningWorkOrderTypeUpdate
+      type: object
     PlanningNestedCustomer:
       properties:
         id:
@@ -247,19 +261,24 @@ components:
       - display_name
       title: PlanningNestedCustomer
       type: object
-    Error:
+    PlanningWorkOrderTypeCreate:
       additionalProperties: false
-      description: Error response schema.
       properties:
+        customer_id:
+          title: Customer Id
+          type: integer
         code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+          title: Code
           type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
       required:
+      - customer_id
       - code
-      - message
-      title: Error
+      title: PlanningWorkOrderTypeCreate
       type: object
     PlanningWorkOrderTypeResponse:
       properties:
@@ -296,25 +315,6 @@ components:
       - created_at
       - updated_at
       title: PlanningWorkOrderTypeResponse
-      type: object
-    PlanningWorkOrderTypeCreate:
-      additionalProperties: false
-      properties:
-        customer_id:
-          title: Customer Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      required:
-      - customer_id
-      - code
-      title: PlanningWorkOrderTypeCreate
       type: object
   securitySchemes:
     APIKeyAuth:

@@ -181,6 +181,20 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     CwmActivityTemplateUpdate:
       additionalProperties: false
       properties:
@@ -197,17 +211,6 @@ components:
           title: Steps
       title: CwmActivityTemplateUpdate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -227,6 +230,33 @@ components:
           title: Success
           type: boolean
       title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CwmActivityTemplateCreate:
+      additionalProperties: false
+      properties:
+        name:
+          title: Name
+          type: string
+        steps:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Steps
+      required:
+      - name
+      title: CwmActivityTemplateCreate
       type: object
     CwmActivityTemplateResponse:
       additionalProperties: false
@@ -251,36 +281,6 @@ components:
       - name
       - updated_at
       title: CwmActivityTemplateResponse
-      type: object
-    CwmActivityTemplateCreate:
-      additionalProperties: false
-      properties:
-        name:
-          title: Name
-          type: string
-        steps:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Steps
-      required:
-      - name
-      title: CwmActivityTemplateCreate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
   securitySchemes:
     APIKeyAuth:

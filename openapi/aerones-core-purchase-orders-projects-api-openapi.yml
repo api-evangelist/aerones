@@ -170,6 +170,25 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    PurchaseOrderProjectCreate:
+      additionalProperties: false
+      description: Link a project to a PO.
+      properties:
+        project_id:
+          title: Project Id
+          type: integer
+        allocated_amount:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Optional budget allocation for this project. When set, budget warnings use this value instead of the full PO amount.
+          title: Allocated Amount
+      required:
+      - project_id
+      title: PurchaseOrderProjectCreate
+      type: object
     PurchaseOrderProjectUpdate:
       additionalProperties: false
       description: Update the allocation for an existing PO-project link.
@@ -184,6 +203,51 @@ components:
           title: Allocated Amount
       title: PurchaseOrderProjectUpdate
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     PurchaseOrderProjectResponse:
       additionalProperties: false
       description: PurchaseOrderProject link response.
@@ -234,70 +298,6 @@ components:
       - purchase_order_id
       - project_id
       title: PurchaseOrderProjectResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PurchaseOrderProjectCreate:
-      additionalProperties: false
-      description: Link a project to a PO.
-      properties:
-        project_id:
-          title: Project Id
-          type: integer
-        allocated_amount:
-          anyOf:
-          - exclusiveMinimum: 0.0
-            type: number
-          - type: string
-          - type: 'null'
-          description: Optional budget allocation for this project. When set, budget warnings use this value instead of the full PO amount.
-          title: Allocated Amount
-      required:
-      - project_id
-      title: PurchaseOrderProjectCreate
       type: object
   securitySchemes:
     APIKeyAuth:

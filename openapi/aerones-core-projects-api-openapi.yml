@@ -718,104 +718,64 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    Success:
+    WarrantyCounterpartProjectObject:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
+      description: 'The project on the other side of a warranty relationship (no timestamps).
 
 
-        The `success` field is always ``true`` in this schema. Failed operations are
+        Direction-neutral: the source project (on a WARRANTY project) or the warranty
 
-        represented by the :class:`Error` schema instead, so a ``false`` value does
+        project (on a REGULAR project). ``type`` lets the client tell which without
 
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+        inferring from the current project''s type.'
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ProjectOverviewReportRecipient:
-      additionalProperties: false
-      description: Report recipient (customer contact) shown on the project overview.
-      properties:
-        name:
+        id:
+          description: Counterpart project ID
+          title: Id
+          type: integer
+        code:
+          description: Counterpart project code
+          title: Code
+          type: string
+        type:
+          description: Counterpart project type
+          title: Type
+          type: string
+        project_builder_id:
           anyOf:
-          - type: string
-          - type: 'null'
-          description: Contact name
-          title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Contact email
-          title: Email
-      title: ProjectOverviewReportRecipient
-      type: object
-    ProjectOverviewSite:
-      additionalProperties: false
-      description: A project site with coordinates for the overview list.
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Location name
-          title: Name
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Longitude
-          title: Longitude
-      title: ProjectOverviewSite
-      type: object
-    ProjectValidateResponse:
-      additionalProperties: false
-      description: Response schema for project validation endpoint.
-      properties:
-        warnings:
-          items:
-            type: string
-          title: Warnings
-          type: array
-      required:
-      - warnings
-      title: ProjectValidateResponse
-      type: object
-    ProjectPreJobReceivedUpdate:
-      additionalProperties: false
-      description: 'Payload for the pre-job-received action endpoint.
-
-
-        Only the *null-ness* of ``pre_job_received_at`` is read: a non-null value
-
-        marks the questionnaire as submitted (and locks it), ``null`` reopens it.
-
-        On submit the timestamp is stamped server-side, so any non-null value sent
-
-        here is treated purely as the "submitted" signal — its value is ignored.'
-      properties:
-        pre_job_received_at:
-          anyOf:
-          - format: date-time
+          - format: uuid
             type: string
           - type: 'null'
-          description: Submit/reopen signal. Non-null = submitted (locks the pre-job questionnaire; the stored timestamp is stamped server-side); null = reopened (unlocks it).
-          title: Pre Job Received At
+          description: Counterpart project builder UUID (for frontend routing)
+          title: Project Builder Id
       required:
-      - pre_job_received_at
-      title: ProjectPreJobReceivedUpdate
+      - id
+      - code
+      - type
+      title: WarrantyCounterpartProjectObject
+      type: object
+    StandardObject:
+      additionalProperties: false
+      description: Nested ``core.standard`` object for responses (LPS / HVT templates).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          title: Type
+          type: string
+        key:
+          title: Key
+          type: string
+      required:
+      - id
+      - name
+      - type
+      - key
+      title: StandardObject
       type: object
     ProjectCreate:
       additionalProperties: false
@@ -947,6 +907,179 @@ components:
       - code
       title: ProjectCreate
       type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    ProjectOverviewResponse:
+      additionalProperties: false
+      description: Decoupled project overview payload (Core/dispatch-sourced).
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        project_folder_link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Google Drive ROOT folder URL (core.ProjectGoogleDriveLink)
+          title: Project Folder Link
+        report_recipients:
+          description: Report recipients (core.ProjectContact)
+          items:
+            $ref: '#/components/schemas/ProjectOverviewReportRecipient'
+          title: Report Recipients
+          type: array
+        dedicated_contact_for_scope_change:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Pre-job answer (core.ProjectPreJobAnswers)
+          title: Dedicated Contact For Scope Change
+        is_lps_project:
+          default: false
+          description: Whether the scope includes any LPS service
+          title: Is Lps Project
+          type: boolean
+        robotic_sets:
+          description: Planned resource set names
+          items:
+            $ref: '#/components/schemas/ProjectOverviewRoboticSet'
+          title: Robotic Sets
+          type: array
+        categories:
+          description: Service categories present in scope
+          items:
+            type: string
+          title: Categories
+          type: array
+        service_full_codes:
+          description: Service codes present in scope
+          items:
+            type: string
+          title: Service Full Codes
+          type: array
+        blades:
+          default: 0
+          description: Distinct blade-level scope items
+          title: Blades
+          type: integer
+        turbines:
+          default: 0
+          description: Distinct turbines in scope
+          title: Turbines
+          type: integer
+        total_units:
+          default: 0
+          description: blades + turbines
+          title: Total Units
+          type: integer
+        rat_needed:
+          default: false
+          description: Whether any service code requires RAT
+          title: Rat Needed
+          type: boolean
+        sites:
+          description: Project sites
+          items:
+            $ref: '#/components/schemas/ProjectOverviewSite'
+          title: Sites
+          type: array
+        reinspection:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Reinspection flag (legacy projects.PipedriveDeal)
+          title: Reinspection
+        rope_access_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Rope access contract link (legacy projects.ProjectOverviewInfo)
+          title: Rope Access Contract
+        project_status_dashboard:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project status dashboard link (legacy projects.ProjectOverviewInfo)
+          title: Project Status Dashboard
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: MIN(planned resource set item start_date)
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: MAX(planned resource set item end_date)
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Earliest non-cancelled workorder activity start
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Latest completed workorder activity end
+          title: Actual End Date
+        planned_duration:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable planned duration
+          title: Planned Duration
+      required:
+      - updated_at
+      title: ProjectOverviewResponse
+      type: object
     ProjectLocationSummary:
       additionalProperties: false
       description: Summary of sites (locations) linked to a project for list/detail payloads.
@@ -974,39 +1107,23 @@ components:
       - total_count
       title: ProjectLocationSummary
       type: object
-    VendorObject:
+    ProjectStatusOverride:
       additionalProperties: false
-      description: Nested vendor object for responses (no timestamps).
+      description: Payload for the manual status-override action endpoint.
       properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
+        status_code:
+          description: Target ProjectStatus code (e.g. 'Planning'). Matched case-insensitively against the configured statuses; 'Cancelled' is refused — cancellation has its own flow.
+          title: Status Code
+          type: string
+        reason:
+          description: Why the status is overridden. Required non-blank; stored on the status change log and shown in the status history.
+          maxLength: 1000
+          title: Reason
           type: string
       required:
-      - id
-      - display_name
-      title: VendorObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      - status_code
+      - reason
+      title: ProjectStatusOverride
       type: object
     ProjectOverviewEdit:
       additionalProperties: false
@@ -1053,35 +1170,202 @@ components:
           title: Reinspection
       title: ProjectOverviewEdit
       type: object
-    TimezoneObject:
+    ProjectStatusHistoryEntry:
       additionalProperties: false
-      description: Nested timezone object for responses (no timestamps in nested objects).
+      description: A single project status transition (for the overview status timeline).
+      properties:
+        old_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status the project moved from (null for the first entry)
+          title: Old Status
+        new_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status the project moved to
+          title: New Status
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Trigger that caused the change (e.g. create, pipedrive, sol_cascade, completion_check, manual, reconcile).
+          title: Change Reason
+        change_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text note about the change
+          title: Change Note
+        status_changed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: When the transition occurred (ISO 8601)
+          title: Status Changed At
+        changed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name or email of the user who caused the change, if known
+          title: Changed By
+      title: ProjectStatusHistoryEntry
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectSearchResult:
+      additionalProperties: false
+      description: 'One global-search hit: a project row or a service-order-line (SOL) row.
+
+
+        Project rows match on project code or an active linked location name;
+
+        SOL rows match on the SOL number. Both row kinds point at a project, so
+
+        ``project_id`` / ``project_builder_id`` always identify the navigation
+
+        target.'
+      properties:
+        type:
+          description: 'Kind of hit: a project itself or one of its SOLs'
+          enum:
+          - project
+          - sol
+          title: Type
+          type: string
+        project_id:
+          description: Numeric Core project ID
+          title: Project Id
+          type: integer
+        project_code:
+          description: Project code
+          title: Project Code
+          type: string
+        project_builder_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Project builder project UUID (legacy)
+          title: Project Builder Id
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Requesting customer name of the project
+          title: Customer Name
+        matched_location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the linked site the term matched; set on project rows only, and only when a site (not just the code) matched
+          title: Matched Location Name
+        sol_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ServiceOrderLine ID; set on sol rows only
+          title: Sol Id
+        sol_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SOL number; set on sol rows only
+          title: Sol Number
+      required:
+      - type
+      - project_id
+      - project_code
+      title: ProjectSearchResult
+      type: object
+    ProjectOverviewRoboticSet:
+      additionalProperties: false
+      description: Planned resource set name shown on the project overview.
+      properties:
+        name:
+          description: Planned resource set name
+          title: Name
+          type: string
+      required:
+      - name
+      title: ProjectOverviewRoboticSet
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
       properties:
         id:
-          description: Timezone ID
           title: Id
           type: integer
-        timezone:
-          description: Timezone name (e.g., Europe/Riga)
-          title: Timezone
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
           type: string
-        city:
+        netsuite_customer_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          description: City name
-          title: City
-        utc_offset:
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
           - type: 'null'
-          description: UTC offset (e.g., +02:00)
-          title: Utc Offset
+          description: Customer currency (id and code only)
       required:
       - id
-      - timezone
-      title: TimezoneObject
+      - display_name
+      title: CustomerObject
       type: object
+    ProjectStatusObject:
+      additionalProperties: false
+      description: Nested project status object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: ProjectStatusObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ProjectUpdate:
       additionalProperties: false
       description: Schema for updating a Project.
@@ -1219,322 +1503,43 @@ components:
           title: Scope Change Auto Accept Enabled
       title: ProjectUpdate
       type: object
-    ProjectStatusHistoryEntry:
+    ProjectPreJobReceivedUpdate:
       additionalProperties: false
-      description: A single project status transition (for the overview status timeline).
+      description: 'Payload for the pre-job-received action endpoint.
+
+
+        Only the *null-ness* of ``pre_job_received_at`` is read: a non-null value
+
+        marks the questionnaire as submitted (and locks it), ``null`` reopens it.
+
+        On submit the timestamp is stamped server-side, so any non-null value sent
+
+        here is treated purely as the "submitted" signal — its value is ignored.'
       properties:
-        old_status:
+        pre_job_received_at:
           anyOf:
-          - type: string
+          - format: date-time
+            type: string
           - type: 'null'
-          description: Status the project moved from (null for the first entry)
-          title: Old Status
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status the project moved to
-          title: New Status
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Trigger that caused the change (e.g. create, pipedrive, sol_cascade, completion_check, manual, reconcile).
-          title: Change Reason
-        change_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text note about the change
-          title: Change Note
-        status_changed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: When the transition occurred (ISO 8601)
-          title: Status Changed At
-        changed_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name or email of the user who caused the change, if known
-          title: Changed By
-      title: ProjectStatusHistoryEntry
-      type: object
-    ProjectStatusOverride:
-      additionalProperties: false
-      description: Payload for the manual status-override action endpoint.
-      properties:
-        status_code:
-          description: Target ProjectStatus code (e.g. 'Planning'). Matched case-insensitively against the configured statuses; 'Cancelled' is refused — cancellation has its own flow.
-          title: Status Code
-          type: string
-        reason:
-          description: Why the status is overridden. Required non-blank; stored on the status change log and shown in the status history.
-          maxLength: 1000
-          title: Reason
-          type: string
+          description: Submit/reopen signal. Non-null = submitted (locks the pre-job questionnaire; the stored timestamp is stamped server-side); null = reopened (unlocks it).
+          title: Pre Job Received At
       required:
-      - status_code
-      - reason
-      title: ProjectStatusOverride
+      - pre_job_received_at
+      title: ProjectPreJobReceivedUpdate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    StandardObject:
+    Error:
       additionalProperties: false
-      description: Nested ``core.standard`` object for responses (LPS / HVT templates).
+      description: Error response schema.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          title: Type
-          type: string
-        key:
-          title: Key
-          type: string
-      required:
-      - id
-      - name
-      - type
-      - key
-      title: StandardObject
-      type: object
-    ProjectStatusObject:
-      additionalProperties: false
-      description: Nested project status object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
         code:
-          title: Code
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
       required:
-      - id
       - code
-      title: ProjectStatusObject
-      type: object
-    ProjectSearchResult:
-      additionalProperties: false
-      description: 'One global-search hit: a project row or a service-order-line (SOL) row.
-
-
-        Project rows match on project code or an active linked location name;
-
-        SOL rows match on the SOL number. Both row kinds point at a project, so
-
-        ``project_id`` / ``project_builder_id`` always identify the navigation
-
-        target.'
-      properties:
-        type:
-          description: 'Kind of hit: a project itself or one of its SOLs'
-          enum:
-          - project
-          - sol
-          title: Type
-          type: string
-        project_id:
-          description: Numeric Core project ID
-          title: Project Id
-          type: integer
-        project_code:
-          description: Project code
-          title: Project Code
-          type: string
-        project_builder_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Project builder project UUID (legacy)
-          title: Project Builder Id
-        customer_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Requesting customer name of the project
-          title: Customer Name
-        matched_location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name of the linked site the term matched; set on project rows only, and only when a site (not just the code) matched
-          title: Matched Location Name
-        sol_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: ServiceOrderLine ID; set on sol rows only
-          title: Sol Id
-        sol_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: SOL number; set on sol rows only
-          title: Sol Number
-      required:
-      - type
-      - project_id
-      - project_code
-      title: ProjectSearchResult
-      type: object
-    ProjectOverviewResponse:
-      additionalProperties: false
-      description: Decoupled project overview payload (Core/dispatch-sourced).
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        project_folder_link:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Google Drive ROOT folder URL (core.ProjectGoogleDriveLink)
-          title: Project Folder Link
-        report_recipients:
-          description: Report recipients (core.ProjectContact)
-          items:
-            $ref: '#/components/schemas/ProjectOverviewReportRecipient'
-          title: Report Recipients
-          type: array
-        dedicated_contact_for_scope_change:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Pre-job answer (core.ProjectPreJobAnswers)
-          title: Dedicated Contact For Scope Change
-        is_lps_project:
-          default: false
-          description: Whether the scope includes any LPS service
-          title: Is Lps Project
-          type: boolean
-        robotic_sets:
-          description: Planned resource set names
-          items:
-            $ref: '#/components/schemas/ProjectOverviewRoboticSet'
-          title: Robotic Sets
-          type: array
-        categories:
-          description: Service categories present in scope
-          items:
-            type: string
-          title: Categories
-          type: array
-        service_full_codes:
-          description: Service codes present in scope
-          items:
-            type: string
-          title: Service Full Codes
-          type: array
-        blades:
-          default: 0
-          description: Distinct blade-level scope items
-          title: Blades
-          type: integer
-        turbines:
-          default: 0
-          description: Distinct turbines in scope
-          title: Turbines
-          type: integer
-        total_units:
-          default: 0
-          description: blades + turbines
-          title: Total Units
-          type: integer
-        rat_needed:
-          default: false
-          description: Whether any service code requires RAT
-          title: Rat Needed
-          type: boolean
-        sites:
-          description: Project sites
-          items:
-            $ref: '#/components/schemas/ProjectOverviewSite'
-          title: Sites
-          type: array
-        reinspection:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Reinspection flag (legacy projects.PipedriveDeal)
-          title: Reinspection
-        rope_access_contract:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Rope access contract link (legacy projects.ProjectOverviewInfo)
-          title: Rope Access Contract
-        project_status_dashboard:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Project status dashboard link (legacy projects.ProjectOverviewInfo)
-          title: Project Status Dashboard
-        planned_start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: MIN(planned resource set item start_date)
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: MAX(planned resource set item end_date)
-          title: Planned End Date
-        actual_start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Earliest non-cancelled workorder activity start
-          title: Actual Start Date
-        actual_end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Latest completed workorder activity end
-          title: Actual End Date
-        planned_duration:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Human-readable planned duration
-          title: Planned Duration
-      required:
-      - updated_at
-      title: ProjectOverviewResponse
-      type: object
-    CurrencyIdCodeObject:
-      additionalProperties: false
-      description: Nested currency object with only id and code (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: CurrencyIdCodeObject
+      - message
+      title: Error
       type: object
     ProjectResponse:
       additionalProperties: false
@@ -1712,87 +1717,9 @@ components:
       - location_summary
       title: ProjectResponse
       type: object
-    UserObject:
+    VendorObject:
       additionalProperties: false
-      description: Nested user object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        username:
-          title: Username
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
-      required:
-      - id
-      - username
-      title: UserObject
-      type: object
-    ProjectOverviewRoboticSet:
-      additionalProperties: false
-      description: Planned resource set name shown on the project overview.
-      properties:
-        name:
-          description: Planned resource set name
-          title: Name
-          type: string
-      required:
-      - name
-      title: ProjectOverviewRoboticSet
-      type: object
-    WarrantyCounterpartProjectObject:
-      additionalProperties: false
-      description: 'The project on the other side of a warranty relationship (no timestamps).
-
-
-        Direction-neutral: the source project (on a WARRANTY project) or the warranty
-
-        project (on a REGULAR project). ``type`` lets the client tell which without
-
-        inferring from the current project''s type.'
-      properties:
-        id:
-          description: Counterpart project ID
-          title: Id
-          type: integer
-        code:
-          description: Counterpart project code
-          title: Code
-          type: string
-        type:
-          description: Counterpart project type
-          title: Type
-          type: string
-        project_builder_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Counterpart project builder UUID (for frontend routing)
-          title: Project Builder Id
-      required:
-      - id
-      - code
-      - type
-      title: WarrantyCounterpartProjectObject
-      type: object
-    CustomerObject:
-      additionalProperties: false
-      description: Nested customer object for responses (no timestamps).
+      description: Nested vendor object for responses (no timestamps).
       properties:
         id:
           title: Id
@@ -1805,49 +1732,41 @@ components:
         display_name:
           title: Display Name
           type: string
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyIdCodeObject'
-          - type: 'null'
-          description: Customer currency (id and code only)
       required:
       - id
       - display_name
-      title: CustomerObject
+      title: VendorObject
       type: object
-    CountryWithRegionObject:
+    ProjectValidateResponse:
       additionalProperties: false
-      description: CountryObject extended with region — only for responses that prefetch country__region.
+      description: Response schema for project validation endpoint.
       properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
+        warnings:
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - warnings
+      title: ProjectValidateResponse
+      type: object
+    ProjectOverviewReportRecipient:
+      additionalProperties: false
+      description: Report recipient (customer contact) shown on the project overview.
+      properties:
         name:
-          description: Country name
-          title: Name
-          type: string
-        region:
           anyOf:
           - type: string
           - type: 'null'
-          description: Region name (nullable)
-          title: Region
-      required:
-      - id
-      - code
-      - name
-      title: CountryWithRegionObject
+          description: Contact name
+          title: Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Contact email
+          title: Email
+      title: ProjectOverviewReportRecipient
       type: object
     ProjectOverviewFinancialsResponse:
       additionalProperties: false
@@ -1903,6 +1822,87 @@ components:
       required:
       - updated_at
       title: ProjectOverviewFinancialsResponse
+      type: object
+    ProjectOverviewSite:
+      additionalProperties: false
+      description: A project site with coordinates for the overview list.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Location name
+          title: Name
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude
+          title: Longitude
+      title: ProjectOverviewSite
+      type: object
+    CountryWithRegionObject:
+      additionalProperties: false
+      description: CountryObject extended with region — only for responses that prefetch country__region.
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Region name (nullable)
+          title: Region
+      required:
+      - id
+      - code
+      - name
+      title: CountryWithRegionObject
+      type: object
+    TimezoneObject:
+      additionalProperties: false
+      description: Nested timezone object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Timezone ID
+          title: Id
+          type: integer
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
+      required:
+      - id
+      - timezone
+      title: TimezoneObject
       type: object
   securitySchemes:
     APIKeyAuth:

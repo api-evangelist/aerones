@@ -263,17 +263,38 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    AnomalyClientFieldOption:
+      additionalProperties: false
+      description: One allowed option for a SELECT-type client field.
+      properties:
+        value:
+          description: Stored option value
+          title: Value
+          type: string
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Human-readable option label
+          title: Label
+      required:
+      - value
+      title: AnomalyClientFieldOption
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -293,6 +314,32 @@ components:
           title: Success
           type: boolean
       title: Success
+      type: object
+    AnomalyClientFieldUpdate:
+      additionalProperties: false
+      description: Schema for updating an AnomalyClientField.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Field name
+          title: Name
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Field data type
+          title: Type
+        options:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/AnomalyClientFieldOption'
+            type: array
+          - type: 'null'
+          description: Allowed options for SELECT-type fields
+          title: Options
+      title: AnomalyClientFieldUpdate
       type: object
     AnomalyClientFieldCreate:
       additionalProperties: false
@@ -378,20 +425,17 @@ components:
       - type
       title: AnomalyClientFieldResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     CustomerCustomFieldOption:
       additionalProperties: false
       description: One allowed option for a SELECT-type customer custom field.
@@ -409,50 +453,6 @@ components:
       required:
       - value
       title: CustomerCustomFieldOption
-      type: object
-    AnomalyClientFieldOption:
-      additionalProperties: false
-      description: One allowed option for a SELECT-type client field.
-      properties:
-        value:
-          description: Stored option value
-          title: Value
-          type: string
-        label:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Human-readable option label
-          title: Label
-      required:
-      - value
-      title: AnomalyClientFieldOption
-      type: object
-    AnomalyClientFieldUpdate:
-      additionalProperties: false
-      description: Schema for updating an AnomalyClientField.
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Field name
-          title: Name
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Field data type
-          title: Type
-        options:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/AnomalyClientFieldOption'
-            type: array
-          - type: 'null'
-          description: Allowed options for SELECT-type fields
-          title: Options
-      title: AnomalyClientFieldUpdate
       type: object
   securitySchemes:
     APIKeyAuth:

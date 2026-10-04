@@ -126,80 +126,6 @@ paths:
       - Email
 components:
   schemas:
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    EmailContext:
-      additionalProperties: false
-      description: 'Define the template context for an email.
-
-
-        Email context defines which template and with what variables are to be
-
-        sent.'
-      properties:
-        template:
-          $ref: '#/components/schemas/EmailTemplateNames'
-          description: Template name without file extension
-        variables:
-          description: Key-value data for template placeholders
-          title: Variables
-          type: object
-      required:
-      - template
-      title: EmailContext
-      type: object
-    SentEmailStatusResponse:
-      additionalProperties: false
-      description: Response for `GET /email/{tracking_id}/status`.
-      properties:
-        status:
-          description: One of SENT, OPENED, BOUNCED
-          title: Status
-          type: string
-        sent_at:
-          description: ISO timestamp the email was queued
-          title: Sent At
-          type: string
-        status_changed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ISO timestamp of the last status transition, if any
-          title: Status Changed At
-      required:
-      - status
-      - sent_at
-      title: SentEmailStatusResponse
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
     EmailRequest:
       additionalProperties: false
       description: Incoming payload for sending a templated email.
@@ -272,6 +198,26 @@ components:
       - context
       title: EmailRequest
       type: object
+    EmailContext:
+      additionalProperties: false
+      description: 'Define the template context for an email.
+
+
+        Email context defines which template and with what variables are to be
+
+        sent.'
+      properties:
+        template:
+          $ref: '#/components/schemas/EmailTemplateNames'
+          description: Template name without file extension
+        variables:
+          description: Key-value data for template placeholders
+          title: Variables
+          type: object
+      required:
+      - template
+      title: EmailContext
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -286,6 +232,37 @@ components:
       - message
       title: Error
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     EmailTemplateNames:
       description: Definitions of available email templates.
       enum:
@@ -368,6 +345,29 @@ components:
       required:
       - success
       title: SendEmailResponse
+      type: object
+    SentEmailStatusResponse:
+      additionalProperties: false
+      description: Response for `GET /email/{tracking_id}/status`.
+      properties:
+        status:
+          description: One of SENT, OPENED, BOUNCED
+          title: Status
+          type: string
+        sent_at:
+          description: ISO timestamp the email was queued
+          title: Sent At
+          type: string
+        status_changed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO timestamp of the last status transition, if any
+          title: Status Changed At
+      required:
+      - status
+      - sent_at
+      title: SentEmailStatusResponse
       type: object
   securitySchemes:
     APIKeyAuth:

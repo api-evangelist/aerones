@@ -196,6 +196,144 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    PurchaseOrderUpdate:
+      additionalProperties: false
+      description: 'Partial update of the PurchaseOrder-level fields.
+
+
+        Version-scoped fields (order_number, issue_date, amount) are immutable
+
+        here — correct them by adding a new version via the dedicated endpoint.'
+      properties:
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer that issued the PO
+          title: Customer Id
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency for the PO
+          title: Currency Id
+      title: PurchaseOrderUpdate
+      type: object
+    PurchaseOrderCustomerRef:
+      additionalProperties: false
+      description: 'Slim customer reference for PurchaseOrder responses.
+
+
+        Intentionally does not nest the customer''s own currency — a PO carries
+
+        its own currency, independent of the customer''s default.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+      required:
+      - id
+      - display_name
+      title: PurchaseOrderCustomerRef
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PurchaseOrderResponse:
+      additionalProperties: false
+      description: PurchaseOrder with its current version inlined for list/detail use.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        customer:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderCustomerRef'
+          - type: 'null'
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyObject'
+          - type: 'null'
+        current_version:
+          anyOf:
+          - $ref: '#/components/schemas/PurchaseOrderVersionObject'
+          - type: 'null'
+        project_ids:
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+      required:
+      - updated_at
+      - id
+      title: PurchaseOrderResponse
+      type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     PurchaseOrderCreate:
       additionalProperties: false
       description: Create a PurchaseOrder with its initial (v1) version. File is optional.
@@ -255,48 +393,6 @@ components:
       - generic
       title: ErrorCode
       type: string
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CurrencyObject:
-      additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
-        code:
-          description: Currency code (ISO 4217)
-          title: Code
-          type: string
-        name:
-          description: Currency name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CurrencyObject
-      type: object
     PurchaseOrderVersionObject:
       additionalProperties: false
       description: Nested purchase order version object (no timestamps).
@@ -331,102 +427,6 @@ components:
       - issue_date
       - amount
       title: PurchaseOrderVersionObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PurchaseOrderCustomerRef:
-      additionalProperties: false
-      description: 'Slim customer reference for PurchaseOrder responses.
-
-
-        Intentionally does not nest the customer''s own currency — a PO carries
-
-        its own currency, independent of the customer''s default.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-      required:
-      - id
-      - display_name
-      title: PurchaseOrderCustomerRef
-      type: object
-    PurchaseOrderResponse:
-      additionalProperties: false
-      description: PurchaseOrder with its current version inlined for list/detail use.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          title: Id
-          type: integer
-        customer:
-          anyOf:
-          - $ref: '#/components/schemas/PurchaseOrderCustomerRef'
-          - type: 'null'
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyObject'
-          - type: 'null'
-        current_version:
-          anyOf:
-          - $ref: '#/components/schemas/PurchaseOrderVersionObject'
-          - type: 'null'
-        project_ids:
-          items:
-            type: integer
-          title: Project Ids
-          type: array
-      required:
-      - updated_at
-      - id
-      title: PurchaseOrderResponse
-      type: object
-    PurchaseOrderUpdate:
-      additionalProperties: false
-      description: 'Partial update of the PurchaseOrder-level fields.
-
-
-        Version-scoped fields (order_number, issue_date, amount) are immutable
-
-        here — correct them by adding a new version via the dedicated endpoint.'
-      properties:
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer that issued the PO
-          title: Customer Id
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency for the PO
-          title: Currency Id
-      title: PurchaseOrderUpdate
       type: object
   securitySchemes:
     APIKeyAuth:

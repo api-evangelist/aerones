@@ -416,55 +416,7 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    VehicleInsuranceCreate:
-      additionalProperties: false
-      properties:
-        type:
-          title: Type
-          type: string
-        date_from:
-          title: Date From
-          type: string
-        date_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date To
-        insurance_number:
-          title: Insurance Number
-          type: string
-      required:
-      - type
-      - date_from
-      - insurance_number
-      title: VehicleInsuranceCreate
-      type: object
-    VehicleInsuranceUpdate:
-      additionalProperties: false
-      properties:
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Type
-        date_from:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date From
-        date_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Date To
-        insurance_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Insurance Number
-      title: VehicleInsuranceUpdate
-      type: object
-    VehicleCreate:
+    VehicleUpdate:
       additionalProperties: false
       properties:
         license_plate:
@@ -473,22 +425,30 @@ components:
           - type: 'null'
           title: License Plate
         make:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Make
-          type: string
         model:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Model
-          type: string
         type:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Type
-          type: string
         country_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Country Id
         location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Location Id
-          type: integer
         vehicle_source:
           anyOf:
           - type: string
@@ -522,56 +482,31 @@ components:
           - type: string
           - type: 'null'
           title: Inspection To
-      required:
-      - make
-      - model
-      - type
-      - location_id
-      title: VehicleCreate
+      title: VehicleUpdate
       type: object
-    VehicleFleetSummary:
+    VehicleInsuranceCreate:
       additionalProperties: false
-      description: Summary counts for the fleet vehicles dashboard.
       properties:
-        total:
-          description: Total non-archived vehicles
-          title: Total
-          type: integer
-        in_project:
-          description: Vehicles with an accepted assignment
-          title: In Project
-          type: integer
-        planned:
-          description: Vehicles with a planned (not yet accepted) assignment
-          title: Planned
-          type: integer
-        available:
-          description: Vehicles available for assignment
-          title: Available
-          type: integer
-        vor:
-          description: Vehicles off road (expired inspection or no active insurance)
-          title: Vor
-          type: integer
+        type:
+          title: Type
+          type: string
+        date_from:
+          title: Date From
+          type: string
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        insurance_number:
+          title: Insurance Number
+          type: string
       required:
-      - total
-      - in_project
-      - planned
-      - available
-      - vor
-      title: VehicleFleetSummary
+      - type
+      - date_from
+      - insurance_number
+      title: VehicleInsuranceCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     VehicleInsuranceResponse:
       additionalProperties: false
       properties:
@@ -600,25 +535,44 @@ components:
       - insurance_number
       title: VehicleInsuranceResponse
       type: object
-    Success:
+    VehicleInsuranceUpdate:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        date_from:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date From
+        date_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date To
+        insurance_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Insurance Number
+      title: VehicleInsuranceUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     VehicleResponse:
       additionalProperties: false
@@ -705,21 +659,38 @@ components:
       - telematics_provider
       title: VehicleResponse
       type: object
-    Error:
+    Success:
       additionalProperties: false
-      description: Error response schema.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
-    VehicleUpdate:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    VehicleCreate:
       additionalProperties: false
       properties:
         license_plate:
@@ -728,30 +699,22 @@ components:
           - type: 'null'
           title: License Plate
         make:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Make
+          type: string
         model:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Model
+          type: string
         type:
-          anyOf:
-          - type: string
-          - type: 'null'
           title: Type
+          type: string
         country_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Country Id
         location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
           title: Location Id
+          type: integer
         vehicle_source:
           anyOf:
           - type: string
@@ -785,7 +748,12 @@ components:
           - type: string
           - type: 'null'
           title: Inspection To
-      title: VehicleUpdate
+      required:
+      - make
+      - model
+      - type
+      - location_id
+      title: VehicleCreate
       type: object
     NavirecLiveState:
       additionalProperties: false
@@ -834,6 +802,38 @@ components:
       - status
       - is_active
       title: NavirecLiveState
+      type: object
+    VehicleFleetSummary:
+      additionalProperties: false
+      description: Summary counts for the fleet vehicles dashboard.
+      properties:
+        total:
+          description: Total non-archived vehicles
+          title: Total
+          type: integer
+        in_project:
+          description: Vehicles with an accepted assignment
+          title: In Project
+          type: integer
+        planned:
+          description: Vehicles with a planned (not yet accepted) assignment
+          title: Planned
+          type: integer
+        available:
+          description: Vehicles available for assignment
+          title: Available
+          type: integer
+        vor:
+          description: Vehicles off road (expired inspection or no active insurance)
+          title: Vor
+          type: integer
+      required:
+      - total
+      - in_project
+      - planned
+      - available
+      - vor
+      title: VehicleFleetSummary
       type: object
   securitySchemes:
     APIKeyAuth:
