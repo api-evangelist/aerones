@@ -1,0 +1,190 @@
+slug: aerones
+provider: Aerones
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 17
+edges:
+- tag: core.customers
+  spec_file: aerones-core-customers-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.85
+  evidence: POST /api/core/v1/customers  create_customer  Create Customer; GET /api/core/v1/customers/{id}/netsuite-subsidiary;
+    schemas CustomerCreate, ParentCustomerObject, CustomerType
+  reason: Full CRUD over customer master records with parent-customer hierarchy, customer type, currency
+    and an ERP (NetSuite) subsidiary link — i.e. maintenance of the customer golden record rather than
+    sales or service activity.
+- tag: core.projects
+  spec_file: aerones-core-projects-api-openapi.yml
+  capability_id: BC-900.30
+  capability_id_l1: BC-900
+  capability_name: Project Management
+  confidence: 0.85
+  evidence: '"Create Project", "Get Project Overview", "Get Project Overview Financials", "Get Project
+    Status History"'
+  reason: Full lifecycle management of service delivery projects including overview, financial overview,
+    status history and validation is project execution, planning and tracking. Clearly BC-900.30; only
+    minor overlap with portfolio reporting.
+- tag: Payroll
+  spec_file: aerones-payroll-api-openapi.yml
+  capability_id: BC-300.70
+  capability_id_l1: BC-300
+  capability_name: HR Operations Management
+  confidence: 0.82
+  evidence: POST /api/v1/payroll/activities ... GET /api/v1/payroll/timesheets 'List timesheets'; schemas
+    PayrollActivityOut, PayType, TimesheetEntryOut
+  reason: Payroll activities with pay types and timesheet entries are payroll administration, an HR Operations
+    capability.
+- tag: core.users
+  spec_file: aerones-core-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.8
+  evidence: '"Reset User Password"; "Get Roles"; POST /api/core/v1/users create_user'
+  reason: User account lifecycle (create/update/delete), password reset and role listing is identity and
+    access administration for the platform, not HR employee records — the schemas (UserCreate, UserCustomerObject,
+    IDWithName) carry no employment data.
+- tag: Users
+  spec_file: aerones-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.78
+  evidence: PATCH /api/users/{user_id}  permissions_api_update_user_role  Update User Role; schemas PermissionCodename,
+    UpdateUserRole
+  reason: User listing and role/permission assignment is identity and access management.
+- tag: accounting.sales-invoices
+  spec_file: aerones-accounting-sales-invoices-api-openapi.yml
+  capability_id: BC-200.30
+  capability_id_l1: BC-200
+  capability_name: Accounts Receivable Management
+  confidence: 0.78
+  evidence: POST /api/accounting/v2/sales-invoices  create_sales_invoice  Create Sales Invoice; schemas
+    SalesInvoiceCreate, SalesInvoiceResponse
+  reason: Sales invoices are outbound customer invoices in the accounting module, which is the customer
+    invoicing side of Accounts Receivable Management. Some uncertainty only over whether the vendor treats
+    this as pure AR accounting or as an ERP mirror.
+- tag: accounting.billing-statements
+  spec_file: aerones-accounting-billing-statements-api-openapi.yml
+  capability_id: BC-200.30
+  capability_id_l1: BC-200
+  capability_name: Accounts Receivable Management
+  confidence: 0.75
+  evidence: POST /api/accounting/v2/billing-statements  create_billing_statement  Create Billing Statement
+  reason: CRUD over customer billing statements under an accounting namespace indicates customer invoicing
+    / accounts receivable.
+- tag: core.customers.addresses
+  spec_file: aerones-core-customers-addresses-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.75
+  evidence: POST /api/core/v1/customers/{customer_id}/addresses  create_customer_address; schemas CustomerAddressType,
+    CountryObject, TimezoneObject
+  reason: CRUD over address records attached to a customer, with address type/country/timezone attributes
+    — an attribute set of the customer master record, so Customer Data Management.
+- tag: core.customers.contacts
+  spec_file: aerones-core-customers-contacts-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.75
+  evidence: POST /api/core/v1/customers/{customer_id}/contacts  create_customer_contact  Create Contact;
+    schemas CustomerContactCreate, CustomerContactResponse
+  reason: CRUD over contact persons attached to a customer record — maintenance of customer master/contact
+    data, with no campaign, opportunity or case operations that would suggest marketing, sales or service.
+- tag: core.projects.offers
+  spec_file: aerones-core-projects-offers-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.75
+  evidence: '''Create Draft Offer'', ''Send Offer for Approval'', ''Approve Pending Offer'', ''Download
+    Offer PDF'''
+  reason: An offer lifecycle with draft, approval workflow, versioned history and PDF/DOCX generation
+    for a customer project is customer quoting — quote management with internal approval, i.e. quote/CPQ
+    rather than contract or billing.
+- tag: projects.offer
+  spec_file: aerones-projects-offer-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.75
+  evidence: PATCH /api/projects/{project_id}/offer  Update Offer; POST .../offer/line-items  Create Line
+    Item; schemas ServiceLineItemCreate, PricingUnitRef, CurrencyRef, ItemCoefficient
+  reason: Offers composed of priced service line items with currency and pricing units, downloadable as
+    a customer document — configure/price/quote for a service engagement.
+- tag: bamboohr.employees
+  spec_file: aerones-bamboohr-employees-api-openapi.yml
+  capability_id: BC-300.70
+  capability_id_l1: BC-300
+  capability_name: HR Operations Management
+  confidence: 0.72
+  evidence: GET /api/bamboohr/v1/employees  list_bamboohr_employees  List BambooHR Employees; schema BambooHREmployeeResponse
+  reason: Exposes employee master records sourced from the BambooHR HRIS, which is employee-record keeping
+    under HR Operations. Single read-only endpoint (an integration mirror), so moderate rather than high
+    confidence.
+- tag: core.commercial-offers
+  spec_file: aerones-core-commercial-offers-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.7
+  evidence: GET /api/core/v1/commercial-offers  List Commercial Offers Pending Approval; POST .../approve  Bulk
+    Approve Commercial Offers
+  reason: An approval inbox for commercial offers (customer quotes) with bulk approval — quote governance
+    in the sales lead-to-order flow. Mapped to Quote & Configuration Management; could arguably sit under
+    sales operations, hence 0.7.
+- tag: core.projects.offers.items
+  spec_file: aerones-core-projects-offers-items-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.7
+  evidence: '''List Items for Offer'', ''Create Item'' with schemas ProjectOfferItemCreate, ServiceObject,
+    PricingUnitNestedResponse, TurbineModelObject'
+  reason: Line-item composition of a customer offer, priced per service and per turbine/component model
+    — the configure-and-price side of quote management.
+- tag: projects.accounting
+  spec_file: aerones-projects-accounting-api-openapi.yml
+  capability_id: BC-200.30
+  capability_id_l1: BC-200
+  capability_name: Accounts Receivable Management
+  confidence: 0.7
+  evidence: accounting_api_get_sales_order_line_items  Get Sales Order Line Items; schemas InvoiceStatus,
+    CreateInvoiceResponse, Charge, ServiceRateItem
+  reason: Operations create sales orders, rate/charge line items and invoices for project work — customer
+    invoicing and billing, i.e. accounts receivable. Some ambiguity with sales order management, hence
+    0.7.
+- tag: projects.offer.changelog
+  spec_file: aerones-projects-offer-changelog-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.7
+  evidence: POST /api/projects/{project_id}/offer/send-for-approval  Send For Approval; POST .../offer/approve  Approve
+    Offer; schemas OfferComparison, LineItemDiff, OfferStatus
+  reason: Versioning, comparison and approval/rejection workflow over priced customer offers — the governance
+    layer of quote management. Could arguably be read as generic document approval, so 0.7.
+- tag: projects.rams
+  spec_file: aerones-projects-rams-api-openapi.yml
+  capability_id: BC-730.20
+  capability_id_l1: BC-730
+  capability_name: Safety Management
+  confidence: 0.7
+  evidence: List Rams Technician Acknowledgements; Send Rams To New Technicians; schemas RamsRosterCertificate,
+    AckState, RamsApprovalResponse
+  reason: RAMS (risk assessment and method statement) documents issued to the technician roster, tracked
+    for acknowledgement and client approval, with certificate data — the safety documentation control
+    for field work crews.
