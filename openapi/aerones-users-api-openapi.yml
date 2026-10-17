@@ -81,79 +81,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    User:
-      additionalProperties: false
-      description: Schema for user details.
-      properties:
-        id:
-          title: Id
-          type: integer
-        sso_uuid:
-          title: Sso Uuid
-          type: string
-        email:
-          title: Email
-          type: string
-        first_name:
-          title: First Name
-          type: string
-        last_name:
-          title: Last Name
-          type: string
-        picture_url:
-          title: Picture Url
-          type: string
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        customers:
-          default: []
-          items:
-            $ref: '#/components/schemas/UserCustomer'
-          title: Customers
-          type: array
-        phone:
-          default: ''
-          title: Phone
-          type: string
-        user_type:
-          $ref: '#/components/schemas/UserType'
-        roles:
-          items:
-            type: string
-          title: Roles
-          type: array
-        permissions:
-          items:
-            $ref: '#/components/schemas/PermissionCodename'
-          title: Permissions
-          type: array
-        impersonate_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Impersonate Id
-        date_joined:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Account creation timestamp (Django auth user date_joined).
-          title: Date Joined
-      required:
-      - id
-      - sso_uuid
-      - email
-      - first_name
-      - last_name
-      - picture_url
-      - user_type
-      - roles
-      - permissions
-      title: User
-      type: object
     UserType:
       description: User classification based on customer relationships.
       enum:
@@ -161,19 +88,26 @@ components:
       - CUSTOMER
       title: UserType
       type: string
-    Error:
+    UpdateUserRole:
       additionalProperties: false
-      description: Error response schema.
+      description: Schema for updating user role.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+        is_admin:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Admin
+        is_pm:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Pm
+        is_user:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is User
+      title: UpdateUserRole
       type: object
     PermissionCodename:
       description: All supported permission codenames in the system.
@@ -261,6 +195,93 @@ components:
       - auth.broe
       title: PermissionCodename
       type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    User:
+      additionalProperties: false
+      description: Schema for user details.
+      properties:
+        id:
+          title: Id
+          type: integer
+        sso_uuid:
+          title: Sso Uuid
+          type: string
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        picture_url:
+          title: Picture Url
+          type: string
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        customers:
+          default: []
+          items:
+            $ref: '#/components/schemas/UserCustomer'
+          title: Customers
+          type: array
+        phone:
+          default: ''
+          title: Phone
+          type: string
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        roles:
+          items:
+            type: string
+          title: Roles
+          type: array
+        permissions:
+          items:
+            $ref: '#/components/schemas/PermissionCodename'
+          title: Permissions
+          type: array
+        impersonate_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impersonate Id
+        date_joined:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Account creation timestamp (Django auth user date_joined).
+          title: Date Joined
+      required:
+      - id
+      - sso_uuid
+      - email
+      - first_name
+      - last_name
+      - picture_url
+      - user_type
+      - roles
+      - permissions
+      title: User
+      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -302,27 +323,6 @@ components:
       - id
       - organisation
       title: UserCustomer
-      type: object
-    UpdateUserRole:
-      additionalProperties: false
-      description: Schema for updating user role.
-      properties:
-        is_admin:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Admin
-        is_pm:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Pm
-        is_user:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is User
-      title: UpdateUserRole
       type: object
   securitySchemes:
     APIKeyAuth:

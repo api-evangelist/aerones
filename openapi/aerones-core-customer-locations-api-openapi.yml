@@ -116,6 +116,38 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    LocationObjectWithType:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps), including type.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+          description: Location type
+      required:
+      - id
+      title: LocationObjectWithType
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     CustomerLocationResponse:
       additionalProperties: false
       description: Schema for CustomerLocation response.
@@ -148,18 +180,6 @@ components:
       - location
       title: CustomerLocationResponse
       type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -173,27 +193,6 @@ components:
       - code
       - message
       title: Error
-      type: object
-    LocationObjectWithType:
-      additionalProperties: false
-      description: Nested location object for responses (no timestamps), including type.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-          description: Location type
-      required:
-      - id
-      title: LocationObjectWithType
       type: object
     RelationshipTypeObject:
       additionalProperties: false
@@ -215,16 +214,17 @@ components:
       - code
       title: RelationshipTypeObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
+    LocationType:
+      description: Allowed location type values in location.
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
       type: string
   securitySchemes:
     APIKeyAuth:

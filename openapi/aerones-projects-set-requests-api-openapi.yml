@@ -906,6 +906,307 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    SetRequestNoteCreate:
+      additionalProperties: false
+      description: POST .../notes body — free-form note with optional @-mentions.
+      properties:
+        text:
+          maxLength: 4000
+          minLength: 1
+          title: Text
+          type: string
+        item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Item Id
+        mentioned_user_ids:
+          items:
+            type: integer
+          title: Mentioned User Ids
+          type: array
+      required:
+      - text
+      title: SetRequestNoteCreate
+      type: object
+    ItemCategoryListResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ItemCategoryResponse'
+          title: Items
+          type: array
+      title: ItemCategoryListResponse
+      type: object
+    SetRequestInheritCandidateItem:
+      additionalProperties: false
+      description: One line of a prior SR, ready to copy into the create form.
+      properties:
+        description:
+          title: Description
+          type: string
+        quantity:
+          title: Quantity
+          type: string
+        unit:
+          title: Unit
+          type: string
+        scope:
+          title: Scope
+          type: string
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      required:
+      - description
+      - quantity
+      - unit
+      - scope
+      title: SetRequestInheritCandidateItem
+      type: object
+    SetRequestItemSuggestion:
+      additionalProperties: false
+      description: Server-suggested item / PPE line for the create modal preview.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        description:
+          default: ''
+          title: Description
+          type: string
+        quantity:
+          default: '0'
+          title: Quantity
+          type: string
+        unit:
+          default: ''
+          title: Unit
+          type: string
+        category_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Category Id
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        source:
+          default: PREFILL
+          title: Source
+          type: string
+        scope:
+          default: PER_SET
+          title: Scope
+          type: string
+        project_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Offer Item Id
+        co_budget_qty:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Qty
+        co_budget_drawn:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Drawn
+        co_budget_remaining:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Co Budget Remaining
+      title: SetRequestItemSuggestion
+      type: object
+    SetRequestPrefillOptionsResponse:
+      additionalProperties: false
+      description: 'Read-only snapshot the create modal renders.
+
+
+        Mirrors team-request''s set-options shape but adds the item preview the
+
+        PM can edit before submitting.'
+      properties:
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        region:
+          default: EU
+          description: Standard-set region the suggestions were drawn from — the explicit request param, else derived from the project location's country.
+          enum:
+          - EU
+          - NA
+          title: Region
+          type: string
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robot Set Name
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+        project_planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Default value for the create-modal's mobilization date picker (the robot PPRSI's planned start date).
+          title: Project Planned Start Date
+        suggested_items:
+          items:
+            $ref: '#/components/schemas/SetRequestItemSuggestion'
+          title: Suggested Items
+          type: array
+      required:
+      - pprs_id
+      title: SetRequestPrefillOptionsResponse
+      type: object
+    SetRequestReject:
+      additionalProperties: false
+      properties:
+        reason:
+          description: Why the request is rejected. Required.
+          minLength: 1
+          title: Reason
+          type: string
+        expected_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The robot set id the planner was shown. When supplied, the server rejects the action if the set changed since — forcing a re-review rather than rejecting a stale set.
+          title: Expected Robot Set Id
+      required:
+      - reason
+      title: SetRequestReject
+      type: object
+    OfferPairsResponse:
+      additionalProperties: false
+      properties:
+        pairs:
+          items:
+            $ref: '#/components/schemas/OfferPair'
+          title: Pairs
+          type: array
+      title: OfferPairsResponse
+      type: object
+    MentionCandidate:
+      additionalProperties: false
+      description: One user available for @-mention in a Set Request note.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: MentionCandidate
+      type: object
+    SetRequestUpdate:
+      additionalProperties: false
+      properties:
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        needed_by_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Needed By Date
+        kind:
+          anyOf:
+          - enum:
+            - STANDARD
+            - EXISTING_SET
+            type: string
+          - type: 'null'
+          title: Kind
+        items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SetRequestItemInput'
+            type: array
+          - type: 'null'
+          title: Items
+      title: SetRequestUpdate
+      type: object
+    ItemCreate:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 255
+          minLength: 1
+          title: Description
+          type: string
+        category_id:
+          description: ItemCategory id (PPE / Consumable / …).
+          title: Category Id
+          type: integer
+      required:
+      - description
+      - category_id
+      title: ItemCreate
+      type: object
     SetRequestEventResponse:
       additionalProperties: false
       description: 'One row in the unified Set Request timeline.
@@ -1042,204 +1343,6 @@ components:
       - source
       title: SetRequestItemResponse
       type: object
-    SetRequestInheritCandidateItem:
-      additionalProperties: false
-      description: One line of a prior SR, ready to copy into the create form.
-      properties:
-        description:
-          title: Description
-          type: string
-        quantity:
-          title: Quantity
-          type: string
-        unit:
-          title: Unit
-          type: string
-        scope:
-          title: Scope
-          type: string
-        category_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Category Id
-        category_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Category Code
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-      required:
-      - description
-      - quantity
-      - unit
-      - scope
-      title: SetRequestInheritCandidateItem
-      type: object
-    MentionCandidate:
-      additionalProperties: false
-      description: One user available for @-mention in a Set Request note.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: MentionCandidate
-      type: object
-    ItemCategoryListResponse:
-      additionalProperties: false
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ItemCategoryResponse'
-          title: Items
-          type: array
-      title: ItemCategoryListResponse
-      type: object
-    ItemCategoryResponse:
-      additionalProperties: false
-      description: One row in the ``core.item_category`` lookup.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          title: Description
-          type: string
-      required:
-      - id
-      - code
-      - description
-      title: ItemCategoryResponse
-      type: object
-    OfferPair:
-      additionalProperties: false
-      properties:
-        project_location_id:
-          title: Project Location Id
-          type: integer
-        location_name:
-          title: Location Name
-          type: string
-        service_id:
-          title: Service Id
-          type: integer
-        service_code:
-          title: Service Code
-          type: string
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-      required:
-      - project_location_id
-      - location_name
-      - service_id
-      - service_code
-      title: OfferPair
-      type: object
-    SetRequestNoteCreate:
-      additionalProperties: false
-      description: POST .../notes body — free-form note with optional @-mentions.
-      properties:
-        text:
-          maxLength: 4000
-          minLength: 1
-          title: Text
-          type: string
-        item_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Item Id
-        mentioned_user_ids:
-          items:
-            type: integer
-          title: Mentioned User Ids
-          type: array
-      required:
-      - text
-      title: SetRequestNoteCreate
-      type: object
-    SetRequestReject:
-      additionalProperties: false
-      properties:
-        reason:
-          description: Why the request is rejected. Required.
-          minLength: 1
-          title: Reason
-          type: string
-        expected_robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: The robot set id the planner was shown. When supplied, the server rejects the action if the set changed since — forcing a re-review rather than rejecting a stale set.
-          title: Expected Robot Set Id
-      required:
-      - reason
-      title: SetRequestReject
-      type: object
-    MentionCandidateListResponse:
-      additionalProperties: false
-      properties:
-        candidates:
-          items:
-            $ref: '#/components/schemas/MentionCandidate'
-          title: Candidates
-          type: array
-      title: MentionCandidateListResponse
-      type: object
-    ItemResponse:
-      additionalProperties: false
-      description: 'One entry in the shared ``core.item`` catalog.
-
-
-        Editable so PMs can fix typos in place instead of forking a new entry.
-
-        ``source`` is informational — the FE tags user-added rows.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        description:
-          title: Description
-          type: string
-        category_id:
-          title: Category Id
-          type: integer
-        category_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Category Code
-        source:
-          title: Source
-          type: string
-      required:
-      - id
-      - description
-      - category_id
-      - source
-      title: ItemResponse
-      type: object
     SetRequestInheritCandidate:
       additionalProperties: false
       description: 'A prior PICKED_UP SR (any project) whose lines can seed a new
@@ -1288,6 +1391,149 @@ components:
       - display_id
       - updated_at
       title: SetRequestInheritCandidate
+      type: object
+    ItemResponse:
+      additionalProperties: false
+      description: 'One entry in the shared ``core.item`` catalog.
+
+
+        Editable so PMs can fix typos in place instead of forking a new entry.
+
+        ``source`` is informational — the FE tags user-added rows.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        category_id:
+          title: Category Id
+          type: integer
+        category_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category Code
+        source:
+          title: Source
+          type: string
+      required:
+      - id
+      - description
+      - category_id
+      - source
+      title: ItemResponse
+      type: object
+    ItemListResponse:
+      additionalProperties: false
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ItemResponse'
+          title: Items
+          type: array
+      title: ItemListResponse
+      type: object
+    SetRequestApproveCurrent:
+      additionalProperties: false
+      properties:
+        planner_decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planner Decision Note
+        expected_robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The robot set id the planner was shown. When supplied, the server rejects the approval if the set changed since — forcing a re-review rather than approving a stale set.
+          title: Expected Robot Set Id
+      title: SetRequestApproveCurrent
+      type: object
+    SetRequestReadinessToggle:
+      additionalProperties: false
+      properties:
+        confirmed:
+          default: true
+          description: True to confirm this readiness step, False to undo it.
+          title: Confirmed
+          type: boolean
+      title: SetRequestReadinessToggle
+      type: object
+    SetRequestChangeAndApprove:
+      additionalProperties: false
+      properties:
+        robot_set_id:
+          description: The robot set to approve.
+          title: Robot Set Id
+          type: integer
+        planner_decision_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planner Decision Note
+      required:
+      - robot_set_id
+      title: SetRequestChangeAndApprove
+      type: object
+    OfferPair:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          title: Project Location Id
+          type: integer
+        location_name:
+          title: Location Name
+          type: string
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+      required:
+      - project_location_id
+      - location_name
+      - service_id
+      - service_code
+      title: OfferPair
+      type: object
+    ItemUpdate:
+      additionalProperties: false
+      properties:
+        description:
+          maxLength: 255
+          minLength: 1
+          title: Description
+          type: string
+      required:
+      - description
+      title: ItemUpdate
+      type: object
+    ItemCategoryResponse:
+      additionalProperties: false
+      description: One row in the ``core.item_category`` lookup.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          title: Description
+          type: string
+      required:
+      - id
+      - code
+      - description
+      title: ItemCategoryResponse
       type: object
     SetRequestCreate:
       additionalProperties: false
@@ -1342,171 +1588,6 @@ components:
       required:
       - robot_pprsi_id
       title: SetRequestCreate
-      type: object
-    SetRequestItemSuggestion:
-      additionalProperties: false
-      description: Server-suggested item / PPE line for the create modal preview.
-      properties:
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-        description:
-          default: ''
-          title: Description
-          type: string
-        quantity:
-          default: '0'
-          title: Quantity
-          type: string
-        unit:
-          default: ''
-          title: Unit
-          type: string
-        category_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Category Id
-        category_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Category Code
-        source:
-          default: PREFILL
-          title: Source
-          type: string
-        scope:
-          default: PER_SET
-          title: Scope
-          type: string
-        project_offer_item_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Offer Item Id
-        co_budget_qty:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Co Budget Qty
-        co_budget_drawn:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Co Budget Drawn
-        co_budget_remaining:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Co Budget Remaining
-      title: SetRequestItemSuggestion
-      type: object
-    ItemListResponse:
-      additionalProperties: false
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/ItemResponse'
-          title: Items
-          type: array
-      title: ItemListResponse
-      type: object
-    SetRequestUpdate:
-      additionalProperties: false
-      properties:
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        needed_by_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Needed By Date
-        kind:
-          anyOf:
-          - enum:
-            - STANDARD
-            - EXISTING_SET
-            type: string
-          - type: 'null'
-          title: Kind
-        items:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/SetRequestItemInput'
-            type: array
-          - type: 'null'
-          title: Items
-      title: SetRequestUpdate
-      type: object
-    OfferPairsResponse:
-      additionalProperties: false
-      properties:
-        pairs:
-          items:
-            $ref: '#/components/schemas/OfferPair'
-          title: Pairs
-          type: array
-      title: OfferPairsResponse
-      type: object
-    SetRequestChangeAndApprove:
-      additionalProperties: false
-      properties:
-        robot_set_id:
-          description: The robot set to approve.
-          title: Robot Set Id
-          type: integer
-        planner_decision_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Planner Decision Note
-      required:
-      - robot_set_id
-      title: SetRequestChangeAndApprove
-      type: object
-    SetRequestReadinessToggle:
-      additionalProperties: false
-      properties:
-        confirmed:
-          default: true
-          description: True to confirm this readiness step, False to undo it.
-          title: Confirmed
-          type: boolean
-      title: SetRequestReadinessToggle
-      type: object
-    ItemCreate:
-      additionalProperties: false
-      properties:
-        description:
-          maxLength: 255
-          minLength: 1
-          title: Description
-          type: string
-        category_id:
-          description: ItemCategory id (PPE / Consumable / …).
-          title: Category Id
-          type: integer
-      required:
-      - description
-      - category_id
-      title: ItemCreate
       type: object
     SetRequestItemInput:
       additionalProperties: false
@@ -1564,22 +1645,6 @@ components:
           description: PER_SET (default), PER_PERSON, PER_WTG, or PER_BLADE.
           title: Scope
       title: SetRequestItemInput
-      type: object
-    SetRequestApproveCurrent:
-      additionalProperties: false
-      properties:
-        planner_decision_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Planner Decision Note
-        expected_robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: The robot set id the planner was shown. When supplied, the server rejects the approval if the set changed since — forcing a re-review rather than approving a stale set.
-          title: Expected Robot Set Id
-      title: SetRequestApproveCurrent
       type: object
     SetRequestResponse:
       additionalProperties: false
@@ -1755,80 +1820,15 @@ components:
       - updated_at
       title: SetRequestResponse
       type: object
-    SetRequestPrefillOptionsResponse:
+    MentionCandidateListResponse:
       additionalProperties: false
-      description: 'Read-only snapshot the create modal renders.
-
-
-        Mirrors team-request''s set-options shape but adds the item preview the
-
-        PM can edit before submitting.'
       properties:
-        pprs_id:
-          title: Pprs Id
-          type: integer
-        region:
-          default: EU
-          description: Standard-set region the suggestions were drawn from — the explicit request param, else derived from the project location's country.
-          enum:
-          - EU
-          - NA
-          title: Region
-          type: string
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Location Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Robot Set Id
-        robot_set_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Robot Set Name
-        dates_from:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Dates From
-        dates_to:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Dates To
-        project_planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Default value for the create-modal's mobilization date picker (the robot PPRSI's planned start date).
-          title: Project Planned Start Date
-        suggested_items:
+        candidates:
           items:
-            $ref: '#/components/schemas/SetRequestItemSuggestion'
-          title: Suggested Items
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Candidates
           type: array
-      required:
-      - pprs_id
-      title: SetRequestPrefillOptionsResponse
-      type: object
-    ItemUpdate:
-      additionalProperties: false
-      properties:
-        description:
-          maxLength: 255
-          minLength: 1
-          title: Description
-          type: string
-      required:
-      - description
-      title: ItemUpdate
+      title: MentionCandidateListResponse
       type: object
   securitySchemes:
     APIKeyAuth:

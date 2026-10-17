@@ -530,60 +530,72 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    Customer:
+    ProjectPassword:
       additionalProperties: false
-      description: Schema for customer.
+      description: Schema for project password.
+      properties:
+        password:
+          description: Project password
+          title: Password
+          type: string
+      required:
+      - password
+      title: ProjectPassword
+      type: object
+    Client:
+      additionalProperties: false
+      description: Schema for client.
       properties:
         id:
-          description: NetSuite ID for customer
-          title: Id
-          type: integer
-        alt_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
-          title: Alt Id
+          title: Id
         name:
           anyOf:
           - type: string
           - type: 'null'
-          description: Name
+          description: Client name.
           title: Name
-        currency:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Currency
-          title: Currency
-        business_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Business ID
-          title: Business Id
-        address_text:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full address in single text/string
-          title: Address Text
-      required:
-      - id
-      title: Customer
+      title: Client
       type: object
-    RelatedProjectsResponse:
+    Success:
       additionalProperties: false
-      description: Schema for related projects response.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        related_projects:
-          default: []
-          description: List of related projects with their code and id.
-          items:
-            $ref: '#/components/schemas/RelatedProject'
-          title: Related Projects
-          type: array
-      title: RelatedProjectsResponse
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    WindparkProjectList:
+      additionalProperties: false
+      description: Schema for windpark in project list.
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Windpark identifier in project builder, may not exist.
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Windpark name.
+          title: Name
+      title: WindparkProjectList
       type: object
     RelatedProject:
       additionalProperties: false
@@ -614,23 +626,37 @@ components:
       - match_score
       title: RelatedProject
       type: object
-    UserStatusPayload:
+    Error:
       additionalProperties: false
-      description: Schema for updating user_status.
+      description: Error response schema.
       properties:
-        user_status:
-          $ref: '#/components/schemas/UserStatus'
-          description: The new user status for the project.
-        reason:
-          anyOf:
-          - maxLength: 1000
-            type: string
-          - type: 'null'
-          description: Required when user_status is Cancelled; stored as the status-history note.
-          title: Reason
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
       required:
-      - user_status
-      title: UserStatusPayload
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectPOST:
+      additionalProperties: false
+      description: Schema for project creation.
+      properties:
+        origin_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project origin identifier (Pipedrive deal ID). Required for Pipedrive path.
+          title: Origin Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Core project code. Required when origin_id is not provided (platform path).
+          title: Code
+      title: ProjectPOST
       type: object
     ProjectList:
       additionalProperties: false
@@ -718,49 +744,63 @@ components:
       - updated_at
       title: ProjectList
       type: object
-    ProjectSiteSimple:
+    ProjectEmailRequest:
       additionalProperties: false
-      description: Schema for project site information.
+      description: Schema for project email request.
       properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Site name
-          title: Name
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Site latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Site longitude
-          title: Longitude
-      title: ProjectSiteSimple
+        recipient_email:
+          description: Email address of the recipient
+          format: email
+          title: Recipient Email
+          type: string
+      required:
+      - recipient_email
+      title: ProjectEmailRequest
       type: object
-    Success:
+    ProjectEmailResponse:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for project email response.
       properties:
         success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          description: Whether the email was sent successfully
           title: Success
           type: boolean
-      title: Success
+        message:
+          description: Response message
+          title: Message
+          type: string
+      required:
+      - success
+      - message
+      title: ProjectEmailResponse
+      type: object
+    ProjectOfferStatus:
+      description: Project level Offer status.
+      enum:
+      - Draft
+      - Pending
+      - Approved
+      - Rejected
+      - Changed
+      title: ProjectOfferStatus
+      type: string
+    UserStatusPayload:
+      additionalProperties: false
+      description: Schema for updating user_status.
+      properties:
+        user_status:
+          $ref: '#/components/schemas/UserStatus'
+          description: The new user status for the project.
+        reason:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          description: Required when user_status is Cancelled; stored as the status-history note.
+          title: Reason
+      required:
+      - user_status
+      title: UserStatusPayload
       type: object
     Project:
       additionalProperties: false
@@ -877,91 +917,42 @@ components:
       - origin_id
       title: Project
       type: object
-    ProjectOfferStatus:
-      description: Project level Offer status.
-      enum:
-      - Draft
-      - Pending
-      - Approved
-      - Rejected
-      - Changed
-      title: ProjectOfferStatus
-      type: string
-    ProjectEmailRequest:
+    ProjectSiteSimple:
       additionalProperties: false
-      description: Schema for project email request.
+      description: Schema for project site information.
       properties:
-        recipient_email:
-          description: Email address of the recipient
-          format: email
-          title: Recipient Email
-          type: string
-      required:
-      - recipient_email
-      title: ProjectEmailRequest
-      type: object
-    ProjectEmailResponse:
-      additionalProperties: false
-      description: Schema for project email response.
-      properties:
-        success:
-          description: Whether the email was sent successfully
-          title: Success
-          type: boolean
-        message:
-          description: Response message
-          title: Message
-          type: string
-      required:
-      - success
-      - message
-      title: ProjectEmailResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Client:
-      additionalProperties: false
-      description: Schema for client.
-      properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Id
         name:
           anyOf:
           - type: string
           - type: 'null'
-          description: Client name.
+          description: Site name
           title: Name
-      title: Client
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Site longitude
+          title: Longitude
+      title: ProjectSiteSimple
       type: object
-    WindparkProjectList:
+    RelatedProjectsResponse:
       additionalProperties: false
-      description: Schema for windpark in project list.
+      description: Schema for related projects response.
       properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Windpark identifier in project builder, may not exist.
-          title: Id
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Windpark name.
-          title: Name
-      title: WindparkProjectList
+        related_projects:
+          default: []
+          description: List of related projects with their code and id.
+          items:
+            $ref: '#/components/schemas/RelatedProject'
+          title: Related Projects
+          type: array
+      title: RelatedProjectsResponse
       type: object
     Country:
       additionalProperties: false
@@ -986,20 +977,17 @@ components:
       - name
       title: Country
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
+    UserStatus:
+      description: Enum for user-defined project statuses.
+      enum:
+      - Cancelled
+      - Completed
+      - Customer PJ in progress
+      - Customer PJ in review
+      - Customer PJ done
+      - Customer PJ rejected
+      title: UserStatus
+      type: string
     ProjectServiceCode:
       additionalProperties: false
       description: Schema for a project service code entry with manufacturer/model context.
@@ -1047,47 +1035,59 @@ components:
       - group_id
       title: ProjectServiceCode
       type: object
-    UserStatus:
-      description: Enum for user-defined project statuses.
-      enum:
-      - Cancelled
-      - Completed
-      - Customer PJ in progress
-      - Customer PJ in review
-      - Customer PJ done
-      - Customer PJ rejected
-      title: UserStatus
-      type: string
-    ProjectPassword:
+    Customer:
       additionalProperties: false
-      description: Schema for project password.
+      description: Schema for customer.
       properties:
-        password:
-          description: Project password
-          title: Password
-          type: string
+        id:
+          description: NetSuite ID for customer
+          title: Id
+          type: integer
+        alt_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Alterative (more human-friendly) NetSuite, e.g. `CUST0008`
+          title: Alt Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name
+          title: Name
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Currency
+          title: Currency
+        business_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Business ID
+          title: Business Id
+        address_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full address in single text/string
+          title: Address Text
       required:
-      - password
-      title: ProjectPassword
+      - id
+      title: Customer
       type: object
-    ProjectPOST:
-      additionalProperties: false
-      description: Schema for project creation.
-      properties:
-        origin_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Project origin identifier (Pipedrive deal ID). Required for Pipedrive path.
-          title: Origin Id
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Core project code. Required when origin_id is not provided (platform path).
-          title: Code
-      title: ProjectPOST
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

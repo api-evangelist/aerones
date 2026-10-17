@@ -41,42 +41,34 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PreJobSuggestedCertificationObject:
+    TimezoneObject:
       additionalProperties: false
-      description: One certificate auto-assigned to a site by the certificate mapping rules.
+      description: Nested timezone object for responses (no timestamps in nested objects).
       properties:
         id:
-          description: Certificate ID
+          description: Timezone ID
           title: Id
           type: integer
-        name:
-          description: Certificate name
-          title: Name
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
           type: string
-        comment:
+        city:
           anyOf:
           - type: string
           - type: 'null'
-          description: Condition note from the matching rule
-          title: Comment
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
       required:
       - id
-      - name
-      title: PreJobSuggestedCertificationObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      - timezone
+      title: TimezoneObject
       type: object
     CountryObject:
       additionalProperties: false
@@ -120,44 +112,23 @@ components:
       - file_id
       title: PreJobSiteFileObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    PreJobSiteAnswerObject:
+    PreJobSitesResponse:
       additionalProperties: false
-      description: Pre-job answer within a site response.
+      description: Top-level response for the pre-job sites aggregation endpoint.
       properties:
-        id:
-          title: Id
-          type: integer
-        question_id:
-          title: Question Id
-          type: integer
-        key:
+        sites:
+          items:
+            $ref: '#/components/schemas/PreJobSiteObject'
+          title: Sites
+          type: array
+        om_building_address:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
           - type: 'null'
-          description: Question config key for programmatic access
-          title: Key
-        title:
-          title: Title
-          type: string
-        answer:
-          title: Answer
+          description: Mirror of the first site's ``om_building_address`` in list order when present; null when that site has no ``ProjectLocation.om_building_customer_address``. Prefer each site object for per-location O&M.
       required:
-      - id
-      - question_id
-      - title
-      - answer
-      title: PreJobSiteAnswerObject
+      - sites
+      title: PreJobSitesResponse
       type: object
     PreJobSiteLocationObject:
       additionalProperties: false
@@ -220,9 +191,9 @@ components:
       - name
       title: PreJobSiteLocationObject
       type: object
-    PreJobSiteOMBuildingObject:
+    PreJobSiteContactObject:
       additionalProperties: false
-      description: O&M building address in the pre-job sites response.
+      description: Contact within a site response.
       properties:
         id:
           title: Id
@@ -232,64 +203,65 @@ components:
           - type: string
           - type: 'null'
           title: Name
-        address_line1:
-          title: Address Line1
-          type: string
-        address_line2:
+        email:
           anyOf:
           - type: string
           - type: 'null'
-          title: Address Line2
-        city:
+          title: Email
+        phone:
           anyOf:
           - type: string
           - type: 'null'
-          title: City
-        state_region:
+          title: Phone
+        role:
           anyOf:
           - type: string
           - type: 'null'
-          title: State Region
-        postal_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Postal Code
-        country:
-          anyOf:
-          - $ref: '#/components/schemas/CountryObject'
-          - type: 'null'
-        timezone:
-          anyOf:
-          - $ref: '#/components/schemas/TimezoneObject'
-          - type: 'null'
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Additional Info
+          title: Role
+        is_qhse:
+          default: false
+          title: Is Qhse
+          type: boolean
       required:
       - id
-      - address_line1
-      title: PreJobSiteOMBuildingObject
+      title: PreJobSiteContactObject
       type: object
-    PreJobSitesResponse:
+    Error:
       additionalProperties: false
-      description: Top-level response for the pre-job sites aggregation endpoint.
+      description: Error response schema.
       properties:
-        sites:
-          items:
-            $ref: '#/components/schemas/PreJobSiteObject'
-          title: Sites
-          type: array
-        om_building_address:
-          anyOf:
-          - $ref: '#/components/schemas/PreJobSiteOMBuildingObject'
-          - type: 'null'
-          description: Mirror of the first site's ``om_building_address`` in list order when present; null when that site has no ``ProjectLocation.om_building_customer_address``. Prefer each site object for per-location O&M.
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
       required:
-      - sites
-      title: PreJobSitesResponse
+      - code
+      - message
+      title: Error
+      type: object
+    PreJobSuggestedCertificationObject:
+      additionalProperties: false
+      description: One certificate auto-assigned to a site by the certificate mapping rules.
+      properties:
+        id:
+          description: Certificate ID
+          title: Id
+          type: integer
+        name:
+          description: Certificate name
+          title: Name
+          type: string
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note from the matching rule
+          title: Comment
+      required:
+      - id
+      - name
+      title: PreJobSuggestedCertificationObject
       type: object
     PreJobSiteObject:
       additionalProperties: false
@@ -352,9 +324,48 @@ components:
       - location
       title: PreJobSiteObject
       type: object
-    PreJobSiteContactObject:
+    PreJobSiteAnswerObject:
       additionalProperties: false
-      description: Contact within a site response.
+      description: Pre-job answer within a site response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        question_id:
+          title: Question Id
+          type: integer
+        key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Question config key for programmatic access
+          title: Key
+        title:
+          title: Title
+          type: string
+        answer:
+          title: Answer
+      required:
+      - id
+      - question_id
+      - title
+      - answer
+      title: PreJobSiteAnswerObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    PreJobSiteOMBuildingObject:
+      additionalProperties: false
+      description: O&M building address in the pre-job sites response.
       properties:
         id:
           title: Id
@@ -364,57 +375,46 @@ components:
           - type: string
           - type: 'null'
           title: Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
-        role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Role
-        is_qhse:
-          default: false
-          title: Is Qhse
-          type: boolean
-      required:
-      - id
-      title: PreJobSiteContactObject
-      type: object
-    TimezoneObject:
-      additionalProperties: false
-      description: Nested timezone object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Timezone ID
-          title: Id
-          type: integer
-        timezone:
-          description: Timezone name (e.g., Europe/Riga)
-          title: Timezone
+        address_line1:
+          title: Address Line1
           type: string
+        address_line2:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Line2
         city:
           anyOf:
           - type: string
           - type: 'null'
-          description: City name
           title: City
-        utc_offset:
+        state_region:
           anyOf:
           - type: string
           - type: 'null'
-          description: UTC offset (e.g., +02:00)
-          title: Utc Offset
+          title: State Region
+        postal_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Postal Code
+        country:
+          anyOf:
+          - $ref: '#/components/schemas/CountryObject'
+          - type: 'null'
+        timezone:
+          anyOf:
+          - $ref: '#/components/schemas/TimezoneObject'
+          - type: 'null'
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Additional Info
       required:
       - id
-      - timezone
-      title: TimezoneObject
+      - address_line1
+      title: PreJobSiteOMBuildingObject
       type: object
   securitySchemes:
     APIKeyAuth:

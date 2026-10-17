@@ -185,6 +185,68 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ResourceSetItemOutput:
+      additionalProperties: false
+      description: Output schema for resource set item in responses (no timestamps).
+      properties:
+        id:
+          description: ResourceSetItem ID
+          title: Id
+          type: integer
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is lead resource
+          title: Is Lead
+        is_active:
+          description: Is active
+          title: Is Active
+          type: boolean
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Resource Full Name
+      required:
+      - id
+      - resource_id
+      - resource_type
+      - is_active
+      title: ResourceSetItemOutput
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ResourceSetItemInput:
       additionalProperties: false
       description: Input schema for a resource set item (technician or robot from core.Resource).
@@ -207,6 +269,31 @@ components:
       - resource_id
       - resource_type
       title: ResourceSetItemInput
+      type: object
+    ResourceSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a ResourceSet.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource set description
+          title: Description
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
+          title: Set Items
+      title: ResourceSetUpdate
       type: object
     Error:
       additionalProperties: false
@@ -269,93 +356,6 @@ components:
       - name
       title: ResourceSetCreate
       type: object
-    ResourceSetItemOutput:
-      additionalProperties: false
-      description: Output schema for resource set item in responses (no timestamps).
-      properties:
-        id:
-          description: ResourceSetItem ID
-          title: Id
-          type: integer
-        resource_id:
-          description: Resource ID
-          title: Resource Id
-          type: integer
-        resource_type:
-          description: Resource type (ROBOT or TECHNICIAN)
-          title: Resource Type
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is lead resource
-          title: Is Lead
-        is_active:
-          description: Is active
-          title: Is Active
-          type: boolean
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Start date
-          title: Start Date
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: End date
-          title: End Date
-        resource_full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource full name
-          title: Resource Full Name
-      required:
-      - id
-      - resource_id
-      - resource_type
-      - is_active
-      title: ResourceSetItemOutput
-      type: object
-    ResourceSetUpdate:
-      additionalProperties: false
-      description: Schema for updating a ResourceSet.
-      properties:
-        name:
-          description: Entity name
-          minLength: 1
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource set description
-          title: Description
-        set_items:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ResourceSetItemInput'
-            type: array
-          - type: 'null'
-          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
-          title: Set Items
-      title: ResourceSetUpdate
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ResourceSetResponse:
       additionalProperties: false
       description: Schema for ResourceSet response.

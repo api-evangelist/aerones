@@ -299,117 +299,27 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerCreate:
+    CountryObject:
       additionalProperties: false
-      description: 'Schema for creating a Customer. Number is auto-generated.
-
-
-        ``country_id``, ``currency_id`` and ``netsuite_subsidiary_id`` are required of a
-
-        commercial customer and meaningless on a virtual one, so the per-kind contract is
-
-        enforced by ``CustomerManager.create``, the one place every channel goes
-
-        through, rather than by this schema.'
+      description: Nested country object for responses (no timestamps in nested objects).
       properties:
-        display_name:
-          description: Display name
-          minLength: 1
-          title: Display Name
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
           type: string
-        legal_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Legal name
-          title: Legal Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Email address
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Phone number
-          title: Phone
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID, required unless type is VIRTUAL
-          title: Country Id
-        parent_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent customer ID
-          title: Parent Customer Id
-        type:
-          allOf:
-          - $ref: '#/components/schemas/CustomerType'
-          default: COMMERCIAL
-          description: 'What kind of party this is. A VIRTUAL customer exists only so a group of users can read across the customers beneath it: never billed, never mirrored to NetSuite, and hidden by default from the customer lists. It requires display_name only, and refuses the NetSuite and Pipedrive ids.'
-        vat_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: VAT number
-          title: Vat Number
-        registration_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Registration number
-          title: Registration Number
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency ID, required unless type is VIRTUAL
-          title: Currency Id
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional information
-          title: Additional Info
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        netsuite_subsidiary_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite subsidiary (Aerones billing entity) internal ID, required unless type is VIRTUAL, and refused for a virtual customer. The customer is mirrored to NetSuite under this subsidiary, unless netsuite_customer_id is supplied (importing an already-linked customer), in which case no NetSuite record is created.
-          title: Netsuite Subsidiary Id
-        pipedrive_org_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pipedrive organization ID
-          title: Pipedrive Org Id
-        custom_fields:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: Custom fields as JSON
-          title: Custom Fields
-        logo_file_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Logo file storage id (fileupload.Files; upload via POST /api/files)
-          title: Logo File Id
+        name:
+          description: Country name
+          title: Name
+          type: string
       required:
-      - display_name
-      title: CustomerCreate
+      - id
+      - code
+      - name
+      title: CountryObject
       type: object
     CustomerType:
       description: 'What kind of party a customer row represents.
@@ -442,75 +352,6 @@ components:
       - VIRTUAL
       title: CustomerType
       type: string
-    CustomerNetsuiteSubsidiary:
-      additionalProperties: false
-      description: Current NetSuite subsidiary for a customer (source of truth = NetSuite).
-      properties:
-        subsidiary_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Subsidiary Id
-      title: CustomerNetsuiteSubsidiary
-      type: object
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CurrencyObject:
-      additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Currency ID
-          title: Id
-          type: integer
-        code:
-          description: Currency code (ISO 4217)
-          title: Code
-          type: string
-        name:
-          description: Currency name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CurrencyObject
-      type: object
     ParentCustomerObject:
       additionalProperties: false
       description: Nested parent customer object for responses (no timestamps in nested objects).
@@ -643,6 +484,154 @@ components:
       - display_name
       title: CustomerResponse
       type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
+    CustomerCreate:
+      additionalProperties: false
+      description: 'Schema for creating a Customer. Number is auto-generated.
+
+
+        ``country_id``, ``currency_id`` and ``netsuite_subsidiary_id`` are required of a
+
+        commercial customer and meaningless on a virtual one, so the per-kind contract is
+
+        enforced by ``CustomerManager.create``, the one place every channel goes
+
+        through, rather than by this schema.'
+      properties:
+        display_name:
+          description: Display name
+          minLength: 1
+          title: Display Name
+          type: string
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID, required unless type is VIRTUAL
+          title: Country Id
+        parent_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent customer ID
+          title: Parent Customer Id
+        type:
+          allOf:
+          - $ref: '#/components/schemas/CustomerType'
+          default: COMMERCIAL
+          description: 'What kind of party this is. A VIRTUAL customer exists only so a group of users can read across the customers beneath it: never billed, never mirrored to NetSuite, and hidden by default from the customer lists. It requires display_name only, and refuses the NetSuite and Pipedrive ids.'
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID, required unless type is VIRTUAL
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        netsuite_subsidiary_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite subsidiary (Aerones billing entity) internal ID, required unless type is VIRTUAL, and refused for a virtual customer. The customer is mirrored to NetSuite under this subsidiary, unless netsuite_customer_id is supplied (importing an already-linked customer), in which case no NetSuite record is created.
+          title: Netsuite Subsidiary Id
+        pipedrive_org_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive organization ID
+          title: Pipedrive Org Id
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Custom fields as JSON
+          title: Custom Fields
+        logo_file_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Logo file storage id (fileupload.Files; upload via POST /api/files)
+          title: Logo File Id
+      required:
+      - display_name
+      title: CustomerCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -663,17 +652,17 @@ components:
           type: boolean
       title: Success
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    CustomerNetsuiteSubsidiary:
+      additionalProperties: false
+      description: Current NetSuite subsidiary for a customer (source of truth = NetSuite).
+      properties:
+        subsidiary_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Subsidiary Id
+      title: CustomerNetsuiteSubsidiary
+      type: object
     CustomerUpdate:
       additionalProperties: false
       description: Schema for updating a Customer.
@@ -773,6 +762,17 @@ components:
           title: Logo File Id
       title: CustomerUpdate
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

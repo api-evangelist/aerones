@@ -902,104 +902,15 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    TeamRequestSlotResponse:
+    SetOptionsResponse:
       additionalProperties: false
       properties:
-        id:
-          title: Id
-          type: integer
-        is_lead:
-          title: Is Lead
-          type: boolean
-        required_certificate_ids:
+        sets:
           items:
-            type: integer
-          title: Required Certificate Ids
+            $ref: '#/components/schemas/RobotSetOptionResponse'
+          title: Sets
           type: array
-        wms_resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Wms Resource Id
-        wms_synced_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Wms Synced At
-        approved_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Approved At
-        rejection_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rejection Reason
-        pprsi_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Pprsi Id
-        pprsi_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Pprsi Status
-        pprsi_resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Pprsi Resource Id
-        pprsi_resource_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Pprsi Resource Name
-      required:
-      - id
-      - is_lead
-      title: TeamRequestSlotResponse
-      type: object
-    SiteOptionsResponse:
-      additionalProperties: false
-      description: 'Services + cert preview for a project''s commercial-offer scope.
-
-
-        Services are sourced from ``ProjectOfferItem`` rows on the project''s
-
-        latest ``ProjectOffer``. With ``project_location_id`` the endpoint also
-
-        returns the pre-job cert resolution for that location: resolved
-
-        ``certificates`` (matched to a Certificate row) and
-
-        ``unresolved_certification_tokens`` (names that didn''t match + free
-
-        text from ``other_certification_details``). The FE renders unresolved
-
-        tokens as a warning + deep-link to pre-job; the doc-control approval
-
-        edge is blocked while any remain.'
-      properties:
-        services:
-          items:
-            $ref: '#/components/schemas/SiteServiceOption'
-          title: Services
-          type: array
-        certificates:
-          items:
-            $ref: '#/components/schemas/CertificateInfo'
-          title: Certificates
-          type: array
-        unresolved_certification_tokens:
-          items:
-            type: string
-          title: Unresolved Certification Tokens
-          type: array
-      title: SiteOptionsResponse
+      title: SetOptionsResponse
       type: object
     TeamRequestLocationRef:
       additionalProperties: false
@@ -1014,41 +925,6 @@ components:
       - project_location_id
       - name
       title: TeamRequestLocationRef
-      type: object
-    MentionCandidate:
-      additionalProperties: false
-      description: One user available for @-mention in a Set Request note.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: MentionCandidate
-      type: object
-    CertificateInfo:
-      additionalProperties: false
-      description: A pre-job-resolved cert (a ``Certificate`` row matched by name).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: CertificateInfo
       type: object
     TeamRequestResponse:
       additionalProperties: false
@@ -1187,40 +1063,137 @@ components:
       - updated_at
       title: TeamRequestResponse
       type: object
-    RobotSetOptionResponse:
+    SiteServiceOption:
+      additionalProperties: false
+      description: One service priced on the project's latest commercial offer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: SiteServiceOption
+      type: object
+    TeamRequestSlotUpdate:
+      additionalProperties: false
+      description: Per-slot PATCH payload. Cert-set replace + lead-transfer.
+      properties:
+        required_certificate_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Required Certificate Ids
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+      title: TeamRequestSlotUpdate
+      type: object
+    TeamRequestServiceRef:
+      additionalProperties: false
+      description: One service this TR's set will perform (offer-scoped).
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+      required:
+      - service_id
+      - service_code
+      title: TeamRequestServiceRef
+      type: object
+    TeamRequestSlotResponse:
       additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
-          type: string
-        pprs_id:
-          title: Pprs Id
-          type: integer
-        project_location_id:
+        is_lead:
+          title: Is Lead
+          type: boolean
+        required_certificate_ids:
+          items:
+            type: integer
+          title: Required Certificate Ids
+          type: array
+        wms_resource_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Project Location Id
-        dates_from:
+          title: Wms Resource Id
+        wms_synced_at:
           anyOf:
-          - format: date
+          - format: date-time
             type: string
           - type: 'null'
-          title: Dates From
-        dates_to:
+          title: Wms Synced At
+        approved_at:
           anyOf:
-          - format: date
+          - format: date-time
             type: string
           - type: 'null'
-          title: Dates To
+          title: Approved At
+        rejection_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rejection Reason
+        pprsi_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprsi Id
+        pprsi_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pprsi Status
+        pprsi_resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pprsi Resource Id
+        pprsi_resource_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pprsi Resource Name
       required:
       - id
-      - name
-      - pprs_id
-      title: RobotSetOptionResponse
+      - is_lead
+      title: TeamRequestSlotResponse
+      type: object
+    SlotRejectPayload:
+      additionalProperties: false
+      description: POST .../slots/{id}/reject body. Reason is persisted on the slot.
+      properties:
+        reason:
+          maxLength: 500
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - reason
+      title: SlotRejectPayload
       type: object
     CertDriftResponse:
       additionalProperties: false
@@ -1261,32 +1234,103 @@ components:
           type: boolean
       title: CertDriftResponse
       type: object
-    OfferPair:
+    OfferPairsResponse:
       additionalProperties: false
       properties:
-        project_location_id:
-          title: Project Location Id
+        pairs:
+          items:
+            $ref: '#/components/schemas/OfferPair'
+          title: Pairs
+          type: array
+      title: OfferPairsResponse
+      type: object
+    MentionCandidate:
+      additionalProperties: false
+      description: One user available for @-mention in a Set Request note.
+      properties:
+        id:
+          title: Id
           type: integer
-        location_name:
-          title: Location Name
+        name:
+          title: Name
           type: string
-        service_id:
-          title: Service Id
-          type: integer
-        service_code:
-          title: Service Code
-          type: string
-        service_description:
+        email:
           anyOf:
           - type: string
           - type: 'null'
-          title: Service Description
+          title: Email
       required:
-      - project_location_id
-      - location_name
-      - service_id
-      - service_code
-      title: OfferPair
+      - id
+      - name
+      title: MentionCandidate
+      type: object
+    TeamRequestUpdate:
+      additionalProperties: false
+      properties:
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        people_count:
+          anyOf:
+          - maximum: 10
+            minimum: 1
+            type: integer
+          - type: 'null'
+          title: People Count
+        required_certificate_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Required Certificate Ids
+        mobilization_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Set the TR-owned mobilization date (TR-first flow). Rejected when a Set Request is already linked — the SR owns the date then.
+          title: Mobilization Date
+        project_location_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Full site set for the TR (DRAFT only). The primary project_location (tied to the PPRS) is always kept; any other ids become the additional sites. Editing re-derives the required certificates from the new site set.
+          title: Project Location Ids
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Legacy single-service param (DRAFT only). Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
+          title: Service Id
+        service_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: 'Full service set for the TR (DRAFT only). Replaces the current services wholesale: each id must be priced on the project''s latest offer; an empty list clears them. The first id becomes the primary ``service``.'
+          title: Service Ids
+      title: TeamRequestUpdate
+      type: object
+    CertificateInfo:
+      additionalProperties: false
+      description: A pre-job-resolved cert (a ``Certificate`` row matched by name).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertificateInfo
       type: object
     CertificateCreate:
       additionalProperties: false
@@ -1342,34 +1386,50 @@ components:
       - name
       title: CertificateCreate
       type: object
-    TeamRequestDuplicate:
+    CertDriftItem:
+      additionalProperties: false
+      description: One cert that's been added or removed in pre-job vs the TR snapshot.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertDriftItem
+      type: object
+    TeamRequestCreate:
       additionalProperties: false
       properties:
         pprs_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Optional override; defaults to the source TR's PPRS.
+          description: PPRS the TR is bound to.
           title: Pprs Id
-        project_location_id:
+          type: integer
+        people_count:
+          maximum: 10
+          minimum: 1
+          title: People Count
+          type: integer
+        notes:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
-          description: Fallback site when the target PPRS has no project_location. Same semantics as on TeamRequestCreate.
-          title: Project Location Id
-        project_location_ids:
+          title: Notes
+        required_certificate_ids:
           anyOf:
           - items:
               type: integer
             type: array
           - type: 'null'
-          description: Override the cloned site set. When given, the first id is the PPRS fallback and the full list becomes the duplicate's sites; when omitted, the source TR's site set is cloned.
-          title: Project Location Ids
+          title: Required Certificate Ids
         service_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Legacy single-service override. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
+          description: Legacy single-service param, kept for back-compat. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
           title: Service Id
         service_ids:
           anyOf:
@@ -1377,59 +1437,26 @@ components:
               type: integer
             type: array
           - type: 'null'
-          description: Override the cloned services (each must be on the project's latest offer). When omitted, the source TR's full service set is cloned.
+          description: Commercial-offer-scoped services this TR's set will perform (multi-select). FE picks from /site-options (all services in the project's commercial offer). Empty / omitted means no service binding yet. Server validates each id is in scope. The first id is kept as the primary ``service`` for single-service consumers.
           title: Service Ids
-      title: TeamRequestDuplicate
-      type: object
-    SiteServiceOption:
-      additionalProperties: false
-      description: One service priced on the project's latest commercial offer.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
+        project_location_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Description
-      required:
-      - id
-      - code
-      title: SiteServiceOption
-      type: object
-    TeamRequestServiceRef:
-      additionalProperties: false
-      description: One service this TR's set will perform (offer-scoped).
-      properties:
-        service_id:
-          title: Service Id
-          type: integer
-        service_code:
-          title: Service Code
-          type: string
-        service_description:
+          description: Fallback site to use when the PPRS row has a NULL project_location (Wrike sync couldn't match the windpark). Server validates the PL is on the same project, then backfills the PPRS so subsequent TR/SR against it auto-resolve. Ignored when the PPRS already has a site.
+          title: Project Location Id
+        project_location_ids:
           anyOf:
-          - type: string
+          - items:
+              type: integer
+            type: array
           - type: 'null'
-          title: Service Description
+          description: Sites this TR spans (multi-select). The first id is the fallback for a PPRS with no site (same semantics as project_location_id); the resolved primary plus every other id form the TR's site set. Required certificates are the deduped union across all of them. When omitted the TR is single-site (project_location_id / PPRS).
+          title: Project Location Ids
       required:
-      - service_id
-      - service_code
-      title: TeamRequestServiceRef
-      type: object
-    MentionCandidateListResponse:
-      additionalProperties: false
-      properties:
-        candidates:
-          items:
-            $ref: '#/components/schemas/MentionCandidate'
-          title: Candidates
-          type: array
-      title: MentionCandidateListResponse
+      - pprs_id
+      - people_count
+      title: TeamRequestCreate
       type: object
     TeamRequestNoteCreate:
       additionalProperties: false
@@ -1456,15 +1483,105 @@ components:
       - text
       title: TeamRequestNoteCreate
       type: object
-    SetOptionsResponse:
+    SiteOptionsResponse:
+      additionalProperties: false
+      description: 'Services + cert preview for a project''s commercial-offer scope.
+
+
+        Services are sourced from ``ProjectOfferItem`` rows on the project''s
+
+        latest ``ProjectOffer``. With ``project_location_id`` the endpoint also
+
+        returns the pre-job cert resolution for that location: resolved
+
+        ``certificates`` (matched to a Certificate row) and
+
+        ``unresolved_certification_tokens`` (names that didn''t match + free
+
+        text from ``other_certification_details``). The FE renders unresolved
+
+        tokens as a warning + deep-link to pre-job; the doc-control approval
+
+        edge is blocked while any remain.'
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/SiteServiceOption'
+          title: Services
+          type: array
+        certificates:
+          items:
+            $ref: '#/components/schemas/CertificateInfo'
+          title: Certificates
+          type: array
+        unresolved_certification_tokens:
+          items:
+            type: string
+          title: Unresolved Certification Tokens
+          type: array
+      title: SiteOptionsResponse
+      type: object
+    RobotSetOptionResponse:
       additionalProperties: false
       properties:
-        sets:
-          items:
-            $ref: '#/components/schemas/RobotSetOptionResponse'
-          title: Sets
-          type: array
-      title: SetOptionsResponse
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Location Id
+        dates_from:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates From
+        dates_to:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Dates To
+      required:
+      - id
+      - name
+      - pprs_id
+      title: RobotSetOptionResponse
+      type: object
+    OfferPair:
+      additionalProperties: false
+      properties:
+        project_location_id:
+          title: Project Location Id
+          type: integer
+        location_name:
+          title: Location Name
+          type: string
+        service_id:
+          title: Service Id
+          type: integer
+        service_code:
+          title: Service Code
+          type: string
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+      required:
+      - project_location_id
+      - location_name
+      - service_id
+      - service_code
+      title: OfferPair
       type: object
     TeamRequestEventResponse:
       additionalProperties: false
@@ -1539,105 +1656,20 @@ components:
       - created_at
       title: TeamRequestEventResponse
       type: object
-    CertDriftItem:
-      additionalProperties: false
-      description: One cert that's been added or removed in pre-job vs the TR snapshot.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: CertDriftItem
-      type: object
-    OfferPairsResponse:
-      additionalProperties: false
-      properties:
-        pairs:
-          items:
-            $ref: '#/components/schemas/OfferPair'
-          title: Pairs
-          type: array
-      title: OfferPairsResponse
-      type: object
-    SlotRejectPayload:
-      additionalProperties: false
-      description: POST .../slots/{id}/reject body. Reason is persisted on the slot.
-      properties:
-        reason:
-          maxLength: 500
-          minLength: 1
-          title: Reason
-          type: string
-      required:
-      - reason
-      title: SlotRejectPayload
-      type: object
-    TeamRequestSlotUpdate:
-      additionalProperties: false
-      description: Per-slot PATCH payload. Cert-set replace + lead-transfer.
-      properties:
-        required_certificate_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Required Certificate Ids
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Lead
-      title: TeamRequestSlotUpdate
-      type: object
-    TeamRequestCreate:
+    TeamRequestDuplicate:
       additionalProperties: false
       properties:
         pprs_id:
-          description: PPRS the TR is bound to.
-          title: Pprs Id
-          type: integer
-        people_count:
-          maximum: 10
-          minimum: 1
-          title: People Count
-          type: integer
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        required_certificate_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Required Certificate Ids
-        service_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Legacy single-service param, kept for back-compat. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
-          title: Service Id
-        service_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Commercial-offer-scoped services this TR's set will perform (multi-select). FE picks from /site-options (all services in the project's commercial offer). Empty / omitted means no service binding yet. Server validates each id is in scope. The first id is kept as the primary ``service`` for single-service consumers.
-          title: Service Ids
+          description: Optional override; defaults to the source TR's PPRS.
+          title: Pprs Id
         project_location_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Fallback site to use when the PPRS row has a NULL project_location (Wrike sync couldn't match the windpark). Server validates the PL is on the same project, then backfills the PPRS so subsequent TR/SR against it auto-resolve. Ignored when the PPRS already has a site.
+          description: Fallback site when the target PPRS has no project_location. Same semantics as on TeamRequestCreate.
           title: Project Location Id
         project_location_ids:
           anyOf:
@@ -1645,55 +1677,13 @@ components:
               type: integer
             type: array
           - type: 'null'
-          description: Sites this TR spans (multi-select). The first id is the fallback for a PPRS with no site (same semantics as project_location_id); the resolved primary plus every other id form the TR's site set. Required certificates are the deduped union across all of them. When omitted the TR is single-site (project_location_id / PPRS).
-          title: Project Location Ids
-      required:
-      - pprs_id
-      - people_count
-      title: TeamRequestCreate
-      type: object
-    TeamRequestUpdate:
-      additionalProperties: false
-      properties:
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        people_count:
-          anyOf:
-          - maximum: 10
-            minimum: 1
-            type: integer
-          - type: 'null'
-          title: People Count
-        required_certificate_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          title: Required Certificate Ids
-        mobilization_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Set the TR-owned mobilization date (TR-first flow). Rejected when a Set Request is already linked — the SR owns the date then.
-          title: Mobilization Date
-        project_location_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Full site set for the TR (DRAFT only). The primary project_location (tied to the PPRS) is always kept; any other ids become the additional sites. Editing re-derives the required certificates from the new site set.
+          description: Override the cloned site set. When given, the first id is the PPRS fallback and the full list becomes the duplicate's sites; when omitted, the source TR's site set is cloned.
           title: Project Location Ids
         service_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Legacy single-service param (DRAFT only). Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
+          description: Legacy single-service override. Merged into ``service_ids`` when that is not supplied. Prefer ``service_ids``.
           title: Service Id
         service_ids:
           anyOf:
@@ -1701,9 +1691,9 @@ components:
               type: integer
             type: array
           - type: 'null'
-          description: 'Full service set for the TR (DRAFT only). Replaces the current services wholesale: each id must be priced on the project''s latest offer; an empty list clears them. The first id becomes the primary ``service``.'
+          description: Override the cloned services (each must be on the project's latest offer). When omitted, the source TR's full service set is cloned.
           title: Service Ids
-      title: TeamRequestUpdate
+      title: TeamRequestDuplicate
       type: object
     ResolveCertTokenPayload:
       additionalProperties: false
@@ -1753,6 +1743,16 @@ components:
       - matched_text
       - action
       title: ResolveCertTokenPayload
+      type: object
+    MentionCandidateListResponse:
+      additionalProperties: false
+      properties:
+        candidates:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Candidates
+          type: array
+      title: MentionCandidateListResponse
       type: object
   securitySchemes:
     APIKeyAuth:

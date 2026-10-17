@@ -124,131 +124,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    AdminWorkorderAssignee:
-      additionalProperties: false
-      description: Assignee for admin workorder.
-      properties:
-        id:
-          description: User ID
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Full name
-          title: Full Name
-      required:
-      - id
-      title: AdminWorkorderAssignee
-      type: object
-    WorkorderNestedIdName:
-      additionalProperties: false
-      description: Nested object with id and name.
-      properties:
-        id:
-          description: ID
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name
-          title: Name
-      required:
-      - id
-      title: WorkorderNestedIdName
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    AdminWorkorderActivity:
-      additionalProperties: false
-      description: Activity for admin workorder.
-      properties:
-        id:
-          description: Activity ID
-          title: Id
-          type: integer
-        activity_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Activity description
-          title: Activity Description
-        start_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Start datetime
-          title: Start Datetime
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: End datetime
-          title: End Datetime
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Activity status
-          title: Status
-        is_optional:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Whether the activity is optional. Null is treated as optional.
-          title: Is Optional
-        resources:
-          description: Resources assigned to this activity (snapshot)
-          items:
-            $ref: '#/components/schemas/WorkorderResource'
-          title: Resources
-          type: array
-        activity_resources:
-          description: Normalised resource assignments from the ``dispatch.workorder_activity_resources`` junction table. Empty until the cutover from the legacy ``resources`` JSON column has landed.
-          items:
-            $ref: '#/components/schemas/WorkorderActivityResourceLink'
-          title: Activity Resources
-          type: array
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields data
-          title: Custom Fields
-      required:
-      - id
-      title: AdminWorkorderActivity
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     AdminWorkorderDetail:
       additionalProperties: false
       description: Admin workorder detail response.
@@ -393,6 +268,210 @@ components:
       - created_at
       title: AdminWorkorderDetail
       type: object
+    WorkorderResource:
+      additionalProperties: false
+      description: Resource assigned to a workorder.
+      properties:
+        id:
+          description: Resource ID
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Full Name
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ROBOT or TECHNICIAN
+          title: Resource Type
+      required:
+      - id
+      title: WorkorderResource
+      type: object
+    WorkorderNestedIdName:
+      additionalProperties: false
+      description: Nested object with id and name.
+      properties:
+        id:
+          description: ID
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name
+          title: Name
+      required:
+      - id
+      title: WorkorderNestedIdName
+      type: object
+    AdminWorkorderActivity:
+      additionalProperties: false
+      description: Activity for admin workorder.
+      properties:
+        id:
+          description: Activity ID
+          title: Id
+          type: integer
+        activity_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity description
+          title: Activity Description
+        start_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start datetime
+          title: Start Datetime
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End datetime
+          title: End Datetime
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Activity status
+          title: Status
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Whether the activity is optional. Null is treated as optional.
+          title: Is Optional
+        resources:
+          description: Resources assigned to this activity (snapshot)
+          items:
+            $ref: '#/components/schemas/WorkorderResource'
+          title: Resources
+          type: array
+        activity_resources:
+          description: Normalised resource assignments from the ``dispatch.workorder_activity_resources`` junction table. Empty until the cutover from the legacy ``resources`` JSON column has landed.
+          items:
+            $ref: '#/components/schemas/WorkorderActivityResourceLink'
+          title: Activity Resources
+          type: array
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields data
+          title: Custom Fields
+      required:
+      - id
+      title: AdminWorkorderActivity
+      type: object
+    WorkorderNestedIdSerial:
+      additionalProperties: false
+      description: Nested object with id and serial.
+      properties:
+        id:
+          description: ID
+          title: Id
+          type: integer
+        serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Serial number
+          title: Serial
+      required:
+      - id
+      title: WorkorderNestedIdSerial
+      type: object
+    WorkorderActivityResourceLink:
+      additionalProperties: false
+      description: 'Resource assignment row on a workorder activity.
+
+
+        Mirrors the dict shape returned by
+
+        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
+
+        per row in the ``dispatch.workorder_activity_resources`` junction table).'
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      title: WorkorderActivityResourceLink
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    AdminWorkorderAssignee:
+      additionalProperties: false
+      description: Assignee for admin workorder.
+      properties:
+        id:
+          description: User ID
+          title: Id
+          type: integer
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Full name
+          title: Full Name
+      required:
+      - id
+      title: AdminWorkorderAssignee
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ProjectWorkorderListItem:
       additionalProperties: false
       description: Workorder list item for project workorders tab.
@@ -473,85 +552,6 @@ components:
       - name
       - created_at
       title: ProjectWorkorderListItem
-      type: object
-    WorkorderNestedIdSerial:
-      additionalProperties: false
-      description: Nested object with id and serial.
-      properties:
-        id:
-          description: ID
-          title: Id
-          type: integer
-        serial:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Serial number
-          title: Serial
-      required:
-      - id
-      title: WorkorderNestedIdSerial
-      type: object
-    WorkorderActivityResourceLink:
-      additionalProperties: false
-      description: 'Resource assignment row on a workorder activity.
-
-
-        Mirrors the dict shape returned by
-
-        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
-
-        per row in the ``dispatch.workorder_activity_resources`` junction table).'
-      properties:
-        id:
-          title: Id
-          type: integer
-        resource_id:
-          title: Resource Id
-          type: integer
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Lead
-        resource_full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Full Name
-        resource_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Email
-      required:
-      - id
-      - resource_id
-      title: WorkorderActivityResourceLink
-      type: object
-    WorkorderResource:
-      additionalProperties: false
-      description: Resource assigned to a workorder.
-      properties:
-        id:
-          description: Resource ID
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource full name
-          title: Full Name
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: ROBOT or TECHNICIAN
-          title: Resource Type
-      required:
-      - id
-      title: WorkorderResource
       type: object
   securitySchemes:
     APIKeyAuth:

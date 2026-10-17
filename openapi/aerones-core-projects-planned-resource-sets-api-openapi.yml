@@ -234,120 +234,20 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    Error:
+    ProjectObject:
       additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectPlannedResourceSetItemEmbeddedOutput:
-      additionalProperties: false
-      description: 'Embedded planned item: same shape as a PRS item plus approval status.
-
-
-        ``resource_id`` widens to optional here and stays required on the roster base
-
-        it inherits from: a *planned* leg can be an unassigned booking (the robot set
-
-        is named later), while a materialized roster member always has its resource.'
+      description: Nested project object for responses (no timestamps).
       properties:
         id:
-          description: ProjectResourceSetItem ID
           title: Id
           type: integer
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Resource ID; null on an unassigned leg
-          title: Resource Id
-        resource_type:
-          description: Resource type (ROBOT or TECHNICIAN)
-          title: Resource Type
+        code:
+          title: Code
           type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is team lead
-          title: Is Lead
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Start date
-          title: Start Date
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: End date
-          title: End Date
-        resource_full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource full name
-          title: Resource Full Name
-        resource_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource email
-          title: Resource Email
-        status:
-          $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
-          description: Approval lifecycle status
       required:
       - id
-      - resource_type
-      - status
-      title: ProjectPlannedResourceSetItemEmbeddedOutput
+      - code
+      title: ProjectObject
       type: object
     ProjectPlannedResourceSetStatus:
       description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
@@ -366,21 +266,6 @@ components:
       - REJECTED
       title: ProjectPlannedResourceSetStatus
       type: string
-    ProjectObject:
-      additionalProperties: false
-      description: Nested project object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: ProjectObject
-      type: object
     ProjectPlannedResourceSetUpdate:
       additionalProperties: false
       description: Schema for updating a ProjectPlannedResourceSet.
@@ -502,6 +387,110 @@ components:
       - name
       title: ProjectPlannedResourceSetCreate
       type: object
+    ProjectPlannedResourceSetItemEmbeddedOutput:
+      additionalProperties: false
+      description: 'Embedded planned item: same shape as a PRS item plus approval status.
+
+
+        ``resource_id`` widens to optional here and stays required on the roster base
+
+        it inherits from: a *planned* leg can be an unassigned booking (the robot set
+
+        is named later), while a materialized roster member always has its resource.'
+      properties:
+        id:
+          description: ProjectResourceSetItem ID
+          title: Id
+          type: integer
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource ID; null on an unassigned leg
+          title: Resource Id
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource email
+          title: Resource Email
+        status:
+          $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          description: Approval lifecycle status
+      required:
+      - id
+      - resource_type
+      - status
+      title: ProjectPlannedResourceSetItemEmbeddedOutput
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     NestedIdOnly:
       additionalProperties: false
       description: Generic nested object with just id (no timestamps).
@@ -513,6 +502,17 @@ components:
       - id
       title: NestedIdOnly
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

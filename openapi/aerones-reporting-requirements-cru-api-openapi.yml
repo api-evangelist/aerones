@@ -360,135 +360,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    FamiliarityCreate:
-      additionalProperties: false
-      properties:
-        requirement_id:
-          title: Requirement Id
-          type: integer
-        operator_sub:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Keycloak sub; defaults to the caller's.
-          title: Operator Sub
-      required:
-      - requirement_id
-      title: FamiliarityCreate
-      type: object
-    RequirementVersionResponse:
-      additionalProperties: false
-      properties:
-        version:
-          title: Version
-          type: integer
-        body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Body
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        created_by_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Created By Name
-      required:
-      - version
-      - created_at
-      title: RequirementVersionResponse
-      type: object
-    GateMissingRequirement:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        title:
-          title: Title
-          type: string
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        current_version:
-          title: Current Version
-          type: integer
-      required:
-      - id
-      - title
-      - current_version
-      title: GateMissingRequirement
-      type: object
-    ApplicabilityResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-      required:
-      - id
-      title: ApplicabilityResponse
-      type: object
-    ProjectRequirementUpdate:
-      additionalProperties: false
-      properties:
-        title:
-          anyOf:
-          - maxLength: 255
-            type: string
-          - type: 'null'
-          title: Title
-        body:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Body
-        attachment_file_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Attachment File Ids
-        applicabilities:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ApplicabilityInput'
-            type: array
-          - type: 'null'
-          title: Applicabilities
-        re_familiarize:
-          default: true
-          description: 'true (default): invalidate operator familiarity — live acks are tombstoned, operators must re-acknowledge. false: carry acks forward. Applies to any edit, body or scope.'
-          title: Re Familiarize
-          type: boolean
-      title: ProjectRequirementUpdate
-      type: object
     ProjectRequirementResponse:
       additionalProperties: false
       properties:
@@ -588,21 +459,6 @@ components:
           title: Service Id
       title: ApplicabilityInput
       type: object
-    GateCheckResponse:
-      additionalProperties: false
-      properties:
-        familiar:
-          title: Familiar
-          type: boolean
-        missing_requirements:
-          items:
-            $ref: '#/components/schemas/GateMissingRequirement'
-          title: Missing Requirements
-          type: array
-      required:
-      - familiar
-      title: GateCheckResponse
-      type: object
     CruProjectRequirementCreate:
       additionalProperties: false
       description: 'cru data-operator create. customer_id is the requirement''s owning (root)
@@ -648,6 +504,41 @@ components:
       - body
       title: CruProjectRequirementCreate
       type: object
+    ProjectRequirementUpdate:
+      additionalProperties: false
+      properties:
+        title:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          title: Title
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        attachment_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Attachment File Ids
+        applicabilities:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ApplicabilityInput'
+            type: array
+          - type: 'null'
+          title: Applicabilities
+        re_familiarize:
+          default: true
+          description: 'true (default): invalidate operator familiarity — live acks are tombstoned, operators must re-acknowledge. false: carry acks forward. Applies to any edit, body or scope.'
+          title: Re Familiarize
+          type: boolean
+      title: ProjectRequirementUpdate
+      type: object
     FamiliarityResponse:
       additionalProperties: false
       properties:
@@ -670,6 +561,115 @@ components:
       - version
       - familiarized_at
       title: FamiliarityResponse
+      type: object
+    GateCheckResponse:
+      additionalProperties: false
+      properties:
+        familiar:
+          title: Familiar
+          type: boolean
+        missing_requirements:
+          items:
+            $ref: '#/components/schemas/GateMissingRequirement'
+          title: Missing Requirements
+          type: array
+      required:
+      - familiar
+      title: GateCheckResponse
+      type: object
+    GateMissingRequirement:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        title:
+          title: Title
+          type: string
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        current_version:
+          title: Current Version
+          type: integer
+      required:
+      - id
+      - title
+      - current_version
+      title: GateMissingRequirement
+      type: object
+    ApplicabilityResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+      required:
+      - id
+      title: ApplicabilityResponse
+      type: object
+    RequirementVersionResponse:
+      additionalProperties: false
+      properties:
+        version:
+          title: Version
+          type: integer
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created By Name
+      required:
+      - version
+      - created_at
+      title: RequirementVersionResponse
+      type: object
+    FamiliarityCreate:
+      additionalProperties: false
+      properties:
+        requirement_id:
+          title: Requirement Id
+          type: integer
+        operator_sub:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Keycloak sub; defaults to the caller's.
+          title: Operator Sub
+      required:
+      - requirement_id
+      title: FamiliarityCreate
       type: object
   securitySchemes:
     APIKeyAuth:

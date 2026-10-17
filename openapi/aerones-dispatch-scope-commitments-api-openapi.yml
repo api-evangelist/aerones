@@ -433,88 +433,6 @@ components:
       - turbine_id
       title: ResolveScopeCommitmentPayload
       type: object
-    CreateScopeWorkorderPayload:
-      additionalProperties: false
-      description: 'Payload for dispatching a team against a scope bucket. ``component_type_id``
-
-        identifies which bucket''s ProjectScopeItems this dispatch targets when a
-
-        service spans more than one component type (e.g. both blade-level and
-
-        whole-turbine scope) -- must match exactly what ``list_scope_groups``
-
-        reported for the chosen bucket, including ``None``. Buckets are not
-
-        site-scoped: a single commitment can be resolved against a turbine at
-
-        any site offering this service.'
-      properties:
-        service_id:
-          title: Service Id
-          type: integer
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Component Type Id
-        resource_set_id:
-          title: Resource Set Id
-          type: integer
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          format: date-time
-          title: Planned End Datetime
-          type: string
-        quantity:
-          default: 1
-          title: Quantity
-          type: integer
-      required:
-      - service_id
-      - resource_set_id
-      - planned_start_datetime
-      - planned_end_datetime
-      title: CreateScopeWorkorderPayload
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ScopeCommitmentTurbineOption:
-      additionalProperties: false
-      description: A turbine this commitment can actually resolve to.
-      properties:
-        turbine_id:
-          title: Turbine Id
-          type: integer
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Name
-      required:
-      - turbine_id
-      title: ScopeCommitmentTurbineOption
-      type: object
     ScopeGroupResponse:
       additionalProperties: false
       description: 'One scope bucket. `remaining` = total minus pending commitments and
@@ -562,26 +480,45 @@ components:
       - default_kpi_minutes
       title: ScopeGroupResponse
       type: object
-    CreateScopeWorkorderResponse:
+    RescheduleScopeCommitmentPayload:
       additionalProperties: false
-      description: '`quantity` independent pending commitments, window split evenly.'
+      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
+
+        scope-dispatch commitment.'
       properties:
-        commitments:
-          items:
-            $ref: '#/components/schemas/ScopeDispatchCommitmentItem'
-          title: Commitments
-          type: array
-        quantity:
-          title: Quantity
-          type: integer
-        unit:
-          title: Unit
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
           type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
       required:
-      - commitments
-      - quantity
-      - unit
-      title: CreateScopeWorkorderResponse
+      - planned_start_datetime
+      - planned_end_datetime
+      title: RescheduleScopeCommitmentPayload
+      type: object
+    ScopeCommitmentTurbineOption:
+      additionalProperties: false
+      description: A turbine this commitment can actually resolve to.
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+      required:
+      - turbine_id
+      title: ScopeCommitmentTurbineOption
       type: object
     ScopeDispatchCommitmentItem:
       additionalProperties: false
@@ -608,12 +545,74 @@ components:
       - planned_end_datetime
       title: ScopeDispatchCommitmentItem
       type: object
-    RescheduleScopeCommitmentPayload:
+    Success:
       additionalProperties: false
-      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
+      description: 'Schema returned for successful operations.
 
-        scope-dispatch commitment.'
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CreateScopeWorkorderResponse:
+      additionalProperties: false
+      description: '`quantity` independent pending commitments, window split evenly.'
+      properties:
+        commitments:
+          items:
+            $ref: '#/components/schemas/ScopeDispatchCommitmentItem'
+          title: Commitments
+          type: array
+        quantity:
+          title: Quantity
+          type: integer
+        unit:
+          title: Unit
+          type: string
+      required:
+      - commitments
+      - quantity
+      - unit
+      title: CreateScopeWorkorderResponse
+      type: object
+    CreateScopeWorkorderPayload:
+      additionalProperties: false
+      description: 'Payload for dispatching a team against a scope bucket. ``component_type_id``
+
+        identifies which bucket''s ProjectScopeItems this dispatch targets when a
+
+        service spans more than one component type (e.g. both blade-level and
+
+        whole-turbine scope) -- must match exactly what ``list_scope_groups``
+
+        reported for the chosen bucket, including ``None``. Buckets are not
+
+        site-scoped: a single commitment can be resolved against a turbine at
+
+        any site offering this service.'
+      properties:
+        service_id:
+          title: Service Id
+          type: integer
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Component Type Id
+        resource_set_id:
+          title: Resource Set Id
+          type: integer
         planned_start_datetime:
           format: date-time
           title: Planned Start Datetime
@@ -622,15 +621,16 @@ components:
           format: date-time
           title: Planned End Datetime
           type: string
-        resource_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Set Id
+        quantity:
+          default: 1
+          title: Quantity
+          type: integer
       required:
+      - service_id
+      - resource_set_id
       - planned_start_datetime
       - planned_end_datetime
-      title: RescheduleScopeCommitmentPayload
+      title: CreateScopeWorkorderPayload
       type: object
   securitySchemes:
     APIKeyAuth:

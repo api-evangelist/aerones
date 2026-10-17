@@ -72,94 +72,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    LpsResultsTurbineObject:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        manufacturer_turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Manufacturer Turbine Model Id
-      required:
-      - id
-      title: LpsResultsTurbineObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    LpsResultsContextResponse:
-      additionalProperties: false
-      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
-      properties:
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        turbine:
-          $ref: '#/components/schemas/LpsResultsTurbineObject'
-        blades:
-          items:
-            $ref: '#/components/schemas/LpsResultBlade'
-          title: Blades
-          type: array
-      required:
-      - service_order_line_id
-      - turbine
-      title: LpsResultsContextResponse
-      type: object
-    LpsResultsUpsertResponse:
-      additionalProperties: false
-      description: PUT response = the upsert count + the refreshed capture context.
-      properties:
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        turbine:
-          $ref: '#/components/schemas/LpsResultsTurbineObject'
-        blades:
-          items:
-            $ref: '#/components/schemas/LpsResultBlade'
-          title: Blades
-          type: array
-        upserted:
-          description: How many cells were written (created or updated).
-          title: Upserted
-          type: integer
-      required:
-      - service_order_line_id
-      - turbine
-      - upserted
-      title: LpsResultsUpsertResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     LpsResultBladeDataplate:
       additionalProperties: false
       description: Latest BLADE_DATAPLATE image attached to a blade TurbineComponent.
@@ -174,19 +86,6 @@ components:
       - file_id
       - file_name
       title: LpsResultBladeDataplate
-      type: object
-    LpsResultsUpsertBody:
-      additionalProperties: false
-      properties:
-        cells:
-          description: Flat list of cell updates.
-          items:
-            $ref: '#/components/schemas/LpsResultsUpsertCell'
-          title: Cells
-          type: array
-      required:
-      - cells
-      title: LpsResultsUpsertBody
       type: object
     LpsResultsUpsertCell:
       additionalProperties: false
@@ -224,6 +123,26 @@ components:
       - receptor_id
       - side
       title: LpsResultsUpsertCell
+      type: object
+    LpsResultsTurbineObject:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Manufacturer Turbine Model Id
+      required:
+      - id
+      title: LpsResultsTurbineObject
       type: object
     LpsResultReceptor:
       additionalProperties: false
@@ -268,6 +187,25 @@ components:
       - component_type_id
       title: LpsResultReceptor
       type: object
+    LpsResultsContextResponse:
+      additionalProperties: false
+      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/LpsResultsTurbineObject'
+        blades:
+          items:
+            $ref: '#/components/schemas/LpsResultBlade'
+          title: Blades
+          type: array
+      required:
+      - service_order_line_id
+      - turbine
+      title: LpsResultsContextResponse
+      type: object
     LpsResultCell:
       additionalProperties: false
       description: One side (SS or PS) of one receptor's measurement.
@@ -302,6 +240,57 @@ components:
           title: Comment
       title: LpsResultCell
       type: object
+    LpsResultsUpsertResponse:
+      additionalProperties: false
+      description: PUT response = the upsert count + the refreshed capture context.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/LpsResultsTurbineObject'
+        blades:
+          items:
+            $ref: '#/components/schemas/LpsResultBlade'
+          title: Blades
+          type: array
+        upserted:
+          description: How many cells were written (created or updated).
+          title: Upserted
+          type: integer
+      required:
+      - service_order_line_id
+      - turbine
+      - upserted
+      title: LpsResultsUpsertResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    LpsResultsUpsertBody:
+      additionalProperties: false
+      properties:
+        cells:
+          description: Flat list of cell updates.
+          items:
+            $ref: '#/components/schemas/LpsResultsUpsertCell'
+          title: Cells
+          type: array
+      required:
+      - cells
+      title: LpsResultsUpsertBody
+      type: object
     LpsResultBlade:
       additionalProperties: false
       properties:
@@ -327,6 +316,17 @@ components:
       - blade
       title: LpsResultBlade
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

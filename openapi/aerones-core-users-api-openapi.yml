@@ -266,6 +266,46 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    UserUpdate:
+      additionalProperties: false
+      description: Schema for updating a user.
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User first name
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User last name
+          title: Last Name
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User phone number
+          title: Phone
+        group_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: List of group/role IDs to assign
+          title: Group Ids
+        customer_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: List of customer IDs to link
+          title: Customer Ids
+      title: UserUpdate
+      type: object
     UserResponse:
       additionalProperties: false
       description: Schema for user list response.
@@ -320,6 +360,37 @@ components:
       - id
       title: UserResponse
       type: object
+    IDWithName:
+      additionalProperties: false
+      description: Schema for ID with name.
+      properties:
+        id:
+          description: Identifier.
+          title: Id
+          type: integer
+        name:
+          description: Name.
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: IDWithName
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     UserCreate:
       additionalProperties: false
       description: Schema for creating a user.
@@ -361,36 +432,20 @@ components:
       - email
       title: UserCreate
       type: object
-    IDWithName:
+    UserCustomerObject:
       additionalProperties: false
-      description: Schema for ID with name.
+      description: Nested customer reference for user responses.
       properties:
         id:
-          description: Identifier.
           title: Id
           type: integer
-        name:
-          description: Name.
-          title: Name
+        display_name:
+          title: Display Name
           type: string
       required:
       - id
-      - name
-      title: IDWithName
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      - display_name
+      title: UserCustomerObject
       type: object
     Success:
       additionalProperties: false
@@ -423,61 +478,6 @@ components:
       - generic
       title: ErrorCode
       type: string
-    UserCustomerObject:
-      additionalProperties: false
-      description: Nested customer reference for user responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: UserCustomerObject
-      type: object
-    UserUpdate:
-      additionalProperties: false
-      description: Schema for updating a user.
-      properties:
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: User first name
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: User last name
-          title: Last Name
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: User phone number
-          title: Phone
-        group_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: List of group/role IDs to assign
-          title: Group Ids
-        customer_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: List of customer IDs to link
-          title: Customer Ids
-      title: UserUpdate
-      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

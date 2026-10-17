@@ -195,26 +195,19 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    TurbineModelResponse:
+    TurbineModelCreate:
       additionalProperties: false
-      description: Schema for TurbineModel response.
+      description: Schema for creating a TurbineModel.
       properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Turbine model ID
-          title: Id
-          type: integer
         name:
           description: Turbine model name
+          minLength: 1
           title: Name
           type: string
-        manufacturer:
-          $ref: '#/components/schemas/ManufacturerObject'
-          description: Manufacturer details
+        manufacturer_id:
+          description: Manufacturer ID
+          title: Manufacturer Id
+          type: integer
         nominal_power:
           anyOf:
           - type: number
@@ -223,7 +216,8 @@ components:
           title: Nominal Power
         center_to_root_offset:
           anyOf:
-          - type: number
+          - exclusiveMinimum: 0.0
+            type: number
           - type: 'null'
           description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
           title: Center To Root Offset
@@ -240,67 +234,20 @@ components:
           description: Hub height in meters
           title: Hub Height
         double_receptors:
+          default: false
           description: Has double receptors
           title: Double Receptors
           type: boolean
         hv_double_receptors:
+          default: false
           description: Has HV double receptors
           title: Hv Double Receptors
           type: boolean
       required:
-      - updated_at
-      - id
       - name
-      - manufacturer
-      - double_receptors
-      - hv_double_receptors
-      title: TurbineModelResponse
+      - manufacturer_id
+      title: TurbineModelCreate
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ManufacturerObject:
       additionalProperties: false
       description: Nested manufacturer object for responses.
@@ -372,19 +319,60 @@ components:
           title: Hv Double Receptors
       title: TurbineModelUpdate
       type: object
-    TurbineModelCreate:
+    Error:
       additionalProperties: false
-      description: Schema for creating a TurbineModel.
+      description: Error response schema.
       properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    TurbineModelResponse:
+      additionalProperties: false
+      description: Schema for TurbineModel response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Turbine model ID
+          title: Id
+          type: integer
         name:
           description: Turbine model name
-          minLength: 1
           title: Name
           type: string
-        manufacturer_id:
-          description: Manufacturer ID
-          title: Manufacturer Id
-          type: integer
+        manufacturer:
+          $ref: '#/components/schemas/ManufacturerObject'
+          description: Manufacturer details
         nominal_power:
           anyOf:
           - type: number
@@ -393,8 +381,7 @@ components:
           title: Nominal Power
         center_to_root_offset:
           anyOf:
-          - exclusiveMinimum: 0.0
-            type: number
+          - type: number
           - type: 'null'
           description: Centre-to-root offset (hub radius) in metres — distance_to_hub_centre = distance_to_root + this. NULL means unconfigured.
           title: Center To Root Offset
@@ -411,20 +398,33 @@ components:
           description: Hub height in meters
           title: Hub Height
         double_receptors:
-          default: false
           description: Has double receptors
           title: Double Receptors
           type: boolean
         hv_double_receptors:
-          default: false
           description: Has HV double receptors
           title: Hv Double Receptors
           type: boolean
       required:
+      - updated_at
+      - id
       - name
-      - manufacturer_id
-      title: TurbineModelCreate
+      - manufacturer
+      - double_receptors
+      - hv_double_receptors
+      title: TurbineModelResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

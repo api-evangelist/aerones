@@ -83,45 +83,45 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    DailyReportWinchSet:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    MissingReportWorkorder:
       additionalProperties: false
-      description: Schema for winch set in daily report.
+      description: Schema for workorder in missing report.
       properties:
-        winch_set_id:
-          title: Winch Set Id
+        workorder_id:
+          title: Workorder Id
           type: integer
-        winch_set_name:
-          title: Winch Set Name
+        workorder_name:
+          title: Workorder Name
           type: string
       required:
-      - winch_set_id
-      - winch_set_name
-      title: DailyReportWinchSet
+      - workorder_id
+      - workorder_name
+      title: MissingReportWorkorder
       type: object
-    MissingReport:
+    PlatformClients:
       additionalProperties: false
-      description: Schema for missing daily report from Platform.
+      description: Definition of a list of clients in the platform.
       properties:
-        winch_set_id:
-          title: Winch Set Id
-          type: integer
-        winch_set_name:
-          title: Winch Set Name
-          type: string
-        status:
-          default: MISSING
-          title: Status
-          type: string
-        workorders:
-          default: []
+        items:
+          description: List of clients in the platform
           items:
-            $ref: '#/components/schemas/MissingReportWorkorder'
-          title: Workorders
+            $ref: '#/components/schemas/PlatformClient'
+          title: Items
           type: array
       required:
-      - winch_set_id
-      - winch_set_name
-      title: MissingReport
+      - items
+      title: PlatformClients
       type: object
     DailyReportsResponse:
       additionalProperties: false
@@ -196,20 +196,20 @@ components:
       - archived
       title: DailyReport
       type: object
-    MissingReportWorkorder:
+    DailyReportWinchSet:
       additionalProperties: false
-      description: Schema for workorder in missing report.
+      description: Schema for winch set in daily report.
       properties:
-        workorder_id:
-          title: Workorder Id
+        winch_set_id:
+          title: Winch Set Id
           type: integer
-        workorder_name:
-          title: Workorder Name
+        winch_set_name:
+          title: Winch Set Name
           type: string
       required:
-      - workorder_id
-      - workorder_name
-      title: MissingReportWorkorder
+      - winch_set_id
+      - winch_set_name
+      title: DailyReportWinchSet
       type: object
     Error:
       additionalProperties: false
@@ -225,17 +225,6 @@ components:
       - message
       title: Error
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     DailyReportDay:
       additionalProperties: false
       description: Schema for a day's daily reports from Platform.
@@ -260,37 +249,6 @@ components:
       - date
       title: DailyReportDay
       type: object
-    PlatformClients:
-      additionalProperties: false
-      description: Definition of a list of clients in the platform.
-      properties:
-        items:
-          description: List of clients in the platform
-          items:
-            $ref: '#/components/schemas/PlatformClient'
-          title: Items
-          type: array
-      required:
-      - items
-      title: PlatformClients
-      type: object
-    PlatformClient:
-      additionalProperties: false
-      description: Definition of a client in the platform.
-      properties:
-        id:
-          description: platform id of particular client
-          title: Id
-          type: integer
-        name:
-          description: Name of the client as in platform
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: PlatformClient
-      type: object
     DailyReportService:
       additionalProperties: false
       description: Schema for service in daily report.
@@ -309,6 +267,48 @@ components:
       - service_code
       - service_type_code
       title: DailyReportService
+      type: object
+    MissingReport:
+      additionalProperties: false
+      description: Schema for missing daily report from Platform.
+      properties:
+        winch_set_id:
+          title: Winch Set Id
+          type: integer
+        winch_set_name:
+          title: Winch Set Name
+          type: string
+        status:
+          default: MISSING
+          title: Status
+          type: string
+        workorders:
+          default: []
+          items:
+            $ref: '#/components/schemas/MissingReportWorkorder'
+          title: Workorders
+          type: array
+      required:
+      - winch_set_id
+      - winch_set_name
+      title: MissingReport
+      type: object
+    PlatformClient:
+      additionalProperties: false
+      description: Definition of a client in the platform.
+      properties:
+        id:
+          description: platform id of particular client
+          title: Id
+          type: integer
+        name:
+          description: Name of the client as in platform
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: PlatformClient
       type: object
   securitySchemes:
     APIKeyAuth:

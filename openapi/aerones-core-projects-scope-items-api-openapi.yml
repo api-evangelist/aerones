@@ -268,6 +268,125 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    ProjectScopeItemBulkCreate:
+      additionalProperties: false
+      description: Schema for bulk creating ProjectScopeItems for multiple turbines.
+      properties:
+        location_id:
+          description: Location ID
+          title: Location Id
+          type: integer
+        turbine_ids:
+          description: List of turbine IDs
+          items:
+            type: integer
+          minItems: 1
+          title: Turbine Ids
+          type: array
+        component_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component type ID
+          title: Component Type Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine component ID
+          title: Turbine Component Id
+        commercial_offer_item_id:
+          description: Commercial offer item ID from latest approved version
+          title: Commercial Offer Item Id
+          type: integer
+      required:
+      - location_id
+      - turbine_ids
+      - commercial_offer_item_id
+      title: ProjectScopeItemBulkCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ScopeItemServiceOrderLineRef:
+      additionalProperties: false
+      description: A live SOL generated from a scope item (for linking from scope UIs).
+      properties:
+        id:
+          description: ServiceOrderLine ID
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SOL number
+          title: Number
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SOL status
+          title: Status
+      required:
+      - id
+      title: ScopeItemServiceOrderLineRef
+      type: object
     ProjectScopeItemCreate:
       additionalProperties: false
       description: Schema for creating a ProjectScopeItem.
@@ -323,6 +442,46 @@ components:
       - location_id
       title: ProjectScopeItemCreate
       type: object
+    ProjectScopeTurbineObject:
+      additionalProperties: false
+      description: 'Nested turbine object for scope rows, carrying geo-coordinates.
+
+
+        Coordinates power the Project scope map view. They come straight off
+
+        ``core.Turbine`` (``latitude``/``longitude`` DecimalFields, backfilled from
+
+        the free-text ``coordinates`` string by migration
+
+        ``0058_populate_lat_lng_from_coordinates``). Pydantic ``from_attributes``
+
+        reads them off the already ``select_related``-loaded turbine, so exposing
+
+        them adds no query.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Turbine GPS latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Turbine GPS longitude
+          title: Longitude
+      required:
+      - id
+      - name
+      title: ProjectScopeTurbineObject
+      type: object
     ProjectScopeLocationObject:
       additionalProperties: false
       description: 'Nested location object for scope rows, carrying geo-coordinates.
@@ -358,26 +517,6 @@ components:
       - id
       - name
       title: ProjectScopeLocationObject
-      type: object
-    ProjectScopeTurbineComponentObject:
-      additionalProperties: false
-      description: Nested turbine component descriptor for project scope rows.
-      properties:
-        id:
-          title: Id
-          type: integer
-        serial_number:
-          title: Serial Number
-          type: string
-        position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Position
-      required:
-      - id
-      - serial_number
-      title: ProjectScopeTurbineComponentObject
       type: object
     ProjectScopeItemUpdate:
       additionalProperties: false
@@ -434,18 +573,6 @@ components:
           title: Commercial Offer Item Id
       title: ProjectScopeItemUpdate
       type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -459,70 +586,6 @@ components:
       - code
       - message
       title: Error
-      type: object
-    ScopeItemServiceOrderLineRef:
-      additionalProperties: false
-      description: A live SOL generated from a scope item (for linking from scope UIs).
-      properties:
-        id:
-          description: ServiceOrderLine ID
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: SOL number
-          title: Number
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: SOL status
-          title: Status
-      required:
-      - id
-      title: ScopeItemServiceOrderLineRef
-      type: object
-    ProjectScopeTurbineObject:
-      additionalProperties: false
-      description: 'Nested turbine object for scope rows, carrying geo-coordinates.
-
-
-        Coordinates power the Project scope map view. They come straight off
-
-        ``core.Turbine`` (``latitude``/``longitude`` DecimalFields, backfilled from
-
-        the free-text ``coordinates`` string by migration
-
-        ``0058_populate_lat_lng_from_coordinates``). Pydantic ``from_attributes``
-
-        reads them off the already ``select_related``-loaded turbine, so exposing
-
-        them adds no query.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Turbine GPS latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Turbine GPS longitude
-          title: Longitude
-      required:
-      - id
-      - name
-      title: ProjectScopeTurbineObject
       type: object
     Success:
       additionalProperties: false
@@ -543,6 +606,38 @@ components:
           title: Success
           type: boolean
       title: Success
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    ProjectScopeTurbineComponentObject:
+      additionalProperties: false
+      description: Nested turbine component descriptor for project scope rows.
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          title: Serial Number
+          type: string
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+      required:
+      - id
+      - serial_number
+      title: ProjectScopeTurbineComponentObject
       type: object
     ProjectScopeItemResponse:
       additionalProperties: false
@@ -621,101 +716,6 @@ components:
       - project_id
       - location
       title: ProjectScopeItemResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectScopeItemBulkCreate:
-      additionalProperties: false
-      description: Schema for bulk creating ProjectScopeItems for multiple turbines.
-      properties:
-        location_id:
-          description: Location ID
-          title: Location Id
-          type: integer
-        turbine_ids:
-          description: List of turbine IDs
-          items:
-            type: integer
-          minItems: 1
-          title: Turbine Ids
-          type: array
-        component_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Component type ID
-          title: Component Type Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine component ID
-          title: Turbine Component Id
-        commercial_offer_item_id:
-          description: Commercial offer item ID from latest approved version
-          title: Commercial Offer Item Id
-          type: integer
-      required:
-      - location_id
-      - turbine_ids
-      - commercial_offer_item_id
-      title: ProjectScopeItemBulkCreate
-      type: object
-    ComponentTypeObject:
-      additionalProperties: false
-      description: Nested component type object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        field_list:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Field List
-      required:
-      - id
-      - name
-      title: ComponentTypeObject
-      type: object
-    ServiceObject:
-      additionalProperties: false
-      description: Nested service object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
-      required:
-      - id
-      - code
-      - is_service
-      title: ServiceObject
       type: object
   securitySchemes:
     APIKeyAuth:

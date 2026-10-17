@@ -278,32 +278,77 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    LERPhotoRunSchema:
+    POIPhotoLowResSchema:
       properties:
-        id:
+        url:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
+          title: Url
+        id:
           title: Id
-        run_index:
-          title: Run Index
           type: integer
-        status:
-          $ref: '#/components/schemas/LERInspectionStatus'
-        photos:
+      required:
+      - id
+      title: POIPhotoLowResSchema
+      type: object
+    InspectionItemStatus:
+      enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - AI_REVIEW
+      - DETAILED_REVIEW
+      - COMPLETED
+      title: InspectionItemStatus
+      type: string
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    RootPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: RootPhotoTileSchema
+      type: object
+    LERPhotoGroupSchema:
+      properties:
+        step:
+          title: Step
+          type: string
+        runs:
           items:
-            $ref: '#/components/schemas/LERPhotoSchema'
-          title: Photos
+            $ref: '#/components/schemas/LERPhotoRunSchema'
+          title: Runs
           type: array
       required:
-      - run_index
-      - status
-      - photos
-      title: LERPhotoRunSchema
+      - step
+      - runs
+      title: LERPhotoGroupSchema
       type: object
-    ComponentTypeObject:
+    TurbineObject:
       additionalProperties: false
-      description: Nested component type object for responses.
+      description: Nested turbine object for responses.
       properties:
         id:
           title: Id
@@ -311,31 +356,35 @@ components:
         name:
           title: Name
           type: string
-        field_list:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Field List
       required:
       - id
       - name
-      title: ComponentTypeObject
+      title: TurbineObject
       type: object
-    ExternalImageStatus:
-      description: 'Review status of a single external photo.
-
-
-        Mirrors ``LERImageStatus`` but stays a separate enum: external photos have no
-
-        step/run concept, so the two review flows are free to diverge.'
+    ImageOrientation:
       enum:
-      - NEW
-      - ANOMALIES_FLAGGED
-      - ACCEPTED
-      title: ExternalImageStatus
+      - PS_DOWN
+      - SS_DOWN
+      - LE_DOWN
+      - DW_DOWN
+      - UW_DOWN
+      title: ImageOrientation
       type: string
+    PostComponentLinkSchema:
+      properties:
+        component_id:
+          title: Component Id
+          type: integer
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+      required:
+      - component_id
+      - turbine_component_id
+      title: PostComponentLinkSchema
+      type: object
     RootPhotoSchema:
       properties:
         name:
@@ -410,6 +459,182 @@ components:
       - rotation
       - id
       title: RootPhotoSchema
+      type: object
+    VideoSnapshotSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        timestamp:
+          title: Timestamp
+          type: number
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        distance_to_hub_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: distance + the turbine model's center_to_root_offset (OH-4169), additive on top of the unchanged root-based `distance`. None when the turbine's model has no offset configured — never falls back to a root-based number under this key.
+          title: Distance To Hub Centre
+      required:
+      - timestamp
+      title: VideoSnapshotSchema
+      type: object
+    VideoFileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        extension:
+          $ref: '#/components/schemas/VideoFileExtension'
+        status:
+          $ref: '#/components/schemas/InspectionItemStatus'
+        recording_start_time:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Recording Start Time
+        qr_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Qr Position
+        qr_detections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VideoFileBlobSchema'
+            type: array
+          - type: 'null'
+          title: Qr Detections
+        hls_playlist_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hls Playlist Url
+        vtt_file_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vtt File Url
+        model_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Url
+        model_3d_exists:
+          default: false
+          title: Model 3D Exists
+          type: boolean
+        snapshots:
+          items:
+            $ref: '#/components/schemas/VideoSnapshotSchema'
+          title: Snapshots
+          type: array
+      required:
+      - id
+      - name
+      - extension
+      - status
+      title: VideoFileSchema
+      type: object
+    ImageSide:
+      description: Sides from which photos can be taken.
+      enum:
+      - L
+      - R
+      - T
+      title: ImageSide
+      type: string
+    InspectionSchema:
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        components:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ComponentSchema'
+            type: array
+          - type: 'null'
+          title: Components
+      required:
+      - id
+      - service_order_line_id
+      title: InspectionSchema
+      type: object
+    ExternalPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: ExternalPhotoLowResSchema
+      type: object
+    POIPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: POIPhotoThumbnailSchema
+      type: object
+    LERPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: LERPhotoLowResSchema
+      type: object
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
       type: object
     TurbineComponentResponse:
       additionalProperties: false
@@ -501,127 +726,6 @@ components:
       - blade_tip
       title: TurbineComponentResponse
       type: object
-    LERPhotoLowResSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: LERPhotoLowResSchema
-      type: object
-    VideoFileSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        extension:
-          $ref: '#/components/schemas/VideoFileExtension'
-        status:
-          $ref: '#/components/schemas/InspectionItemStatus'
-        recording_start_time:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Recording Start Time
-        qr_position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Qr Position
-        qr_detections:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/VideoFileBlobSchema'
-            type: array
-          - type: 'null'
-          title: Qr Detections
-        hls_playlist_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Hls Playlist Url
-        vtt_file_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Vtt File Url
-        model_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Model Url
-        model_3d_exists:
-          default: false
-          title: Model 3D Exists
-          type: boolean
-        snapshots:
-          items:
-            $ref: '#/components/schemas/VideoSnapshotSchema'
-          title: Snapshots
-          type: array
-      required:
-      - id
-      - name
-      - extension
-      - status
-      title: VideoFileSchema
-      type: object
-    PositionEnum:
-      description: Enum for turbine component positions.
-      enum:
-      - A
-      - B
-      - C
-      title: PositionEnum
-      type: string
-    TurbineObject:
-      additionalProperties: false
-      description: Nested turbine object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: TurbineObject
-      type: object
-    ImageOrientation:
-      enum:
-      - PS_DOWN
-      - SS_DOWN
-      - LE_DOWN
-      - DW_DOWN
-      - UW_DOWN
-      title: ImageOrientation
-      type: string
-    InspectionItemStatus:
-      enum:
-      - NOT_STARTED
-      - IN_PROGRESS
-      - AI_REVIEW
-      - DETAILED_REVIEW
-      - COMPLETED
-      title: InspectionItemStatus
-      type: string
     ComponentSchema:
       properties:
         id:
@@ -646,19 +750,27 @@ components:
       - name
       title: ComponentSchema
       type: object
-    ExternalPhotoLowResSchema:
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
       properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
         id:
           title: Id
           type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
       required:
       - id
-      title: ExternalPhotoLowResSchema
+      - name
+      title: ComponentTypeObject
       type: object
     ManufacturerComponentModelObject:
       additionalProperties: false
@@ -675,22 +787,21 @@ components:
       - name
       title: ManufacturerComponentModelObject
       type: object
-    ManufacturerObject:
-      additionalProperties: false
-      description: Nested manufacturer object for responses.
+    RootPhotoLowResSchema:
       properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
         id:
           title: Id
           type: integer
-        name:
-          title: Name
-          type: string
       required:
       - id
-      - name
-      title: ManufacturerObject
+      title: RootPhotoLowResSchema
       type: object
-    RootPhotoTileSchema:
+    ExternalPhotoTileSchema:
       properties:
         url:
           anyOf:
@@ -710,77 +821,8 @@ components:
       - id
       - x
       - y
-      title: RootPhotoTileSchema
+      title: ExternalPhotoTileSchema
       type: object
-    POIPhotoTileSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        x:
-          title: X
-          type: integer
-        y:
-          title: Y
-          type: integer
-      required:
-      - id
-      - x
-      - y
-      title: POIPhotoTileSchema
-      type: object
-    LERPhotoTileSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        x:
-          title: X
-          type: integer
-        y:
-          title: Y
-          type: integer
-      required:
-      - id
-      - x
-      - y
-      title: LERPhotoTileSchema
-      type: object
-    VideoFileBlobSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        kind:
-          $ref: '#/components/schemas/VideoFileBlobKind'
-      required:
-      - id
-      - kind
-      title: VideoFileBlobSchema
-      type: object
-    ImageSide:
-      description: Sides from which photos can be taken.
-      enum:
-      - L
-      - R
-      - T
-      title: ImageSide
-      type: string
     SectionSchema:
       properties:
         id:
@@ -835,55 +877,6 @@ components:
       - run_index
       - status
       title: SectionSchema
-      type: object
-    VideoFileBlobKind:
-      const: QR_DETECTION
-      enum:
-      - QR_DETECTION
-      title: VideoFileBlobKind
-      type: string
-    ExternalPhotoThumbnailSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: ExternalPhotoThumbnailSchema
-      type: object
-    PostComponentLinkSchema:
-      properties:
-        component_id:
-          title: Component Id
-          type: integer
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-      required:
-      - component_id
-      - turbine_component_id
-      title: PostComponentLinkSchema
-      type: object
-    POIPhotoThumbnailSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: POIPhotoThumbnailSchema
       type: object
     ExternalPhotoSchema:
       properties:
@@ -1052,62 +1045,6 @@ components:
       - id
       title: POIPhotoSchema
       type: object
-    InspectionSchema:
-      properties:
-        id:
-          title: Id
-          type: integer
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        components:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ComponentSchema'
-            type: array
-          - type: 'null'
-          title: Components
-      required:
-      - id
-      - service_order_line_id
-      title: InspectionSchema
-      type: object
-    RootPhotoThumbnailSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: RootPhotoThumbnailSchema
-      type: object
-    ExternalPhotoTileSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        x:
-          title: X
-          type: integer
-        y:
-          title: Y
-          type: integer
-      required:
-      - id
-      - x
-      - y
-      title: ExternalPhotoTileSchema
-      type: object
     VideoFileExtension:
       description: Expected video file formats from inspection data uploads.
       enum:
@@ -1115,39 +1052,7 @@ components:
       - insv
       title: VideoFileExtension
       type: string
-    VideoSnapshotSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        timestamp:
-          title: Timestamp
-          type: number
-        distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance
-        distance_to_hub_centre:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: distance + the turbine model's center_to_root_offset (OH-4169), additive on top of the unchanged root-based `distance`. None when the turbine's model has no offset configured — never falls back to a root-based number under this key.
-          title: Distance To Hub Centre
-      required:
-      - timestamp
-      title: VideoSnapshotSchema
-      type: object
-    LERImageStatus:
-      enum:
-      - NEW
-      - ANOMALIES_FLAGGED
-      - ACCEPTED
-      title: LERImageStatus
-      type: string
-    RootPhotoLowResSchema:
+    VideoFileBlobSchema:
       properties:
         url:
           anyOf:
@@ -1157,10 +1062,22 @@ components:
         id:
           title: Id
           type: integer
+        kind:
+          $ref: '#/components/schemas/VideoFileBlobKind'
       required:
       - id
-      title: RootPhotoLowResSchema
+      - kind
+      title: VideoFileBlobSchema
       type: object
+    LERInspectionStatus:
+      description: Review status of a single LER inspection step run.
+      enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - COMPLETED
+      - FLAGGED
+      title: LERInspectionStatus
+      type: string
     LERPhotoSchema:
       properties:
         url:
@@ -1243,6 +1160,113 @@ components:
       - status
       title: LERPhotoSchema
       type: object
+    ExternalPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: ExternalPhotoThumbnailSchema
+      type: object
+    LERPhotoRunSchema:
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        run_index:
+          title: Run Index
+          type: integer
+        status:
+          $ref: '#/components/schemas/LERInspectionStatus'
+        photos:
+          items:
+            $ref: '#/components/schemas/LERPhotoSchema'
+          title: Photos
+          type: array
+      required:
+      - run_index
+      - status
+      - photos
+      title: LERPhotoRunSchema
+      type: object
+    LERPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: LERPhotoTileSchema
+      type: object
+    POIPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: POIPhotoTileSchema
+      type: object
+    VideoFileBlobKind:
+      const: QR_DETECTION
+      enum:
+      - QR_DETECTION
+      title: VideoFileBlobKind
+      type: string
+    ExternalImageStatus:
+      description: 'Review status of a single external photo.
+
+
+        Mirrors ``LERImageStatus`` but stays a separate enum: external photos have no
+
+        step/run concept, so the two review flows are free to diverge.'
+      enum:
+      - NEW
+      - ANOMALIES_FLAGGED
+      - ACCEPTED
+      title: ExternalImageStatus
+      type: string
+    LERImageStatus:
+      enum:
+      - NEW
+      - ANOMALIES_FLAGGED
+      - ACCEPTED
+      title: LERImageStatus
+      type: string
     LERPhotoThumbnailSchema:
       properties:
         url:
@@ -1257,7 +1281,7 @@ components:
       - id
       title: LERPhotoThumbnailSchema
       type: object
-    POIPhotoLowResSchema:
+    RootPhotoThumbnailSchema:
       properties:
         url:
           anyOf:
@@ -1269,32 +1293,8 @@ components:
           type: integer
       required:
       - id
-      title: POIPhotoLowResSchema
+      title: RootPhotoThumbnailSchema
       type: object
-    LERPhotoGroupSchema:
-      properties:
-        step:
-          title: Step
-          type: string
-        runs:
-          items:
-            $ref: '#/components/schemas/LERPhotoRunSchema'
-          title: Runs
-          type: array
-      required:
-      - step
-      - runs
-      title: LERPhotoGroupSchema
-      type: object
-    LERInspectionStatus:
-      description: Review status of a single LER inspection step run.
-      enum:
-      - NOT_STARTED
-      - IN_PROGRESS
-      - COMPLETED
-      - FLAGGED
-      title: LERInspectionStatus
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

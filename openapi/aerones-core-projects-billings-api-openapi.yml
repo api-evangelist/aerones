@@ -215,6 +215,52 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectContactRole:
+      description: 'All possible roles for ProjectContact (used in responses).
+
+
+        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
+
+        intentionally preserve it for API compatibility.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - SITE_CONTACT
+      - QHSE_CONTACT
+      title: ProjectContactRole
+      type: string
+    VendorObject:
+      additionalProperties: false
+      description: Nested vendor object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: VendorObject
+      type: object
     ProjectBillingCreate:
       additionalProperties: false
       description: Schema for creating a ProjectBilling.
@@ -368,30 +414,6 @@ components:
           description: Vendor ID
           title: Vendor Id
       title: ProjectBillingCreate
-      type: object
-    ProjectContactObject:
-      additionalProperties: false
-      description: Nested project contact object for Project response (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        role:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectContactRole'
-          - type: 'null'
-        customer_contact_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Customer Contact Name
-        customer_type:
-          title: Customer Type
-          type: string
-      required:
-      - id
-      - customer_type
-      title: ProjectContactObject
       type: object
     ProjectBillingUpdate:
       additionalProperties: false
@@ -547,6 +569,79 @@ components:
           title: Vendor Id
       title: ProjectBillingUpdate
       type: object
+    ProjectContactObject:
+      additionalProperties: false
+      description: Nested project contact object for Project response (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactRole'
+          - type: 'null'
+        customer_contact_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Contact Name
+        customer_type:
+          title: Customer Type
+          type: string
+      required:
+      - id
+      - customer_type
+      title: ProjectContactObject
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     CustomerObject:
       additionalProperties: false
       description: Nested customer object for responses (no timestamps).
@@ -578,90 +673,6 @@ components:
       - display_name
       title: CustomerObject
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CurrencyIdCodeObject:
-      additionalProperties: false
-      description: Nested currency object with only id and code (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: CurrencyIdCodeObject
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    VendorObject:
-      additionalProperties: false
-      description: Nested vendor object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: VendorObject
-      type: object
-    ProjectContactRole:
-      description: 'All possible roles for ProjectContact (used in responses).
-
-
-        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
-
-        intentionally preserve it for API compatibility.'
-      enum:
-      - PRIMARY_CONTACT
-      - REPORT_RECEPIENT
-      - INVOICE_APPROVER
-      - SITE_CONTACT
-      - QHSE_CONTACT
-      title: ProjectContactRole
-      type: string
     ProjectBillingResponse:
       additionalProperties: false
       description: Schema for ProjectBilling response.
@@ -830,17 +841,6 @@ components:
       - project_id
       title: ProjectBillingResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

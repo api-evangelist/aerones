@@ -378,6 +378,40 @@ components:
       - comment
       title: DelayResponse
       type: object
+    DelayTypeObject:
+      additionalProperties: false
+      description: Nested delay type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: DelayTypeObject
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
     ResourceObject:
       additionalProperties: false
       description: Nested resource object for responses (no timestamps).
@@ -393,18 +427,111 @@ components:
       - full_name
       title: ResourceObject
       type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
+    DelayCreate:
+      additionalProperties: false
+      description: Schema for creating a Delay.
+      properties:
+        delay_type_id:
+          description: Delay type ID
+          title: Delay Type Id
+          type: integer
+        comment:
+          description: Delay comment
+          minLength: 1
+          title: Comment
+          type: string
+        description:
+          default: ''
+          description: Delay description
+          title: Description
+          type: string
+        start_datetime:
+          description: Delay start date and time
+          format: date-time
+          title: Start Datetime
+          type: string
+        end_datetime:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Delay end date and time
+          title: End Datetime
+        duration_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Duration in minutes
+          title: Duration Minutes
+        custom_fields:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Custom fields as JSON (object or array)
+          title: Custom Fields
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID (cause)
+          title: Robot Set Id
+        resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource ID (cause)
+          title: Resource Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Location ID (cause)
+          title: Location Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project ID (impact)
+          title: Project Id
+        service_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order ID (impact)
+          title: Service Order Id
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder ID (impact)
+          title: Workorder Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder activity ID (impact)
+          title: Workorder Activity Id
+        team_resources:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Team resources JSON (same shape as activity resources)
+          title: Team Resources
+        team_preset_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Resource preset ID — used to sync WorkorderResource is_lead
+          title: Team Preset Id
+      required:
+      - delay_type_id
+      - comment
+      - start_datetime
+      title: DelayCreate
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -439,6 +566,18 @@ components:
           type: boolean
       title: Success
       type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -450,6 +589,21 @@ components:
       - generic
       title: ErrorCode
       type: string
+    RobotSetObject:
+      additionalProperties: false
+      description: Nested robot set object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: RobotSetObject
+      type: object
     DelayUpdate:
       additionalProperties: false
       description: Schema for updating a Delay.
@@ -557,160 +711,6 @@ components:
           description: Resource preset ID — used to sync WorkorderResource is_lead
           title: Team Preset Id
       title: DelayUpdate
-      type: object
-    LocationObject:
-      additionalProperties: false
-      description: Nested location object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-      required:
-      - id
-      - name
-      title: LocationObject
-      type: object
-    DelayCreate:
-      additionalProperties: false
-      description: Schema for creating a Delay.
-      properties:
-        delay_type_id:
-          description: Delay type ID
-          title: Delay Type Id
-          type: integer
-        comment:
-          description: Delay comment
-          minLength: 1
-          title: Comment
-          type: string
-        description:
-          default: ''
-          description: Delay description
-          title: Description
-          type: string
-        start_datetime:
-          description: Delay start date and time
-          format: date-time
-          title: Start Datetime
-          type: string
-        end_datetime:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Delay end date and time
-          title: End Datetime
-        duration_minutes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Duration in minutes
-          title: Duration Minutes
-        custom_fields:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Custom fields as JSON (object or array)
-          title: Custom Fields
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Robot set ID (cause)
-          title: Robot Set Id
-        resource_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Resource ID (cause)
-          title: Resource Id
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Location ID (cause)
-          title: Location Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project ID (impact)
-          title: Project Id
-        service_order_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service order ID (impact)
-          title: Service Order Id
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Workorder ID (impact)
-          title: Workorder Id
-        workorder_activity_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Workorder activity ID (impact)
-          title: Workorder Activity Id
-        team_resources:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Team resources JSON (same shape as activity resources)
-          title: Team Resources
-        team_preset_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Resource preset ID — used to sync WorkorderResource is_lead
-          title: Team Preset Id
-      required:
-      - delay_type_id
-      - comment
-      - start_datetime
-      title: DelayCreate
-      type: object
-    RobotSetObject:
-      additionalProperties: false
-      description: Nested robot set object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: RobotSetObject
-      type: object
-    DelayTypeObject:
-      additionalProperties: false
-      description: Nested delay type object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: DelayTypeObject
       type: object
   securitySchemes:
     APIKeyAuth:

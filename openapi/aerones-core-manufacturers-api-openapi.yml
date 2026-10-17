@@ -195,6 +195,26 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     ManufacturerUpdate:
       additionalProperties: false
       description: Schema for updating a Manufacturer.
@@ -205,6 +225,33 @@ components:
           title: Name
           type: string
       title: ManufacturerUpdate
+      type: object
+    ManufacturerCreate:
+      additionalProperties: false
+      description: Schema for creating a Manufacturer.
+      properties:
+        name:
+          description: Entity name
+          minLength: 1
+          title: Name
+          type: string
+      required:
+      - name
+      title: ManufacturerCreate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ManufacturerResponse:
       additionalProperties: false
@@ -229,40 +276,6 @@ components:
       - name
       title: ManufacturerResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -274,19 +287,6 @@ components:
       - generic
       title: ErrorCode
       type: string
-    ManufacturerCreate:
-      additionalProperties: false
-      description: Schema for creating a Manufacturer.
-      properties:
-        name:
-          description: Entity name
-          minLength: 1
-          title: Name
-          type: string
-      required:
-      - name
-      title: ManufacturerCreate
-      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

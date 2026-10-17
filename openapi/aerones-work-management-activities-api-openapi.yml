@@ -323,6 +323,72 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    CwmActivityResponse:
+      properties:
+        id:
+          title: Id
+          type: integer
+        client_work_order_id:
+          title: Client Work Order Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        completed:
+          default: false
+          title: Completed
+          type: boolean
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        completed_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Completed Date
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        custom_fields:
+          default: []
+          items: {}
+          title: Custom Fields
+          type: array
+        comments:
+          default: []
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+          title: Comments
+          type: array
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+          title: Attachments
+          type: array
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - id
+      - client_work_order_id
+      - updated_at
+      title: CwmActivityResponse
+      type: object
     AttachmentResponse:
       additionalProperties: false
       properties:
@@ -344,6 +410,77 @@ components:
       - id
       - storage_id
       title: AttachmentResponse
+      type: object
+    CommentResponse:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        created_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Created By Id
+      required:
+      - id
+      - body
+      title: CommentResponse
+      type: object
+    CommentCreate:
+      additionalProperties: false
+      properties:
+        body:
+          title: Body
+          type: string
+      required:
+      - body
+      title: CommentCreate
+      type: object
+    CwmActivityReorderPayload:
+      additionalProperties: false
+      properties:
+        client_work_order_id:
+          title: Client Work Order Id
+          type: integer
+        ordered_ids:
+          items:
+            type: integer
+          title: Ordered Ids
+          type: array
+      required:
+      - client_work_order_id
+      - ordered_ids
+      title: CwmActivityReorderPayload
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     CwmActivityCreate:
       additionalProperties: false
@@ -425,62 +562,6 @@ components:
       - message
       title: Error
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    CommentResponse:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        body:
-          title: Body
-          type: string
-        created_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Created At
-        created_by_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Created By Id
-      required:
-      - id
-      - body
-      title: CommentResponse
-      type: object
     CwmActivityUpdate:
       additionalProperties: false
       properties:
@@ -519,98 +600,17 @@ components:
           title: Custom Fields
       title: CwmActivityUpdate
       type: object
-    CwmActivityResponse:
-      properties:
-        id:
-          title: Id
-          type: integer
-        client_work_order_id:
-          title: Client Work Order Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        completed:
-          default: false
-          title: Completed
-          type: boolean
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        due_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Due Date
-        completed_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Completed Date
-        position:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Position
-        custom_fields:
-          default: []
-          items: {}
-          title: Custom Fields
-          type: array
-        comments:
-          default: []
-          items:
-            $ref: '#/components/schemas/CommentResponse'
-          title: Comments
-          type: array
-        attachments:
-          default: []
-          items:
-            $ref: '#/components/schemas/AttachmentResponse'
-          title: Attachments
-          type: array
-        updated_at:
-          format: date-time
-          title: Updated At
-          type: string
-      required:
-      - id
-      - client_work_order_id
-      - updated_at
-      title: CwmActivityResponse
-      type: object
-    CommentCreate:
-      additionalProperties: false
-      properties:
-        body:
-          title: Body
-          type: string
-      required:
-      - body
-      title: CommentCreate
-      type: object
-    CwmActivityReorderPayload:
-      additionalProperties: false
-      properties:
-        client_work_order_id:
-          title: Client Work Order Id
-          type: integer
-        ordered_ids:
-          items:
-            type: integer
-          title: Ordered Ids
-          type: array
-      required:
-      - client_work_order_id
-      - ordered_ids
-      title: CwmActivityReorderPayload
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -132,58 +132,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ServiceList:
-      additionalProperties: false
-      description: Schema for services on list.
-      properties:
-        code:
-          description: Unique service code.
-          title: Code
-          type: string
-        name:
-          description: Human readable service name.
-          title: Name
-          type: string
-        category:
-          $ref: '#/components/schemas/CodeWithName'
-          description: Service category.
-      required:
-      - code
-      - name
-      - category
-      title: ServiceList
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    CodeWithName:
-      additionalProperties: false
-      description: Schema for code and name.
-      properties:
-        code:
-          description: Unique code.
-          title: Code
-          type: string
-        name:
-          description: Human readable name.
-          title: Name
-          type: string
-      required:
-      - code
-      - name
-      title: CodeWithName
-      type: object
     ServicePreJobQuestionType:
       description: Allowed type of the pre job question.
       enum:
@@ -243,17 +191,42 @@ components:
       - type
       title: ServicePreJobQuestionDefinition
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    ServiceCondition:
+      additionalProperties: false
+      description: Schema for service condition.
+      properties:
+        name:
+          description: Name of the condition specific to service.
+          title: Name
+          type: string
+        values:
+          description: List of possible values for the condition.
+          items:
+            $ref: '#/components/schemas/ServiceConditionValue'
+          title: Values
+          type: array
+      required:
+      - name
+      - values
+      title: ServiceCondition
+      type: object
+    CodeWithName:
+      additionalProperties: false
+      description: Schema for code and name.
+      properties:
+        code:
+          description: Unique code.
+          title: Code
+          type: string
+        name:
+          description: Human readable name.
+          title: Name
+          type: string
+      required:
+      - code
+      - name
+      title: CodeWithName
+      type: object
     Service:
       additionalProperties: false
       description: Schema for unified service.
@@ -302,6 +275,20 @@ components:
       - name
       title: Service
       type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     ServiceConditionValue:
       additionalProperties: false
       description: Schema for describing specific service condition/level.
@@ -331,25 +318,38 @@ components:
       - name
       title: ServiceConditionValue
       type: object
-    ServiceCondition:
+    ServiceList:
       additionalProperties: false
-      description: Schema for service condition.
+      description: Schema for services on list.
       properties:
+        code:
+          description: Unique service code.
+          title: Code
+          type: string
         name:
-          description: Name of the condition specific to service.
+          description: Human readable service name.
           title: Name
           type: string
-        values:
-          description: List of possible values for the condition.
-          items:
-            $ref: '#/components/schemas/ServiceConditionValue'
-          title: Values
-          type: array
+        category:
+          $ref: '#/components/schemas/CodeWithName'
+          description: Service category.
       required:
+      - code
       - name
-      - values
-      title: ServiceCondition
+      - category
+      title: ServiceList
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

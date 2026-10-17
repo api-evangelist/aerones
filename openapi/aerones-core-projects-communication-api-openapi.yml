@@ -305,15 +305,79 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    MentionCandidateListResponse:
+    CommunicationAttachment:
       additionalProperties: false
+      description: A file attached to a communication note or task comment.
       properties:
-        candidates:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+      required:
+      - id
+      - file_name
+      - file_type
+      title: CommunicationAttachment
+      type: object
+    ProjectCommentResponse:
+      additionalProperties: false
+      description: A single project communication note.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        body_format:
+          default: text
+          title: Body Format
+          type: string
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+        edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: User who last updated the comment (domain rename of updated_by).
+        is_edited:
+          default: false
+          description: Whether the comment was edited after it was created.
+          title: Is Edited
+          type: boolean
+        mentioned_users:
           items:
-            $ref: '#/components/schemas/MentionCandidate'
-          title: Candidates
+            $ref: '#/components/schemas/CommunicationUser'
+          title: Mentioned Users
           type: array
-      title: MentionCandidateListResponse
+        attachments:
+          items:
+            $ref: '#/components/schemas/CommunicationAttachment'
+          title: Attachments
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - updated_at
+      - id
+      - body
+      - created_at
+      title: ProjectCommentResponse
       type: object
     RoleMemberListResponse:
       additionalProperties: false
@@ -341,25 +405,25 @@ components:
       - members
       title: RoleMemberListResponse
       type: object
-    Success:
+    CommunicationUser:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Lightweight user reference used in communication payloads.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: CommunicationUser
       type: object
     CommunicationFeedEntry:
       additionalProperties: false
@@ -454,118 +518,6 @@ components:
       - name
       title: MentionCandidate
       type: object
-    ProjectCommentCreate:
-      additionalProperties: false
-      description: Create a project communication note.
-      properties:
-        body:
-          description: Note body.
-          minLength: 1
-          title: Body
-          type: string
-        body_format:
-          default: text
-          description: How `body` is encoded.
-          enum:
-          - text
-          - markdown
-          title: Body Format
-          type: string
-        mentioned_user_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: User ids @-mentioned in the note. Ignored for body_format='markdown' — mentions are parsed from the body instead.
-          title: Mentioned User Ids
-        attachment_file_ids:
-          anyOf:
-          - items:
-              format: uuid
-              type: string
-            type: array
-          - type: 'null'
-          description: Storage ids of files attached to the note.
-          title: Attachment File Ids
-      required:
-      - body
-      title: ProjectCommentCreate
-      type: object
-    CommunicationUser:
-      additionalProperties: false
-      description: Lightweight user reference used in communication payloads.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-      required:
-      - id
-      - name
-      title: CommunicationUser
-      type: object
-    ProjectCommentResponse:
-      additionalProperties: false
-      description: A single project communication note.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          title: Id
-          type: integer
-        body:
-          title: Body
-          type: string
-        body_format:
-          default: text
-          title: Body Format
-          type: string
-        author:
-          anyOf:
-          - $ref: '#/components/schemas/CommunicationUser'
-          - type: 'null'
-        edited_by:
-          anyOf:
-          - $ref: '#/components/schemas/CommunicationUser'
-          - type: 'null'
-          description: User who last updated the comment (domain rename of updated_by).
-        is_edited:
-          default: false
-          description: Whether the comment was edited after it was created.
-          title: Is Edited
-          type: boolean
-        mentioned_users:
-          items:
-            $ref: '#/components/schemas/CommunicationUser'
-          title: Mentioned Users
-          type: array
-        attachments:
-          items:
-            $ref: '#/components/schemas/CommunicationAttachment'
-          title: Attachments
-          type: array
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-      required:
-      - updated_at
-      - id
-      - body
-      - created_at
-      title: ProjectCommentResponse
-      type: object
     ProjectCommentUpdate:
       additionalProperties: false
       description: Edit a project communication note (author only).
@@ -605,25 +557,73 @@ components:
           title: Attachment File Ids
       title: ProjectCommentUpdate
       type: object
-    CommunicationAttachment:
+    Success:
       additionalProperties: false
-      description: A file attached to a communication note or task comment.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        id:
-          format: uuid
-          title: Id
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectCommentCreate:
+      additionalProperties: false
+      description: Create a project communication note.
+      properties:
+        body:
+          description: Note body.
+          minLength: 1
+          title: Body
           type: string
-        file_name:
-          title: File Name
+        body_format:
+          default: text
+          description: How `body` is encoded.
+          enum:
+          - text
+          - markdown
+          title: Body Format
           type: string
-        file_type:
-          title: File Type
-          type: string
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: User ids @-mentioned in the note. Ignored for body_format='markdown' — mentions are parsed from the body instead.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Storage ids of files attached to the note.
+          title: Attachment File Ids
       required:
-      - id
-      - file_name
-      - file_type
-      title: CommunicationAttachment
+      - body
+      title: ProjectCommentCreate
+      type: object
+    MentionCandidateListResponse:
+      additionalProperties: false
+      properties:
+        candidates:
+          items:
+            $ref: '#/components/schemas/MentionCandidate'
+          title: Candidates
+          type: array
+      title: MentionCandidateListResponse
       type: object
   securitySchemes:
     APIKeyAuth:

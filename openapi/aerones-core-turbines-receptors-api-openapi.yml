@@ -99,36 +99,19 @@ components:
       - serial_number
       title: _ReceptorBladeSummary
       type: object
-    BladeWithReceptorsObject:
+    InitTurbineFromPresetBody:
       additionalProperties: false
-      description: 'One blade plus its receptor children — building block for the turbine
+      description: 'POST body for ``/turbines/{id}/receptors/init-from-preset`` — picks
 
-        convenience GET that returns all blades + receptors in one round-trip.'
+        which named preset to seed the turbine from.'
       properties:
-        blade:
-          $ref: '#/components/schemas/_ReceptorBladeSummary'
-        receptors:
-          items:
-            $ref: '#/components/schemas/ReceptorObject'
-          title: Receptors
-          type: array
+        preset_id:
+          description: Receptor preset to copy from. Must belong to the same turbine model as the turbine being initialized.
+          title: Preset Id
+          type: integer
       required:
-      - blade
-      title: BladeWithReceptorsObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      - preset_id
+      title: InitTurbineFromPresetBody
       type: object
     InitTurbineFromPresetResponse:
       additionalProperties: false
@@ -174,30 +157,30 @@ components:
       - skipped_existing
       title: InitTurbineFromPresetResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    InitTurbineFromPresetBody:
+    TurbineReceptorsResponse:
       additionalProperties: false
-      description: 'POST body for ``/turbines/{id}/receptors/init-from-preset`` — picks
-
-        which named preset to seed the turbine from.'
+      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
       properties:
-        preset_id:
-          description: Receptor preset to copy from. Must belong to the same turbine model as the turbine being initialized.
-          title: Preset Id
-          type: integer
+        blades:
+          items:
+            $ref: '#/components/schemas/BladeWithReceptorsObject'
+          title: Blades
+          type: array
+      title: TurbineReceptorsResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
       required:
-      - preset_id
-      title: InitTurbineFromPresetBody
+      - code
+      - message
+      title: Error
       type: object
     ReceptorObject:
       additionalProperties: false
@@ -247,16 +230,33 @@ components:
       - component_type_id
       title: ReceptorObject
       type: object
-    TurbineReceptorsResponse:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    BladeWithReceptorsObject:
       additionalProperties: false
-      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
+      description: 'One blade plus its receptor children — building block for the turbine
+
+        convenience GET that returns all blades + receptors in one round-trip.'
       properties:
-        blades:
+        blade:
+          $ref: '#/components/schemas/_ReceptorBladeSummary'
+        receptors:
           items:
-            $ref: '#/components/schemas/BladeWithReceptorsObject'
-          title: Blades
+            $ref: '#/components/schemas/ReceptorObject'
+          title: Receptors
           type: array
-      title: TurbineReceptorsResponse
+      required:
+      - blade
+      title: BladeWithReceptorsObject
       type: object
   securitySchemes:
     APIKeyAuth:

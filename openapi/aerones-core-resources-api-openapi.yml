@@ -223,6 +223,56 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ResourceUpdate:
+      additionalProperties: false
+      description: 'Schema for updating a Resource.
+
+
+        Employment contract, qualifications, certificates, and the BambooHR /
+
+        TalentLMS links can be updated. `bamboohr_employee_id` and
+
+        `talentlms_user_id` are three-state: omit the key to leave the link
+
+        untouched, pass `null` to unlink, or pass a string to create/replace
+
+        the link.'
+      properties:
+        employment_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment contract details
+          title: Employment Contract
+        qualifications:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Qualifications as JSON list
+          title: Qualifications
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceCertificateInput'
+            type: array
+          - type: 'null'
+          description: Certificates to assign to this resource
+          title: Certificates
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External BambooHR employee ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
+          title: Bamboohr Employee Id
+        talentlms_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External TalentLMS user ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
+          title: Talentlms User Id
+      title: ResourceUpdate
+      type: object
     ResourceCertificateInput:
       additionalProperties: false
       description: 'Input schema for a resource''s certificate (used in Resource create/update).
@@ -296,98 +346,6 @@ components:
           description: Identifier of the source row in the origin system
           title: Source Id
       title: ResourceCertificateInput
-      type: object
-    ResourceCreate:
-      additionalProperties: false
-      description: 'Schema for creating a Resource.
-
-
-        Either robot_set_id or user_id must be provided (but not both).
-
-        The full_name and email fields are auto-populated from the referenced entity;
-
-        they can be provided but will be overwritten. resource_type is only defaulted
-
-        when omitted, so an explicit user-backed type (OFFICE) is honoured.'
-      properties:
-        qualifications:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Qualifications as JSON list
-          title: Qualifications
-        employment_contract:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Employment contract details
-          title: Employment Contract
-        user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: User ID (for technicians and office staff)
-          title: User Id
-        robot_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Robot set ID (for robots)
-          title: Robot Set Id
-        certificates:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ResourceCertificateInput'
-            type: array
-          - type: 'null'
-          description: Certificates to assign to this resource
-          title: Certificates
-        bamboohr_employee_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External BambooHR employee ID to link on creation
-          title: Bamboohr Employee Id
-        talentlms_user_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External TalentLMS user ID to link on creation
-          title: Talentlms User Id
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Auto-populated from user/robot_set
-          title: Full Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Auto-populated from user
-          title: Email
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Defaults to ROBOT for robot_set_id and TECHNICIAN for user_id. Supply OFFICE explicitly (with user_id) for office staff.
-          title: Resource Type
-      title: ResourceCreate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     ResourceResponse:
       additionalProperties: false
@@ -467,6 +425,42 @@ components:
       - full_name
       title: ResourceResponse
       type: object
+    ResourceSummary:
+      additionalProperties: false
+      description: Summary of dispatch resources.
+      properties:
+        total:
+          description: Total number of resources
+          title: Total
+          type: integer
+        technicians:
+          description: Number of technician resources
+          title: Technicians
+          type: integer
+        teams:
+          description: Number of resource teams
+          title: Teams
+          type: integer
+      required:
+      - total
+      - technicians
+      - teams
+      title: ResourceSummary
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -486,6 +480,84 @@ components:
           title: Success
           type: boolean
       title: Success
+      type: object
+    ResourceCreate:
+      additionalProperties: false
+      description: 'Schema for creating a Resource.
+
+
+        Either robot_set_id or user_id must be provided (but not both).
+
+        The full_name and email fields are auto-populated from the referenced entity;
+
+        they can be provided but will be overwritten. resource_type is only defaulted
+
+        when omitted, so an explicit user-backed type (OFFICE) is honoured.'
+      properties:
+        qualifications:
+          anyOf:
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Qualifications as JSON list
+          title: Qualifications
+        employment_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment contract details
+          title: Employment Contract
+        user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: User ID (for technicians and office staff)
+          title: User Id
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Robot set ID (for robots)
+          title: Robot Set Id
+        certificates:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ResourceCertificateInput'
+            type: array
+          - type: 'null'
+          description: Certificates to assign to this resource
+          title: Certificates
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External BambooHR employee ID to link on creation
+          title: Bamboohr Employee Id
+        talentlms_user_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External TalentLMS user ID to link on creation
+          title: Talentlms User Id
+        full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Auto-populated from user/robot_set
+          title: Full Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Auto-populated from user
+          title: Email
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Defaults to ROBOT for robot_set_id and TECHNICIAN for user_id. Supply OFFICE explicitly (with user_id) for office staff.
+          title: Resource Type
+      title: ResourceCreate
       type: object
     ErrorCode:
       description: Error codes for API errors.
@@ -570,78 +642,6 @@ components:
       - certificate_id
       - certificate_name
       title: ResourceCertificateOutput
-      type: object
-    ResourceUpdate:
-      additionalProperties: false
-      description: 'Schema for updating a Resource.
-
-
-        Employment contract, qualifications, certificates, and the BambooHR /
-
-        TalentLMS links can be updated. `bamboohr_employee_id` and
-
-        `talentlms_user_id` are three-state: omit the key to leave the link
-
-        untouched, pass `null` to unlink, or pass a string to create/replace
-
-        the link.'
-      properties:
-        employment_contract:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Employment contract details
-          title: Employment Contract
-        qualifications:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Qualifications as JSON list
-          title: Qualifications
-        certificates:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ResourceCertificateInput'
-            type: array
-          - type: 'null'
-          description: Certificates to assign to this resource
-          title: Certificates
-        bamboohr_employee_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External BambooHR employee ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
-          title: Bamboohr Employee Id
-        talentlms_user_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: External TalentLMS user ID to link. Pass null to unlink. Omit the key entirely to leave the existing link untouched.
-          title: Talentlms User Id
-      title: ResourceUpdate
-      type: object
-    ResourceSummary:
-      additionalProperties: false
-      description: Summary of dispatch resources.
-      properties:
-        total:
-          description: Total number of resources
-          title: Total
-          type: integer
-        technicians:
-          description: Number of technician resources
-          title: Technicians
-          type: integer
-        teams:
-          description: Number of resource teams
-          title: Teams
-          type: integer
-      required:
-      - total
-      - technicians
-      - teams
-      title: ResourceSummary
       type: object
   securitySchemes:
     APIKeyAuth:
