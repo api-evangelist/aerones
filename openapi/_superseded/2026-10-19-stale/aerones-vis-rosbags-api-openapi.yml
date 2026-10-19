@@ -1,0 +1,106 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Vis.rosbags API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: vis.rosbags
+paths:
+  /api/vis/v1/rosbags/{id}/distances/:
+    get:
+      operationId: vis_api_get_rosbag_distances
+      summary: Fetch distances associated with a given rosbag ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RosbagBlobDistancesSchema'
+        '202':
+          description: Accepted
+      description: Fetch distances associated with a given rosbag ID.
+      tags:
+      - vis.rosbags
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis/v1/rosbags/{id}/ranges/{qr_code}/:
+    get:
+      operationId: vis_api_get_rosbag_ranges
+      summary: Fetch ranges associated with a given rosbag ID and QR code
+      parameters:
+      - in: path
+        name: id
+        schema:
+          title: Id
+          type: integer
+        required: true
+      - in: path
+        name: qr_code
+        schema:
+          title: Qr Code
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RosbagBlobRangesSchema'
+      description: Fetch ranges associated with a given rosbag ID and QR code.
+      tags:
+      - vis.rosbags
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    RosbagBlobDistancesSchema:
+      properties:
+        distances:
+          additionalProperties:
+            type: number
+          title: Distances
+          type: object
+      required:
+      - distances
+      title: RosbagBlobDistancesSchema
+      type: object
+    RosbagBlobRangesSchema:
+      properties:
+        distance:
+          title: Distance
+          type: number
+        ranges:
+          items:
+            anyOf:
+            - type: number
+            - type: string
+          title: Ranges
+          type: array
+      required:
+      - distance
+      - ranges
+      title: RosbagBlobRangesSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

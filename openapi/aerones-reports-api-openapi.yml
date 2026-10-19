@@ -58,17 +58,35 @@ paths:
 
         The single final-report entry point for the portal — callers do not need to
 
-        know how a given service''s report is produced. Services outside
+        know how a given service''s report is produced. Every family renders on
 
-        ``_UPLOADED_FINAL_REPORT_PREFIXES`` are rendered by the engine on demand; the
+        demand, LER included: the render owns the final report, and a LER SOL only
 
-        rest have no engine template, so the document ops uploaded is streamed from
+        falls back to the document ops uploaded when Ops Hub itself refuses to
 
-        storage the way ``core.endpoints.files`` serves stored files (GCS blob bytes
+        render — the grid is not composed yet, or the service has no push builder
 
-        with the blob''s own content type, falling back to a public-URL redirect).
+        at all (``LER-TR`` / ``LER-TOP``).
 
-        Either way the response is the file bytes with a download
+        That refusal is one dedicated exception, and it is the only thing this
+
+        catches. A reporting-engine failure reaches the same call as a plain
+
+        ``ValidationError`` (``reports.client._execute_definition`` turns an
+
+        outage, a rejected token and a missing definition alike into one), and
+
+        answering that with the fallback would hand the customer whatever
+
+        unrelated document the line carries — labelled as their final report, 200
+
+        OK — every time the engine was down. The fallback streams the document
+
+        from storage the way ``core.endpoints.files`` serves stored files (GCS blob
+
+        bytes with the blob''s own content type, falling back to a public-URL
+
+        redirect). Either way the response is the file bytes with a download
 
         ``Content-Disposition``, so the client handles one shape. A response is not
 
@@ -85,11 +103,35 @@ paths:
 
         — a SOL the caller cannot see is not found, and that gate stays ahead of
 
-        *both* branches. LPS SOLs resolve the project''s ``lps_standard_id`` for the
+        every branch. The LER family is resolved ahead of the LPS branch here for
 
-        engine; a missing template is a clear 4xx, as is an LER SOL whose report has
+        the same reason ``reports.api.render_final_report`` resolves it ahead of
 
-        not been uploaded yet (404).'
+        its own cascade — one line must not resolve to two different families on
+
+        two routes, and this is the route where that costs most, because a client
+
+        reads what it returns. The exposure is smaller than on the technician
+
+        routes (this LPS check reads ``Service.group``, an FK, not the free-typed
+
+        ``service_code``, so a stale code cannot reach it), but the order is the
+
+        invariant, not the size of today''s hole. A refusal is a document fallback
+
+        only for LER: applied to any other family it would hand back whatever
+
+        unrelated document happens to be attached
+
+        (``_get_sol_uploaded_final_link`` matches *any* uploaded document once no
+
+        categorised one exists). Every other family''s refusal reaches the customer
+
+        as a plain 404 — an LPS SOL with no project template among them, because
+
+        the technician-facing "Template not selected" message names an internal
+
+        setting ("Project Info") the portal''s caller cannot act on.'
       tags:
       - Reports
       requestBody:
@@ -163,9 +205,11 @@ paths:
 
         The selection is resolved and refused here, before the engine is called: an id
 
-        outside the caller''s customer, an unknown ``report_type``, band value or anomaly
+        outside the caller''s customer, an unknown ``report_type``, band value, anomaly
 
-        type, an empty result and an oversized selection are each a 422 naming the cause.
+        type or stage, an empty result and an oversized selection are each a 422 naming
+
+        the cause.
 
         Requesting needs the Reports feature''s Full level (``CUSTOMER_MANAGE_REPORTS``);
 
@@ -183,19 +227,29 @@ paths:
       - CookieAuth: []
     get:
       operationId: customer_portal_list_custom_reports
-      summary: List the customer's latest custom report requests
+      summary: List the customer's custom report requests, one page at a time
       parameters:
       - in: query
-        name: limit
+        name: page
         schema:
-          default: 20
-          description: Newest requests to return
-          maximum: 100
+          default: 1
+          description: Page number
           minimum: 1
-          title: Limit
+          title: Page
           type: integer
         required: false
-        description: Newest requests to return
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 20
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
       responses:
         '200':
           description: OK
@@ -206,7 +260,7 @@ paths:
                   $ref: '#/components/schemas/CustomReportSummary'
                 title: Response
                 type: array
-      description: The caller's newest requests first, each with its family, status and the selection it was made for, so a finished document can be offered without a new render.
+      description: One page of the caller's requests, newest first, the total in the ``Total-Count`` header; each row carries its family, status and selection so a finished document can be offered without a new render.
       tags:
       - Reports
       security:
@@ -227,7 +281,7 @@ paths:
                   $ref: '#/components/schemas/CustomReportType'
                 title: Response
                 type: array
-      description: The registered families with the request fields each reads and its selection cap, so the portal form is driven by the server.
+      description: The registered families with the request fields each reads, so the portal form is driven by the server.
       tags:
       - Reports
       security:
@@ -279,69 +333,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    DailyReportDownloadRequest:
-      additionalProperties: false
-      description: Request body for generating a daily report from the client portal.
-      properties:
-        service_order_line_id:
-          description: Service order line ID to generate the report for
-          title: Service Order Line Id
-          type: integer
-        date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Optional report date (YYYY-MM-DD). If omitted, the report covers all activity dates for the SOL.
-          title: Date
-      required:
-      - service_order_line_id
-      title: DailyReportDownloadRequest
-      type: object
-    FinalReportStatusResponse:
-      additionalProperties: false
-      description: Polling response for an in-flight final-report generation.
-      properties:
-        generation_id:
-          title: Generation Id
-          type: integer
-        status:
-          description: pending | complete | failed
-          title: Status
-          type: string
-        generated_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Generated At
-        error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Error
-      required:
-      - generation_id
-      - status
-      title: FinalReportStatusResponse
-      type: object
-    FinalReportStartResponse:
-      additionalProperties: false
-      description: Response after kicking off async final-report generation.
-      properties:
-        generation_id:
-          description: Report row ID
-          title: Generation Id
-          type: integer
-        status:
-          description: pending | complete | failed
-          title: Status
-          type: string
-      required:
-      - generation_id
-      - status
-      title: FinalReportStartResponse
-      type: object
     CustomReportService:
       additionalProperties: false
       description: 'One "Service" choice of a family: the service code and the label the portal shows.'
@@ -357,21 +348,9 @@ components:
       - label
       title: CustomReportService
       type: object
-    FinalReportDownloadRequest:
-      additionalProperties: false
-      description: Request body for generating a final (SOL) report from the client portal.
-      properties:
-        service_order_line_id:
-          description: Service order line ID to generate the final report for
-          title: Service Order Line Id
-          type: integer
-      required:
-      - service_order_line_id
-      title: FinalReportDownloadRequest
-      type: object
     CustomReportType:
       additionalProperties: false
-      description: One report family the portal may request, with the request fields it reads, its services and its cap.
+      description: One report family the portal may request, with the request fields it reads and its services.
       properties:
         name:
           title: Name
@@ -391,14 +370,20 @@ components:
           title: Services
           type: array
         max_selection_lines:
+          default: 0
+          description: 'Always 0: no cap. Kept for portals that still read it.'
           title: Max Selection Lines
+          type: integer
+        max_selection_findings:
+          default: 0
+          description: 'Always 0: no cap. Kept for portals that still read it.'
+          title: Max Selection Findings
           type: integer
       required:
       - name
       - label
       - filters
       - services
-      - max_selection_lines
       title: CustomReportType
       type: object
     CustomReportRequest:
@@ -449,6 +434,12 @@ components:
             type: integer
           title: Anomaly Type Ids
           type: array
+        stages:
+          description: Finding stages, RELEASED .. CLOSED; empty means every stage
+          items:
+            type: string
+          title: Stages
+          type: array
         services:
           description: Service codes of the family, e.g. IIN / VIN; empty means all
           items:
@@ -459,9 +450,75 @@ components:
       - report_type
       title: CustomReportRequest
       type: object
-    CustomReportSummary:
+    FinalReportDownloadRequest:
       additionalProperties: false
-      description: One custom report request as the portal lists it.
+      description: Request body for generating a final (SOL) report from the client portal.
+      properties:
+        service_order_line_id:
+          description: Service order line ID to generate the final report for
+          title: Service Order Line Id
+          type: integer
+      required:
+      - service_order_line_id
+      title: FinalReportDownloadRequest
+      type: object
+    FinalReportStartResponse:
+      additionalProperties: false
+      description: Response after kicking off async final-report generation.
+      properties:
+        generation_id:
+          description: Report row ID
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+      required:
+      - generation_id
+      - status
+      title: FinalReportStartResponse
+      type: object
+    DailyReportDownloadRequest:
+      additionalProperties: false
+      description: Request body for generating a daily report from the client portal.
+      properties:
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service order line ID to generate the report for
+          title: Service Order Line Id
+        service_order_line_ids:
+          anyOf:
+          - items:
+              type: integer
+            maxItems: 50
+            minItems: 1
+            type: array
+          - type: 'null'
+          description: Service order line IDs to generate one report for
+          title: Service Order Line Ids
+        date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Optional report date (YYYY-MM-DD). If omitted, the report covers all activity dates for the SOL.
+          title: Date
+        robot_set_ids:
+          anyOf:
+          - items:
+              type: integer
+            maxItems: 50
+            type: array
+          - type: 'null'
+          description: Optional robot sets to narrow the report to
+          title: Robot Set Ids
+      title: DailyReportDownloadRequest
+      type: object
+    CustomReportSummary:
+      description: One custom report request as the portal lists it, resolved straight off a ``dispatch.Report`` row.
       properties:
         generation_id:
           title: Generation Id
@@ -499,6 +556,33 @@ components:
       - status
       - selection
       title: CustomReportSummary
+      type: object
+    FinalReportStatusResponse:
+      additionalProperties: false
+      description: Polling response for an in-flight final-report generation.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          description: pending | complete | failed
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - status
+      title: FinalReportStatusResponse
       type: object
   securitySchemes:
     APIKeyAuth:

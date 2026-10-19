@@ -319,48 +319,61 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    SolScopeChange:
+    WorkorderActivityResourceLink:
       additionalProperties: false
-      description: 'Scope-change context for SOL/workorder header banners.
+      description: 'Resource assignment row on a workorder activity.
 
 
-        ``turbine_component`` is set for per-blade changes (the source line
+        Mirrors the dict shape returned by
 
-        stays active and only that blade''s work moved to the new SOL);
+        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
 
-        ``linked_sol`` may be null when the counterpart line is gone.'
+        per row in the ``dispatch.workorder_activity_resources`` junction table).'
       properties:
         id:
           title: Id
           type: integer
-        role:
-          title: Role
-          type: string
-        turbine_component:
-          anyOf:
-          - $ref: '#/components/schemas/SolScopeChangeComponent'
-          - type: 'null'
-        linked_sol:
-          anyOf:
-          - $ref: '#/components/schemas/SolScopeChangeLinkedSol'
-          - type: 'null'
-      required:
-      - id
-      - role
-      title: SolScopeChange
-      type: object
-    SolScopeChangeComponent:
-      additionalProperties: false
-      description: The blade a per-blade scope change applies to.
-      properties:
-        id:
-          title: Id
+        resource_id:
+          title: Resource Id
           type: integer
-        position:
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Lead
+        resource_full_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Position
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      title: WorkorderActivityResourceLink
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    WorkorderTurbineComponentInfo:
+      additionalProperties: false
+      description: Nested turbine component info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
         serial_number:
           anyOf:
           - type: string
@@ -368,7 +381,23 @@ components:
           title: Serial Number
       required:
       - id
-      title: SolScopeChangeComponent
+      title: WorkorderTurbineComponentInfo
+      type: object
+    FilterProjectOption:
+      additionalProperties: false
+      description: Project option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: FilterProjectOption
       type: object
     FilterSolOption:
       additionalProperties: false
@@ -385,6 +414,20 @@ components:
       required:
       - id
       title: FilterSolOption
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     WorkorderDetailResponse:
       additionalProperties: false
@@ -488,9 +531,233 @@ components:
       - id
       title: WorkorderDetailResponse
       type: object
-    WorkorderResourceInfo:
+    FilterTurbineOption:
       additionalProperties: false
-      description: Nested resource info for workorder detail response.
+      description: Turbine option for filters endpoint.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: FilterTurbineOption
+      type: object
+    SolInfo:
+      additionalProperties: false
+      description: SOL context info for the SOL activities page header.
+      properties:
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Description
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Quantity
+        scope_change:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChange'
+          - type: 'null'
+        scope_changes:
+          default: []
+          items:
+            $ref: '#/components/schemas/SolScopeChange'
+          title: Scope Changes
+          type: array
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        location_timezone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Timezone
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        project_manager_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Manager Name
+        project_manager_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Manager Email
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+        daily_report_robots:
+          default: []
+          items:
+            type: string
+          title: Daily Report Robots
+          type: array
+        daily_report_team_leads:
+          default: []
+          items:
+            type: string
+          title: Daily Report Team Leads
+          type: array
+        daily_report_technicians:
+          default: []
+          items:
+            type: string
+          title: Daily Report Technicians
+          type: array
+        daily_report_supervisors:
+          default: []
+          items:
+            type: string
+          title: Daily Report Supervisors
+          type: array
+        receive_daily_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Receive Daily Reports
+        draft_last_submitted_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Draft Last Submitted At
+        draft_last_submitted_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Draft Last Submitted By
+        draft_submissions_by_date:
+          anyOf:
+          - additionalProperties:
+              additionalProperties:
+                anyOf:
+                - type: string
+                - type: 'null'
+              type: object
+            type: object
+          - type: 'null'
+          title: Draft Submissions By Date
+      title: SolInfo
+      type: object
+    SolScopeChange:
+      additionalProperties: false
+      description: 'Scope-change context for SOL/workorder header banners.
+
+
+        ``turbine_component`` is set for per-blade changes (the source line
+
+        stays active and only that blade''s work moved to the new SOL);
+
+        ``linked_sol`` may be null when the counterpart line is gone, and is
+
+        always null for ``role="same_service"`` (the request kept the line''s
+
+        service), which carries ``what_changed`` instead.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        role:
+          title: Role
+          type: string
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChangeComponent'
+          - type: 'null'
+        linked_sol:
+          anyOf:
+          - $ref: '#/components/schemas/SolScopeChangeLinkedSol'
+          - type: 'null'
+        what_changed:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: What Changed
+      required:
+      - id
+      - role
+      title: SolScopeChange
+      type: object
+    WorkorderComponentTypeInfo:
+      additionalProperties: false
+      description: Nested component type info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: WorkorderComponentTypeInfo
+      type: object
+    WorkorderTurbineInfo:
+      additionalProperties: false
+      description: Nested turbine info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+      required:
+      - id
+      title: WorkorderTurbineInfo
+      type: object
+    SolScopeChangeComponent:
+      additionalProperties: false
+      description: The blade a per-blade scope change applies to.
+      properties:
+        id:
+          title: Id
+          type: integer
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: SolScopeChangeComponent
+      type: object
+    AvailableResourceInfo:
+      additionalProperties: false
+      description: Available resource option for activity assignment edit.
       properties:
         id:
           title: Id
@@ -505,29 +772,81 @@ components:
           - type: string
           - type: 'null'
           title: Resource Type
-        is_lead:
-          default: false
-          title: Is Lead
-          type: boolean
       required:
       - id
-      title: WorkorderResourceInfo
+      title: AvailableResourceInfo
       type: object
-    WorkorderProjectInfo:
+    WorkorderResponse:
       additionalProperties: false
-      description: Nested project info for workorder response.
+      description: Response schema for a single workorder.
       properties:
         id:
           title: Id
           type: integer
-        code:
+        name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Code
+          title: Name
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Planned End Date
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderTurbineInfo'
+          - type: 'null'
+        project:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderProjectInfo'
+          - type: 'null'
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        service_item_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Item Description
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderComponentTypeInfo'
+          - type: 'null'
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderTurbineComponentInfo'
+          - type: 'null'
+        activities_total:
+          default: 0
+          title: Activities Total
+          type: integer
+        activities_completed:
+          default: 0
+          title: Activities Completed
+          type: integer
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
       required:
       - id
-      title: WorkorderProjectInfo
+      title: WorkorderResponse
       type: object
     SolActivityResponse:
       additionalProperties: false
@@ -672,130 +991,30 @@ components:
       - workorder_id
       title: SolActivityResponse
       type: object
-    AvailableActivityResponse:
+    WorkorderResourceInfo:
       additionalProperties: false
-      description: Response schema for an available service item activity.
+      description: Nested resource info for workorder detail response.
       properties:
         id:
           title: Id
           type: integer
-        description:
-          title: Description
-          type: string
-        estimated_duration:
+        full_name:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
-          title: Estimated Duration
-        custom_fields:
-          anyOf:
-          - items: {}
-            type: array
-          - type: object
-          - type: 'null'
-          title: Custom Fields
-      required:
-      - id
-      - description
-      title: AvailableActivityResponse
-      type: object
-    SolActivitiesPageResponse:
-      additionalProperties: false
-      description: Response schema for SOL activities page endpoint.
-      properties:
-        activities:
-          items:
-            $ref: '#/components/schemas/SolActivityResponse'
-          title: Activities
-          type: array
-        assigned_workorder_ids:
-          items:
-            type: integer
-          title: Assigned Workorder Ids
-          type: array
-        sol_info:
-          anyOf:
-          - $ref: '#/components/schemas/SolInfo'
-          - type: 'null'
-      required:
-      - activities
-      - assigned_workorder_ids
-      title: SolActivitiesPageResponse
-      type: object
-    ResourcePresetMember:
-      additionalProperties: false
-      description: A single member of a resource preset (ProjectResourceSet).
-      properties:
-        resource_id:
-          title: Resource Id
-          type: integer
-        resource_name:
-          title: Resource Name
-          type: string
-        is_lead:
-          default: false
-          title: Is Lead
-          type: boolean
+          title: Full Name
         resource_type:
           anyOf:
           - type: string
           - type: 'null'
           title: Resource Type
-      required:
-      - resource_id
-      - resource_name
-      title: ResourcePresetMember
-      type: object
-    WorkorderActivityResourceLink:
-      additionalProperties: false
-      description: 'Resource assignment row on a workorder activity.
-
-
-        Mirrors the dict shape returned by
-
-        :py:attr:`dispatch.models.WorkorderActivity.activity_resources` (one entry
-
-        per row in the ``dispatch.workorder_activity_resources`` junction table).'
-      properties:
-        id:
-          title: Id
-          type: integer
-        resource_id:
-          title: Resource Id
-          type: integer
         is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
+          default: false
           title: Is Lead
-        resource_full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Full Name
-        resource_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Email
+          type: boolean
       required:
       - id
-      - resource_id
-      title: WorkorderActivityResourceLink
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      title: WorkorderResourceInfo
       type: object
     WorkorderRobotSetInfo:
       additionalProperties: false
@@ -812,130 +1031,6 @@ components:
       required:
       - id
       title: WorkorderRobotSetInfo
-      type: object
-    SolScopeChangeLinkedSol:
-      additionalProperties: false
-      description: The counterpart SOL on the other side of a scope change.
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-      required:
-      - id
-      title: SolScopeChangeLinkedSol
-      type: object
-    WorkorderResponse:
-      additionalProperties: false
-      description: Response schema for a single workorder.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        planned_start_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          title: Planned End Date
-        turbine:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderTurbineInfo'
-          - type: 'null'
-        project:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderProjectInfo'
-          - type: 'null'
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_item_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Item Description
-        component_type:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderComponentTypeInfo'
-          - type: 'null'
-        turbine_component:
-          anyOf:
-          - $ref: '#/components/schemas/WorkorderTurbineComponentInfo'
-          - type: 'null'
-        activities_total:
-          default: 0
-          title: Activities Total
-          type: integer
-        activities_completed:
-          default: 0
-          title: Activities Completed
-          type: integer
-        service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order Line Id
-      required:
-      - id
-      title: WorkorderResponse
-      type: object
-    FilterProjectOption:
-      additionalProperties: false
-      description: Project option for filters endpoint.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-      required:
-      - id
-      title: FilterProjectOption
-      type: object
-    WorkorderComponentTypeInfo:
-      additionalProperties: false
-      description: Nested component type info for workorder response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: WorkorderComponentTypeInfo
       type: object
     WorkorderFiltersResponse:
       additionalProperties: false
@@ -968,21 +1063,119 @@ components:
       - turbines
       title: WorkorderFiltersResponse
       type: object
-    FilterTurbineOption:
+    WorkorderProjectInfo:
       additionalProperties: false
-      description: Turbine option for filters endpoint.
+      description: Nested project info for workorder response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: WorkorderProjectInfo
+      type: object
+    ResourcePresetResponse:
+      additionalProperties: false
+      description: A project resource set available as a team preset.
       properties:
         id:
           title: Id
           type: integer
         name:
+          title: Name
+          type: string
+        description:
           anyOf:
           - type: string
           - type: 'null'
-          title: Name
+          title: Description
+        members:
+          items:
+            $ref: '#/components/schemas/ResourcePresetMember'
+          title: Members
+          type: array
       required:
       - id
-      title: FilterTurbineOption
+      - name
+      - members
+      title: ResourcePresetResponse
+      type: object
+    ResourcePresetMember:
+      additionalProperties: false
+      description: A single member of a resource preset (ProjectResourceSet).
+      properties:
+        resource_id:
+          title: Resource Id
+          type: integer
+        resource_name:
+          title: Resource Name
+          type: string
+        is_lead:
+          default: false
+          title: Is Lead
+          type: boolean
+        resource_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Type
+      required:
+      - resource_id
+      - resource_name
+      title: ResourcePresetMember
+      type: object
+    AvailableActivityResponse:
+      additionalProperties: false
+      description: Response schema for an available service item activity.
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          title: Description
+          type: string
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+        custom_fields:
+          anyOf:
+          - items: {}
+            type: array
+          - type: object
+          - type: 'null'
+          title: Custom Fields
+      required:
+      - id
+      - description
+      title: AvailableActivityResponse
+      type: object
+    SolScopeChangeLinkedSol:
+      additionalProperties: false
+      description: The counterpart SOL on the other side of a scope change.
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      title: SolScopeChangeLinkedSol
       type: object
     SolActivityAssignedResources:
       additionalProperties: false
@@ -1014,213 +1207,29 @@ components:
           type: array
       title: SolActivityAssignedResources
       type: object
-    ResourcePresetResponse:
+    SolActivitiesPageResponse:
       additionalProperties: false
-      description: A project resource set available as a team preset.
+      description: Response schema for SOL activities page endpoint.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        members:
+        activities:
           items:
-            $ref: '#/components/schemas/ResourcePresetMember'
-          title: Members
+            $ref: '#/components/schemas/SolActivityResponse'
+          title: Activities
           type: array
+        assigned_workorder_ids:
+          items:
+            type: integer
+          title: Assigned Workorder Ids
+          type: array
+        sol_info:
+          anyOf:
+          - $ref: '#/components/schemas/SolInfo'
+          - type: 'null'
       required:
-      - id
-      - name
-      - members
-      title: ResourcePresetResponse
+      - activities
+      - assigned_workorder_ids
+      title: SolActivitiesPageResponse
       type: object
-    SolInfo:
-      additionalProperties: false
-      description: SOL context info for the SOL activities page header.
-      properties:
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-        quantity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Quantity
-        scope_change:
-          anyOf:
-          - $ref: '#/components/schemas/SolScopeChange'
-          - type: 'null'
-        scope_changes:
-          default: []
-          items:
-            $ref: '#/components/schemas/SolScopeChange'
-          title: Scope Changes
-          type: array
-        location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Name
-        location_timezone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Location Timezone
-        project_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Project Code
-        project_manager_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Project Manager Name
-        project_manager_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Project Manager Email
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Name
-        daily_report_robots:
-          default: []
-          items:
-            type: string
-          title: Daily Report Robots
-          type: array
-        daily_report_team_leads:
-          default: []
-          items:
-            type: string
-          title: Daily Report Team Leads
-          type: array
-        daily_report_technicians:
-          default: []
-          items:
-            type: string
-          title: Daily Report Technicians
-          type: array
-        daily_report_supervisors:
-          default: []
-          items:
-            type: string
-          title: Daily Report Supervisors
-          type: array
-        receive_daily_reports:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Receive Daily Reports
-        draft_last_submitted_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Draft Last Submitted At
-        draft_last_submitted_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Draft Last Submitted By
-        draft_submissions_by_date:
-          anyOf:
-          - additionalProperties:
-              additionalProperties:
-                anyOf:
-                - type: string
-                - type: 'null'
-              type: object
-            type: object
-          - type: 'null'
-          title: Draft Submissions By Date
-      title: SolInfo
-      type: object
-    WorkorderTurbineComponentInfo:
-      additionalProperties: false
-      description: Nested turbine component info for workorder response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Serial Number
-      required:
-      - id
-      title: WorkorderTurbineComponentInfo
-      type: object
-    AvailableResourceInfo:
-      additionalProperties: false
-      description: Available resource option for activity assignment edit.
-      properties:
-        id:
-          title: Id
-          type: integer
-        full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Full Name
-        resource_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resource Type
-      required:
-      - id
-      title: AvailableResourceInfo
-      type: object
-    WorkorderTurbineInfo:
-      additionalProperties: false
-      description: Nested turbine info for workorder response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-      required:
-      - id
-      title: WorkorderTurbineInfo
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

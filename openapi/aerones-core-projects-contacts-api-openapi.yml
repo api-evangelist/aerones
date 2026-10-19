@@ -215,43 +215,112 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerLocationObject:
+    ProjectContactCreate:
       additionalProperties: false
-      description: Nested customer location object for responses.
+      description: Schema for creating a ProjectContact.
       properties:
-        id:
-          title: Id
+        customer_contact_id:
+          description: Customer contact ID
+          title: Customer Contact Id
           type: integer
-        location:
-          $ref: '#/components/schemas/LocationObject'
-        relationship:
+        role:
           anyOf:
-          - $ref: '#/components/schemas/RelationshipTypeObject'
+          - $ref: '#/components/schemas/ProjectContactMutableRole'
           - type: 'null'
+          description: Role in project
+        customer_type:
+          description: 'Customer type: ''billing'' or ''requesting'''
+          enum:
+          - billing
+          - requesting
+          title: Customer Type
+          type: string
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
       required:
-      - id
-      - location
-      title: CustomerLocationObject
+      - customer_contact_id
+      - customer_type
+      title: ProjectContactCreate
       type: object
-    RelationshipTypeObject:
+    CustomerContactObject:
       additionalProperties: false
-      description: Nested relationship type object for responses (no timestamps).
+      description: Nested customer contact object for responses.
       properties:
         id:
           title: Id
           type: integer
-        code:
-          title: Code
+        name:
+          title: Name
           type: string
-        description:
+        email:
           anyOf:
           - type: string
           - type: 'null'
-          title: Description
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
       required:
       - id
-      - code
-      title: RelationshipTypeObject
+      - name
+      title: CustomerContactObject
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    ProjectContactUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectContact.
+      properties:
+        customer_contact_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer contact ID
+          title: Customer Contact Id
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectContactMutableRole'
+          - type: 'null'
+          description: Role in project
+        customer_type:
+          anyOf:
+          - enum:
+            - billing
+            - requesting
+            type: string
+          - type: 'null'
+          description: 'Customer type: ''billing'' or ''requesting'''
+          title: Customer Type
+        customer_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer location ID
+          title: Customer Location Id
+      title: ProjectContactUpdate
       type: object
     ProjectContactResponse:
       additionalProperties: false
@@ -298,81 +367,6 @@ components:
       - customer_type
       title: ProjectContactResponse
       type: object
-    ProjectContactRole:
-      description: 'All possible roles for ProjectContact (used in responses).
-
-
-        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
-
-        intentionally preserve it for API compatibility.'
-      enum:
-      - PRIMARY_CONTACT
-      - REPORT_RECEPIENT
-      - INVOICE_APPROVER
-      - SITE_CONTACT
-      - QHSE_CONTACT
-      title: ProjectContactRole
-      type: string
-    ProjectContactUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectContact.
-      properties:
-        customer_contact_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer contact ID
-          title: Customer Contact Id
-        role:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectContactMutableRole'
-          - type: 'null'
-          description: Role in project
-        customer_type:
-          anyOf:
-          - enum:
-            - billing
-            - requesting
-            type: string
-          - type: 'null'
-          description: 'Customer type: ''billing'' or ''requesting'''
-          title: Customer Type
-        customer_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer location ID
-          title: Customer Location Id
-      title: ProjectContactUpdate
-      type: object
-    ProjectContactMutableRole:
-      description: 'Roles allowed when creating or updating a ProjectContact.
-
-
-        SITE_CONTACT remains migration-managed and read-only. QHSE_CONTACT is
-
-        assignable through the API for pre-job safety workflows.'
-      enum:
-      - PRIMARY_CONTACT
-      - REPORT_RECEPIENT
-      - INVOICE_APPROVER
-      - QHSE_CONTACT
-      title: ProjectContactMutableRole
-      type: string
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -393,48 +387,23 @@ components:
           type: boolean
       title: Success
       type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
-    ProjectContactCreate:
+    CustomerLocationObject:
       additionalProperties: false
-      description: Schema for creating a ProjectContact.
+      description: Nested customer location object for responses.
       properties:
-        customer_contact_id:
-          description: Customer contact ID
-          title: Customer Contact Id
+        id:
+          title: Id
           type: integer
-        role:
+        location:
+          $ref: '#/components/schemas/LocationObject'
+        relationship:
           anyOf:
-          - $ref: '#/components/schemas/ProjectContactMutableRole'
+          - $ref: '#/components/schemas/RelationshipTypeObject'
           - type: 'null'
-          description: Role in project
-        customer_type:
-          description: 'Customer type: ''billing'' or ''requesting'''
-          enum:
-          - billing
-          - requesting
-          title: Customer Type
-          type: string
-        customer_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer location ID
-          title: Customer Location Id
       required:
-      - customer_contact_id
-      - customer_type
-      title: ProjectContactCreate
+      - id
+      - location
+      title: CustomerLocationObject
       type: object
     ErrorCode:
       description: Error codes for API errors.
@@ -447,49 +416,80 @@ components:
       - generic
       title: ErrorCode
       type: string
-    CustomerContactObject:
+    ProjectContactMutableRole:
+      description: 'Roles allowed when creating or updating a ProjectContact.
+
+
+        SITE_CONTACT remains migration-managed and read-only. QHSE_CONTACT is
+
+        assignable through the API for pre-job safety workflows.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - QHSE_CONTACT
+      title: ProjectContactMutableRole
+      type: string
+    ProjectContactRole:
+      description: 'All possible roles for ProjectContact (used in responses).
+
+
+        Note: The backend historically uses the typo''d value REPORT_RECEPIENT and we
+
+        intentionally preserve it for API compatibility.'
+      enum:
+      - PRIMARY_CONTACT
+      - REPORT_RECEPIENT
+      - INVOICE_APPROVER
+      - SITE_CONTACT
+      - QHSE_CONTACT
+      title: ProjectContactRole
+      type: string
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    RelationshipTypeObject:
       additionalProperties: false
-      description: Nested customer contact object for responses.
+      description: Nested relationship type object for responses (no timestamps).
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
+        code:
+          title: Code
           type: string
-        email:
+        description:
           anyOf:
           - type: string
           - type: 'null'
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Phone
+          title: Description
       required:
       - id
-      - name
-      title: CustomerContactObject
+      - code
+      title: RelationshipTypeObject
       type: object
-    LocationObject:
+    Error:
       additionalProperties: false
-      description: Nested location object for responses (no timestamps).
+      description: Error response schema.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
       required:
-      - id
-      - name
-      title: LocationObject
+      - code
+      - message
+      title: Error
       type: object
   securitySchemes:
     APIKeyAuth:

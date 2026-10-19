@@ -215,17 +215,45 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ResourceCertificateUpdate:
+    Success:
       additionalProperties: false
-      description: 'Schema for updating a ResourceCertificate (partial).
+      description: 'Schema returned for successful operations.
 
 
-        ``certificate_id`` is intentionally omitted: the certificate a row points at
+        The `success` field is always ``true`` in this schema. Failed operations are
 
-        is immutable. To assign a different certificate, delete this row and create a
+        represented by the :class:`Error` schema instead, so a ``false`` value does
 
-        new one.'
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ResourceCertificateCreate:
+      additionalProperties: false
+      description: Schema for creating a ResourceCertificate under a resource.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
         issuer_id:
           anyOf:
           - type: integer
@@ -268,7 +296,9 @@ components:
           - type: 'null'
           description: Identifier of the source row in the origin system
           title: Source Id
-      title: ResourceCertificateUpdate
+      required:
+      - certificate_id
+      title: ResourceCertificateCreate
       type: object
     CertificateObject:
       additionalProperties: false
@@ -354,14 +384,17 @@ components:
       - certificate
       title: ResourceCertificateResponse
       type: object
-    ResourceCertificateCreate:
+    ResourceCertificateUpdate:
       additionalProperties: false
-      description: Schema for creating a ResourceCertificate under a resource.
+      description: 'Schema for updating a ResourceCertificate (partial).
+
+
+        ``certificate_id`` is intentionally omitted: the certificate a row points at
+
+        is immutable. To assign a different certificate, delete this row and create a
+
+        new one.'
       properties:
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
-          type: integer
         issuer_id:
           anyOf:
           - type: integer
@@ -404,9 +437,7 @@ components:
           - type: 'null'
           description: Identifier of the source row in the origin system
           title: Source Id
-      required:
-      - certificate_id
-      title: ResourceCertificateCreate
+      title: ResourceCertificateUpdate
       type: object
     Error:
       additionalProperties: false
@@ -422,37 +453,6 @@ components:
       - message
       title: Error
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -221,7 +221,7 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    PlanningNestedProject:
+    PlanningNestedCustomerVendor:
       properties:
         id:
           title: Id
@@ -229,73 +229,32 @@ components:
         name:
           title: Name
           type: string
-      required:
-      - id
-      - name
-      title: PlanningNestedProject
-      type: object
-    PlanningNestedCustomerVendor:
-      properties:
-        id:
-          title: Id
-          type: integer
         vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Vendor Id
-          type: integer
         vendor:
           anyOf:
           - $ref: '#/components/schemas/PlanningNestedVendor'
           - type: 'null'
       required:
       - id
-      - vendor_id
+      - name
       title: PlanningNestedCustomerVendor
       type: object
-    PlanningNestedService:
+    PlanningServiceOrderUpdate:
       properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      required:
-      - id
-      - code
-      title: PlanningNestedService
-      type: object
-    PlanningNestedVendor:
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: PlanningNestedVendor
-      type: object
-    PlanningServiceOrderCreate:
-      additionalProperties: false
-      properties:
-        customer_id:
-          title: Customer Id
-          type: integer
         project_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Project Id
         service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
           title: Service Id
-          type: integer
         vendor_id:
           anyOf:
           - type: integer
@@ -332,7 +291,6 @@ components:
           anyOf:
           - type: string
           - type: 'null'
-          default: PLANNED
           title: Status
         priority:
           anyOf:
@@ -385,10 +343,7 @@ components:
           - type: string
           - type: 'null'
           title: Actual Cost
-      required:
-      - customer_id
-      - service_id
-      title: PlanningServiceOrderCreate
+      title: PlanningServiceOrderUpdate
       type: object
     PlanningServiceOrderResponse:
       properties:
@@ -529,32 +484,18 @@ components:
       - updated_at
       title: PlanningServiceOrderResponse
       type: object
-    PlanningNestedCustomer:
+    PlanningNestedProject:
       properties:
         id:
           title: Id
           type: integer
-        display_name:
-          title: Display Name
+        name:
+          title: Name
           type: string
       required:
       - id
-      - display_name
-      title: PlanningNestedCustomer
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+      - name
+      title: PlanningNestedProject
       type: object
     Success:
       additionalProperties: false
@@ -576,18 +517,20 @@ components:
           type: boolean
       title: Success
       type: object
-    PlanningServiceOrderUpdate:
+    PlanningServiceOrderCreate:
+      additionalProperties: false
       properties:
+        customer_id:
+          title: Customer Id
+          type: integer
         project_id:
           anyOf:
           - type: integer
           - type: 'null'
           title: Project Id
         service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
           title: Service Id
+          type: integer
         vendor_id:
           anyOf:
           - type: integer
@@ -624,6 +567,7 @@ components:
           anyOf:
           - type: string
           - type: 'null'
+          default: PLANNED
           title: Status
         priority:
           anyOf:
@@ -676,7 +620,41 @@ components:
           - type: string
           - type: 'null'
           title: Actual Cost
-      title: PlanningServiceOrderUpdate
+      required:
+      - customer_id
+      - service_id
+      title: PlanningServiceOrderCreate
+      type: object
+    PlanningNestedService:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedService
+      type: object
+    PlanningNestedVendor:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedVendor
       type: object
     ErrorCode:
       description: Error codes for API errors.
@@ -689,6 +667,33 @@ components:
       - generic
       title: ErrorCode
       type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    PlanningNestedCustomer:
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: PlanningNestedCustomer
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

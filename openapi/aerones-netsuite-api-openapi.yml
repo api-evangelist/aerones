@@ -7,129 +7,6 @@ servers: []
 tags:
 - name: netsuite
 paths:
-  /api/netsuite/projects/{netsuite_project_id}:
-    delete:
-      operationId: integrations_netsuite_api_delete_project
-      summary: Delete Project
-      parameters:
-      - in: path
-        name: netsuite_project_id
-        schema:
-          title: Netsuite Project Id
-          type: integer
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Success'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: Delete a NetSuite project.
-      tags:
-      - netsuite
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
-  /api/netsuite/assets/{asset_id}:
-    delete:
-      operationId: integrations_netsuite_api_delete_asset
-      summary: Delete Asset
-      parameters:
-      - in: path
-        name: asset_id
-        schema:
-          title: Asset Id
-          type: integer
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Success'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: Delete a NetSuite asset.
-      tags:
-      - netsuite
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
-  /api/netsuite/customers/{customer_id}:
-    delete:
-      operationId: integrations_netsuite_api_delete_customer
-      summary: Delete Customer
-      parameters:
-      - in: path
-        name: customer_id
-        schema:
-          title: Customer Id
-          type: integer
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Success'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: Delete a NetSuite customer.
-      tags:
-      - netsuite
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
-  /api/netsuite/sales-orders/by-project-code:
-    get:
-      operationId: integrations_netsuite_api_get_all_sales_order_by_project_code
-      summary: Get All Sales Order By Project Code
-      parameters:
-      - in: query
-        name: project_code
-        schema:
-          title: Project Code
-          type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/SalesOrder'
-                title: Response
-                type: array
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: Get all sales order by project code.
-      tags:
-      - netsuite
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
   /api/netsuite/subsidiaries:
     get:
       operationId: integrations_netsuite_api_get_subsidiaries
@@ -192,81 +69,36 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    SalesOrder:
+    Subsidiary:
       additionalProperties: false
-      description: Schema for sales order.
+      description: Aerones billing entity.
       properties:
         id:
-          description: NetSuite ID for the sales order
           title: Id
           type: integer
         name:
-          description: Sales order name
           title: Name
           type: string
-        ns_project_id:
-          description: NetSuite ID for (NS) project
-          title: Ns Project Id
-          type: integer
-        customer_id:
-          description: NetSuite ID for customer
-          title: Customer Id
-          type: integer
-        customer_name:
-          description: Customer name
-          title: Customer Name
-          type: string
-        status_name:
+        country:
           anyOf:
           - type: string
           - type: 'null'
-          description: Status name
-          title: Status Name
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite ID for currency
-          title: Currency Id
-        currency_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Currency name
-          title: Currency Name
-        offer_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Offer version
-          title: Offer Version
-        created_date:
-          anyOf:
-          - format: date
+          title: Country
+        default_for_country_codes:
+          default: []
+          items:
             type: string
-          - type: 'null'
-          description: Sales order transaction date
-          title: Created Date
-        source_system:
-          anyOf:
-          - $ref: '#/components/schemas/SalesOrderSourceSystem'
-          - type: 'null'
-          description: Source system for sales order (legacy, ops_hub)
+          title: Default For Country Codes
+          type: array
+        is_default_fallback:
+          default: false
+          title: Is Default Fallback
+          type: boolean
       required:
       - id
       - name
-      - ns_project_id
-      - customer_id
-      - customer_name
-      title: SalesOrder
+      title: Subsidiary
       type: object
-    SalesOrderSourceSystem:
-      description: Source system for sales order creation.
-      enum:
-      - 1
-      - 2
-      title: SalesOrderSourceSystem
-      type: integer
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -281,6 +113,17 @@ components:
       - message
       title: Error
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Success:
       additionalProperties: false
       description: 'Schema returned for successful operations.
@@ -300,55 +143,6 @@ components:
           title: Success
           type: boolean
       title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    Subsidiary:
-      additionalProperties: false
-      description: Subsidiary
-      properties:
-        id:
-          description: NetSuite ID of the subsidiary
-          title: Id
-          type: integer
-        name:
-          description: Name of the subsidiary
-          title: Name
-          type: string
-        country:
-          description: Country of the subsidiary
-          title: Country
-          type: string
-        iselimination:
-          description: Is elimination
-          title: Iselimination
-          type: boolean
-        currency:
-          description: Currency of the subsidiary
-          title: Currency
-          type: string
-        parent:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent subsidiary of this subsidiary
-          title: Parent
-      required:
-      - id
-      - name
-      - country
-      - iselimination
-      - currency
-      title: Subsidiary
       type: object
   securitySchemes:
     APIKeyAuth:

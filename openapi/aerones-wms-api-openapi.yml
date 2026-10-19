@@ -103,6 +103,193 @@ paths:
         is attributed to that user in the activity log.'
       tags:
       - WMS
+  /api/wms/team-requests/{external_id}/send-to-planner:
+    post:
+      operationId: projects_api_wms_team_requests_send_team_request_to_planner
+      summary: Send Team Request To Planner
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: 'SUBMITTED → SENT_TO_PLANNER from the WMS certificate pre-check.
+
+
+        Optional JSON body ``{actor_name, actor_email}``, read by hand because an
+
+        empty body is valid. Idempotent: a TR past SUBMITTED answers 200 with
+
+        ``changed: false``. CANCELLED is 409; ``ROBOT_SET_REMOVED`` /
+
+        ``PRE_JOB_HAS_UNRESOLVED_CERTS`` are 422.'
+      tags:
+      - WMS
+  /api/wms/team-requests/{external_id}/verify:
+    post:
+      operationId: projects_api_wms_team_requests_verify_team_request
+      summary: Verify Team Request
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: 'PEOPLE_ASSIGNED → TEAM_VERIFIED from the WMS certificate approval.
+
+
+        ``slots`` is the team the controller checked, one ``{slot_id, resource_id}``
+
+        per bound seat. Idempotent on TEAM_VERIFIED (``changed: false``). 409 for
+
+        any other status, a team that changed since the check, or a rejected seat.
+
+        ``actor_email`` is accepted for parity with ``/send-to-planner`` but unused.'
+      tags:
+      - WMS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_VerifyPayload'
+        required: true
+  /api/wms/team-requests/{external_id}/certificates:
+    post:
+      operationId: projects_api_wms_team_requests_change_team_request_certificates
+      summary: Change Team Request Certificates
+      parameters:
+      - in: path
+        name: external_id
+        schema:
+          title: External Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                title: Response
+                type: object
+      description: 'Add and remove required certificates on a TR and its active slots.
+
+
+        The WMS certificate controller''s per-card decision. Idempotent. 409 on a
+
+        CANCELLED TR, 422 when an id is in both lists. Unknown or retired ids are
+
+        listed under ``refused`` and not applied.'
+      tags:
+      - WMS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_CertificatesPayload'
+        required: true
   /api/wms/team-requests/{external_id}/slots/{slot_id}/approve:
     post:
       operationId: projects_api_wms_team_requests_approve_team_request_slot
@@ -227,6 +414,20 @@ paths:
       - WMS
 components:
   schemas:
+    _CheckedSlot:
+      additionalProperties: false
+      properties:
+        slot_id:
+          title: Slot Id
+          type: integer
+        resource_id:
+          title: Resource Id
+          type: integer
+      required:
+      - slot_id
+      - resource_id
+      title: _CheckedSlot
+      type: object
     _NotePayload:
       additionalProperties: false
       properties:
@@ -236,6 +437,55 @@ components:
       required:
       - text
       title: _NotePayload
+      type: object
+    _CertificatesPayload:
+      additionalProperties: false
+      properties:
+        add:
+          default: []
+          items:
+            type: integer
+          title: Add
+          type: array
+        remove:
+          default: []
+          items:
+            type: integer
+          title: Remove
+          type: array
+        actor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Name
+        actor_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Email
+      title: _CertificatesPayload
+      type: object
+    _VerifyPayload:
+      additionalProperties: false
+      properties:
+        slots:
+          items:
+            $ref: '#/components/schemas/_CheckedSlot'
+          title: Slots
+          type: array
+        actor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Name
+        actor_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Email
+      required:
+      - slots
+      title: _VerifyPayload
       type: object
   securitySchemes:
     APIKeyAuth:

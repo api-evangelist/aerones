@@ -1,0 +1,299 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Bamboohr.employee Visas API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: bamboohr.employee-visas
+paths:
+  /api/bamboohr/v1/employee-visas:
+    get:
+      operationId: list_bamboohr_employee_visas
+      summary: List BambooHR Employee Visas
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by employee display name, first/last name, or work email (case-insensitive).
+          title: Search
+        required: false
+        description: Search by employee display name, first/last name, or work email (case-insensitive).
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: work_email
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by the employee's exact work email
+          title: Work Email
+        required: false
+        description: Filter by the employee's exact work email
+      - in: query
+        name: employee_status
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by employment status (ACTIVE, INACTIVE, TERMINATED). The visa row itself has no status; validity follows from expiry_date.
+          title: Employee Status
+        required: false
+        description: Filter by employment status (ACTIVE, INACTIVE, TERMINATED). The visa row itself has no status; validity follows from expiry_date.
+      - in: query
+        name: visa_type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by visa type
+          title: Visa Type
+        required: false
+        description: Filter by visa type
+      - in: query
+        name: country
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by visa country
+          title: Country
+        required: false
+        description: Filter by visa country
+      - in: query
+        name: expiry_before
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Only visas expiring strictly before this date (YYYY-MM-DD)
+          title: Expiry Before
+        required: false
+        description: Only visas expiring strictly before this date (YYYY-MM-DD)
+      - in: query
+        name: updated_since
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: 'Only rows whose content changed at or after this ISO-8601 timestamp, so a consumer can poll incrementally instead of pulling the whole table. Spans the employee too: a visa comes back when its own columns changed or when the employee identity carried on it did. An hourly ingest pass that finds a row unchanged does not move either timestamp. A visa the ingest retires simply stops appearing, so an incremental consumer never learns it was withdrawn and has to re-read the full list to notice.'
+          title: Updated Since
+        required: false
+        description: 'Only rows whose content changed at or after this ISO-8601 timestamp, so a consumer can poll incrementally instead of pulling the whole table. Spans the employee too: a visa comes back when its own columns changed or when the employee identity carried on it did. An hourly ingest pass that finds a row unchanged does not move either timestamp. A visa the ingest retires simply stops appearing, so an incremental consumer never learns it was withdrawn and has to re-read the full list to notice.'
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BambooHREmployeeVisaResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - bamboohr.employee-visas
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    BambooHREmployeeVisaResponse:
+      additionalProperties: false
+      description: 'Row in the BambooHR employee-visa list endpoint.
+
+
+        Carries the visa columns plus the employee identity a consumer needs to
+
+        join on its own side (work email, employee number, linked core.Resource)
+
+        without a second call to the employees endpoint.'
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Internal BambooHREmployeeVisa PK
+          title: Id
+          type: integer
+        employee_id:
+          description: Internal BambooHREmployee PK
+          title: Employee Id
+          type: integer
+        bamboohr_employee_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External BambooHR employee ID (string)
+          title: Bamboohr Employee Id
+        employee_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: BambooHR employee number
+          title: Employee Number
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employee display name
+          title: Display Name
+        work_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employee work email
+          title: Work Email
+        employee_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Employment status (ACTIVE / INACTIVE / TERMINATED)
+          title: Employee Status
+        linked_resource_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ID of the core.Resource currently linked to this employee, or null if unlinked.
+          title: Linked Resource Id
+        country:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Visa country, as the raw BambooHR string
+          title: Country
+        visa_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Visa type, as the raw BambooHR string
+          title: Visa Type
+        issue_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Issue date (YYYY-MM-DD)
+          title: Issue Date
+        expiry_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Expiry date (YYYY-MM-DD)
+          title: Expiry Date
+        document_uploaded:
+          description: Whether BambooHR holds a scan of the visa document
+          title: Document Uploaded
+          type: boolean
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Free-text note from BambooHR
+          title: Note
+        bamboohr_row_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ID of the source row in the BambooHR custom table
+          title: Bamboohr Row Id
+        fetched_at:
+          description: When the ingest last read this row from BambooHR
+          format: date-time
+          title: Fetched At
+          type: string
+      required:
+      - updated_at
+      - id
+      - employee_id
+      - document_uploaded
+      - fetched_at
+      title: BambooHREmployeeVisaResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

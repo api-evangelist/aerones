@@ -1,0 +1,190 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.feedback API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.feedback
+paths:
+  /api/core/v1/feedback-submissions:
+    get:
+      operationId: list_my_feedback_submissions
+      summary: List my feedback submissions
+      parameters:
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FeedbackSubmissionResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: The acting user's own feedback tickets, newest first.
+      tags:
+      - core.feedback
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_feedback_submission
+      summary: Record a feedback submission
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackSubmissionResponse'
+      description: Records a ticket the acting user just opened in the tracker.
+      tags:
+      - core.feedback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackSubmissionCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    FeedbackSubmissionResponse:
+      additionalProperties: false
+      description: One of the acting user's feedback tickets.
+      properties:
+        id:
+          title: Id
+          type: integer
+        tracker_code:
+          title: Tracker Code
+          type: string
+        kind:
+          title: Kind
+          type: string
+        summary:
+          title: Summary
+          type: string
+        page_url:
+          title: Page Url
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - id
+      - tracker_code
+      - kind
+      - summary
+      - page_url
+      - created_at
+      title: FeedbackSubmissionResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    FeedbackSubmissionCreate:
+      additionalProperties: false
+      description: A ticket the user just opened from the Send feedback button.
+      properties:
+        tracker_code:
+          description: Tracker ticket code, e.g. OH-6422
+          maxLength: 40
+          title: Tracker Code
+          type: string
+        kind:
+          description: bug, idea or other
+          maxLength: 20
+          title: Kind
+          type: string
+        summary:
+          description: Start of what the user wrote
+          maxLength: 300
+          title: Summary
+          type: string
+        page_url:
+          default: ''
+          description: Page the feedback was sent from
+          maxLength: 2000
+          title: Page Url
+          type: string
+      required:
+      - tracker_code
+      - kind
+      - summary
+      title: FeedbackSubmissionCreate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

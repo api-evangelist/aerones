@@ -237,6 +237,108 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    DataTrackingStatus:
+      description: 'Allowed API status values for data tracking updates.
+
+
+        ABANDONED is set by the sync jobs, never by the pipeline, once a file has
+
+        gone ``ABANDON_AFTER`` (``core/services/data_tracking_sync_utils.py``)
+
+        without the pipeline producing anything that would resolve it. It is
+
+        distinct from FAILED, which means the importer recorded a real failure.
+
+
+        NOT_APPLICABLE settles a stage the pipeline never runs for the file, such as
+
+        AI inference for a photo. Like ABANDONED it is never started and does not
+
+        hold its stage open.'
+      enum:
+      - NOT_STARTED
+      - INITIALISED
+      - IN-PROGRESS
+      - COMPLETED
+      - FAILED
+      - ABANDONED
+      - NOT_APPLICABLE
+      title: DataTrackingStatus
+      type: string
+    DataTrackingUpdateRequest:
+      additionalProperties: false
+      description: Request body for updating a tracked file.
+      properties:
+        file_path:
+          minLength: 1
+          title: File Path
+          type: string
+        upload_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Upload Id
+        upload_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        upload_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Error
+        process_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        process_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Process Error
+        ai_inference_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        ai_inference_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Error
+        archive_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        archive_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Archive Error
+        import_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        import_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Import Error
+      required:
+      - file_path
+      title: DataTrackingUpdateRequest
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     DataTrackingStatusCountsResponse:
       additionalProperties: false
       description: Aggregated data-tracking status counters for a batch of lines.
@@ -288,6 +390,11 @@ components:
         file_path:
           title: File Path
           type: string
+        upload_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Id
         workorder_id:
           anyOf:
           - type: integer
@@ -343,6 +450,31 @@ components:
           - type: string
           - type: 'null'
           title: Process Logfile
+        ai_inference_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Status
+        ai_inference_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Error
+        ai_inference_started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Started At
+        ai_inference_finished_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Finished At
+        ai_inference_logfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Logfile
         archive_status:
           anyOf:
           - type: string
@@ -405,6 +537,12 @@ components:
           minLength: 1
           title: File Path
           type: string
+        upload_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          title: Upload Id
         upload_status:
           anyOf:
           - $ref: '#/components/schemas/DataTrackingStatus'
@@ -423,6 +561,15 @@ components:
           - type: string
           - type: 'null'
           title: Process Error
+        ai_inference_status:
+          anyOf:
+          - $ref: '#/components/schemas/DataTrackingStatus'
+          - type: 'null'
+        ai_inference_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Error
         archive_status:
           anyOf:
           - $ref: '#/components/schemas/DataTrackingStatus'
@@ -445,86 +592,6 @@ components:
       - file_path
       title: DataTrackingCreateRequest
       type: object
-    DataTrackingUpdateRequest:
-      additionalProperties: false
-      description: Request body for updating a tracked file.
-      properties:
-        file_path:
-          minLength: 1
-          title: File Path
-          type: string
-        upload_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        upload_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Upload Error
-        process_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        process_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Process Error
-        archive_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        archive_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Archive Error
-        import_status:
-          anyOf:
-          - $ref: '#/components/schemas/DataTrackingStatus'
-          - type: 'null'
-        import_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Import Error
-      required:
-      - file_path
-      title: DataTrackingUpdateRequest
-      type: object
-    ServiceOrderLineStatusCounts:
-      additionalProperties: false
-      description: Per-stage status counters for a single service order line.
-      properties:
-        id:
-          title: Id
-          type: integer
-        total_files:
-          description: Distinct tracked files. Every stage's buckets sum to this value.
-          title: Total Files
-          type: integer
-        updated_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Most recent change across the line's rows; null when none.
-          title: Updated At
-        stages:
-          additionalProperties:
-            additionalProperties:
-              type: integer
-            type: object
-          description: 'Open map of stage key -> {status: count}. Statuses are the verbatim DataTrackingStatus values; zero buckets are omitted.'
-          title: Stages
-          type: object
-      required:
-      - id
-      - total_files
-      - stages
-      title: ServiceOrderLineStatusCounts
-      type: object
     DataTrackingResponse:
       additionalProperties: false
       description: Tracked file status response (flat, aggregated across stage rows).
@@ -537,6 +604,11 @@ components:
         file_path:
           title: File Path
           type: string
+        upload_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Upload Id
         workorder_id:
           anyOf:
           - type: integer
@@ -592,6 +664,31 @@ components:
           - type: string
           - type: 'null'
           title: Process Logfile
+        ai_inference_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Status
+        ai_inference_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Error
+        ai_inference_started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Started At
+        ai_inference_finished_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Finished At
+        ai_inference_logfile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Inference Logfile
         archive_status:
           anyOf:
           - type: string
@@ -642,17 +739,38 @@ components:
       - file_path
       title: DataTrackingResponse
       type: object
-    DataTrackingStatus:
-      description: Allowed API status values for data tracking updates.
-      enum:
-      - NOT_STARTED
-      - INITIALISED
-      - IN-PROGRESS
-      - COMPLETED
-      - FAILED
-      - ABANDONED
-      title: DataTrackingStatus
-      type: string
+    ServiceOrderLineStatusCounts:
+      additionalProperties: false
+      description: Per-stage status counters for a single service order line.
+      properties:
+        id:
+          title: Id
+          type: integer
+        total_files:
+          description: Distinct tracked files. Every stage's buckets sum to this value.
+          title: Total Files
+          type: integer
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Most recent change across the line's rows; null when none.
+          title: Updated At
+        stages:
+          additionalProperties:
+            additionalProperties:
+              type: integer
+            type: object
+          description: 'Open map of stage key -> {status: count}. Statuses are the verbatim DataTrackingStatus values; zero buckets are omitted.'
+          title: Stages
+          type: object
+      required:
+      - id
+      - total_files
+      - stages
+      title: ServiceOrderLineStatusCounts
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -667,17 +785,6 @@ components:
       - message
       title: Error
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -255,58 +255,34 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerTurbineResponse:
+    TurbineWithLocationObject:
       additionalProperties: false
-      description: Schema for CustomerTurbine response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Customer turbine ID
-          title: Id
-          type: integer
-        customer_id:
-          description: Customer ID
-          title: Customer Id
-          type: integer
-        turbine:
-          $ref: '#/components/schemas/TurbineWithLocationObject'
-          description: Turbine information with location
-        relationship:
-          anyOf:
-          - $ref: '#/components/schemas/RelationshipTypeObject'
-          - type: 'null'
-          description: Relationship type information
-      required:
-      - updated_at
-      - id
-      - customer_id
-      - turbine
-      title: CustomerTurbineResponse
-      type: object
-    RelationshipTypeObject:
-      additionalProperties: false
-      description: Nested relationship type object for responses (no timestamps).
+      description: Nested turbine object with location for customer turbine responses.
       properties:
         id:
           title: Id
           type: integer
-        code:
-          title: Code
-          type: string
-        description:
+        name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Description
+          title: Name
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/LocationObject'
+          - type: 'null'
       required:
       - id
-      - code
-      title: RelationshipTypeObject
+      title: TurbineWithLocationObject
       type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
     CustomerTurbineCreate:
       additionalProperties: false
       description: Schema for creating or sharing a turbine in customer context.
@@ -450,6 +426,81 @@ components:
       - mode
       title: CustomerTurbineCreate
       type: object
+    CustomerTurbineCreateMode:
+      description: Supported create flows for customer turbines.
+      enum:
+      - share
+      - create
+      title: CustomerTurbineCreateMode
+      type: string
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    CustomerTurbineUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerTurbine.
+      properties:
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine ID
+          title: Turbine Id
+        relationship_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Relationship type ID
+          title: Relationship Id
+      title: CustomerTurbineUpdate
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     LocationType:
       description: Allowed location type values in location.
       enum:
@@ -462,14 +513,58 @@ components:
       - OFFICE
       title: LocationType
       type: string
-    PositionEnum:
-      description: Enum for turbine component positions.
-      enum:
-      - A
-      - B
-      - C
-      title: PositionEnum
-      type: string
+    CustomerTurbineResponse:
+      additionalProperties: false
+      description: Schema for CustomerTurbine response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Customer turbine ID
+          title: Id
+          type: integer
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/TurbineWithLocationObject'
+          description: Turbine information with location
+        relationship:
+          anyOf:
+          - $ref: '#/components/schemas/RelationshipTypeObject'
+          - type: 'null'
+          description: Relationship type information
+      required:
+      - updated_at
+      - id
+      - customer_id
+      - turbine
+      title: CustomerTurbineResponse
+      type: object
+    RelationshipTypeObject:
+      additionalProperties: false
+      description: Nested relationship type object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: RelationshipTypeObject
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -484,13 +579,6 @@ components:
       - message
       title: Error
       type: object
-    CustomerTurbineCreateMode:
-      description: Supported create flows for customer turbines.
-      enum:
-      - share
-      - create
-      title: CustomerTurbineCreateMode
-      type: string
     TurbineComponentInput:
       additionalProperties: false
       description: 'Schema for creating a TurbineComponent as part of Turbine creation.
@@ -549,94 +637,6 @@ components:
       - component_type_id
       - serial_number
       title: TurbineComponentInput
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    TurbineWithLocationObject:
-      additionalProperties: false
-      description: Nested turbine object with location for customer turbine responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        location:
-          anyOf:
-          - $ref: '#/components/schemas/LocationObject'
-          - type: 'null'
-      required:
-      - id
-      title: TurbineWithLocationObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    CustomerTurbineUpdate:
-      additionalProperties: false
-      description: Schema for updating a CustomerTurbine.
-      properties:
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine ID
-          title: Turbine Id
-        relationship_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Relationship type ID
-          title: Relationship Id
-      title: CustomerTurbineUpdate
-      type: object
-    LocationObject:
-      additionalProperties: false
-      description: Nested location object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-      required:
-      - id
-      - name
-      title: LocationObject
       type: object
   securitySchemes:
     APIKeyAuth:

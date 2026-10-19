@@ -254,42 +254,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectPreJobAnswerBulkItem:
-      additionalProperties: false
-      description: Single item in a bulk update request — answer ID + fields to update.
-      properties:
-        id:
-          description: Answer ID to update
-          title: Id
-          type: integer
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service ID
-          title: Service Id
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Question title snapshot
-          title: Title
-        answer:
-          anyOf:
-          - {}
-          - type: 'null'
-          description: Answer value (any valid JSON)
-          title: Answer
-      required:
-      - id
-      title: ProjectPreJobAnswerBulkItem
-      type: object
     ServiceObject:
       additionalProperties: false
       description: Nested service object for responses (no timestamps).
@@ -309,70 +273,37 @@ components:
           description: Whether this is a service (vs addon/material/support)
           title: Is Service
           type: boolean
+        allows_materials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: A CO line of this service can have material lines; unset where not loaded
+          title: Allows Materials
       required:
       - id
       - code
       - is_service
       title: ServiceObject
       type: object
-    ProjectPreJobAnswerUpdate:
+    Success:
       additionalProperties: false
-      description: Schema for updating a ProjectPreJobAnswer.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service ID
-          title: Service Id
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        title:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Question title snapshot
-          title: Title
-        answer:
-          anyOf:
-          - {}
-          - type: 'null'
-          description: Answer value (any valid JSON)
-          title: Answer
-      title: ProjectPreJobAnswerUpdate
-      type: object
-    ProjectPreJobAnswerBulkUpdate:
-      additionalProperties: false
-      description: Schema for bulk-updating pre-job answers.
-      properties:
-        items:
-          description: List of answers to update
-          items:
-            $ref: '#/components/schemas/ProjectPreJobAnswerBulkItem'
-          minItems: 1
-          title: Items
-          type: array
-      required:
-      - items
-      title: ProjectPreJobAnswerBulkUpdate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ProjectPreJobAnswerResponse:
       additionalProperties: false
@@ -415,25 +346,41 @@ components:
       - answer
       title: ProjectPreJobAnswerResponse
       type: object
-    Success:
+    ProjectPreJobAnswerBulkItem:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Single item in a bulk update request — answer ID + fields to update.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        id:
+          description: Answer ID to update
+          title: Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Question title snapshot
+          title: Title
+        answer:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: Answer value (any valid JSON)
+          title: Answer
+      required:
+      - id
+      title: ProjectPreJobAnswerBulkItem
       type: object
     ErrorCode:
       description: Error codes for API errors.
@@ -478,6 +425,65 @@ components:
       - title
       - answer
       title: ProjectPreJobAnswerCreate
+      type: object
+    ProjectPreJobAnswerBulkUpdate:
+      additionalProperties: false
+      description: Schema for bulk-updating pre-job answers.
+      properties:
+        items:
+          description: List of answers to update
+          items:
+            $ref: '#/components/schemas/ProjectPreJobAnswerBulkItem'
+          minItems: 1
+          title: Items
+          type: array
+      required:
+      - items
+      title: ProjectPreJobAnswerBulkUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ProjectPreJobAnswerUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectPreJobAnswer.
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Question title snapshot
+          title: Title
+        answer:
+          anyOf:
+          - {}
+          - type: 'null'
+          description: Answer value (any valid JSON)
+          title: Answer
+      title: ProjectPreJobAnswerUpdate
       type: object
   securitySchemes:
     APIKeyAuth:

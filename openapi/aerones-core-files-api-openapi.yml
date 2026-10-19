@@ -116,7 +116,7 @@ paths:
                   $ref: '#/components/schemas/FileResponse'
                 title: Response
                 type: array
-      description: Upload one or more files for a supported entity.
+      description: 'Optional form fields: `additional_information` (JSON object stored on each created file link) and `upload_context`, the `workorder_activity`-only opt-in naming which surface uploaded the file. The server owns the marker it stores for a context.'
       tags:
       - core.files
       requestBody:
@@ -236,7 +236,12 @@ paths:
       responses:
         '200':
           description: OK
-      description: Resolve and serve an entity file. Use ?variant=preview for thumbnail if available.
+      description: 'Resolve and stream an entity file.
+
+
+        ``?variant=preview`` serves the 800 px thumbnail and ``?variant=lowres`` the
+
+        1920 px copy, each falling back to the stored file when it has none.'
       tags:
       - core.files
       security:
@@ -341,7 +346,7 @@ paths:
                   $ref: '#/components/schemas/FileResponse'
                 title: Response
                 type: array
-      description: 'Accepts a JSON object `{"files": [...], "additional_information": {...}}` where `additional_information` is optional JSON metadata stored on each created file link. A legacy bare array `[...]` is still accepted for backward compatibility (no metadata).'
+      description: 'Accepts a JSON object `{"files": [...], "additional_information": {...}, "upload_context": "..."}` where `additional_information` is optional JSON metadata stored on each created file link and `upload_context` is the `workorder_activity`-only opt-in naming which surface uploaded the file. A legacy bare array `[...]` is still accepted for backward compatibility (no metadata).'
       tags:
       - core.files
       requestBody:
@@ -370,7 +375,13 @@ components:
 
         ``FileEntityLink`` created for the batch (mirroring the multipart
 
-        ``additional_information`` form field).'
+        ``additional_information`` form field), and ``upload_context``, the
+
+        opt-in naming which surface uploaded the file. The endpoint validates the
+
+        context and turns it into the marker actually stored
+
+        (``core/file_link_context.py``); the raw value never reaches a link.'
       properties:
         files:
           items:
@@ -382,27 +393,14 @@ components:
           - type: object
           - type: 'null'
           title: Additional Information
-      required:
-      - files
-      title: BodyFileWrapper
-      type: object
-    BodyFile:
-      properties:
-        b64data:
-          title: B64Data
-          type: string
-        name:
-          title: Name
-          type: string
-        content_type:
+        upload_context:
           anyOf:
           - type: string
           - type: 'null'
-          title: Content Type
+          title: Upload Context
       required:
-      - b64data
-      - name
-      title: BodyFile
+      - files
+      title: BodyFileWrapper
       type: object
     FileResponse:
       additionalProperties: false
@@ -438,6 +436,24 @@ components:
       - id
       - name
       title: FileResponse
+      type: object
+    BodyFile:
+      properties:
+        b64data:
+          title: B64Data
+          type: string
+        name:
+          title: Name
+          type: string
+        content_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Type
+      required:
+      - b64data
+      - name
+      title: BodyFile
       type: object
   securitySchemes:
     APIKeyAuth:

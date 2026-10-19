@@ -110,7 +110,7 @@ paths:
       - CookieAuth: []
   /api/dispatch/v1/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/turbine:
     post:
-      operationId: resolve_scope_commitment_turbine_v1
+      operationId: dispatch_api_scope_commitments_resolve_scope_commitment_turbine
       summary: Resolve a pending scope-dispatch commitment by picking a turbine
       parameters:
       - in: path
@@ -206,6 +206,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/Success'
       description: Soft-delete a still-PENDING commitment, freeing its capacity.
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/restore:
+    post:
+      operationId: restore_scope_commitment_v1
+      summary: Restore a cancelled scope-dispatch commitment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Undo ``cancel_scope_commitment`` (board Ctrl+Z); see
+
+        ``restore_scope_commitment_sync`` for when it refuses.'
       tags:
       - dispatch.scope-commitments
       security:
@@ -312,42 +344,6 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
-  /api/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/turbine:
-    post:
-      operationId: dispatch_api_scope_commitments_resolve_scope_commitment_turbine
-      summary: Resolve a pending scope-dispatch commitment by picking a turbine
-      parameters:
-      - in: path
-        name: project_id
-        schema:
-          title: Project Id
-          type: integer
-        required: true
-      - in: path
-        name: commitment_id
-        schema:
-          title: Commitment Id
-          type: integer
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Success'
-      description: OpsHub fallback for AeroTask's resolveScopeCommitmentTurbine.
-      tags:
-      - dispatch.scope-commitments
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResolveScopeCommitmentPayload'
-        required: true
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
   /api/projects/{project_id}/dispatch/scope-commitments/{commitment_id}:
     patch:
       operationId: dispatch_api_scope_commitments_reschedule_scope_commitment
@@ -415,24 +411,40 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
+  /api/projects/{project_id}/dispatch/scope-commitments/{commitment_id}/restore:
+    post:
+      operationId: dispatch_api_scope_commitments_restore_scope_commitment
+      summary: Restore a cancelled scope-dispatch commitment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: path
+        name: commitment_id
+        schema:
+          title: Commitment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: 'Undo ``cancel_scope_commitment`` (board Ctrl+Z); see
+
+        ``restore_scope_commitment_sync`` for when it refuses.'
+      tags:
+      - dispatch.scope-commitments
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
 components:
   schemas:
-    ResolveScopeCommitmentPayload:
-      additionalProperties: false
-      description: '`turbine_component_id` disambiguates component-level buckets.'
-      properties:
-        turbine_id:
-          title: Turbine Id
-          type: integer
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-      required:
-      - turbine_id
-      title: ResolveScopeCommitmentPayload
-      type: object
     ScopeGroupResponse:
       additionalProperties: false
       description: 'One scope bucket. `remaining` = total minus pending commitments and
@@ -480,45 +492,41 @@ components:
       - default_kpi_minutes
       title: ScopeGroupResponse
       type: object
-    RescheduleScopeCommitmentPayload:
+    Success:
       additionalProperties: false
-      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
+      description: 'Schema returned for successful operations.
 
-        scope-dispatch commitment.'
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        planned_start_datetime:
-          format: date-time
-          title: Planned Start Datetime
-          type: string
-        planned_end_datetime:
-          format: date-time
-          title: Planned End Datetime
-          type: string
-        resource_set_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Resource Set Id
-      required:
-      - planned_start_datetime
-      - planned_end_datetime
-      title: RescheduleScopeCommitmentPayload
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
-    ScopeCommitmentTurbineOption:
+    ResolveScopeCommitmentPayload:
       additionalProperties: false
-      description: A turbine this commitment can actually resolve to.
+      description: '`turbine_component_id` disambiguates component-level buckets.'
       properties:
         turbine_id:
           title: Turbine Id
           type: integer
-        turbine_name:
+        turbine_component_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Turbine Name
+          title: Turbine Component Id
       required:
       - turbine_id
-      title: ScopeCommitmentTurbineOption
+      title: ResolveScopeCommitmentPayload
       type: object
     ScopeDispatchCommitmentItem:
       additionalProperties: false
@@ -544,26 +552,6 @@ components:
       - planned_start_datetime
       - planned_end_datetime
       title: ScopeDispatchCommitmentItem
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
       type: object
     CreateScopeWorkorderResponse:
       additionalProperties: false
@@ -631,6 +619,46 @@ components:
       - planned_start_datetime
       - planned_end_datetime
       title: CreateScopeWorkorderPayload
+      type: object
+    RescheduleScopeCommitmentPayload:
+      additionalProperties: false
+      description: 'Payload for rescheduling (and optionally re-teaming) a still-pending
+
+        scope-dispatch commitment.'
+      properties:
+        planned_start_datetime:
+          format: date-time
+          title: Planned Start Datetime
+          type: string
+        planned_end_datetime:
+          format: date-time
+          title: Planned End Datetime
+          type: string
+        resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Resource Set Id
+      required:
+      - planned_start_datetime
+      - planned_end_datetime
+      title: RescheduleScopeCommitmentPayload
+      type: object
+    ScopeCommitmentTurbineOption:
+      additionalProperties: false
+      description: A turbine this commitment can actually resolve to.
+      properties:
+        turbine_id:
+          title: Turbine Id
+          type: integer
+        turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Name
+      required:
+      - turbine_id
+      title: ScopeCommitmentTurbineOption
       type: object
   securitySchemes:
     APIKeyAuth:

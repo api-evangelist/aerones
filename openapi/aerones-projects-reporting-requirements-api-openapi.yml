@@ -239,20 +239,56 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    AssetOption:
+    ProjectRequirementCreate:
       additionalProperties: false
-      description: A pickable turbine (v1 assets are turbine-only).
+      properties:
+        title:
+          maxLength: 255
+          title: Title
+          type: string
+        body:
+          title: Body
+          type: string
+        attachment_file_ids:
+          items:
+            type: string
+          title: Attachment File Ids
+          type: array
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer the requirement belongs to (null = Aerones-owned). Defaults to the URL project's requesting customer.
+          title: Customer Id
+        applicabilities:
+          description: Explicit typed-FK rows; empty = whole project.
+          items:
+            $ref: '#/components/schemas/ApplicabilityInput'
+          title: Applicabilities
+          type: array
+      required:
+      - title
+      - body
+      title: ProjectRequirementCreate
+      type: object
+    ServiceOption:
+      additionalProperties: false
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
+        code:
+          title: Code
           type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
       required:
       - id
-      - name
-      title: AssetOption
+      - code
+      title: ServiceOption
       type: object
     ApplicabilityInput:
       additionalProperties: false
@@ -281,6 +317,31 @@ components:
           - type: 'null'
           title: Service Id
       title: ApplicabilityInput
+      type: object
+    ProjectRequirementOptionsResponse:
+      additionalProperties: false
+      description: 'Pickable options for the modal: services from the project''s latest offer +
+
+        turbines from its scope items. ``current_project_id`` is the resolved core id
+
+        of the URL project (requirements are scoped to it).'
+      properties:
+        services:
+          items:
+            $ref: '#/components/schemas/ServiceOption'
+          title: Services
+          type: array
+        assets:
+          items:
+            $ref: '#/components/schemas/AssetOption'
+          title: Assets
+          type: array
+        current_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Current Project Id
+      title: ProjectRequirementOptionsResponse
       type: object
     ProjectRequirementResponse:
       additionalProperties: false
@@ -353,37 +414,20 @@ components:
       - updated_at
       title: ProjectRequirementResponse
       type: object
-    ProjectRequirementCreate:
+    AssetOption:
       additionalProperties: false
+      description: A pickable turbine (v1 assets are turbine-only).
       properties:
-        title:
-          maxLength: 255
-          title: Title
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
           type: string
-        body:
-          title: Body
-          type: string
-        attachment_file_ids:
-          items:
-            type: string
-          title: Attachment File Ids
-          type: array
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer the requirement belongs to (null = Aerones-owned). Defaults to the URL project's requesting customer.
-          title: Customer Id
-        applicabilities:
-          description: Explicit typed-FK rows; empty = whole project.
-          items:
-            $ref: '#/components/schemas/ApplicabilityInput'
-          title: Applicabilities
-          type: array
       required:
-      - title
-      - body
-      title: ProjectRequirementCreate
+      - id
+      - name
+      title: AssetOption
       type: object
     ProjectRequirementUpdate:
       additionalProperties: false
@@ -420,25 +464,6 @@ components:
           type: boolean
       title: ProjectRequirementUpdate
       type: object
-    ServiceOption:
-      additionalProperties: false
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-      required:
-      - id
-      - code
-      title: ServiceOption
-      type: object
     ApplicabilityResponse:
       additionalProperties: false
       properties:
@@ -468,31 +493,6 @@ components:
       required:
       - id
       title: ApplicabilityResponse
-      type: object
-    ProjectRequirementOptionsResponse:
-      additionalProperties: false
-      description: 'Pickable options for the modal: services from the project''s latest offer +
-
-        turbines from its scope items. ``current_project_id`` is the resolved core id
-
-        of the URL project (requirements are scoped to it).'
-      properties:
-        services:
-          items:
-            $ref: '#/components/schemas/ServiceOption'
-          title: Services
-          type: array
-        assets:
-          items:
-            $ref: '#/components/schemas/AssetOption'
-          title: Assets
-          type: array
-        current_project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Current Project Id
-      title: ProjectRequirementOptionsResponse
       type: object
   securitySchemes:
     APIKeyAuth:

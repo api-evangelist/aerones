@@ -286,9 +286,9 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ServiceObject:
+    ServiceFamilyObject:
       additionalProperties: false
-      description: Nested service object for responses (no timestamps).
+      description: Nested service-family object for responses (no timestamps).
       properties:
         id:
           title: Id
@@ -296,20 +296,14 @@ components:
         code:
           title: Code
           type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
+        name:
+          title: Name
+          type: string
       required:
       - id
       - code
-      - is_service
-      title: ServiceObject
+      - name
+      title: ServiceFamilyObject
       type: object
     CertificateRequirementScopeUnit:
       additionalProperties: false
@@ -329,84 +323,111 @@ components:
           title: Service Family Id
       title: CertificateRequirementScopeUnit
       type: object
-    CertificateObject:
+    ServiceObject:
       additionalProperties: false
-      description: Nested certificate object for responses.
+      description: Nested service object for responses (no timestamps).
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
+        code:
+          title: Code
           type: string
-      required:
-      - id
-      - name
-      title: CertificateObject
-      type: object
-    CertificateRequirementRuleCreate:
-      additionalProperties: false
-      description: Schema for creating a certificate mapping rule.
-      properties:
-        certificate_id:
-          description: Certificate ID
-          title: Certificate Id
-          type: integer
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer; omit for every customer
-          title: Customer Id
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Site; omit for every site
-          title: Location Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Exact service; mutually exclusive with service_family_id
-          title: Service Id
-        service_family_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service family; mutually exclusive with service_id
-          title: Service Family Id
-        region:
-          anyOf:
-          - enum:
-            - EU
-            - NA
-            type: string
-          - type: 'null'
-          description: Region; omit for every region
-          title: Region
-        comment:
+        description:
           anyOf:
           - type: string
           - type: 'null'
-          description: Condition note
-          title: Comment
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+        allows_materials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: A CO line of this service can have material lines; unset where not loaded
+          title: Allows Materials
       required:
-      - certificate_id
-      title: CertificateRequirementRuleCreate
+      - id
+      - code
+      - is_service
+      title: ServiceObject
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CustomerObject:
+      additionalProperties: false
+      description: Nested customer object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        currency:
+          anyOf:
+          - $ref: '#/components/schemas/CurrencyIdCodeObject'
+          - type: 'null'
+          description: Customer currency (id and code only)
+      required:
+      - id
+      - display_name
+      title: CustomerObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     CertificateRequirementGroupSave:
       additionalProperties: false
       description: 'Bulk save of one mapping group in a single transaction.
 
 
-        Targets are (certificate × unit) pairs sharing region/customer/comment.
+        Targets are (certificate × unit × customer) triples sharing region/site/
 
-        Rules in ``existing_rule_ids`` not matching a target are soft-deleted;
+        comment. Rules in ``existing_rule_ids`` not matching a target are
 
-        matching ones are patched when the shared fields changed; the rest are
+        soft-deleted; matching ones are patched when the shared fields changed;
 
-        created.'
+        the rest are created.'
       properties:
         certificate_ids:
           description: Certificates
@@ -422,12 +443,12 @@ components:
           minItems: 1
           title: Units
           type: array
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Customer; omit for every customer
-          title: Customer Id
+        customer_ids:
+          description: Customers; empty for every customer
+          items:
+            type: integer
+          title: Customer Ids
+          type: array
         location_id:
           anyOf:
           - type: integer
@@ -511,6 +532,72 @@ components:
           title: Comment
       title: CertificateRequirementRuleUpdate
       type: object
+    CertificateRequirementRuleCreate:
+      additionalProperties: false
+      description: Schema for creating a certificate mapping rule.
+      properties:
+        certificate_id:
+          description: Certificate ID
+          title: Certificate Id
+          type: integer
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Customer; omit for every customer
+          title: Customer Id
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Site; omit for every site
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Exact service; mutually exclusive with service_family_id
+          title: Service Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service family; mutually exclusive with service_id
+          title: Service Family Id
+        region:
+          anyOf:
+          - enum:
+            - EU
+            - NA
+            type: string
+          - type: 'null'
+          description: Region; omit for every region
+          title: Region
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Condition note
+          title: Comment
+      required:
+      - certificate_id
+      title: CertificateRequirementRuleCreate
+      type: object
+    CertificateObject:
+      additionalProperties: false
+      description: Nested certificate object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: CertificateObject
+      type: object
     NestedIdName:
       additionalProperties: false
       description: Generic nested object with id and name (no timestamps).
@@ -526,116 +613,6 @@ components:
       - name
       title: NestedIdName
       type: object
-    ServiceFamilyObject:
-      additionalProperties: false
-      description: Nested service-family object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: ServiceFamilyObject
-      type: object
-    CurrencyIdCodeObject:
-      additionalProperties: false
-      description: Nested currency object with only id and code (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: CurrencyIdCodeObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CustomerObject:
-      additionalProperties: false
-      description: Nested customer object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        currency:
-          anyOf:
-          - $ref: '#/components/schemas/CurrencyIdCodeObject'
-          - type: 'null'
-          description: Customer currency (id and code only)
-      required:
-      - id
-      - display_name
-      title: CustomerObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     CertificateRequirementRuleResponse:
       additionalProperties: false
       description: 'One certificate mapping rule: (service | family | all) × region × customer → certificate.'
@@ -689,6 +666,35 @@ components:
       - id
       - certificate
       title: CertificateRequirementRuleResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
       type: object
   securitySchemes:
     APIKeyAuth:

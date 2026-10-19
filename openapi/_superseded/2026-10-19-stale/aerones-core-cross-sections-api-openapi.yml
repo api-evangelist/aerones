@@ -1,0 +1,169 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.cross Sections API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.cross-sections
+paths:
+  /api/core/v1/cross-sections:
+    post:
+      operationId: generate_cross_section
+      summary: Generate blade cross-section as PNG
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: 'Generate a blade cross-section schematic with a single anomaly marker from explicitly provided anomaly data. Returns a PNG image rendered from the shared cross-section component (visually identical to the in-app panel).
+
+
+        The diagram shows the blade airfoil profile with internal structural lines determined by `cross_section_type`. A coloured marker is placed at the position defined by `cross_section_side` and `cross_section_distance` / `cross_section_chamber_distance`.
+
+
+        At least one of `cross_section_distance` or `cross_section_chamber_distance` should be provided for marker placement.'
+      tags:
+      - core.cross-sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrossSectionRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/cross-sections/anomalies/{anomaly_id}:
+    get:
+      operationId: generate_cross_section_by_anomaly
+      summary: Generate cross-section from anomaly
+      parameters:
+      - in: path
+        name: anomaly_id
+        schema:
+          description: Anomaly ID
+          title: Anomaly Id
+          type: integer
+        required: true
+        description: Anomaly ID
+      responses:
+        '200':
+          description: OK
+      description: 'Convenience endpoint that generates a blade cross-section schematic by reading cross-section fields directly from an existing anomaly record. Returns a PNG image rendered from the shared cross-section component.
+
+
+        Fields read from the anomaly: `cross_section_side`, `cross_section_distance`, `cross_section_chamber_distance`, `cross_section_type`, `severity`, `internal_external`, `side`, `rib`.'
+      tags:
+      - core.cross-sections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    CrossSectionRequest:
+      additionalProperties: false
+      description: Request body for cross-section image generation (single anomaly).
+      properties:
+        cross_section_type:
+          description: Shear web configuration
+          enum:
+          - NO_SHEAR_WEB
+          - SINGLE_SHEAR_WEB
+          - DOUBLE_SHEAR_WEB
+          - TRIPLE_SHEAR_WEB
+          - QUADRUPLE_SHEAR_WEB
+          title: Cross Section Type
+          type: string
+        cross_section_side:
+          description: Structural element for marker placement
+          enum:
+          - SUCTION_SIDE
+          - PRESSURE_SIDE
+          - MSW1
+          - MSW2
+          - TE_WEB
+          - END_WEB
+          - BEAM_LE
+          - BEAM_TE
+          - BEAM_PS
+          - BEAM_SS
+          title: Cross Section Side
+          type: string
+        severity:
+          description: Severity level (determines marker colour)
+          enum:
+          - LEVEL_0
+          - LEVEL_1
+          - LEVEL_2
+          - LEVEL_3
+          - LEVEL_4
+          - LEVEL_5
+          - NO_LEVEL
+          title: Severity
+          type: string
+        internal_external:
+          description: Damage classification (INTERNAL renders outline-only marker)
+          enum:
+          - INTERNAL
+          - EXTERNAL
+          - BOTH
+          title: Internal External
+          type: string
+        cross_section_distance:
+          anyOf:
+          - maximum: 1.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Absolute position (0-1) along the curve or line
+          title: Cross Section Distance
+        cross_section_chamber_distance:
+          anyOf:
+          - maximum: 1.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Chamber-relative position (0-1) within the rib sector. Takes priority over cross_section_distance when set. Converted to absolute using rib sector boundaries for INTERNAL anomalies on curve sides.
+          title: Cross Section Chamber Distance
+        side:
+          anyOf:
+          - enum:
+            - PRESSURE_SIDE
+            - SUCTION_SIDE
+            - LEADING_EDGE
+            - TRAILING_EDGE
+            type: string
+          - type: 'null'
+          description: Blade side (defaults to PRESSURE_SIDE for INTERNAL anomalies)
+          title: Side
+        rib:
+          anyOf:
+          - enum:
+            - LEADING_EDGE
+            - CENTER
+            - MID_1
+            - MID_2
+            - MID_3
+            - TRAILING_EDGE
+            type: string
+          - type: 'null'
+          description: Rib/chamber (used for chamber distance conversion on INTERNAL)
+          title: Rib
+      required:
+      - cross_section_type
+      - cross_section_side
+      - severity
+      - internal_external
+      title: CrossSectionRequest
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

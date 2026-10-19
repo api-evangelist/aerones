@@ -1,0 +1,976 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Permissions.user Management API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: permissions.user-management
+paths:
+  /api/permissions/v1/user-management/users:
+    get:
+      operationId: core_endpoints_user_management_list_users
+      summary: List Users
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: role_ids
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated role ids.
+          title: Role Ids
+        required: false
+        description: Comma-separated role ids.
+      - in: query
+        name: status
+        schema:
+          default: active
+          enum:
+          - active
+          - inactive
+          - all
+          title: Status
+          type: string
+        required: false
+      - in: query
+        name: source
+        schema:
+          anyOf:
+          - enum:
+            - bamboo
+            - manual
+            type: string
+          - type: 'null'
+          title: Source
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ManagedUserItem'
+                title: Response
+                type: array
+      description: Staff users, filtered, sorted and paged.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_user_management_create_user
+      summary: Create User
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedUserItem'
+      description: Add a staff user by email; no password and no SSO account are created.
+      tags:
+      - permissions.user-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagedUserCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/users/lookup:
+    get:
+      operationId: core_endpoints_user_management_lookup_user
+      summary: Lookup User
+      parameters:
+      - in: query
+        name: email
+        schema:
+          title: Email
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLookupResponse'
+      description: The account already using ``email``, if any, so Add user never makes a duplicate.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/users/{user_id}:
+    get:
+      operationId: core_endpoints_user_management_get_user
+      summary: Get User
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          title: User Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedUserDetail'
+      description: One staff user with the permissions its roles grant.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: core_endpoints_user_management_update_user
+      summary: Update User
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          title: User Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedUserDetail'
+      description: Change a staff user's names, roles or active state.
+      tags:
+      - permissions.user-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagedUserUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/users/{user_id}/history:
+    get:
+      operationId: core_endpoints_user_management_user_history
+      summary: User History
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          title: User Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/HistoryEntry'
+                title: Response
+                type: array
+      description: Who changed this user and when, newest first.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/roles:
+    get:
+      operationId: core_endpoints_user_management_list_roles
+      summary: List Roles
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RoleRow'
+                title: Response
+                type: array
+      description: Every role with its active member and permission counts.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_user_management_create_role
+      summary: Create Role
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetail'
+      description: Add a role under a new name.
+      tags:
+      - permissions.user-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/roles/{role_id}:
+    get:
+      operationId: core_endpoints_user_management_get_role
+      summary: Get Role
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetail'
+      description: One role with the permission keys it holds.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: core_endpoints_user_management_update_role
+      summary: Update Role
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetail'
+      description: Rename a role, set which catalogue permissions it holds, or both.
+      tags:
+      - permissions.user-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/roles/{role_id}/members:
+    get:
+      operationId: core_endpoints_user_management_role_members
+      summary: Role Members
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RoleMember'
+                title: Response
+                type: array
+      description: Active members of a role, paged.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_user_management_add_role_members
+      summary: Add Role Members
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetail'
+      description: Add several staff users to a role at once.
+      tags:
+      - permissions.user-management
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleMembersAdd'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/roles/{role_id}/member-candidates:
+    get:
+      operationId: core_endpoints_user_management_role_member_candidates
+      summary: Role Member Candidates
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RoleMember'
+                title: Response
+                type: array
+      description: Active staff users not in the role yet, paged.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/roles/{role_id}/members/{user_id}:
+    delete:
+      operationId: core_endpoints_user_management_remove_role_member
+      summary: Remove Role Member
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      - in: path
+        name: user_id
+        schema:
+          title: User Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetail'
+      description: Take one user out of a role.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/roles/{role_id}/history:
+    get:
+      operationId: core_endpoints_user_management_role_history
+      summary: Role History
+      parameters:
+      - in: path
+        name: role_id
+        schema:
+          title: Role Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/HistoryEntry'
+                title: Response
+                type: array
+      description: Who changed this role and when, newest first.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/permissions/v1/user-management/permissions:
+    get:
+      operationId: core_endpoints_user_management_list_permissions
+      summary: List Permissions
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PermissionOption'
+                title: Response
+                type: array
+      description: The permission keys a role can be given.
+      tags:
+      - permissions.user-management
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    UserLookupResponse:
+      additionalProperties: false
+      description: '``user`` is null when no account uses the email.'
+      properties:
+        user:
+          anyOf:
+          - $ref: '#/components/schemas/LookupUser'
+          - type: 'null'
+      title: UserLookupResponse
+      type: object
+    PermissionOption:
+      additionalProperties: false
+      description: One assignable permission key, as the role editor shows it.
+      properties:
+        codename:
+          title: Codename
+          type: string
+        label:
+          title: Label
+          type: string
+        group:
+          title: Group
+          type: string
+        admin_level:
+          title: Admin Level
+          type: boolean
+      required:
+      - codename
+      - label
+      - group
+      - admin_level
+      title: PermissionOption
+      type: object
+    RoleRow:
+      additionalProperties: false
+      description: A role with its active member count and catalogue permission count.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        member_count:
+          title: Member Count
+          type: integer
+        permission_count:
+          title: Permission Count
+          type: integer
+      required:
+      - id
+      - name
+      - member_count
+      - permission_count
+      title: RoleRow
+      type: object
+    ManagedUserItem:
+      additionalProperties: false
+      description: A staff user as the Users tab lists it.
+      properties:
+        id:
+          title: Id
+          type: integer
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        is_active:
+          title: Is Active
+          type: boolean
+        last_login:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Last Login
+        roles:
+          items:
+            $ref: '#/components/schemas/IDWithName'
+          title: Roles
+          type: array
+        source:
+          default: LOCAL
+          description: BAMBOO = managed by the BambooHR sync, LOCAL = by hand.
+          enum:
+          - BAMBOO
+          - LOCAL
+          title: Source
+          type: string
+        deactivated_by_sync:
+          default: false
+          description: The BambooHR sync turned the account off.
+          title: Deactivated By Sync
+          type: boolean
+      required:
+      - id
+      - email
+      - first_name
+      - last_name
+      - is_active
+      title: ManagedUserItem
+      type: object
+    IDWithName:
+      additionalProperties: false
+      description: Schema for ID with name.
+      properties:
+        id:
+          description: Identifier.
+          title: Id
+          type: integer
+        name:
+          description: Name.
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: IDWithName
+      type: object
+    ManagedUserUpdate:
+      additionalProperties: false
+      description: Editable fields of a staff user. Email is deliberately absent.
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+        role_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          title: Role Ids
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      title: ManagedUserUpdate
+      type: object
+    RoleMember:
+      additionalProperties: false
+      description: An active member of a role.
+      properties:
+        id:
+          title: Id
+          type: integer
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+      required:
+      - id
+      - email
+      - first_name
+      - last_name
+      title: RoleMember
+      type: object
+    RoleDetail:
+      additionalProperties: false
+      description: A role with the catalogue permission keys it holds.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        member_count:
+          title: Member Count
+          type: integer
+        permissions:
+          items:
+            type: string
+          title: Permissions
+          type: array
+      required:
+      - id
+      - name
+      - member_count
+      - permissions
+      title: RoleDetail
+      type: object
+    ManagedUserCreate:
+      additionalProperties: false
+      description: A new staff user; no password, the person signs in with SSO by this email.
+      properties:
+        email:
+          title: Email
+          type: string
+        first_name:
+          default: ''
+          title: First Name
+          type: string
+        last_name:
+          default: ''
+          title: Last Name
+          type: string
+        role_ids:
+          items:
+            type: integer
+          title: Role Ids
+          type: array
+      required:
+      - email
+      title: ManagedUserCreate
+      type: object
+    RoleCreate:
+      additionalProperties: false
+      description: A new role. Roles can't be deleted.
+      properties:
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: RoleCreate
+      type: object
+    RoleUpdate:
+      additionalProperties: false
+      description: A new name, the full set of catalogue keys the role should hold, or both.
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        permissions:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Permissions
+      title: RoleUpdate
+      type: object
+    LookupUser:
+      additionalProperties: false
+      description: Any account that already uses an email, staff or customer.
+      properties:
+        id:
+          title: Id
+          type: integer
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        is_active:
+          title: Is Active
+          type: boolean
+        is_customer:
+          title: Is Customer
+          type: boolean
+      required:
+      - id
+      - email
+      - first_name
+      - last_name
+      - is_active
+      - is_customer
+      title: LookupUser
+      type: object
+    ManagedUserDetail:
+      additionalProperties: false
+      description: A staff user plus the permission keys its roles grant (direct grants excluded).
+      properties:
+        id:
+          title: Id
+          type: integer
+        email:
+          title: Email
+          type: string
+        first_name:
+          title: First Name
+          type: string
+        last_name:
+          title: Last Name
+          type: string
+        is_active:
+          title: Is Active
+          type: boolean
+        last_login:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Last Login
+        roles:
+          items:
+            $ref: '#/components/schemas/IDWithName'
+          title: Roles
+          type: array
+        source:
+          default: LOCAL
+          description: BAMBOO = managed by the BambooHR sync, LOCAL = by hand.
+          enum:
+          - BAMBOO
+          - LOCAL
+          title: Source
+          type: string
+        deactivated_by_sync:
+          default: false
+          description: The BambooHR sync turned the account off.
+          title: Deactivated By Sync
+          type: boolean
+        role_permissions:
+          items:
+            type: string
+          title: Role Permissions
+          type: array
+      required:
+      - id
+      - email
+      - first_name
+      - last_name
+      - is_active
+      - role_permissions
+      title: ManagedUserDetail
+      type: object
+    HistoryEntry:
+      additionalProperties: false
+      description: One recorded change to a user or a role.
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        actor_email:
+          title: Actor Email
+          type: string
+        actor_name:
+          title: Actor Name
+          type: string
+        action:
+          enum:
+          - added
+          - changed
+          - deleted
+          title: Action
+          type: string
+        message:
+          title: Message
+          type: string
+      required:
+      - created_at
+      - actor_email
+      - actor_name
+      - action
+      - message
+      title: HistoryEntry
+      type: object
+    RoleMembersAdd:
+      additionalProperties: false
+      description: Staff users to add to a role; current members are skipped.
+      properties:
+        user_ids:
+          items:
+            type: integer
+          title: User Ids
+          type: array
+      required:
+      - user_ids
+      title: RoleMembersAdd
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

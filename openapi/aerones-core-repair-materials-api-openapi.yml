@@ -1,0 +1,222 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.repair Materials API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.repair-materials
+paths:
+  /api/core/v1/repair-materials:
+    get:
+      operationId: list_repairmaterials
+      summary: List RepairMaterials
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search by name (case-insensitive)
+          title: Search
+        required: false
+        description: Search by name (case-insensitive)
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort by field (prefix with - for descending)
+          title: Sort
+        required: false
+        description: Sort by field (prefix with - for descending)
+      - in: query
+        name: material_type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by material type
+          title: Material Type
+        required: false
+        description: Filter by material type
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RepairMaterialResponse'
+                title: Response
+                type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: List all items with optional search, sorting, and filtering.
+      tags:
+      - core.repair-materials
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    RepairMaterialResponse:
+      additionalProperties: false
+      description: 'One repair product of the shared item catalogue.
+
+
+        The admin-maintained products a repair service picks a material from - the
+
+        rows of ``core.item`` that carry a ``material_type``. ``name`` is the
+
+        commercial name printed to a customer, never the purchasing description the
+
+        same row shows a Set Request. ``coating_system`` and ``aliases`` are how our
+
+        own data spells the product (service-item codes, AeroTask ``Material type``
+
+        values), not marketing synonyms; ``repair_width_per_shell_mm`` and
+
+        ``lep_thickness_um`` are the product''s specified application width and film
+
+        thickness, absent until somebody enters them.
+
+
+        ``name`` and ``description`` read through a ``validation_alias`` because
+
+        both names mean something else on the model: ``core.item.description`` is
+
+        the purchasing label, carrying pack size and colour code, and this response
+
+        must never hand a customer that. The alias is what makes the projection
+
+        structural - the fields cannot silently start reading the column they are
+
+        named after.'
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Item ID of the product
+          title: Id
+          type: integer
+        name:
+          description: Commercial product name
+          title: Name
+          type: string
+        material_type:
+          description: Role the product plays (Filler, LEP, Topcoat, Primer, Other)
+          title: Material Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Product description
+          title: Description
+        coating_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: How our own data spells the product
+          title: Coating System
+        aliases:
+          description: Further spellings our data uses
+          items:
+            type: string
+          title: Aliases
+          type: array
+        repair_width_per_shell_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Specified application width per shell, in mm
+          title: Repair Width Per Shell Mm
+        lep_thickness_um:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Specified film thickness, in µm
+          title: Lep Thickness Um
+      required:
+      - updated_at
+      - id
+      - name
+      - material_type
+      title: RepairMaterialResponse
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

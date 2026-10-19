@@ -7,191 +7,6 @@ servers: []
 tags:
 - name: technician.service_results
 paths:
-  /api/technician/dashboard/summary:
-    get:
-      operationId: technician_api_service_results_get_dashboard_summary
-      summary: Get Dashboard Summary
-      parameters:
-      - in: query
-        name: start_date
-        schema:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Filter results created on/after this date
-          title: Start Date
-        required: false
-        description: Filter results created on/after this date
-      - in: query
-        name: end_date
-        schema:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Filter results created on/before this date
-          title: End Date
-        required: false
-        description: Filter results created on/before this date
-      - in: query
-        name: project_id
-        schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Filter by project ID
-          title: Project Id
-        required: false
-        description: Filter by project ID
-      - in: query
-        name: service_code
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Filter by service code
-          title: Service Code
-        required: false
-        description: Filter by service code
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DashboardSummaryResponse'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: Return operations dashboard KPI summary for service results.
-      tags:
-      - technician.service_results
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
-  /api/technician/dashboard/queue:
-    get:
-      operationId: technician_api_service_results_get_dashboard_queue
-      summary: Get Dashboard Queue
-      parameters:
-      - in: query
-        name: start_date
-        schema:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Filter results created on/after this date
-          title: Start Date
-        required: false
-        description: Filter results created on/after this date
-      - in: query
-        name: end_date
-        schema:
-          anyOf:
-          - format: date
-            type: string
-          - type: 'null'
-          description: Filter results created on/before this date
-          title: End Date
-        required: false
-        description: Filter results created on/before this date
-      - in: query
-        name: project_id
-        schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Filter by project ID
-          title: Project Id
-        required: false
-        description: Filter by project ID
-      - in: query
-        name: service_code
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Filter by service code
-          title: Service Code
-        required: false
-        description: Filter by service code
-      - in: query
-        name: validation_reason
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: 'Filter by validation reason: missing_required_fields, missing_standard, missing_threshold_match, invalid_value, condition_nok, multiple_readings'
-          title: Validation Reason
-        required: false
-        description: 'Filter by validation reason: missing_required_fields, missing_standard, missing_threshold_match, invalid_value, condition_nok, multiple_readings'
-      - in: query
-        name: sort
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Sort by created_at or service_code. Prefix with '-' for descending.
-          title: Sort
-        required: false
-        description: Sort by created_at or service_code. Prefix with '-' for descending.
-      - in: query
-        name: paginate
-        schema:
-          default: true
-          description: Enable pagination (false returns all results)
-          title: Paginate
-          type: boolean
-        required: false
-        description: Enable pagination (false returns all results)
-      - in: query
-        name: page
-        schema:
-          default: 1
-          description: Page number
-          minimum: 1
-          title: Page
-          type: integer
-        required: false
-        description: Page number
-      - in: query
-        name: page_size
-        schema:
-          default: 50
-          description: Number of items per page
-          maximum: 1000
-          minimum: 1
-          title: Page Size
-          type: integer
-        required: false
-        description: Number of items per page
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/DashboardQueueItem'
-                title: Response
-                type: array
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: Return operator queue with pending service result rows.
-      tags:
-      - technician.service_results
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
   /api/technician/service-order-lines/{sol_id}/service-results:
     get:
       operationId: technician_api_service_results_list_service_results_for_sol
@@ -713,91 +528,41 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ServiceResultTemplateInfo:
+    ServiceResultCreateInput:
       additionalProperties: false
-      description: Nested template metadata for a service result row.
+      description: Create payload for service results from technician SOL flow.
       properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-      required:
-      - id
-      title: ServiceResultTemplateInfo
-      type: object
-    DashboardQueueItem:
-      additionalProperties: false
-      description: One queue row for operator review.
-      properties:
-        result:
-          $ref: '#/components/schemas/ServiceResultRecord'
-        project_id:
+        workorder_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Project Id
-        project_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Project Code
-        service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Code
-        service_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Service Description
-        turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Name
-        turbine_component_serial:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Component Serial
-        workorder_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workorder Name
-      required:
-      - result
-      title: DashboardQueueItem
-      type: object
-    FinalizeServiceResponse:
-      additionalProperties: false
-      description: Response after finalizing a service order line.
-      properties:
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        status:
-          title: Status
-          type: string
-        completed_by:
+          title: Workorder Id
+        turbine_id:
           anyOf:
           - type: integer
           - type: 'null'
-          title: Completed By
-        completed_date:
+          title: Turbine Id
+        turbine_component_id:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Completed Date
+          title: Turbine Component Id
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Standard Id
+        data:
+          title: Data
+          type: object
       required:
-      - service_order_line_id
-      - status
-      title: FinalizeServiceResponse
+      - data
+      title: ServiceResultCreateInput
       type: object
     BladeComponent:
       additionalProperties: false
@@ -820,60 +585,32 @@ components:
       - id
       title: BladeComponent
       type: object
-    ServiceResultTurbineComponentInfo:
+    SolCleaningImagesResponse:
       additionalProperties: false
-      description: Nested turbine component metadata for a service result row.
+      description: SOL-level cleaning image references keyed by category.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
+        cleaning_images:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          title: Cleaning Images
+          type: object
       required:
-      - id
-      title: ServiceResultTurbineComponentInfo
+      - cleaning_images
+      title: SolCleaningImagesResponse
       type: object
-    ResultCaptureTemplate:
-      additionalProperties: false
-      description: Template definition for result capture context.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        fields:
-          items:
-            $ref: '#/components/schemas/ResultCaptureTemplateField'
-          title: Fields
-          type: array
-        standards:
-          items:
-            $ref: '#/components/schemas/ResultCaptureStandard'
-          title: Standards
-          type: array
-        thresholds:
-          items:
-            $ref: '#/components/schemas/ResultCaptureThreshold'
-          title: Thresholds
-          type: array
-      required:
-      - id
-      - code
-      - fields
-      - standards
-      - thresholds
-      title: ResultCaptureTemplate
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ServiceResultUpdateInput:
       additionalProperties: false
       description: Patch payload for service result records.
@@ -910,151 +647,44 @@ components:
           title: Data
       title: ServiceResultUpdateInput
       type: object
-    ResultCaptureTemplateField:
+    ResultCaptureStandard:
       additionalProperties: false
-      description: Field configuration for dynamic result entry form.
+      description: Standard option for result capture.
       properties:
         id:
           title: Id
-          type: integer
-        key:
-          title: Key
-          type: string
-        label:
-          title: Label
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        field_type:
-          title: Field Type
-          type: string
-        is_required:
-          title: Is Required
-          type: boolean
-        sort_order:
-          title: Sort Order
-          type: integer
-        unit:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Unit
-        options:
-          anyOf:
-          - items: {}
-            type: array
-          - type: 'null'
-          title: Options
-        default_value:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Default Value
-      required:
-      - id
-      - key
-      - label
-      - field_type
-      - is_required
-      - sort_order
-      title: ResultCaptureTemplateField
-      type: object
-    SolCleaningImagesInput:
-      additionalProperties: false
-      description: Patch payload for SOL cleaning images.
-      properties:
-        cleaning_images:
-          additionalProperties:
-            items:
-              type: string
-            type: array
-          title: Cleaning Images
-          type: object
-      required:
-      - cleaning_images
-      title: SolCleaningImagesInput
-      type: object
-    ServiceResultMutationResponse:
-      additionalProperties: false
-      description: Mutation response for create/update service result endpoints.
-      properties:
-        result:
-          $ref: '#/components/schemas/ServiceResultRecord'
-      required:
-      - result
-      title: ServiceResultMutationResponse
-      type: object
-    ResultCaptureThreshold:
-      additionalProperties: false
-      description: Threshold definition exposed to frontend for transparency.
-      properties:
-        id:
-          title: Id
-          type: integer
-        standard_id:
-          title: Standard Id
           type: integer
         name:
           title: Name
           type: string
-        status:
+        key:
+          title: Key
+          type: string
+        type:
+          title: Type
+          type: string
+      required:
+      - id
+      - name
+      - key
+      - type
+      title: ResultCaptureStandard
+      type: object
+    ServiceResultTurbineComponentInfo:
+      additionalProperties: false
+      description: Nested turbine component metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Status
-        value_from:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Value From
-        value_to:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Value To
+          title: Name
       required:
       - id
-      - standard_id
-      - name
-      title: ResultCaptureThreshold
-      type: object
-    DashboardSummaryResponse:
-      additionalProperties: false
-      description: Operations dashboard summary KPI payload.
-      properties:
-        total_results:
-          title: Total Results
-          type: integer
-        auto_verified:
-          title: Auto Verified
-          type: integer
-        pending_operator:
-          title: Pending Operator
-          type: integer
-        pending_missing_standard:
-          title: Pending Missing Standard
-          type: integer
-        pending_missing_threshold_match:
-          title: Pending Missing Threshold Match
-          type: integer
-        pending_missing_required_fields:
-          title: Pending Missing Required Fields
-          type: integer
-        pending_invalid_value:
-          title: Pending Invalid Value
-          type: integer
-      required:
-      - total_results
-      - auto_verified
-      - pending_operator
-      - pending_missing_standard
-      - pending_missing_threshold_match
-      - pending_missing_required_fields
-      - pending_invalid_value
-      title: DashboardSummaryResponse
+      title: ServiceResultTurbineComponentInfo
       type: object
     Error:
       additionalProperties: false
@@ -1069,42 +699,6 @@ components:
       - code
       - message
       title: Error
-      type: object
-    ServiceResultCreateInput:
-      additionalProperties: false
-      description: Create payload for service results from technician SOL flow.
-      properties:
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        template_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Template Id
-        standard_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Standard Id
-        data:
-          title: Data
-          type: object
-      required:
-      - data
-      title: ServiceResultCreateInput
       type: object
     ServiceResultRecord:
       additionalProperties: false
@@ -1200,6 +794,190 @@ components:
       - validation_state
       - validation_reasons
       title: ServiceResultRecord
+      type: object
+    ServiceResultTemplateInfo:
+      additionalProperties: false
+      description: Nested template metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      required:
+      - id
+      title: ServiceResultTemplateInfo
+      type: object
+    ResultCaptureTemplate:
+      additionalProperties: false
+      description: Template definition for result capture context.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        technician_writable:
+          default: true
+          description: 'Whether the capture drawer may WRITE a row under this template. False means another surface owns those rows and the write endpoints refuse them, so a client must not offer it in a picker. The template still travels: a row that already exists under it has to be able to render its own template.'
+          title: Technician Writable
+          type: boolean
+        fields:
+          items:
+            $ref: '#/components/schemas/ResultCaptureTemplateField'
+          title: Fields
+          type: array
+        standards:
+          items:
+            $ref: '#/components/schemas/ResultCaptureStandard'
+          title: Standards
+          type: array
+        thresholds:
+          items:
+            $ref: '#/components/schemas/ResultCaptureThreshold'
+          title: Thresholds
+          type: array
+      required:
+      - id
+      - code
+      - fields
+      - standards
+      - thresholds
+      title: ResultCaptureTemplate
+      type: object
+    ServiceResultMutationResponse:
+      additionalProperties: false
+      description: Mutation response for create/update service result endpoints.
+      properties:
+        result:
+          $ref: '#/components/schemas/ServiceResultRecord'
+      required:
+      - result
+      title: ServiceResultMutationResponse
+      type: object
+    ServiceResultStandardInfo:
+      additionalProperties: false
+      description: Nested standard metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Key
+      required:
+      - id
+      title: ServiceResultStandardInfo
+      type: object
+    SolCleaningImagesInput:
+      additionalProperties: false
+      description: Patch payload for SOL cleaning images.
+      properties:
+        cleaning_images:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          title: Cleaning Images
+          type: object
+      required:
+      - cleaning_images
+      title: SolCleaningImagesInput
+      type: object
+    ResultCaptureThreshold:
+      additionalProperties: false
+      description: Threshold definition exposed to frontend for transparency.
+      properties:
+        id:
+          title: Id
+          type: integer
+        standard_id:
+          title: Standard Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        value_from:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value From
+        value_to:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Value To
+      required:
+      - id
+      - standard_id
+      - name
+      title: ResultCaptureThreshold
+      type: object
+    FinalizeServiceResponse:
+      additionalProperties: false
+      description: Response after finalizing a service order line.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        completed_by:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Completed By
+        completed_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed Date
+      required:
+      - service_order_line_id
+      - status
+      title: FinalizeServiceResponse
+      type: object
+    ServiceResultWorkorderInfo:
+      additionalProperties: false
+      description: Nested workorder metadata for a service result row.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_derived:
+          default: false
+          title: Is Derived
+          type: boolean
+      required:
+      - id
+      title: ServiceResultWorkorderInfo
       type: object
     ResultCaptureContextResponse:
       additionalProperties: false
@@ -1308,101 +1086,75 @@ components:
           - type: string
           - type: 'null'
           title: Service Finalized Date
+        is_ler_capture:
+          default: false
+          title: Is Ler Capture
+          type: boolean
+        final_report_mode:
+          default: none
+          enum:
+          - generate
+          - upload
+          - none
+          title: Final Report Mode
+          type: string
       required:
       - service_order_line_id
       - templates
       title: ResultCaptureContextResponse
       type: object
-    ServiceResultWorkorderInfo:
+    ResultCaptureTemplateField:
       additionalProperties: false
-      description: Nested workorder metadata for a service result row.
+      description: Field configuration for dynamic result entry form.
       properties:
         id:
           title: Id
           type: integer
-        name:
+        key:
+          title: Key
+          type: string
+        label:
+          title: Label
+          type: string
+        description:
           anyOf:
           - type: string
           - type: 'null'
-          title: Name
-        is_derived:
-          default: false
-          title: Is Derived
+          title: Description
+        field_type:
+          title: Field Type
+          type: string
+        is_required:
+          title: Is Required
           type: boolean
-      required:
-      - id
-      title: ServiceResultWorkorderInfo
-      type: object
-    ResultCaptureStandard:
-      additionalProperties: false
-      description: Standard option for result capture.
-      properties:
-        id:
-          title: Id
+        sort_order:
+          title: Sort Order
           type: integer
-        name:
-          title: Name
-          type: string
-        key:
-          title: Key
-          type: string
-        type:
-          title: Type
-          type: string
-      required:
-      - id
-      - name
-      - key
-      - type
-      title: ResultCaptureStandard
-      type: object
-    SolCleaningImagesResponse:
-      additionalProperties: false
-      description: SOL-level cleaning image references keyed by category.
-      properties:
-        cleaning_images:
-          additionalProperties:
-            items:
-              type: string
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        options:
+          anyOf:
+          - items: {}
             type: array
-          title: Cleaning Images
-          type: object
-      required:
-      - cleaning_images
-      title: SolCleaningImagesResponse
-      type: object
-    ServiceResultStandardInfo:
-      additionalProperties: false
-      description: Nested standard metadata for a service result row.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
           - type: 'null'
-          title: Name
-        key:
+          title: Options
+        default_value:
           anyOf:
-          - type: string
+          - {}
           - type: 'null'
-          title: Key
+          title: Default Value
       required:
       - id
-      title: ServiceResultStandardInfo
+      - key
+      - label
+      - field_type
+      - is_required
+      - sort_order
+      title: ResultCaptureTemplateField
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

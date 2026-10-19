@@ -1,0 +1,1313 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.supervisor Dashboard API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.supervisor-dashboard
+paths:
+  /api/projects/supervisor-dashboard:
+    get:
+      operationId: projects_api_supervisor_dashboard_get_supervisor_dashboard
+      summary: Get Supervisor Dashboard
+      parameters:
+      - in: query
+        name: person_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Whose view to show. Defaults to the caller.
+          title: Person Id
+        required: false
+        description: Whose view to show. Defaults to the caller.
+      - in: query
+        name: date_from
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: First report day. Defaults to 6 days before date_to.
+          title: Date From
+        required: false
+        description: First report day. Defaults to 6 days before date_to.
+      - in: query
+        name: date_to
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Last report day. Defaults to the server's yesterday. The range can be at most 90 days.
+          title: Date To
+        required: false
+        description: Last report day. Defaults to the server's yesterday. The range can be at most 90 days.
+      - in: query
+        name: project_ids
+        schema:
+          description: Repeat to narrow the page to these of the person's projects; empty means all.
+          items:
+            type: integer
+          title: Project Ids
+          type: array
+        required: false
+        description: Repeat to narrow the page to these of the person's projects; empty means all.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupervisorDashboardResponse'
+      description: What needs attention on the projects one person supervises, and how the range went.
+      tags:
+      - projects.supervisor-dashboard
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/supervisor-dashboard/set-days:
+    get:
+      operationId: projects_api_supervisor_dashboard_get_supervisor_dashboard_set_days
+      summary: Get Supervisor Dashboard Set Days
+      parameters:
+      - in: query
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: robot_set_id
+        schema:
+          title: Robot Set Id
+          type: integer
+        required: true
+      - in: query
+        name: date_from
+        schema:
+          format: date
+          title: Date From
+          type: string
+        required: true
+      - in: query
+        name: date_to
+        schema:
+          description: The range can be at most 90 days.
+          format: date
+          title: Date To
+          type: string
+        required: true
+        description: The range can be at most 90 days.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDaysResponse'
+      description: 'One set''s days on one project over a range: hours, people, delays, units and reports.'
+      tags:
+      - projects.supervisor-dashboard
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/projects/supervisor-dashboard/set-day:
+    get:
+      operationId: projects_api_supervisor_dashboard_get_supervisor_dashboard_set_day
+      summary: Get Supervisor Dashboard Set Day
+      parameters:
+      - in: query
+        name: project_id
+        schema:
+          title: Project Id
+          type: integer
+        required: true
+      - in: query
+        name: robot_set_id
+        schema:
+          title: Robot Set Id
+          type: integer
+        required: true
+      - in: query
+        name: date
+        schema:
+          description: The report day to show.
+          format: date
+          title: Date
+          type: string
+        required: true
+        description: The report day to show.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDayResponse'
+      description: 'One set''s report day on one project: activities, delays and time logs.'
+      tags:
+      - projects.supervisor-dashboard
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SetDayDelay:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+        start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start
+        end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End
+        minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Minutes
+      required:
+      - id
+      title: SetDayDelay
+      type: object
+    OverviewDelayType:
+      additionalProperties: false
+      properties:
+        type:
+          description: The delay type's code.
+          title: Type
+          type: string
+        category:
+          description: Its category, named as in delay_causes.
+          title: Category
+          type: string
+        hours:
+          title: Hours
+          type: number
+        count:
+          title: Count
+          type: integer
+      required:
+      - type
+      - category
+      - hours
+      - count
+      title: OverviewDelayType
+      type: object
+    SetDay:
+      additionalProperties: false
+      properties:
+        date:
+          format: date
+          title: Date
+          type: string
+        man_hours:
+          title: Man Hours
+          type: number
+        people:
+          title: People
+          type: integer
+        crew_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: The set's crew day by the Daily Report gate's rule, less the delays in it.
+          title: Crew Hours
+        delay_hours:
+          title: Delay Hours
+          type: number
+        delays_by_category:
+          items:
+            $ref: '#/components/schemas/DelayCategoryHours'
+          title: Delays By Category
+          type: array
+        activities:
+          title: Activities
+          type: integer
+        turbines_worked:
+          title: Turbines Worked
+          type: integer
+        units_finished:
+          title: Units Finished
+          type: integer
+        short:
+          description: Under the project minimum by the Daily Report gate's rule.
+          title: Short
+          type: boolean
+        has_time_logs:
+          title: Has Time Logs
+          type: boolean
+        report_drafted:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Every due line the set worked has a draft or a sent report; null when none was due.
+          title: Report Drafted
+      required:
+      - date
+      - man_hours
+      - people
+      - delay_hours
+      - delays_by_category
+      - activities
+      - turbines_worked
+      - units_finished
+      - short
+      - has_time_logs
+      title: SetDay
+      type: object
+    AssetProject:
+      additionalProperties: false
+      properties:
+        finished_wtg:
+          description: Per-WTG lines finished in the range, by field date, else office date.
+          title: Finished Wtg
+          type: integer
+        finished_blades:
+          description: Per-blade lines finished in the range.
+          title: Finished Blades
+          type: integer
+        started_not_finished_turbines:
+          description: 'Now: turbines with a line in progress or done and a line still open.'
+          title: Started Not Finished Turbines
+          type: integer
+        remaining_units:
+          description: 'Now: lines neither done nor cancelled.'
+          title: Remaining Units
+          type: integer
+        units_per_set_day:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Units finished per set-day in the range.
+          title: Units Per Set Day
+        days_to_clear:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: remaining_units over units_per_set_day times the sets active in the range.
+          title: Days To Clear
+        done_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: AeroPlan's scope-weighted completed share, 0 to 100.
+          title: Done Pct
+        expected_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: AeroPlan's scope-weighted share expected by today.
+          title: Expected Pct
+        behind:
+          title: Behind
+          type: integer
+        on_track:
+          title: On Track
+          type: integer
+        ahead:
+          title: Ahead
+          type: integer
+        no_estimate:
+          title: No Estimate
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        project_code:
+          title: Project Code
+          type: string
+        planned_end:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: AeroPlan's latest scheduled end of the project's services.
+          title: Planned End
+        forecast_end:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: The slowest service's pace forecast end.
+          title: Forecast End
+        pace_delta_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Days that forecast ends after plan; negative is ahead.
+          title: Pace Delta Days
+      required:
+      - finished_wtg
+      - finished_blades
+      - started_not_finished_turbines
+      - remaining_units
+      - behind
+      - on_track
+      - ahead
+      - no_estimate
+      - project_id
+      - project_code
+      title: AssetProject
+      type: object
+    OverviewTotals:
+      additionalProperties: false
+      properties:
+        field_hours:
+          description: 'Work hours: each set''s crew day by the Daily Report gate''s rule less the delays in it, plus the own time of activities with no set.'
+          title: Field Hours
+          type: number
+        delay_hours:
+          title: Delay Hours
+          type: number
+        delay_share:
+          description: Delay hours over field plus delay hours, 0 when both are 0.
+          title: Delay Share
+          type: number
+        reports_due:
+          description: Line and report day pairs that were due a daily report.
+          title: Reports Due
+          type: integer
+        reports_in:
+          description: Of those, the pairs with a submitted draft or a sent report.
+          title: Reports In
+          type: integer
+        units_wtg:
+          title: Units Wtg
+          type: integer
+        units_blades:
+          title: Units Blades
+          type: integer
+        set_days:
+          description: Robot set and local report day pairs with a finished field activity.
+          title: Set Days
+          type: integer
+        short_set_days:
+          description: Of those, the set-days under the project minimum by the Daily Report gate's rule.
+          title: Short Set Days
+          type: integer
+        team_days_dispatched:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Team-days with a dispatched workorder; null for previous, which has no dispatch read.
+          title: Team Days Dispatched
+        team_days_missed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Team-days with a missed plan; null for previous.
+          title: Team Days Missed
+        team_days_unplanned:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Team-days with work logged and no plan; null for previous.
+          title: Team Days Unplanned
+      required:
+      - field_hours
+      - delay_hours
+      - delay_share
+      - reports_due
+      - reports_in
+      - units_wtg
+      - units_blades
+      - set_days
+      - short_set_days
+      title: OverviewTotals
+      type: object
+    SupervisorDashboardResponse:
+      additionalProperties: false
+      properties:
+        person_id:
+          title: Person Id
+          type: integer
+        date_from:
+          format: date
+          title: Date From
+          type: string
+        date_to:
+          format: date
+          title: Date To
+          type: string
+        bucket:
+          description: day for a range of up to 31 days, else ISO weeks clipped to the range.
+          enum:
+          - day
+          - week
+          title: Bucket
+          type: string
+        people:
+          description: Everyone who supervises a live project, for the person picker.
+          items:
+            $ref: '#/components/schemas/Person'
+          title: People
+          type: array
+        project_options:
+          description: All of the person's live supervised projects, whatever project_ids says.
+          items:
+            $ref: '#/components/schemas/ProjectOption'
+          title: Project Options
+          type: array
+        selected_project_ids:
+          description: project_ids after dropping ids outside project_options; empty means all.
+          items:
+            type: integer
+          title: Selected Project Ids
+          type: array
+        attention:
+          items:
+            $ref: '#/components/schemas/AttentionItem'
+          title: Attention
+          type: array
+        overview:
+          $ref: '#/components/schemas/Overview'
+        sets:
+          items:
+            $ref: '#/components/schemas/SetRow'
+          title: Sets
+          type: array
+        assets:
+          $ref: '#/components/schemas/Assets'
+      required:
+      - person_id
+      - date_from
+      - date_to
+      - bucket
+      - people
+      - project_options
+      - selected_project_ids
+      - attention
+      - overview
+      - sets
+      - assets
+      title: SupervisorDashboardResponse
+      type: object
+    SetRow:
+      additionalProperties: false
+      properties:
+        project_id:
+          title: Project Id
+          type: integer
+        project_code:
+          title: Project Code
+          type: string
+        robot_set_id:
+          title: Robot Set Id
+          type: integer
+        set_name:
+          title: Set Name
+          type: string
+        service_family:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The service code's first part (IIN, LER, ...) the set's activities were on most.
+          title: Service Family
+        days_worked:
+          description: Site-local days with a finished field activity.
+          title: Days Worked
+          type: integer
+        short_days:
+          description: Of those, the days under the project minimum by the Daily Report gate's rule.
+          title: Short Days
+          type: integer
+        work_hours:
+          description: The set's crew days by the Daily Report gate's rule, less the delays in them.
+          title: Work Hours
+          type: number
+        man_hours:
+          description: Field-work time logged for the set, summed over people.
+          title: Man Hours
+          type: number
+        people:
+          description: Distinct technicians on the set's activities in the range.
+          title: People
+          type: integer
+        planned_people:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians on the set's deployment roster; null when it has no deployment in the range.
+          title: Planned People
+        crew_hours_per_day:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: work_hours over the days with work; null with none.
+          title: Crew Hours Per Day
+        delay_hours:
+          title: Delay Hours
+          type: number
+        delay_share:
+          description: Delay hours over work hours plus delay hours, 0 to 1.
+          title: Delay Share
+          type: number
+        delays_by_category:
+          items:
+            $ref: '#/components/schemas/DelayCategoryHours'
+          title: Delays By Category
+          type: array
+        wtg_worked:
+          description: Distinct turbines on its activities.
+          title: Wtg Worked
+          type: integer
+        blades_worked:
+          description: Distinct blades on its activities.
+          title: Blades Worked
+          type: integer
+        units_finished_wtg:
+          title: Units Finished Wtg
+          type: integer
+        units_finished_blades:
+          title: Units Finished Blades
+          type: integer
+        shared_units:
+          description: Of the units finished, the ones another set worked too.
+          title: Shared Units
+          type: integer
+        hours_complete:
+          description: Every worked day has at least one field-work time log.
+          title: Hours Complete
+          type: boolean
+        hours_per_unit:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Work hours per unit finished; null when no unit finished.
+          title: Hours Per Unit
+        reports_due:
+          title: Reports Due
+          type: integer
+        reports_in:
+          title: Reports In
+          type: integer
+      required:
+      - project_id
+      - project_code
+      - robot_set_id
+      - set_name
+      - days_worked
+      - short_days
+      - work_hours
+      - man_hours
+      - people
+      - delay_hours
+      - delay_share
+      - delays_by_category
+      - wtg_worked
+      - blades_worked
+      - units_finished_wtg
+      - units_finished_blades
+      - shared_units
+      - hours_complete
+      - reports_due
+      - reports_in
+      title: SetRow
+      type: object
+    AttentionItem:
+      additionalProperties: false
+      properties:
+        severity:
+          enum:
+          - high
+          - medium
+          - low
+          title: Severity
+          type: string
+        kind:
+          title: Kind
+          type: string
+        project_id:
+          title: Project Id
+          type: integer
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        project_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The project's id in the host SPA's project URLs.
+          title: Project Ref
+        count:
+          title: Count
+          type: integer
+        message:
+          title: Message
+          type: string
+        report_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: 'For daily_report_missing and set_under_minimum: the latest day in the range with the problem.'
+          title: Report Date
+        missing_sol_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: The lines with no daily report on report_date (for a set, the lines it worked).
+          title: Missing Sol Ids
+      required:
+      - severity
+      - kind
+      - project_id
+      - count
+      - message
+      title: AttentionItem
+      type: object
+    Person:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: Person
+      type: object
+    SetDayActivity:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        workorder_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workorder Name
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start
+        end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      title: SetDayActivity
+      type: object
+    DelayCategoryHours:
+      additionalProperties: false
+      properties:
+        category:
+          title: Category
+          type: string
+        hours:
+          title: Hours
+          type: number
+      required:
+      - category
+      - hours
+      title: DelayCategoryHours
+      type: object
+    SetDaysResponse:
+      additionalProperties: false
+      properties:
+        project_id:
+          title: Project Id
+          type: integer
+        robot_set_id:
+          title: Robot Set Id
+          type: integer
+        set_name:
+          title: Set Name
+          type: string
+        days:
+          items:
+            $ref: '#/components/schemas/SetDay'
+          title: Days
+          type: array
+      required:
+      - project_id
+      - robot_set_id
+      - set_name
+      - days
+      title: SetDaysResponse
+      type: object
+    SetDayResponse:
+      additionalProperties: false
+      properties:
+        timezone:
+          description: The site's timezone, for showing the times as the crew's clock.
+          title: Timezone
+          type: string
+        activities:
+          items:
+            $ref: '#/components/schemas/SetDayActivity'
+          title: Activities
+          type: array
+        delays:
+          items:
+            $ref: '#/components/schemas/SetDayDelay'
+          title: Delays
+          type: array
+        time_logs:
+          items:
+            $ref: '#/components/schemas/SetDayTimeLog'
+          title: Time Logs
+          type: array
+      required:
+      - timezone
+      - activities
+      - delays
+      - time_logs
+      title: SetDayResponse
+      type: object
+    OverviewBucket:
+      additionalProperties: false
+      properties:
+        start:
+          format: date
+          title: Start
+          type: string
+        end:
+          format: date
+          title: End
+          type: string
+        field_hours:
+          title: Field Hours
+          type: number
+        delay_hours:
+          title: Delay Hours
+          type: number
+        reports_due:
+          title: Reports Due
+          type: integer
+        reports_in:
+          title: Reports In
+          type: integer
+        units_wtg:
+          title: Units Wtg
+          type: integer
+        units_blades:
+          title: Units Blades
+          type: integer
+        set_days:
+          title: Set Days
+          type: integer
+        short_set_days:
+          title: Short Set Days
+          type: integer
+        team_days_dispatched:
+          title: Team Days Dispatched
+          type: integer
+        team_days_missed:
+          title: Team Days Missed
+          type: integer
+        team_days_unplanned:
+          title: Team Days Unplanned
+          type: integer
+      required:
+      - start
+      - end
+      - field_hours
+      - delay_hours
+      - reports_due
+      - reports_in
+      - units_wtg
+      - units_blades
+      - set_days
+      - short_set_days
+      - team_days_dispatched
+      - team_days_missed
+      - team_days_unplanned
+      title: OverviewBucket
+      type: object
+    OverviewProject:
+      additionalProperties: false
+      properties:
+        field_hours:
+          description: 'Work hours: each set''s crew day by the Daily Report gate''s rule less the delays in it, plus the own time of activities with no set.'
+          title: Field Hours
+          type: number
+        delay_hours:
+          title: Delay Hours
+          type: number
+        delay_share:
+          description: Delay hours over field plus delay hours, 0 when both are 0.
+          title: Delay Share
+          type: number
+        reports_due:
+          description: Line and report day pairs that were due a daily report.
+          title: Reports Due
+          type: integer
+        reports_in:
+          description: Of those, the pairs with a submitted draft or a sent report.
+          title: Reports In
+          type: integer
+        units_wtg:
+          title: Units Wtg
+          type: integer
+        units_blades:
+          title: Units Blades
+          type: integer
+        set_days:
+          description: Robot set and local report day pairs with a finished field activity.
+          title: Set Days
+          type: integer
+        short_set_days:
+          description: Of those, the set-days under the project minimum by the Daily Report gate's rule.
+          title: Short Set Days
+          type: integer
+        team_days_dispatched:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Team-days with a dispatched workorder; null for previous, which has no dispatch read.
+          title: Team Days Dispatched
+        team_days_missed:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Team-days with a missed plan; null for previous.
+          title: Team Days Missed
+        team_days_unplanned:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Team-days with work logged and no plan; null for previous.
+          title: Team Days Unplanned
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        project_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The project's id in the host SPA's project URLs.
+          title: Project Ref
+        active_sets:
+          description: Distinct robot sets with a finished field activity on the project in the window.
+          title: Active Sets
+          type: integer
+        bucket_field_hours:
+          description: Field (work) hours per bucket, in the order of overview.buckets.
+          items:
+            type: number
+          title: Bucket Field Hours
+          type: array
+        bucket_delay_hours:
+          description: Delay hours per bucket, in the order of overview.buckets.
+          items:
+            type: number
+          title: Bucket Delay Hours
+          type: array
+        progress:
+          anyOf:
+          - $ref: '#/components/schemas/OverviewProgress'
+          - type: 'null'
+          description: AeroPlan's pace against plan; null when AeroPlan has no rows for the project or cannot be read.
+      required:
+      - field_hours
+      - delay_hours
+      - delay_share
+      - reports_due
+      - reports_in
+      - units_wtg
+      - units_blades
+      - set_days
+      - short_set_days
+      - id
+      - code
+      - active_sets
+      - bucket_field_hours
+      - bucket_delay_hours
+      title: OverviewProject
+      type: object
+    OverviewProgress:
+      additionalProperties: false
+      properties:
+        completed_pct:
+          description: Scope-weighted completed share of the project's services, 0 to 100.
+          title: Completed Pct
+          type: number
+        expected_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Scope-weighted share the plan expects by today, 0 to 100.
+          title: Expected Pct
+        pace_delta_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Days the slowest service's pace forecast ends after plan; negative is ahead.
+          title: Pace Delta Days
+        pace:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'AeroPlan''s label for that service: behind, on_track or ahead.'
+          title: Pace
+        planned_end:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Latest scheduled end of the project's services.
+          title: Planned End
+        forecast_end:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: The slowest service's pace forecast end.
+          title: Forecast End
+      required:
+      - completed_pct
+      title: OverviewProgress
+      type: object
+    SetDayTimeLog:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        resource_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resource Name
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        start:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Start
+        end:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: End
+        minutes:
+          title: Minutes
+          type: integer
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - minutes
+      title: SetDayTimeLog
+      type: object
+    ProjectOption:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: ProjectOption
+      type: object
+    Assets:
+      additionalProperties: false
+      properties:
+        totals:
+          $ref: '#/components/schemas/AssetMeasures'
+          description: Every selected project.
+        projects:
+          description: The selected projects with any data in the range, as overview.projects.
+          items:
+            $ref: '#/components/schemas/AssetProject'
+          title: Projects
+          type: array
+      required:
+      - totals
+      - projects
+      title: Assets
+      type: object
+    OverviewDelayCause:
+      additionalProperties: false
+      properties:
+        category:
+          title: Category
+          type: string
+        hours:
+          title: Hours
+          type: number
+        count:
+          title: Count
+          type: integer
+      required:
+      - category
+      - hours
+      - count
+      title: OverviewDelayCause
+      type: object
+    OverviewDeployment:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        name:
+          title: Name
+          type: string
+        status:
+          title: Status
+          type: string
+        planned_start:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Earliest start of the deployment's robot legs.
+          title: Planned Start
+        planned_end:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Latest end of the deployment's robot legs.
+          title: Planned End
+        first_activity:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: First local day in the window its teams had a finished field activity on the project.
+          title: First Activity
+        last_activity:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          description: Last such day in the window.
+          title: Last Activity
+      required:
+      - id
+      - project_id
+      - name
+      - status
+      title: OverviewDeployment
+      type: object
+    Overview:
+      additionalProperties: false
+      properties:
+        period_days:
+          description: Report days in the range.
+          title: Period Days
+          type: integer
+        date_from:
+          description: First report day in the range.
+          format: date
+          title: Date From
+          type: string
+        date_to:
+          description: Last report day in the range.
+          format: date
+          title: Date To
+          type: string
+        bucket:
+          description: day for a range of up to 31 days, else ISO weeks clipped to the range.
+          enum:
+          - day
+          - week
+          title: Bucket
+          type: string
+        totals:
+          $ref: '#/components/schemas/OverviewTotals'
+        previous:
+          $ref: '#/components/schemas/OverviewTotals'
+          description: The same totals for the equal window right before date_from.
+        buckets:
+          items:
+            $ref: '#/components/schemas/OverviewBucket'
+          title: Buckets
+          type: array
+        delay_causes:
+          description: Closed delays in the window by category, most hours first.
+          items:
+            $ref: '#/components/schemas/OverviewDelayCause'
+          title: Delay Causes
+          type: array
+        delay_types:
+          description: The same delays by delay type, the 10 with the most hours.
+          items:
+            $ref: '#/components/schemas/OverviewDelayType'
+          title: Delay Types
+          type: array
+        deployments:
+          description: Deployments on the projects whose planned window or field activity overlaps the window, by project code then planned start.
+          items:
+            $ref: '#/components/schemas/OverviewDeployment'
+          title: Deployments
+          type: array
+        projects:
+          description: 'The selected projects with any data in the range (a finished activity, a closed delay, a field-work log, a due report or a finished unit): behind plan first, then lower report compliance, then higher delay share.'
+          items:
+            $ref: '#/components/schemas/OverviewProject'
+          title: Projects
+          type: array
+      required:
+      - period_days
+      - date_from
+      - date_to
+      - bucket
+      - totals
+      - previous
+      - buckets
+      - delay_causes
+      - delay_types
+      - deployments
+      - projects
+      title: Overview
+      type: object
+    AssetMeasures:
+      additionalProperties: false
+      properties:
+        finished_wtg:
+          description: Per-WTG lines finished in the range, by field date, else office date.
+          title: Finished Wtg
+          type: integer
+        finished_blades:
+          description: Per-blade lines finished in the range.
+          title: Finished Blades
+          type: integer
+        started_not_finished_turbines:
+          description: 'Now: turbines with a line in progress or done and a line still open.'
+          title: Started Not Finished Turbines
+          type: integer
+        remaining_units:
+          description: 'Now: lines neither done nor cancelled.'
+          title: Remaining Units
+          type: integer
+        units_per_set_day:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Units finished per set-day in the range.
+          title: Units Per Set Day
+        days_to_clear:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: remaining_units over units_per_set_day times the sets active in the range.
+          title: Days To Clear
+        done_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: AeroPlan's scope-weighted completed share, 0 to 100.
+          title: Done Pct
+        expected_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: AeroPlan's scope-weighted share expected by today.
+          title: Expected Pct
+        behind:
+          title: Behind
+          type: integer
+        on_track:
+          title: On Track
+          type: integer
+        ahead:
+          title: Ahead
+          type: integer
+        no_estimate:
+          title: No Estimate
+          type: integer
+      required:
+      - finished_wtg
+      - finished_blades
+      - started_not_finished_turbines
+      - remaining_units
+      - behind
+      - on_track
+      - ahead
+      - no_estimate
+      title: AssetMeasures
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

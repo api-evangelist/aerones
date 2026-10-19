@@ -1,0 +1,458 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.prejob Questions API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.prejob-questions
+paths:
+  /api/core/v1/prejob-questions/services:
+    get:
+      operationId: core_endpoints_prejob_questions_list_services
+      summary: List Services
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PrejobServiceRow'
+                title: Response
+                type: array
+      description: Every sold service with its shown and hidden question counts.
+      tags:
+      - core.prejob-questions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/prejob-questions/services/{service_id}/questions:
+    get:
+      operationId: core_endpoints_prejob_questions_list_questions
+      summary: List Questions
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      - in: query
+        name: visibility
+        schema:
+          default: all
+          enum:
+          - shown
+          - hidden
+          - all
+          title: Visibility
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PrejobQuestionRow'
+                title: Response
+                type: array
+      description: A service's questions in the order of the customer's form.
+      tags:
+      - core.prejob-questions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: core_endpoints_prejob_questions_create_question
+      summary: Create Question
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrejobQuestionRow'
+      description: Add a question at the end of the service's form.
+      tags:
+      - core.prejob-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrejobQuestionCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/prejob-questions/services/{service_id}/questions/reorder:
+    post:
+      operationId: core_endpoints_prejob_questions_reorder_questions
+      summary: Reorder Questions
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Set the form order of every question of the service.
+      tags:
+      - core.prejob-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrejobQuestionReorder'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/prejob-questions/questions/{question_id}:
+    patch:
+      operationId: core_endpoints_prejob_questions_update_question
+      summary: Update Question
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          title: Question Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrejobQuestionRow'
+      description: Change a question, and with ``apply_to_all`` its copies in other services.
+      tags:
+      - core.prejob-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrejobQuestionUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: core_endpoints_prejob_questions_remove_question
+      summary: Remove Question
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          title: Question Id
+          type: integer
+        required: true
+      - in: query
+        name: apply_to_all
+        schema:
+          default: false
+          title: Apply To All
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a question, or with ``apply_to_all`` every copy; answers are kept.
+      tags:
+      - core.prejob-questions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/prejob-questions/questions/{question_id}/impact:
+    get:
+      operationId: core_endpoints_prejob_questions_question_impact
+      summary: Question Impact
+      parameters:
+      - in: path
+        name: question_id
+        schema:
+          title: Question Id
+          type: integer
+        required: true
+      - in: query
+        name: apply_to_all
+        schema:
+          default: false
+          title: Apply To All
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrejobQuestionImpact'
+      description: Projects that answered the question and open projects that owe it.
+      tags:
+      - core.prejob-questions
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PrejobServiceRow:
+      additionalProperties: false
+      description: A sold service with how many of its questions the form shows and hides.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        shown_count:
+          title: Shown Count
+          type: integer
+        hidden_count:
+          title: Hidden Count
+          type: integer
+      required:
+      - id
+      - code
+      - shown_count
+      - hidden_count
+      title: PrejobServiceRow
+      type: object
+    PrejobQuestionReorder:
+      additionalProperties: false
+      description: Every live question id of the service, in the new form order.
+      properties:
+        question_ids:
+          items:
+            type: integer
+          title: Question Ids
+          type: array
+      required:
+      - question_ids
+      title: PrejobQuestionReorder
+      type: object
+    PrejobQuestionImpact:
+      additionalProperties: false
+      description: How many projects a change to a question reaches.
+      properties:
+        answered_project_count:
+          title: Answered Project Count
+          type: integer
+        open_project_count:
+          title: Open Project Count
+          type: integer
+      required:
+      - answered_project_count
+      - open_project_count
+      title: PrejobQuestionImpact
+      type: object
+    PrejobQuestionCreate:
+      additionalProperties: false
+      description: A new question; the key is generated from ``title``.
+      properties:
+        title:
+          title: Title
+          type: string
+        tooltip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tooltip
+        type:
+          title: Type
+          type: string
+        choices:
+          items:
+            type: string
+          title: Choices
+          type: array
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        required:
+          default: false
+          title: Required
+          type: boolean
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+      required:
+      - title
+      - type
+      title: PrejobQuestionCreate
+      type: object
+    PrejobQuestionRow:
+      additionalProperties: false
+      description: A service question as the page lists and edits it.
+      properties:
+        id:
+          title: Id
+          type: integer
+        key:
+          title: Key
+          type: string
+        title:
+          title: Title
+          type: string
+        tooltip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tooltip
+        type:
+          title: Type
+          type: string
+        choices:
+          items:
+            type: string
+          title: Choices
+          type: array
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        required:
+          title: Required
+          type: boolean
+        enabled:
+          title: Enabled
+          type: boolean
+        priority:
+          title: Priority
+          type: integer
+        answered_project_count:
+          description: Projects that already answered this question.
+          title: Answered Project Count
+          type: integer
+        other_service_count:
+          description: Other services that ask a copy of this question (same key).
+          title: Other Service Count
+          type: integer
+        other_service_codes:
+          description: Codes of those other services, sorted.
+          items:
+            type: string
+          title: Other Service Codes
+          type: array
+      required:
+      - id
+      - key
+      - title
+      - type
+      - required
+      - enabled
+      - priority
+      - answered_project_count
+      - other_service_count
+      title: PrejobQuestionRow
+      type: object
+    PrejobQuestionUpdate:
+      additionalProperties: false
+      description: Fields to change; ``apply_to_all`` also changes them on every copy.
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        tooltip:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tooltip
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Type
+        choices:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Choices
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Unit
+        required:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Required
+        enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Enabled
+        apply_to_all:
+          default: false
+          title: Apply To All
+          type: boolean
+      title: PrejobQuestionUpdate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

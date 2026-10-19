@@ -36,6 +36,35 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
+  /api/vis/v1/ai-anomalies/bulk:
+    post:
+      operationId: vis_api_post_ai_anomalies_bulk
+      summary: Register up to 200 AI-detected defects in one request
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiAnomalyBulkResponseSchema'
+      description: 'Register a batch of AI defects; each item behaves like one single POST.
+
+
+        Returns 200 with one result per item in input order, ``ok`` or ``error``.
+
+        Annotated images are copied by a background task after commit.'
+      tags:
+      - vis.ai-anomalies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiAnomalyBulkRegisterSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
   /api/vis/v1/ai-anomalies/{id}/source-object:
     patch:
       operationId: vis_api_patch_ai_anomaly_source_object
@@ -147,6 +176,379 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    AiAnomalySchema:
+      description: 'Response for a vis.AiAnomaly row — every column on the table.
+
+
+        ``deleted_at`` is deliberately omitted (soft-delete internals are never
+
+        exposed); ``core_anomaly_id`` is the ``anomaly`` FK under its API name, and
+
+        ``core_anomaly`` carries the half of the registration that lives on
+
+        ``core.anomaly``.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        inference_defect_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Inference Defect Id
+        defect_uid:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Defect Uid
+        internal_external:
+          title: Internal External
+          type: string
+        core_anomaly_id:
+          title: Core Anomaly Id
+          type: integer
+        service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Order Line Id
+        frame_blob_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Frame Blob Path
+        original_image_dest:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Original Image Dest
+        inference_job_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Inference Job Id
+        frame_nr:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Frame Nr
+        severity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Severity
+        defect_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Defect Type
+        type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Type Id
+        sub_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sub Type Id
+        material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Material Id
+        conf_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Conf Score
+        distance_from_root:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance From Root
+        size_h_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Size H Mm
+        size_v_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Size V Mm
+        bbox:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bbox
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        extension:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Extension
+        ai_model_config_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Ai Model Config Id
+        ai_model_release:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Model Release
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        core_anomaly:
+          $ref: '#/components/schemas/AiAnomalyCoreSchema'
+      required:
+      - id
+      - internal_external
+      - core_anomaly_id
+      - created_at
+      - updated_at
+      - core_anomaly
+      title: AiAnomalySchema
+      type: object
+    AiAnomalySourceObjectSchema:
+      description: 'Input for PATCH /vis/v1/ai-anomalies/{id}/source-object.
+
+
+        The drone pipeline registers a defect before the portal has registered the
+
+        photo it came from, so the generic ``source_object`` pair is filled in once
+
+        that id exists.
+
+
+        A partial update: an omitted field is left untouched, while an explicit
+
+        ``null`` clears that column. Patching one half of the pair never disturbs
+
+        the other, so the handler forwards presence rather than value.'
+      properties:
+        source_object_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Object Id
+        source_object_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Object Type Id
+      title: AiAnomalySourceObjectSchema
+      type: object
+    AiAnomalyBulkResponseSchema:
+      description: Output of POST /vis/v1/ai-anomalies/bulk, one result per item in input order.
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/AiAnomalyBulkResultSchema'
+          title: Results
+          type: array
+      required:
+      - results
+      title: AiAnomalyBulkResponseSchema
+      type: object
+    AiAnomalyCoreSchema:
+      description: 'The ``core.anomaly`` columns registration writes that vis.ai_anomaly lacks.
+
+
+        A registration spans two tables, and until this existed the response showed
+
+        only the vis half — so a caller could not tell a column it never sent from
+
+        one the service dropped, and had to query the database to find out. Covers
+
+        the taxonomy cascade, the blade context resolved from
+
+        ``service_order_line_id`` + ``component_name``, and the fields that are
+
+        derived when omitted (``name``, ``rib``).'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        rib:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rib
+        side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Side
+        cross_section_side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cross Section Side
+        cross_section_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cross Section Type
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        source_object_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Object Id
+        source_object_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Object Type Id
+        registration_origin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Registration Origin
+        qr_code:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Qr Code
+        segmentation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Segmentation
+        segmentation_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Segmentation Version
+        ai_images_v2:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Ai Images V2
+        anomaly_major_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Major Component Id
+        anomaly_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Component Id
+        anomaly_sub_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Sub Component Id
+        anomaly_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Type Id
+        anomaly_sub_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Sub Type Id
+        anomaly_material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Material Id
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        turbine_component_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Turbine Component Serial Number
+      required:
+      - id
+      title: AiAnomalyCoreSchema
+      type: object
+    AiAnomalyBulkResultSchema:
+      description: 'One item''s outcome: ``ai_anomaly`` when ``ok``, else ``error``.'
+      properties:
+        index:
+          title: Index
+          type: integer
+        ok:
+          title: Ok
+          type: boolean
+        ai_anomaly:
+          anyOf:
+          - $ref: '#/components/schemas/AiAnomalySchema'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - index
+      - ok
+      title: AiAnomalyBulkResultSchema
+      type: object
+    AiAnomalyBulkRegisterSchema:
+      description: 'Input for POST /vis/v1/ai-anomalies/bulk: 1 to 200 registrations.
+
+
+        Each item is exactly the single-POST body. A malformed item (wrong type, an
+
+        unknown ``rib``) rejects the whole request with 422 before anything is
+
+        written; a business error (duplicate, unknown id) is reported per item.'
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AiAnomalyRegisterSchema'
+          maxItems: 200
+          minItems: 1
+          title: Items
+          type: array
+      required:
+      - items
+      title: AiAnomalyBulkRegisterSchema
+      type: object
     AiAnomalyRegisterSchema:
       description: 'Input for POST /vis/v1/ai-anomalies — the REST twin of registerAiDefect.
 
@@ -173,20 +575,16 @@ components:
 
         send none of them in practice, nor a ``qr_code`` or ``segmentation``. None
 
-        of that is enforced — the importer imposes no such restriction either, and
+        of that is enforced, and ``type_id`` / ``sub_type_id`` / ``material_id``
 
-        ``type_id`` / ``sub_type_id`` / ``material_id`` have always been accepted
-
-        for externals.
+        are accepted for externals.
 
 
         ``name`` and ``rib`` are optional because a caller need not know them:
 
-        omitted, they are derived from the blade context — ``component_name``, or
+        omitted, they are derived from ``component_name`` or the blade section of
 
-        the blade section of the ``source_object`` — matching what
-
-        ``AIAnomalyImporter`` writes for a pulled defect. A supplied value wins.'
+        the ``source_object``. A supplied value wins.'
       properties:
         inference_defect_id:
           anyOf:
@@ -408,323 +806,6 @@ components:
           - type: 'null'
           title: Ai Model Release
       title: AiAnomalyRegisterSchema
-      type: object
-    AiAnomalySourceObjectSchema:
-      description: 'Input for PATCH /vis/v1/ai-anomalies/{id}/source-object.
-
-
-        The drone pipeline registers a defect before the portal has registered the
-
-        photo it came from, so the generic ``source_object`` pair is filled in once
-
-        that id exists.
-
-
-        A partial update: an omitted field is left untouched, while an explicit
-
-        ``null`` clears that column. Patching one half of the pair never disturbs
-
-        the other, so the handler forwards presence rather than value.'
-      properties:
-        source_object_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Source Object Id
-        source_object_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Source Object Type Id
-      title: AiAnomalySourceObjectSchema
-      type: object
-    AiAnomalySchema:
-      description: 'Response for a vis.AiAnomaly row — every column on the table.
-
-
-        ``deleted_at`` is deliberately omitted (soft-delete internals are never
-
-        exposed); ``core_anomaly_id`` is the ``anomaly`` FK under its API name, and
-
-        ``core_anomaly`` carries the half of the registration that lives on
-
-        ``core.anomaly``.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        inference_defect_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Inference Defect Id
-        defect_uid:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Defect Uid
-        internal_external:
-          title: Internal External
-          type: string
-        core_anomaly_id:
-          title: Core Anomaly Id
-          type: integer
-        service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Order Line Id
-        frame_blob_path:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Frame Blob Path
-        original_image_dest:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Original Image Dest
-        inference_job_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Inference Job Id
-        frame_nr:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Frame Nr
-        severity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Severity
-        defect_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Defect Type
-        type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Type Id
-        sub_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sub Type Id
-        material_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Material Id
-        conf_score:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Conf Score
-        distance_from_root:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance From Root
-        size_h_mm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Size H Mm
-        size_v_mm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Size V Mm
-        bbox:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Bbox
-        filename:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Filename
-        extension:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Extension
-        ai_model_config_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Ai Model Config Id
-        ai_model_release:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ai Model Release
-        created_at:
-          format: date-time
-          title: Created At
-          type: string
-        updated_at:
-          format: date-time
-          title: Updated At
-          type: string
-        core_anomaly:
-          $ref: '#/components/schemas/AiAnomalyCoreSchema'
-      required:
-      - id
-      - internal_external
-      - core_anomaly_id
-      - created_at
-      - updated_at
-      - core_anomaly
-      title: AiAnomalySchema
-      type: object
-    AiAnomalyCoreSchema:
-      description: 'The ``core.anomaly`` columns registration writes that vis.ai_anomaly lacks.
-
-
-        A registration spans two tables, and until this existed the response showed
-
-        only the vis half — so a caller could not tell a column it never sent from
-
-        one the service dropped, and had to query the database to find out. Covers
-
-        the taxonomy cascade, the blade context resolved from
-
-        ``service_order_line_id`` + ``component_name``, and the fields that are
-
-        derived when omitted (``name``, ``rib``).'
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        rib:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rib
-        side:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Side
-        cross_section_side:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cross Section Side
-        cross_section_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cross Section Type
-        comments:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comments
-        workorder_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Workorder Id
-        source_object_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Source Object Id
-        source_object_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Source Object Type Id
-        registration_origin:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Registration Origin
-        qr_code:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Qr Code
-        segmentation:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Segmentation
-        segmentation_version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Segmentation Version
-        ai_images_v2:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Ai Images V2
-        anomaly_major_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Major Component Id
-        anomaly_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Component Id
-        anomaly_sub_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Sub Component Id
-        anomaly_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Type Id
-        anomaly_sub_type_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Sub Type Id
-        anomaly_material_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Anomaly Material Id
-        project_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Project Id
-        turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Id
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Turbine Component Id
-        turbine_component_serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Turbine Component Serial Number
-      required:
-      - id
-      title: AiAnomalyCoreSchema
       type: object
   securitySchemes:
     APIKeyAuth:

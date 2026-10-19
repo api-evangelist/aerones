@@ -297,130 +297,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    TurbineUpdate:
-      additionalProperties: false
-      description: Schema for updating a Turbine.
-      properties:
-        name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Turbine name
-          title: Name
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Location ID
-          title: Location Id
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Latitude coordinate
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Longitude coordinate
-          title: Longitude
-        manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Manufacturer ID
-          title: Manufacturer Id
-        manufacturer_turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine model ID
-          title: Manufacturer Turbine Model Id
-        pad_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Pad number
-          title: Pad Number
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional information
-          title: Additional Info
-        efficiency:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine efficiency
-          title: Efficiency
-        commissioning_year:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Year of commissioning
-          title: Commissioning Year
-        output:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine output
-          title: Output
-        coordinates:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Coordinates string
-          title: Coordinates
-        hub_height:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Hub height in meters
-          title: Hub Height
-        rotor_radius:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Rotor radius in meters
-          title: Rotor Radius
-        nominal_power:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Nominal power in kW
-          title: Nominal Power
-        manufacturer_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Manufacturer number
-          title: Manufacturer Number
-        is_virtual:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is virtual turbine
-          title: Is Virtual
-      title: TurbineUpdate
-      type: object
-    TurbineImportResponse:
-      additionalProperties: false
-      properties:
-        created_count:
-          default: 0
-          title: Created Count
-          type: integer
-        errors:
-          default: []
-          items:
-            $ref: '#/components/schemas/TurbineImportRowError'
-          title: Errors
-          type: array
-      title: TurbineImportResponse
-      type: object
     TurbineCreate:
       additionalProperties: false
       description: Schema for creating a Turbine.
@@ -542,6 +418,68 @@ components:
       - customers
       title: TurbineCreate
       type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    TurbineImportResponse:
+      additionalProperties: false
+      properties:
+        created_count:
+          default: 0
+          title: Created Count
+          type: integer
+        errors:
+          default: []
+          items:
+            $ref: '#/components/schemas/TurbineImportRowError'
+          title: Errors
+          type: array
+      title: TurbineImportResponse
+      type: object
     ManufacturerObject:
       additionalProperties: false
       description: Nested manufacturer object for responses.
@@ -557,13 +495,46 @@ components:
       - name
       title: ManufacturerObject
       type: object
-    PositionEnum:
-      description: Enum for turbine component positions.
+    ErrorCode:
+      description: Error codes for API errors.
       enum:
-      - A
-      - B
-      - C
-      title: PositionEnum
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    TurbineCustomerInput:
+      additionalProperties: false
+      description: Customer assignment payload entry for Turbine creation.
+      properties:
+        customer_id:
+          description: Customer ID
+          title: Customer Id
+          type: integer
+        relationship_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Relationship type ID. If null, defaults to the relationship the customer has with the turbine's location (customer_locations.relationship_id).
+          title: Relationship Id
+      required:
+      - customer_id
+      title: TurbineCustomerInput
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
       type: string
     TurbineResponse:
       additionalProperties: false
@@ -706,23 +677,114 @@ components:
       - errors
       title: TurbineImportRowError
       type: object
-    TurbineCustomerInput:
+    TurbineUpdate:
       additionalProperties: false
-      description: Customer assignment payload entry for Turbine creation.
+      description: Schema for updating a Turbine.
       properties:
-        customer_id:
-          description: Customer ID
-          title: Customer Id
-          type: integer
-        relationship_id:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Turbine name
+          title: Name
+        location_id:
           anyOf:
           - type: integer
           - type: 'null'
-          description: Relationship type ID. If null, defaults to the relationship the customer has with the turbine's location (customer_locations.relationship_id).
-          title: Relationship Id
-      required:
-      - customer_id
-      title: TurbineCustomerInput
+          description: Location ID
+          title: Location Id
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Latitude coordinate
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Longitude coordinate
+          title: Longitude
+        manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer ID
+          title: Manufacturer Id
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Manufacturer Turbine Model Id
+        pad_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Pad number
+          title: Pad Number
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        efficiency:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine efficiency
+          title: Efficiency
+        commissioning_year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Year of commissioning
+          title: Commissioning Year
+        output:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine output
+          title: Output
+        coordinates:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Coordinates string
+          title: Coordinates
+        hub_height:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Hub height in meters
+          title: Hub Height
+        rotor_radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Rotor radius in meters
+          title: Rotor Radius
+        nominal_power:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Nominal power in kW
+          title: Nominal Power
+        manufacturer_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer number
+          title: Manufacturer Number
+        is_virtual:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is virtual turbine
+          title: Is Virtual
+      title: TurbineUpdate
       type: object
     Error:
       additionalProperties: false
@@ -797,38 +859,6 @@ components:
       - serial_number
       title: TurbineComponentInput
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
     TurbineModelObject:
       additionalProperties: false
       description: Nested turbine model object for responses.
@@ -843,36 +873,6 @@ components:
       - id
       - name
       title: TurbineModelObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    LocationObject:
-      additionalProperties: false
-      description: Nested location object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-      required:
-      - id
-      - name
-      title: LocationObject
       type: object
   securitySchemes:
     APIKeyAuth:

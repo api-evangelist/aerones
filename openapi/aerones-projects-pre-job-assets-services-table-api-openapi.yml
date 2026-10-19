@@ -133,62 +133,6 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
-  /api/projects/{project_id}/pre-job/assets-services/table-upload:
-    post:
-      operationId: projects_api_prejob_upload_project_assets_table
-      summary: Upload Project Assets Table
-      parameters:
-      - in: path
-        name: project_id
-        schema:
-          title: Project Id
-          type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageWithSuccess'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: 'Upload Excel file with asset data.
-
-
-        If the Excel file has specific headers (id, asset_id, pad_id, asset_type,
-
-        parent, latitude, longitude) in the first row (A1:G1), it bypasses the AI
-
-        and directly updates corresponding database fields (asset_id, pad_id,
-
-        latitude, longitude) based on the provided ''id''.
-
-        Otherwise, returns an error message indicating which columns are missing.'
-      tags:
-      - projects.pre-job.assets-services.table
-      deprecated: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              properties:
-                file:
-                  format: binary
-                  title: File
-                  type: string
-              required:
-              - file
-              title: FileParams
-              type: object
-        required: true
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
   /api/projects/{project_id}/pre-job/assets-services/table/{db_id}:
     patch:
       operationId: projects_api_prejob_patch_project_asset
@@ -313,51 +257,22 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
-  /api/projects/{project_id}/pre-job/assets-services/table-autofill:
-    post:
-      operationId: projects_api_prejob_autofill_blade_names
-      summary: Autofill Blade Names
-      parameters:
-      - in: path
-        name: project_id
-        schema:
-          title: Project Id
-          type: string
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectAssetTableResponse'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      description: 'Auto-fill blade names for WTGs that have exactly 3 blade children.
-
-
-        For each WTG that has exactly 3 blade children, this endpoint will name the blades:
-
-        - Blade A
-
-        - Blade B
-
-        - Blade C
-
-
-        Only blades without existing names will be updated.'
-      tags:
-      - projects.pre-job.assets-services.table
-      deprecated: true
-      security:
-      - APIKeyAuth: []
-      - CookieAuth: []
 components:
   schemas:
+    ProjectAssetTableResponse:
+      additionalProperties: false
+      description: Schema for project assets table response.
+      properties:
+        assets:
+          description: List of assets with their relationships and details
+          items:
+            $ref: '#/components/schemas/ProjectAsset'
+          title: Assets
+          type: array
+      required:
+      - assets
+      title: ProjectAssetTableResponse
+      type: object
     ProjectAsset:
       additionalProperties: false
       description: Schema for a single project asset.
@@ -512,19 +427,57 @@ components:
       - longitude
       title: ProjectAsset
       type: object
-    ProjectAssetTableResponse:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectAssetPatch:
       additionalProperties: false
-      description: Schema for project assets table response.
+      description: 'Schema for patching a ProjectAsset.
+
+
+        Only the fields that are provided will be updated.
+
+        Other fields will remain unchanged.'
       properties:
-        assets:
-          description: List of assets with their relationships and details
-          items:
-            $ref: '#/components/schemas/ProjectAsset'
-          title: Assets
-          type: array
-      required:
-      - assets
-      title: ProjectAssetTableResponse
+        asset_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset identifier/name (e.g. 'WTG-1', 'BLADE-A')
+          title: Asset Id
+        pad_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Asset identifier/name (e.g. 'WTG-1', 'BLADE-A')
+          title: Pad Id
+        parent:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Database ID of the parent asset (must be a WTG asset from the same project)
+          title: Parent
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New latitude coordinate for the asset
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: New longitude coordinate for the asset
+          title: Longitude
+      title: ProjectAssetPatch
       type: object
     ProjectAssetCreate:
       additionalProperties: false
@@ -597,74 +550,6 @@ components:
       - message
       title: Error
       type: object
-    ProjectAssetPatch:
-      additionalProperties: false
-      description: 'Schema for patching a ProjectAsset.
-
-
-        Only the fields that are provided will be updated.
-
-        Other fields will remain unchanged.'
-      properties:
-        asset_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Asset identifier/name (e.g. 'WTG-1', 'BLADE-A')
-          title: Asset Id
-        pad_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Asset identifier/name (e.g. 'WTG-1', 'BLADE-A')
-          title: Pad Id
-        parent:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Database ID of the parent asset (must be a WTG asset from the same project)
-          title: Parent
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: New latitude coordinate for the asset
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: New longitude coordinate for the asset
-          title: Longitude
-      title: ProjectAssetPatch
-      type: object
-    MessageWithSuccess:
-      additionalProperties: false
-      description: Success response schema with message.
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-        message:
-          title: Message
-          type: string
-      required:
-      - message
-      title: MessageWithSuccess
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

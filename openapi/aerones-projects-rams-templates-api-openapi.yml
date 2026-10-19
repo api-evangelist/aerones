@@ -131,6 +131,82 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
+  /api/rams-templates/bulk-edit:
+    post:
+      operationId: projects_api_rams_templates_bulk_edit_rams_templates
+      summary: Bulk Edit Rams Templates
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateBulkEditResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Apply one content change to every listed template.
+
+
+        Only what the body names is overwritten, and only on templates — RAMS
+
+        documents already generated keep the snapshot they were created with.
+
+        Declared above the ``/{template_id}`` routes so the path is not swallowed as
+
+        an id, same as ``/convert-to-pdf``.'
+      tags:
+      - projects.rams-templates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsTemplateBulkEditBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/rams-templates/bulk-delete:
+    post:
+      operationId: projects_api_rams_templates_bulk_delete_rams_templates
+      summary: Bulk Delete Rams Templates
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsTemplateBulkDeleteResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Soft-delete a selection of templates.
+
+
+        RAMS documents already made from them keep their snapshot. ``dry_run``
+
+        answers the same question without writing, which is what the confirmation
+
+        step shows. Declared above the ``/{template_id}`` routes.'
+      tags:
+      - projects.rams-templates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RamsTemplateBulkDeleteBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
   /api/rams-templates/resolved:
     get:
       operationId: projects_api_rams_templates_resolve_rams_template_content
@@ -413,161 +489,27 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    RamsTemplateCreateBody:
+    RamsTemplateBulkDeleteResultItem:
       additionalProperties: false
-      description: 'Body for creating a new RAMS template.
-
-
-        ``service_family_id`` (and the optional ``service_id`` narrowing) fix *what*
-
-        the template is for and are immutable afterwards; region / country /
-
-        customer are the editable scope.'
-      properties:
-        service_family_id:
-          title: Service Family Id
-          type: integer
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Id
-        region_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Region Id
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Country Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-        form_data:
-          title: Form Data
-          type: object
-        layout:
-          title: Layout
-          type: object
-      required:
-      - service_family_id
-      title: RamsTemplateCreateBody
-      type: object
-    RamsTemplateUpdateBody:
-      additionalProperties: false
-      description: Body for patching a RAMS template.
-      properties:
-        form_data:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Form Data
-        layout:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Layout
-        scope:
-          anyOf:
-          - $ref: '#/components/schemas/RamsTemplateScopeBody'
-          - type: 'null'
-      title: RamsTemplateUpdateBody
-      type: object
-    RamsTemplateImageResponse:
-      additionalProperties: false
-      description: Serialised HSE-uploaded default image.
+      description: One template's outcome in a bulk delete.
       properties:
         id:
           title: Id
           type: integer
-        slot:
-          title: Slot
-          type: string
-        label:
-          title: Label
-          type: string
-        file_id:
-          title: File Id
+        status:
+          $ref: '#/components/schemas/BulkDeleteStatus'
+        document_count:
+          default: 0
+          title: Document Count
           type: integer
-        url:
-          title: Url
+        error:
+          default: ''
+          title: Error
           type: string
       required:
       - id
-      - slot
-      - label
-      - file_id
-      - url
-      title: RamsTemplateImageResponse
-      type: object
-    RamsTemplateScopeBody:
-      additionalProperties: false
-      description: New scope for a template (region / country / customer).
-      properties:
-        region_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Region Id
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Country Id
-        customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Customer Id
-      title: RamsTemplateScopeBody
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    RamsTemplateResolvedResponse:
-      additionalProperties: false
-      description: Resolved template content for starting a new RAMS document.
-      properties:
-        found:
-          default: false
-          title: Found
-          type: boolean
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Id
-        service_family_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Service Family Id
-        service_family_code:
-          default: ''
-          title: Service Family Code
-          type: string
-        form_data:
-          title: Form Data
-          type: object
-        layout:
-          title: Layout
-          type: object
-      title: RamsTemplateResolvedResponse
+      - status
+      title: RamsTemplateBulkDeleteResultItem
       type: object
     RamsTemplateResponse:
       additionalProperties: false
@@ -640,6 +582,137 @@ components:
       - updated_at
       title: RamsTemplateResponse
       type: object
+    RamsTemplateScopeBody:
+      additionalProperties: false
+      description: New scope for a template (region / country / customer).
+      properties:
+        region_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+      title: RamsTemplateScopeBody
+      type: object
+    RamsTemplateFieldUpdateBody:
+      additionalProperties: false
+      description: 'One field to set on every listed template.
+
+
+        ``path`` addresses a leaf in ``form_data`` in the stored snake_case: a plain
+
+        field such as ``personnel.contractor``, or a table column such as
+
+        ``general_details.weather_table.cannot_work``. A column needs ``match``, the
+
+        row-identity values that find the same row in every template.'
+      properties:
+        path:
+          title: Path
+          type: string
+        value:
+          title: Value
+          type: string
+        match:
+          additionalProperties:
+            type: string
+          title: Match
+          type: object
+      required:
+      - path
+      - value
+      title: RamsTemplateFieldUpdateBody
+      type: object
+    RamsTemplateBulkEditBody:
+      additionalProperties: false
+      description: 'Body for applying one content change to a whole selection of templates.
+
+
+        ``field_updates`` sets individual fields and leaves their siblings alone;
+
+        ``form_data`` replaces whole table sections. At least one must be non-empty.'
+      properties:
+        template_ids:
+          items:
+            type: integer
+          title: Template Ids
+          type: array
+        form_data:
+          title: Form Data
+          type: object
+        field_updates:
+          items:
+            $ref: '#/components/schemas/RamsTemplateFieldUpdateBody'
+          title: Field Updates
+          type: array
+      required:
+      - template_ids
+      title: RamsTemplateBulkEditBody
+      type: object
+    RamsTemplateBulkDeleteResponse:
+      additionalProperties: false
+      description: Per-template report of a bulk delete, or of what one would do.
+      properties:
+        delete_count:
+          title: Delete Count
+          type: integer
+        failed_count:
+          title: Failed Count
+          type: integer
+        results:
+          items:
+            $ref: '#/components/schemas/RamsTemplateBulkDeleteResultItem'
+          title: Results
+          type: array
+      required:
+      - delete_count
+      - failed_count
+      - results
+      title: RamsTemplateBulkDeleteResponse
+      type: object
+    RamsTemplateBulkEditResponse:
+      additionalProperties: false
+      description: Per-template report of a bulk edit, so a partial failure stays visible.
+      properties:
+        updated_count:
+          title: Updated Count
+          type: integer
+        failed_count:
+          title: Failed Count
+          type: integer
+        results:
+          items:
+            $ref: '#/components/schemas/RamsTemplateBulkEditResultItem'
+          title: Results
+          type: array
+      required:
+      - updated_count
+      - failed_count
+      - results
+      title: RamsTemplateBulkEditResponse
+      type: object
+    BulkDeleteStatus:
+      description: 'What a bulk delete does to one template.
+
+
+        ``WILL_DELETE`` only comes back from a dry run and ``DELETED`` only from a
+
+        real one; ``FAILED`` from both.'
+      enum:
+      - will_delete
+      - deleted
+      - failed
+      title: BulkDeleteStatus
+      type: string
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -651,6 +724,177 @@ components:
       - generic
       title: ErrorCode
       type: string
+    RamsTemplateBulkDeleteBody:
+      additionalProperties: false
+      description: Body for deleting a selection of templates; ``dry_run`` writes nothing.
+      properties:
+        template_ids:
+          items:
+            type: integer
+          title: Template Ids
+          type: array
+        dry_run:
+          default: false
+          title: Dry Run
+          type: boolean
+      required:
+      - template_ids
+      title: RamsTemplateBulkDeleteBody
+      type: object
+    RamsTemplateResolvedResponse:
+      additionalProperties: false
+      description: Resolved template content for starting a new RAMS document.
+      properties:
+        found:
+          default: false
+          title: Found
+          type: boolean
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        service_family_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Family Id
+        service_family_code:
+          default: ''
+          title: Service Family Code
+          type: string
+        form_data:
+          title: Form Data
+          type: object
+        layout:
+          title: Layout
+          type: object
+      title: RamsTemplateResolvedResponse
+      type: object
+    RamsTemplateBulkEditResultItem:
+      additionalProperties: false
+      description: One template's outcome in a bulk edit.
+      properties:
+        id:
+          title: Id
+          type: integer
+        success:
+          title: Success
+          type: boolean
+        error:
+          default: ''
+          title: Error
+          type: string
+      required:
+      - id
+      - success
+      title: RamsTemplateBulkEditResultItem
+      type: object
+    RamsTemplateImageResponse:
+      additionalProperties: false
+      description: Serialised HSE-uploaded default image.
+      properties:
+        id:
+          title: Id
+          type: integer
+        slot:
+          title: Slot
+          type: string
+        label:
+          title: Label
+          type: string
+        file_id:
+          title: File Id
+          type: integer
+        url:
+          title: Url
+          type: string
+      required:
+      - id
+      - slot
+      - label
+      - file_id
+      - url
+      title: RamsTemplateImageResponse
+      type: object
+    RamsTemplateUpdateBody:
+      additionalProperties: false
+      description: Body for patching a RAMS template.
+      properties:
+        form_data:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Form Data
+        layout:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Layout
+        scope:
+          anyOf:
+          - $ref: '#/components/schemas/RamsTemplateScopeBody'
+          - type: 'null'
+      title: RamsTemplateUpdateBody
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    RamsTemplateCreateBody:
+      additionalProperties: false
+      description: 'Body for creating a new RAMS template.
+
+
+        ``service_family_id`` (and the optional ``service_id`` narrowing) fix *what*
+
+        the template is for and are immutable afterwards; region / country /
+
+        customer are the editable scope.'
+      properties:
+        service_family_id:
+          title: Service Family Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        region_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Region Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Country Id
+        customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Customer Id
+        form_data:
+          title: Form Data
+          type: object
+        layout:
+          title: Layout
+          type: object
+      required:
+      - service_family_id
+      title: RamsTemplateCreateBody
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

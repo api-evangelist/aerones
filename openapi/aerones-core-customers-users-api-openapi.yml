@@ -215,58 +215,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CustomerUserUpdate:
-      additionalProperties: false
-      description: Schema for updating a CustomerUser.
-      properties:
-        user_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: User ID
-          title: User Id
-        customer_role_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Role IDs (None = no change, [] = clear all)
-          title: Customer Role Ids
-      title: CustomerUserUpdate
-      type: object
-    CustomerUserCreate:
-      additionalProperties: false
-      description: Schema for creating a CustomerUser.
-      properties:
-        user_id:
-          description: User ID
-          title: User Id
-          type: integer
-        customer_role_ids:
-          description: Role IDs to assign
-          items:
-            type: integer
-          title: Customer Role Ids
-          type: array
-      required:
-      - user_id
-      title: CustomerUserCreate
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
     UserObject:
       additionalProperties: false
       description: Nested user object for responses (no timestamps).
@@ -297,6 +245,37 @@ components:
       - username
       title: UserObject
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     CustomerUserResponse:
       additionalProperties: false
       description: Schema for CustomerUser response.
@@ -340,37 +319,58 @@ components:
       - status
       title: CustomerUserResponse
       type: object
-    Success:
+    CustomerUserCreate:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Schema for creating a CustomerUser.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        user_id:
+          description: User ID
+          title: User Id
+          type: integer
+        customer_role_ids:
+          description: Role IDs to assign
+          items:
+            type: integer
+          title: Customer Role Ids
+          type: array
+      required:
+      - user_id
+      title: CustomerUserCreate
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    CustomerUserUpdate:
+      additionalProperties: false
+      description: Schema for updating a CustomerUser.
+      properties:
+        user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: User ID
+          title: User Id
+        customer_role_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Role IDs (None = no change, [] = clear all)
+          title: Customer Role Ids
+      title: CustomerUserUpdate
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

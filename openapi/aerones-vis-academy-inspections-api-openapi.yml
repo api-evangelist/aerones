@@ -1,0 +1,2738 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Vis Academy.inspections API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: vis-academy.inspections
+paths:
+  /api/vis-academy/v1/inspections/mine/:
+    get:
+      operationId: vis_academy_api_get_my_academy_inspections
+      summary: List the training copies assigned to the caller
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AcademyInspectionSchema'
+                title: Response
+                type: array
+      description: 'The requesting trainee''s own copies, newest first.
+
+
+        Filtered on ``assigned_to``, not the data-tools "list all" queryset: a
+
+        trainee must see only what was assigned to them.'
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/:
+    get:
+      operationId: vis_academy_api_get_academy_inspection
+      summary: Open a training inspection
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: query
+        name: component_name
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter by component name (exact match).
+          title: Component Name
+        required: false
+        description: Filter by component name (exact match).
+      - in: query
+        name: component_id
+        schema:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Filter by turbine component id (exact match).
+          title: Component Id
+        required: false
+        description: Filter by turbine component id (exact match).
+      - in: query
+        name: section_name
+        schema:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Filter sections by name (exact match).
+          title: Section Name
+        required: false
+        description: Filter sections by name (exact match).
+      - in: query
+        name: return_sections
+        schema:
+          default: true
+          description: Include component sections in the response.
+          title: Return Sections
+          type: boolean
+        required: false
+        description: Include component sections in the response.
+      - in: query
+        name: return_data
+        schema:
+          default: true
+          description: Include all media data.
+          title: Return Data
+          type: boolean
+        required: false
+        description: Include all media data.
+      - in: query
+        name: return_urls
+        schema:
+          default: true
+          description: Include signed URLs for media data.
+          title: Return Urls
+          type: boolean
+        required: false
+        description: Include signed URLs for media data.
+      - in: query
+        name: root_photo_ordering
+        schema:
+          examples:
+            No ordering:
+              description: No specific ordering applied, default order is used.
+              value: ''
+            Ordering by specific fields:
+              description: Fields can be prefixed with '-' for descending order.
+              value: distance,name,file_name,angle
+          title: Root Photo Ordering
+          type: string
+        required: false
+        examples:
+          No ordering:
+            description: No specific ordering applied, default order is used.
+            value: ''
+          Ordering by specific fields:
+            description: Fields can be prefixed with '-' for descending order.
+            value: distance,name,file_name,angle
+      - in: query
+        name: poi_photo_ordering
+        schema:
+          examples:
+            No ordering:
+              description: No specific ordering applied, default order is used.
+              value: ''
+            Ordering by specific fields:
+              description: Fields can be prefixed with '-' for descending order.
+              value: distance,name,file_name,angle
+          title: Poi Photo Ordering
+          type: string
+        required: false
+        examples:
+          No ordering:
+            description: No specific ordering applied, default order is used.
+            value: ''
+          Ordering by specific fields:
+            description: Fields can be prefixed with '-' for descending order.
+            value: distance,name,file_name,angle
+      - in: query
+        name: external_photo_ordering
+        schema:
+          examples:
+            No ordering:
+              description: No specific ordering applied, default order is used.
+              value: ''
+            Ordering by specific fields:
+              description: Fields can be prefixed with '-' for descending order.
+              value: name,file_name
+          title: External Photo Ordering
+          type: string
+        required: false
+        examples:
+          No ordering:
+            description: No specific ordering applied, default order is used.
+            value: ''
+          Ordering by specific fields:
+            description: Fields can be prefixed with '-' for descending order.
+            value: name,file_name
+      - in: query
+        name: ler_photo_ordering
+        schema:
+          examples:
+            No ordering:
+              description: No specific ordering applied, default order is used.
+              value: ''
+            Ordering by specific fields:
+              description: Fields can be prefixed with '-' for descending order.
+              value: name,file_name
+          title: Ler Photo Ordering
+          type: string
+        required: false
+        examples:
+          No ordering:
+            description: No specific ordering applied, default order is used.
+            value: ''
+          Ordering by specific fields:
+            description: Fields can be prefixed with '-' for descending order.
+            value: name,file_name
+      - in: query
+        name: manual_photo_ordering
+        schema:
+          examples:
+            No ordering:
+              description: No specific ordering applied, default order is used.
+              value: ''
+            Ordering by specific fields:
+              description: Fields can be prefixed with '-' for descending order.
+              value: name,file_name
+          title: Manual Photo Ordering
+          type: string
+        required: false
+        examples:
+          No ordering:
+            description: No specific ordering applied, default order is used.
+            value: ''
+          Ordering by specific fields:
+            description: Fields can be prefixed with '-' for descending order.
+            value: name,file_name
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyInspectionDataSchema'
+      description: The source inspection with this trainee's progress and photo edits applied.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/presets:
+    get:
+      operationId: vis_academy_api_get_academy_presets
+      summary: The finding form's prefill grid for a training copy
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyPresetsSchema'
+      description: Whatever the source inspection prefills from, read through the copy.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/authorize-media:
+    post:
+      operationId: vis_academy_api_authorize_academy_media
+      summary: Set the CDN cookies for a training inspection
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Grant the trainee the source inspection's media for the usual window.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/sections/{source_section_id}/:
+    patch:
+      operationId: vis_academy_api_patch_academy_section
+      summary: Record progress through a section
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: source_section_id
+        schema:
+          title: Source Section Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Mark a section's status on the training copy, not on the real section.
+      tags:
+      - vis-academy.inspections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionStatusSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/photos/{photo_kind}/{photo_id}/:
+    patch:
+      operationId: vis_academy_api_patch_academy_photo
+      summary: Record a photo edit on a training inspection
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: photo_kind
+        schema:
+          title: Photo Kind
+          type: string
+        required: true
+      - in: path
+        name: photo_id
+        schema:
+          title: Photo Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Store review status, rotation or ordering without touching the real photo.
+      tags:
+      - vis-academy.inspections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhotoStateSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/submissions/:
+    get:
+      operationId: vis_academy_api_get_academy_submissions
+      summary: List a trainee's findings and their AI queue
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SubmissionSchema'
+                title: Response
+                type: array
+      description: 'This attempt''s rows only.
+
+
+        Retired attempts stay in the table for grading but are never served here:
+
+        the previous trainee''s findings are the answer to the same exercise.'
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: vis_academy_api_post_academy_submission
+      summary: Register a finding on a training inspection
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionSchema'
+      description: Record one finding the trainee made. Never reaches ``core.anomaly``.
+      tags:
+      - vis-academy.inspections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionWriteSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/submissions/{submission_id}/:
+    patch:
+      operationId: vis_academy_api_patch_academy_submission
+      summary: Edit a finding, or record an AI verdict
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: submission_id
+        schema:
+          title: Submission Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionSchema'
+      description: Reviewing the AI queue is a ``ai_status`` update on a seeded row.
+      tags:
+      - vis-academy.inspections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionWriteSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: vis_academy_api_delete_academy_submission
+      summary: Retire a finding on a training inspection
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: submission_id
+        schema:
+          title: Submission Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Soft, so a reviewer still sees what the trainee tried.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/submissions/{submission_id}/files/:
+    get:
+      operationId: vis_academy_api_get_academy_submission_files
+      summary: The AI-review images behind one copied finding
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: submission_id
+        schema:
+          title: Submission Id
+          type: integer
+        required: true
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sort field
+          title: Sort
+        required: false
+        description: Sort field
+      - in: query
+        name: type
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by file type
+          title: Type
+        required: false
+        description: Filter by file type
+      - in: query
+        name: paginate
+        schema:
+          default: true
+          description: Enable pagination (false returns all results)
+          title: Paginate
+          type: boolean
+        required: false
+        description: Enable pagination (false returns all results)
+      - in: query
+        name: page
+        schema:
+          default: 1
+          description: Page number
+          minimum: 1
+          title: Page
+          type: integer
+        required: false
+        description: Page number
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          description: Number of items per page
+          maximum: 1000
+          minimum: 1
+          title: Page Size
+          type: integer
+        required: false
+        description: Number of items per page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/FileResponse'
+                title: Response
+                type: array
+      description: Read a copied AI finding's images through the source anomaly, RLS-scoped.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/report/state:
+    get:
+      operationId: vis_academy_api_get_academy_report_state
+      summary: Latest completed + in-progress report for this attempt
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyReportStateResponse'
+      description: State the Final Report modal needs on open, for a training copy.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/report/start:
+    post:
+      operationId: vis_academy_api_start_academy_report
+      summary: Kick off async report generation for a training copy
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyReportStartResponse'
+      description: Generate a final report for this trainee's own copy, same engine as the real one.
+      tags:
+      - vis-academy.inspections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyReportRequest'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/report/{generation_id}/status:
+    get:
+      operationId: vis_academy_api_academy_report_status
+      summary: Poll an in-flight training-report generation
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyReportStatusResponse'
+      description: Poll the status of an in-flight training-report generation.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis-academy/v1/inspections/{academy_inspection_id}/report/{generation_id}/download:
+    get:
+      operationId: vis_academy_api_download_academy_report
+      summary: Download the stored PDF for a training-report generation
+      parameters:
+      - in: path
+        name: academy_inspection_id
+        schema:
+          title: Academy Inspection Id
+          type: integer
+        required: true
+      - in: path
+        name: generation_id
+        schema:
+          title: Generation Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+      description: Download the stored PDF for a generation. Always serves our own copy.
+      tags:
+      - vis-academy.inspections
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    SectionStatusSchema:
+      additionalProperties: false
+      description: A trainee's progress through one section.
+      properties:
+        status:
+          $ref: '#/components/schemas/InspectionItemStatus'
+      required:
+      - status
+      title: SectionStatusSchema
+      type: object
+    AcademyReportStateResponse:
+      additionalProperties: false
+      description: 'State the Final Report modal needs on open, for a training copy.
+
+
+        Scoped to the copy''s current attempt: a reset must not resurface a prior
+
+        attempt''s report as if it belonged to the fresh one.'
+      properties:
+        latest_completed:
+          anyOf:
+          - $ref: '#/components/schemas/AcademyReportGenerationSummary'
+          - type: 'null'
+        in_progress:
+          anyOf:
+          - $ref: '#/components/schemas/AcademyReportGenerationSummary'
+          - type: 'null'
+      title: AcademyReportStateResponse
+      type: object
+    PhotoStateSchema:
+      additionalProperties: false
+      description: 'What a trainee changed about one photo. Omitted keys stay unchanged.
+
+
+        ``status`` stays a plain string here because the vocabulary depends on the
+
+        photo kind in the path — external and LER photos have their own review
+
+        enums, and root and POI photos have no review flow at all.
+
+        ``handlers.inspection.set_photo_state`` validates it against the kind.'
+      properties:
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        rotation:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Rotation
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      title: PhotoStateSchema
+      type: object
+    ComponentSchema:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineComponentResponse'
+          - type: 'null'
+        sections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SectionSchema'
+            type: array
+          - type: 'null'
+          title: Sections
+      required:
+      - id
+      - name
+      title: ComponentSchema
+      type: object
+    SectionRunSchema:
+      properties:
+        run_index:
+          title: Run Index
+          type: integer
+        section_id:
+          title: Section Id
+          type: integer
+      required:
+      - run_index
+      - section_id
+      title: SectionRunSchema
+      type: object
+    ImageSide:
+      description: Sides from which photos can be taken.
+      enum:
+      - L
+      - R
+      - T
+      title: ImageSide
+      type: string
+    LERPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: LERPhotoTileSchema
+      type: object
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+    AnomalyStatus:
+      description: Status for anomalies.
+      enum:
+      - NEW
+      - REPAIR
+      - INSPECT
+      - MONITOR
+      - ACTIVE
+      - RESOLVED
+      - ARCHIVED
+      - TEMPORARY_REPAIR
+      - NOT_ASSIGNED
+      - NO_ACTION
+      title: AnomalyStatus
+      type: string
+    AcademyInspectionDataSchema:
+      description: 'A training copy as its trainee opens it: the source tree plus their overrides.
+
+
+        ``components`` and everything under it is the source inspection''s, so this
+
+        stays the VIS inspection shape. ``academy`` says which copy and which
+
+        attempt is being read, and ``source`` carries the service-order-line values
+
+        the viewer would otherwise query.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        components:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ComponentSchema'
+            type: array
+          - type: 'null'
+          title: Components
+        manual_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ManualPhotoSchema'
+            type: array
+          - type: 'null'
+          title: Manual Photos
+        academy:
+          $ref: '#/components/schemas/AcademyInspectionSchema'
+        source:
+          $ref: '#/components/schemas/AcademySourceSchema'
+      required:
+      - id
+      - service_order_line_id
+      - academy
+      - source
+      title: AcademyInspectionDataSchema
+      type: object
+    VideoFileBlobSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        kind:
+          $ref: '#/components/schemas/VideoFileBlobKind'
+      required:
+      - id
+      - kind
+      title: VideoFileBlobSchema
+      type: object
+    LERPhotoRunSchema:
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        run_index:
+          title: Run Index
+          type: integer
+        status:
+          $ref: '#/components/schemas/LERInspectionStatus'
+        photos:
+          items:
+            $ref: '#/components/schemas/LERPhotoSchema'
+          title: Photos
+          type: array
+      required:
+      - run_index
+      - status
+      - photos
+      title: LERPhotoRunSchema
+      type: object
+    ManualPhotoSchema:
+      description: 'A manual drone photo, attached to the inspection itself.
+
+
+        No review status and no distance vector: those belong to external photos.'
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        pixel_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pixel Distance
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ExternalPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoLowResSchema'
+          - type: 'null'
+        distance_to_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Centre
+      required:
+      - name
+      - rotation
+      - id
+      title: ManualPhotoSchema
+      type: object
+    AnomalyAIStatus:
+      description: AI status for anomalies.
+      enum:
+      - NEW
+      - QUALIFIED
+      - UNQUALIFIED
+      - CONFIRMED
+      - REJECTED
+      - DUPLICATE
+      title: AnomalyAIStatus
+      type: string
+    AcademySourceKind:
+      description: 'Which VIS media table an academy row points at.
+
+
+        A kind plus an id instead of the generic ``content_type`` pair
+
+        ``core.anomaly`` uses: ``django_content_type`` primary keys are assigned per
+
+        database, so a stored one does not survive a dump restored into another
+
+        environment, and an academy row never needs to be polymorphic beyond these
+
+        six tables.
+
+
+        ``AcademyPhotoState`` uses the five photo members only; a video file carries
+
+        no per-photo review state, and neither does a manual photo (rotation and sort
+
+        order only). ``MANUAL_PHOTO`` never appears on a submission: a manual photo
+
+        cannot carry anomalies.'
+      enum:
+      - EXTERNAL_PHOTO
+      - ROOT_PHOTO
+      - POI_PHOTO
+      - LER_PHOTO
+      - MANUAL_PHOTO
+      - VIDEO_FILE
+      title: AcademySourceKind
+      type: string
+    InspectionItemStatus:
+      enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - AI_REVIEW
+      - DETAILED_REVIEW
+      - COMPLETED
+      title: InspectionItemStatus
+      type: string
+    AcademyInspectionSchema:
+      additionalProperties: false
+      description: A training copy, as the data tools list it and a trainee opens it.
+      properties:
+        id:
+          title: Id
+          type: integer
+        source_inspection_id:
+          title: Source Inspection Id
+          type: integer
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        attempt:
+          title: Attempt
+          type: integer
+        keep_ai_anomalies:
+          title: Keep Ai Anomalies
+          type: boolean
+      required:
+      - id
+      - source_inspection_id
+      - service_order_line_id
+      - attempt
+      - keep_ai_anomalies
+      title: AcademyInspectionSchema
+      type: object
+    LERPhotoSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        sol_id:
+          title: Sol Id
+          type: integer
+        date:
+          format: date
+          title: Date
+          type: string
+        blade:
+          title: Blade
+          type: string
+        step:
+          title: Step
+          type: string
+        side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Side
+        photo_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Photo Index
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        status:
+          $ref: '#/components/schemas/LERImageStatus'
+        include_in_report:
+          default: false
+          title: Include In Report
+          type: boolean
+        distance_to_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Centre
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LERPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/LERPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/LERPhotoLowResSchema'
+          - type: 'null'
+        distance_vector:
+          anyOf:
+          - $ref: '#/components/schemas/DistanceVectorSchema'
+          - type: 'null'
+      required:
+      - id
+      - name
+      - sol_id
+      - date
+      - blade
+      - step
+      - status
+      title: LERPhotoSchema
+      type: object
+    TurbineObject:
+      additionalProperties: false
+      description: Nested turbine object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineObject
+      type: object
+    LERPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: LERPhotoThumbnailSchema
+      type: object
+    PositionEnum:
+      description: Enum for turbine component positions.
+      enum:
+      - A
+      - B
+      - C
+      title: PositionEnum
+      type: string
+    AcademyScopedComponentSchema:
+      additionalProperties: false
+      description: The blade a service order line is pinned to.
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+      required:
+      - id
+      title: AcademyScopedComponentSchema
+      type: object
+    FileResponse:
+      additionalProperties: false
+      description: Schema for File response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: File ID
+          title: Id
+          type: integer
+        name:
+          description: File name
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: File type
+          title: Type
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Extra metadata from the entity link
+          title: Additional Information
+      required:
+      - updated_at
+      - id
+      - name
+      title: FileResponse
+      type: object
+    AnomalyRibType:
+      description: Rib classification for anomalies.
+      enum:
+      - TRAILING_EDGE
+      - LEADING_EDGE
+      - MID_1
+      - MID_2
+      - MID_3
+      title: AnomalyRibType
+      type: string
+    SubmissionWriteSchema:
+      additionalProperties: false
+      description: 'Partial write. Only the keys actually sent are applied.
+
+
+        Every field is optional so a client recording an AI verdict sends
+
+        ``ai_status`` alone without clearing the row''s measurements. Fields this
+
+        table does not own are refused by name rather than dropped.'
+      properties:
+        source_kind:
+          anyOf:
+          - $ref: '#/components/schemas/AcademySourceKind'
+          - type: 'null'
+        source_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Id
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        distance_to_root:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Root
+        max_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Distance
+        distance_to_leading_edge:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Leading Edge
+        cross_section_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cross Section Distance
+        cross_section_chamber_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cross Section Chamber Distance
+        width:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Width
+        severity:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalySeverityType'
+          - type: 'null'
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyStatus'
+          - type: 'null'
+        stage:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyStage'
+          - type: 'null'
+        client_status:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyStatus'
+          - type: 'null'
+        internal_external:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyInternalExternalType'
+          - type: 'null'
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalySideType'
+          - type: 'null'
+        cross_section_side:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyCrossSectionSideType'
+          - type: 'null'
+        cross_section_type:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyCrossSectionType'
+          - type: 'null'
+        rib:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyRibType'
+          - type: 'null'
+        anomaly_major_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Major Component Id
+        anomaly_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Component Id
+        anomaly_sub_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Sub Component Id
+        anomaly_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Type Id
+        anomaly_sub_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Sub Type Id
+        anomaly_material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Material Id
+        root_cause_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Root Cause Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+        ai_status:
+          anyOf:
+          - $ref: '#/components/schemas/AnomalyAIStatus'
+          - type: 'null'
+        video_frame:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Video Frame
+        segmentation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Segmentation
+        bbox:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bbox
+      title: SubmissionWriteSchema
+      type: object
+    VideoFileBlobKind:
+      const: QR_DETECTION
+      enum:
+      - QR_DETECTION
+      title: VideoFileBlobKind
+      type: string
+    AcademyReportStartResponse:
+      additionalProperties: false
+      description: Response after kicking off async final-report generation for a training copy.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          title: Status
+          type: string
+      required:
+      - generation_id
+      - status
+      title: AcademyReportStartResponse
+      type: object
+    DistanceVectorSchema:
+      description: 'The reference line an operator drew on a photo to give it a scale.
+
+
+        Read-only here. Drawing one writes a ``vis`` row that measurement
+
+        recalculation reads, which is a production write.'
+      properties:
+        start_x:
+          title: Start X
+          type: integer
+        start_y:
+          title: Start Y
+          type: integer
+        end_x:
+          title: End X
+          type: integer
+        end_y:
+          title: End Y
+          type: integer
+      required:
+      - start_x
+      - start_y
+      - end_x
+      - end_y
+      title: DistanceVectorSchema
+      type: object
+    SubmissionSchema:
+      additionalProperties: false
+      description: One finding a trainee registered, or one AI row handed to them.
+      properties:
+        id:
+          title: Id
+          type: integer
+        academy_inspection_id:
+          title: Academy Inspection Id
+          type: integer
+        attempt:
+          title: Attempt
+          type: integer
+        created_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Created At
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Updated At
+        source_anomaly_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Anomaly Id
+        source_kind:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Kind
+        source_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Source Id
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Id
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Turbine Component Id
+        distance_to_root:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Root
+        max_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Distance
+        distance_to_leading_edge:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Leading Edge
+        cross_section_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cross Section Distance
+        cross_section_chamber_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cross Section Chamber Distance
+        width:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Width
+        severity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Severity
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage
+        client_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Status
+        internal_external:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Internal External
+        side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Side
+        cross_section_side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cross Section Side
+        cross_section_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cross Section Type
+        rib:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rib
+        anomaly_major_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Major Component Id
+        anomaly_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Component Id
+        anomaly_sub_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Sub Component Id
+        anomaly_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Type Id
+        anomaly_sub_type_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Sub Type Id
+        anomaly_material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Anomaly Material Id
+        root_cause_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Root Cause Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        comments:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comments
+        registered_by:
+          title: Registered By
+          type: string
+        registration_origin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Registration Origin
+        ai_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ai Status
+        ai_confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ai Confidence
+        video_frame:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Video Frame
+        segmentation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Segmentation
+        segmentation_version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Segmentation Version
+        bbox:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Bbox
+      required:
+      - id
+      - academy_inspection_id
+      - attempt
+      - service_order_line_id
+      - registered_by
+      title: SubmissionSchema
+      type: object
+    RootPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: RootPhotoTileSchema
+      type: object
+    AnomalyInternalExternalType:
+      description: Internal/External classification for anomalies.
+      enum:
+      - INTERNAL
+      - EXTERNAL
+      - BOTH
+      title: AnomalyInternalExternalType
+      type: string
+    SectionSchema:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        run_index:
+          title: Run Index
+          type: integer
+        runs:
+          items:
+            $ref: '#/components/schemas/SectionRunSchema'
+          title: Runs
+          type: array
+        status:
+          $ref: '#/components/schemas/InspectionItemStatus'
+        video_files:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VideoFileSchema'
+            type: array
+          - type: 'null'
+          title: Video Files
+        root_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/RootPhotoSchema'
+            type: array
+          - type: 'null'
+          title: Root Photos
+        poi_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/POIPhotoSchema'
+            type: array
+          - type: 'null'
+          title: Poi Photos
+        external_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ExternalPhotoSchema'
+            type: array
+          - type: 'null'
+          title: External Photos
+        ler_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LERPhotoGroupSchema'
+            type: array
+          - type: 'null'
+          title: Ler Photos
+      required:
+      - id
+      - name
+      - run_index
+      - runs
+      - status
+      title: SectionSchema
+      type: object
+    ExternalPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: ExternalPhotoThumbnailSchema
+      type: object
+    AnomalyCrossSectionType:
+      description: Cross section type for anomalies.
+      enum:
+      - NO_SHEAR_WEB
+      - SINGLE_SHEAR_WEB
+      - DOUBLE_SHEAR_WEB
+      - TRIPLE_SHEAR_WEB
+      - QUADRUPLE_SHEAR_WEB
+      title: AnomalyCrossSectionType
+      type: string
+    VideoFileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        extension:
+          $ref: '#/components/schemas/VideoFileExtension'
+        status:
+          $ref: '#/components/schemas/InspectionItemStatus'
+        recording_start_time:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Recording Start Time
+        qr_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Qr Position
+        qr_detections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VideoFileBlobSchema'
+            type: array
+          - type: 'null'
+          title: Qr Detections
+        hls_playlist_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hls Playlist Url
+        vtt_file_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vtt File Url
+        model_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Url
+        model_3d_exists:
+          default: false
+          title: Model 3D Exists
+          type: boolean
+        camera_reversed:
+          default: false
+          title: Camera Reversed
+          type: boolean
+        snapshots:
+          items:
+            $ref: '#/components/schemas/VideoSnapshotSchema'
+          title: Snapshots
+          type: array
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: CDN URL of the directory holding the video, as on the photo schemas. Its snapshots are served from the same CDN.
+          title: Cdn Base Url
+      required:
+      - id
+      - name
+      - extension
+      - status
+      title: VideoFileSchema
+      type: object
+    AcademySourceSchema:
+      additionalProperties: false
+      description: 'What the viewer needs about the real inspection a copy points at.
+
+
+        A trainee holds no ``customer_view_services``, so they cannot ask the
+
+        ``serviceOrderLine`` query for any of this, and by the isolation rule they
+
+        should not have to. Resolved here on their behalf for the one line their
+
+        copy names, which is the trade the media grant already makes.'
+      properties:
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        ai_images_v2:
+          title: Ai Images V2
+          type: boolean
+        project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Id
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        service_order_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Service Order Date
+        scoped_component:
+          anyOf:
+          - $ref: '#/components/schemas/AcademyScopedComponentSchema'
+          - type: 'null'
+        turbine:
+          $ref: '#/components/schemas/AcademyTurbineSchema'
+      required:
+      - ai_images_v2
+      - turbine
+      title: AcademySourceSchema
+      type: object
+    AcademyPresetSchema:
+      additionalProperties: false
+      description: One prefill tile in the finding form's grid.
+      properties:
+        id:
+          title: Id
+          type: integer
+        template_id:
+          title: Template Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        rank:
+          title: Rank
+          type: integer
+        value:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          title: Value
+      required:
+      - id
+      - template_id
+      - name
+      - rank
+      title: AcademyPresetSchema
+      type: object
+    AnomalyCrossSectionSideType:
+      description: Cross section side classification for anomalies.
+      enum:
+      - SUCTION_SIDE
+      - PRESSURE_SIDE
+      - MSW1
+      - MSW2
+      - TE_WEB
+      - END_WEB
+      - BEAM_LE
+      - BEAM_TE
+      - BEAM_PS
+      - BEAM_SS
+      title: AnomalyCrossSectionSideType
+      type: string
+    LERImageStatus:
+      enum:
+      - NEW
+      - ANOMALIES_FLAGGED
+      - ACCEPTED
+      title: LERImageStatus
+      type: string
+    ExternalPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: ExternalPhotoLowResSchema
+      type: object
+    ExternalImageStatus:
+      description: 'Review status of a single external photo.
+
+
+        Mirrors ``LERImageStatus`` but stays a separate enum: external photos have no
+
+        step/run concept, so the two review flows are free to diverge.'
+      enum:
+      - NEW
+      - ANOMALIES_FLAGGED
+      - ACCEPTED
+      title: ExternalImageStatus
+      type: string
+    AcademyReportStatusResponse:
+      additionalProperties: false
+      description: Polling response for an in-flight training-report generation.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      required:
+      - generation_id
+      - status
+      title: AcademyReportStatusResponse
+      type: object
+    POIPhotoSchema:
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/POIPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/POIPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/POIPhotoLowResSchema'
+          - type: 'null'
+      required:
+      - name
+      - rotation
+      - id
+      title: POIPhotoSchema
+      type: object
+    POIPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: POIPhotoLowResSchema
+      type: object
+    LERInspectionStatus:
+      description: Review status of a single LER inspection step run.
+      enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - COMPLETED
+      - FLAGGED
+      title: LERInspectionStatus
+      type: string
+    ManufacturerComponentModelObject:
+      additionalProperties: false
+      description: Nested manufacturer component model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerComponentModelObject
+      type: object
+    AnomalyStage:
+      description: Stage for anomalies.
+      enum:
+      - RELEASED
+      - REVIEWED
+      - CONFIRMED
+      - RESOLUTION_IN_PROGRESS
+      - RESOLUTION_COMPLETE
+      - CLOSED
+      title: AnomalyStage
+      type: string
+    POIPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: POIPhotoTileSchema
+      type: object
+    POIPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: POIPhotoThumbnailSchema
+      type: object
+    ExternalPhotoSchema:
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        is_root_photo:
+          title: Is Root Photo
+          type: boolean
+        pixel_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pixel Distance
+        status:
+          $ref: '#/components/schemas/ExternalImageStatus'
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ExternalPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoLowResSchema'
+          - type: 'null'
+        distance_to_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Centre
+        distance_vector:
+          anyOf:
+          - $ref: '#/components/schemas/DistanceVectorSchema'
+          - type: 'null'
+        run_index:
+          title: Run Index
+          type: integer
+      required:
+      - name
+      - rotation
+      - id
+      - is_root_photo
+      - status
+      - run_index
+      title: ExternalPhotoSchema
+      type: object
+    RootPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: RootPhotoLowResSchema
+      type: object
+    LERPhotoGroupSchema:
+      properties:
+        step:
+          title: Step
+          type: string
+        runs:
+          items:
+            $ref: '#/components/schemas/LERPhotoRunSchema'
+          title: Runs
+          type: array
+      required:
+      - step
+      - runs
+      title: LERPhotoGroupSchema
+      type: object
+    AcademyReportRequest:
+      additionalProperties: false
+      description: Request body for generating a final report for a training copy.
+      properties:
+        format:
+          default: pdf
+          title: Format
+          type: string
+        exclude_fields:
+          default: []
+          items:
+            type: string
+          title: Exclude Fields
+          type: array
+      title: AcademyReportRequest
+      type: object
+    AnomalySideType:
+      description: Side classification for anomalies.
+      enum:
+      - PRESSURE_SIDE
+      - SUCTION_SIDE
+      - TRAILING_EDGE
+      - LEADING_EDGE
+      title: AnomalySideType
+      type: string
+    LERPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: LERPhotoLowResSchema
+      type: object
+    TurbineComponentResponse:
+      additionalProperties: false
+      description: Schema for TurbineComponent response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Turbine component ID
+          title: Id
+          type: integer
+        component_type:
+          $ref: '#/components/schemas/ComponentTypeObject'
+          description: Component type information
+        serial_number:
+          description: Serial number
+          title: Serial Number
+          type: string
+        manufacturer_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Manufacturer serial number
+          title: Manufacturer Serial Number
+        manufacturer:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerObject'
+          - type: 'null'
+          description: Manufacturer information
+        model:
+          anyOf:
+          - $ref: '#/components/schemas/ManufacturerComponentModelObject'
+          - type: 'null'
+          description: Component model information
+        turbine:
+          $ref: '#/components/schemas/TurbineObject'
+          description: Turbine information
+        parent_turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent turbine component ID
+          title: Parent Turbine Component Id
+        length:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component length in meters
+          title: Length
+        radius:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Component radius in meters
+          title: Radius
+        blade_tip:
+          description: Whether this is a blade tip component
+          title: Blade Tip
+          type: boolean
+        position:
+          anyOf:
+          - $ref: '#/components/schemas/PositionEnum'
+          - type: 'null'
+          description: Component position (A, B, or C)
+        pair_index:
+          anyOf:
+          - enum:
+            - 1
+            - 2
+            type: integer
+          - type: 'null'
+          description: 1 or 2 for paired receptors; NULL for non-paired components.
+          title: Pair Index
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+      required:
+      - updated_at
+      - id
+      - component_type
+      - serial_number
+      - turbine
+      - blade_tip
+      title: TurbineComponentResponse
+      type: object
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    AcademyPresetsSchema:
+      additionalProperties: false
+      description: 'The prefill grid the source inspection would show, resolved once.
+
+
+        Read-only. Which template a line uses, and what is on it, are decided by
+
+        whoever set the line up, and a trainee changing either would be editing a
+
+        customer''s job rather than practising on a copy of it.'
+      properties:
+        template_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Template Id
+        template_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Template Name
+        presets_enabled:
+          title: Presets Enabled
+          type: boolean
+        presets:
+          items:
+            $ref: '#/components/schemas/AcademyPresetSchema'
+          title: Presets
+          type: array
+      required:
+      - presets_enabled
+      - presets
+      title: AcademyPresetsSchema
+      type: object
+    AcademyReportGenerationSummary:
+      additionalProperties: false
+      description: A single training-report generation, used in the modal state payload.
+      properties:
+        generation_id:
+          title: Generation Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        generated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Generated At
+      required:
+      - generation_id
+      - status
+      title: AcademyReportGenerationSummary
+      type: object
+    VideoFileExtension:
+      description: Expected video file formats from inspection data uploads.
+      enum:
+      - '360'
+      - insv
+      title: VideoFileExtension
+      type: string
+    RootPhotoSchema:
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/RootPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/RootPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/RootPhotoLowResSchema'
+          - type: 'null'
+      required:
+      - name
+      - rotation
+      - id
+      title: RootPhotoSchema
+      type: object
+    RootPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: RootPhotoThumbnailSchema
+      type: object
+    AnomalySeverityType:
+      description: Severity levels for anomalies.
+      enum:
+      - LEVEL_0
+      - LEVEL_1
+      - LEVEL_2
+      - LEVEL_3
+      - LEVEL_4
+      - LEVEL_5
+      title: AnomalySeverityType
+      type: string
+    AcademyTurbineSchema:
+      additionalProperties: false
+      description: 'The turbine the source inspection is on.
+
+
+        Distinct from the ``turbine`` inside each component''s
+
+        ``TurbineComponentResponse``, which is an id and a name, and from that
+
+        response''s ``manufacturer`` and ``model``, which describe the *blade*.'
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        hub_radius:
+          title: Hub Radius
+          type: number
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        manufacturer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Manufacturer Name
+        model_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+      required:
+      - hub_radius
+      title: AcademyTurbineSchema
+      type: object
+    VideoSnapshotSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        timestamp:
+          title: Timestamp
+          type: number
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        distance_to_hub_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: distance + the turbine model's center_to_root_offset (OH-4169), additive on top of the unchanged root-based `distance`. None when the turbine's model has no offset configured — never falls back to a root-based number under this key.
+          title: Distance To Hub Centre
+      required:
+      - timestamp
+      title: VideoSnapshotSchema
+      type: object
+    ExternalPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: ExternalPhotoTileSchema
+      type: object
+    ImageOrientation:
+      enum:
+      - PS_DOWN
+      - SS_DOWN
+      - LE_DOWN
+      - DW_DOWN
+      - UW_DOWN
+      title: ImageOrientation
+      type: string
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

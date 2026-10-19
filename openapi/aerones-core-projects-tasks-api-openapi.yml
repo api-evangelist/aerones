@@ -1,0 +1,1214 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.projects.tasks API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.projects.tasks
+paths:
+  /api/core/v1/projects/{project_id}/tasks:
+    get:
+      operationId: list_project_tasks
+      summary: List Project Tasks
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectTaskResponse'
+                title: Response
+                type: array
+      description: 'Every task for a project: phase (``project_status_id``), set
+
+        (``project_planned_resource_set_id``) and parent/child grouping,
+
+        applicability, status, owner, due date and PM-override info.
+
+
+        Unpaginated, matching the GraphQL ``projectTasks`` field — a project''s
+
+        task list is bounded (one project''s worth of checklist rows), not a
+
+        growing feed.'
+      tags:
+      - core.projects.tasks
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_task
+      summary: Create Project Task
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTaskResponse'
+      description: Create a project task (the checklist's "Add task" flow).
+      tags:
+      - core.projects.tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectTaskCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/tasks/reorder:
+    post:
+      operationId: reorder_project_tasks
+      summary: Reorder Project Tasks
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: boolean
+                title: Response
+                type: object
+      description: Write a checklist section's new manual order (the drag handle).
+      tags:
+      - core.projects.tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectTaskReorder'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/tasks/{task_id}:
+    patch:
+      operationId: update_project_task
+      summary: Update Project Task
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: task_id
+        schema:
+          title: Task Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTaskResponse'
+      description: 'Update a project task; a manual status change flags it as a PM
+
+        override, stamped server-side to the acting user
+
+        (``ProjectTaskManager.update``).'
+      tags:
+      - core.projects.tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectTaskUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/tasks/{task_id}/comments:
+    get:
+      operationId: list_project_task_comments
+      summary: List Project Task Comments
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: task_id
+        schema:
+          title: Task Id
+          type: integer
+        required: true
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          title: Page Size
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTaskCommentListResponse'
+      description: 'A task''s comment thread, oldest first (matches the GraphQL
+
+        ``ProjectTaskComment.get_queryset`` order).'
+      tags:
+      - core.projects.tasks
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    post:
+      operationId: create_project_task_comment
+      summary: Create Project Task Comment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: task_id
+        schema:
+          title: Task Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCommentResponse'
+      description: Post a new comment on a project task.
+      tags:
+      - core.projects.tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCommentCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/tasks/{task_id}/comments/{comment_id}:
+    patch:
+      operationId: update_project_task_comment
+      summary: Update Project Task Comment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: task_id
+        schema:
+          title: Task Id
+          type: integer
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectCommentResponse'
+      description: Edit a project task comment (body / mentions / attachments).
+      tags:
+      - core.projects.tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCommentUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: delete_project_task_comment
+      summary: Delete Project Task Comment
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: task_id
+        schema:
+          title: Task Id
+          type: integer
+        required: true
+      - in: path
+        name: comment_id
+        schema:
+          title: Comment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a project task comment.
+      tags:
+      - core.projects.tasks
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/task-events:
+    get:
+      operationId: list_project_task_events_for_project
+      summary: List Project Events
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          title: Page Size
+          type: integer
+        required: false
+      - in: query
+        name: op
+        schema:
+          default: ''
+          title: Op
+          type: string
+        required: false
+      - in: query
+        name: actor
+        schema:
+          default: ''
+          title: Actor
+          type: string
+        required: false
+      - in: query
+        name: scope
+        schema:
+          default: ''
+          title: Scope
+          type: string
+        required: false
+      - in: query
+        name: search
+        schema:
+          default: ''
+          title: Search
+          type: string
+        required: false
+      - in: query
+        name: section
+        schema:
+          default: ''
+          title: Section
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTaskEventListResponse'
+      description: 'The project''s audit history, newest first: its own field changes and
+
+        every one of its tasks''.
+
+
+        ``op`` is a comma-separated subset of I/U/D. ``actor`` is a user id, or
+
+        ``system`` for the changes no person is behind. ``scope`` is ``project``
+
+        or ``tasks`` to keep only those rows. ``search`` keeps rows whose task
+
+        title or changed field names contain it, and ``section`` is a
+
+        comma-separated set of sections to keep. All of them narrow the query, so
+
+        the total count describes the filtered trail.
+
+
+        The response also carries how many rows each section holds, for the
+
+        filter to offer only the sections the trail actually covers.'
+      tags:
+      - core.projects.tasks
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/projects/{project_id}/tasks/{task_id}/events:
+    get:
+      operationId: list_project_task_events
+      summary: List Project Task Events
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      - in: path
+        name: task_id
+        schema:
+          title: Task Id
+          type: integer
+        required: true
+      - in: query
+        name: page
+        schema:
+          default: 1
+          title: Page
+          type: integer
+        required: false
+      - in: query
+        name: page_size
+        schema:
+          default: 50
+          title: Page Size
+          type: integer
+        required: false
+      - in: query
+        name: op
+        schema:
+          default: ''
+          title: Op
+          type: string
+        required: false
+      - in: query
+        name: actor
+        schema:
+          default: ''
+          title: Actor
+          type: string
+        required: false
+      - in: query
+        name: search
+        schema:
+          default: ''
+          title: Search
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTaskEventListResponse'
+      description: 'A task''s audit history (who changed what, and when), newest first.
+
+
+        ``search`` keeps rows whose task title or changed field names contain it,
+
+        so the total count describes the filtered trail.'
+      tags:
+      - core.projects.tasks
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ProjectTaskLinkResponse:
+      additionalProperties: false
+      description: A task's navigation target (``core.project_tasks.links``).
+      properties:
+        kind:
+          enum:
+          - internal
+          - external
+          title: Kind
+          type: string
+        route:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: core.project_tasks.links.ProjectTaskRoute, when kind=internal
+          title: Route
+        href:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: External URL, when kind=external
+          title: Href
+      required:
+      - kind
+      title: ProjectTaskLinkResponse
+      type: object
+    ProjectTaskEventSectionCount:
+      additionalProperties: false
+      description: How many rows of the filtered trail one section holds.
+      properties:
+        section:
+          title: Section
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - section
+      - count
+      title: ProjectTaskEventSectionCount
+      type: object
+    ProjectTaskEventListResponse:
+      additionalProperties: false
+      description: One page of task audit history, newest first.
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ProjectTaskEventResponse'
+          title: Results
+          type: array
+        total_count:
+          default: 0
+          title: Total Count
+          type: integer
+        sections:
+          description: Sections the filtered trail covers and how many rows each holds, biggest first. Only sections holding rows appear.
+          items:
+            $ref: '#/components/schemas/ProjectTaskEventSectionCount'
+          title: Sections
+          type: array
+      required:
+      - results
+      title: ProjectTaskEventListResponse
+      type: object
+    CommunicationUser:
+      additionalProperties: false
+      description: Lightweight user reference used in communication payloads.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+      required:
+      - id
+      - name
+      title: CommunicationUser
+      type: object
+    ProjectTaskType:
+      description: Canonical kind of a project task (synced to dev ``core.project_task``).
+      enum:
+      - RFI_COMPLETE
+      - OFFER_COMPLETE
+      - PURCHASE_ORDER_RECEIVED
+      - SALES_ORDER_CREATED
+      - KICKOFF_CALL
+      - TECH_CALL
+      - REPORTING_REQUIREMENTS
+      - RAMS
+      - PREJOB_RECEIVED
+      - REQUEST_SPECIAL_PPE
+      - REQUEST_CONSUMABLES
+      - REQUEST_TEAM
+      - SET_REQUEST
+      - MOBILISE_SET
+      - VEHICLE_REQUEST
+      - RENTAL_VEHICLE
+      - EQUIPMENT_RENTAL
+      - BUSINESS_TRIP_ORDER
+      - APPROVE_FLIGHTS
+      - ACCOMMODATION
+      - DAILY_ALLOWANCES
+      - SERVICE_ORDERS_CREATED
+      - FINAL_REPORTS
+      - INVOICE_SENT_TO_CUSTOMER
+      - OTHER
+      title: ProjectTaskType
+      type: string
+    ProjectTaskEventResponse:
+      additionalProperties: false
+      description: A single recorded change on a project or one of its tasks, from the audit trail.
+      properties:
+        id:
+          title: Id
+          type: integer
+        op:
+          description: Insert, update, or delete
+          enum:
+          - I
+          - U
+          - D
+          title: Op
+          type: string
+        changed_columns:
+          items:
+            type: string
+          title: Changed Columns
+          type: array
+        old_values:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Old Values
+        new_values:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: New Values
+        actor:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: Who made the change, if the user still exists
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The scheduled job that made the change, when no person did.
+          title: Source
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        task_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The task this change belongs to. Empty for a project field change.
+          title: Task Id
+        task_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: That task's title, so a project-wide page names each row.
+          title: Task Title
+        section:
+          description: 'Which part of the app the change belongs to: PROJECT_DETAILS for a project field change, a core.project_tasks.links.ProjectTaskRoute for a task, or OTHER when its type routes to no page.'
+          title: Section
+          type: string
+        link:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectTaskLinkResponse'
+          - type: 'null'
+          description: Where to go to see the change, when it has a page.
+      required:
+      - id
+      - op
+      - changed_columns
+      - created_at
+      - section
+      title: ProjectTaskEventResponse
+      type: object
+    ProjectTaskResponse:
+      additionalProperties: false
+      description: A single project task.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        project_id:
+          title: Project Id
+          type: integer
+        project_status_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Lifecycle phase (core.ProjectStatus)
+          title: Project Status Id
+        project_planned_resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Deployment set; null means the task is project-wide
+          title: Project Planned Resource Set Id
+        parent_task_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Parent Task Id
+        task_type:
+          $ref: '#/components/schemas/ProjectTaskType'
+        status:
+          $ref: '#/components/schemas/ProjectTaskStatus'
+        title:
+          title: Title
+          type: string
+        notes:
+          default: ''
+          title: Notes
+          type: string
+        applicability:
+          $ref: '#/components/schemas/Applicability'
+        not_required_reason:
+          default: ''
+          title: Not Required Reason
+          type: string
+        responsible_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Task owner
+          title: Responsible User Id
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+        confirmed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When a manual status override was confirmed
+          title: Confirmed At
+        confirmed_by_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Who confirmed a manual status override
+          title: Confirmed By Id
+        is_manually_overridden:
+          default: false
+          description: True once a user has manually set the status
+          title: Is Manually Overridden
+          type: boolean
+        external_ref_system:
+          anyOf:
+          - const: TRAVEL_APP
+            enum:
+            - TRAVEL_APP
+            type: string
+          - type: 'null'
+          description: Set only for tasks whose state is derived from another system
+          title: External Ref System
+        external_ref_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: External Ref Id
+        link:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectTaskLinkResponse'
+          - type: 'null'
+          description: Where the task's title links to, if anywhere
+        comment_count:
+          default: 0
+          description: Non-deleted comments on this task
+          title: Comment Count
+          type: integer
+        latest_comment:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectTaskCommentPreview'
+          - type: 'null'
+          description: Newest non-deleted comment, for a row's preview tooltip
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - updated_at
+      - id
+      - project_id
+      - task_type
+      - status
+      - title
+      - applicability
+      - created_at
+      title: ProjectTaskResponse
+      type: object
+    Applicability:
+      description: Whether a project task applies in this project.
+      enum:
+      - REQUIRED
+      - CONDITIONAL
+      title: Applicability
+      type: string
+    ProjectTaskCommentListResponse:
+      additionalProperties: false
+      description: One page of a task's comment thread, oldest first.
+      properties:
+        results:
+          items:
+            $ref: '#/components/schemas/ProjectCommentResponse'
+          title: Results
+          type: array
+        total_count:
+          default: 0
+          title: Total Count
+          type: integer
+      required:
+      - results
+      title: ProjectTaskCommentListResponse
+      type: object
+    ProjectCommentUpdate:
+      additionalProperties: false
+      description: Edit a project communication note (author only).
+      properties:
+        body:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Note body.
+          title: Body
+        body_format:
+          anyOf:
+          - enum:
+            - text
+            - markdown
+            type: string
+          - type: 'null'
+          description: How `body` is encoded.
+          title: Body Format
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Replacement mention set. None leaves it untouched, [] clears. Ignored for body_format='markdown'.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Replacement attachment set. None leaves it untouched, [] clears.
+          title: Attachment File Ids
+      title: ProjectCommentUpdate
+      type: object
+    ProjectTaskStatus:
+      description: Canonical workflow status of a project task (synced to dev data).
+      enum:
+      - TODO
+      - IN_PROGRESS
+      - COMPLETED
+      - APPROVED
+      title: ProjectTaskStatus
+      type: string
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectCommentCreate:
+      additionalProperties: false
+      description: Create a project communication note.
+      properties:
+        body:
+          description: Note body.
+          minLength: 1
+          title: Body
+          type: string
+        body_format:
+          default: text
+          description: How `body` is encoded.
+          enum:
+          - text
+          - markdown
+          title: Body Format
+          type: string
+        mentioned_user_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: User ids @-mentioned in the note. Ignored for body_format='markdown' — mentions are parsed from the body instead.
+          title: Mentioned User Ids
+        attachment_file_ids:
+          anyOf:
+          - items:
+              format: uuid
+              type: string
+            type: array
+          - type: 'null'
+          description: Storage ids of files attached to the note.
+          title: Attachment File Ids
+      required:
+      - body
+      title: ProjectCommentCreate
+      type: object
+    ProjectCommentResponse:
+      additionalProperties: false
+      description: A single project communication note.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        body:
+          title: Body
+          type: string
+        body_format:
+          default: text
+          title: Body Format
+          type: string
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+        edited_by:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: User who last updated the comment (domain rename of updated_by).
+        is_edited:
+          default: false
+          description: Whether the comment was edited after it was created.
+          title: Is Edited
+          type: boolean
+        is_system:
+          default: false
+          description: True for an entry the system posted itself — a project milestone such as a manager assignment or removal. These carry no author, so the feed presents them as milestones rather than as someone's note.
+          title: Is System
+          type: boolean
+        mentioned_users:
+          items:
+            $ref: '#/components/schemas/CommunicationUser'
+          title: Mentioned Users
+          type: array
+        attachments:
+          items:
+            $ref: '#/components/schemas/CommunicationAttachment'
+          title: Attachments
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - updated_at
+      - id
+      - body
+      - created_at
+      title: ProjectCommentResponse
+      type: object
+    CommunicationAttachment:
+      additionalProperties: false
+      description: A file attached to a communication note or task comment.
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+      required:
+      - id
+      - file_name
+      - file_type
+      title: CommunicationAttachment
+      type: object
+    ProjectTaskCommentPreview:
+      additionalProperties: false
+      description: Enough of a task's newest comment to render a checklist row's tooltip.
+      properties:
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/CommunicationUser'
+          - type: 'null'
+          description: Null for a system-posted comment
+        body_excerpt:
+          description: Comment body, truncated for a tooltip preview
+          title: Body Excerpt
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - body_excerpt
+      - created_at
+      title: ProjectTaskCommentPreview
+      type: object
+    ProjectTaskCreate:
+      additionalProperties: false
+      description: 'Create a project task (mirrors GraphQL ``AddProjectTaskInput``).
+
+
+        Scoped to what the checklist''s "Add task" flow actually sends: a manual
+
+        ``OTHER``-type task. ``external_ref_system``/``external_ref_id`` are
+
+        stamped by the sync that imports a task from another system, never by a
+
+        user, so they are not accepted here.'
+      properties:
+        task_type:
+          $ref: '#/components/schemas/ProjectTaskType'
+        status:
+          $ref: '#/components/schemas/ProjectTaskStatus'
+        title:
+          minLength: 1
+          title: Title
+          type: string
+        applicability:
+          $ref: '#/components/schemas/Applicability'
+        project_status_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Status Id
+        project_planned_resource_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Planned Resource Set Id
+        parent_task_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Parent Task Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        not_required_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Not Required Reason
+        responsible_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Responsible User Id
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+      required:
+      - task_type
+      - status
+      - title
+      - applicability
+      title: ProjectTaskCreate
+      type: object
+    ProjectTaskReorder:
+      additionalProperties: false
+      description: 'One checklist section in the order a reader dragged it into.
+
+
+        The ids are the section''s tasks, first to last. Ids the project does not
+
+        own are ignored rather than rejected: a stale tab can post a task that has
+
+        since moved section, and a reorder is not worth failing over.'
+      properties:
+        task_ids:
+          items:
+            type: integer
+          minItems: 1
+          title: Task Ids
+          type: array
+      required:
+      - task_ids
+      title: ProjectTaskReorder
+      type: object
+    ProjectTaskUpdate:
+      additionalProperties: false
+      description: 'Update a project task (mirrors GraphQL ``UpdateProjectTaskInput``).
+
+
+        ``is_manually_overridden``/``confirmed_at``/``confirmed_by_id`` are not
+
+        accepted here - a ``status`` change that differs from the task''s current
+
+        one stamps them server-side to the acting user
+
+        (``ProjectTaskManager.update``), the PM-override rule shared with the
+
+        GraphQL ``updateProjectTask`` mutation.'
+      properties:
+        project_status_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Project Status Id
+        parent_task_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Parent Task Id
+        task_type:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectTaskType'
+          - type: 'null'
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectTaskStatus'
+          - type: 'null'
+        title:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          title: Title
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        applicability:
+          anyOf:
+          - $ref: '#/components/schemas/Applicability'
+          - type: 'null'
+        not_required_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Not Required Reason
+        responsible_user_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Responsible User Id
+        start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
+        due_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Due Date
+      title: ProjectTaskUpdate
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

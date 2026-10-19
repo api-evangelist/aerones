@@ -1,0 +1,81 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Work Management.statuses API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: work-management.statuses
+paths:
+  /api/work-management/statuses:
+    get:
+      operationId: client_work_management_endpoints_statuses_get_statuses
+      summary: Get Status Options
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusesResponse'
+      tags:
+      - work-management.statuses
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    StatusesResponse:
+      additionalProperties: false
+      properties:
+        work_order:
+          items:
+            $ref: '#/components/schemas/StatusOption'
+          title: Work Order
+          type: array
+        campaign:
+          items:
+            $ref: '#/components/schemas/StatusOption'
+          title: Campaign
+          type: array
+        work_package:
+          items:
+            $ref: '#/components/schemas/StatusOption'
+          title: Work Package
+          type: array
+      required:
+      - work_order
+      - campaign
+      - work_package
+      title: StatusesResponse
+      type: object
+    StatusOption:
+      additionalProperties: false
+      properties:
+        value:
+          title: Value
+          type: string
+        label:
+          title: Label
+          type: string
+        color:
+          title: Color
+          type: string
+      required:
+      - value
+      - label
+      - color
+      title: StatusOption
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

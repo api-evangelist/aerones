@@ -268,27 +268,25 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ComponentTypeObject:
+    ProjectScopeTurbineComponentObject:
       additionalProperties: false
-      description: Nested component type object for responses.
+      description: Nested turbine component descriptor for project scope rows.
       properties:
         id:
           title: Id
           type: integer
-        name:
-          title: Name
+        serial_number:
+          title: Serial Number
           type: string
-        field_list:
+        position:
           anyOf:
-          - items:
-              type: string
-            type: array
+          - type: string
           - type: 'null'
-          title: Field List
+          title: Position
       required:
       - id
-      - name
-      title: ComponentTypeObject
+      - serial_number
+      title: ProjectScopeTurbineComponentObject
       type: object
     ServiceObject:
       additionalProperties: false
@@ -309,11 +307,57 @@ components:
           description: Whether this is a service (vs addon/material/support)
           title: Is Service
           type: boolean
+        allows_materials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: A CO line of this service can have material lines; unset where not loaded
+          title: Allows Materials
       required:
       - id
       - code
       - is_service
       title: ServiceObject
+      type: object
+    ProjectScopeTurbineObject:
+      additionalProperties: false
+      description: 'Nested turbine object for scope rows, carrying geo-coordinates.
+
+
+        Coordinates power the Project scope map view. They come straight off
+
+        ``core.Turbine`` (``latitude``/``longitude`` DecimalFields, backfilled from
+
+        the free-text ``coordinates`` string by migration
+
+        ``0058_populate_lat_lng_from_coordinates``). Pydantic ``from_attributes``
+
+        reads them off the already ``select_related``-loaded turbine, so exposing
+
+        them adds no query.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Turbine GPS latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Turbine GPS longitude
+          title: Longitude
+      required:
+      - id
+      - name
+      title: ProjectScopeTurbineObject
       type: object
     ProjectScopeItemBulkCreate:
       additionalProperties: false
@@ -352,6 +396,26 @@ components:
       - commercial_offer_item_id
       title: ProjectScopeItemBulkCreate
       type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -363,6 +427,112 @@ components:
       - generic
       title: ErrorCode
       type: string
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+    ProjectScopeItemResponse:
+      additionalProperties: false
+      description: Schema for ProjectScopeItem response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project scope item ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        service_order_line_refs:
+          description: Live (non-cancelled) SOLs generated from this scope item
+          items:
+            $ref: '#/components/schemas/ScopeItemServiceOrderLineRef'
+          title: Service Order Line Refs
+          type: array
+        location:
+          $ref: '#/components/schemas/ProjectScopeLocationObject'
+          description: Location information (with GPS coordinates for the map)
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectScopeTurbineObject'
+          - type: 'null'
+          description: Turbine information (with GPS coordinates for the map)
+        component_type:
+          anyOf:
+          - $ref: '#/components/schemas/ComponentTypeObject'
+          - type: 'null'
+          description: Component type information
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectScopeTurbineComponentObject'
+          - type: 'null'
+          description: Turbine component information
+        turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine component ID
+          title: Turbine Component Id
+        turbine_component_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine component serial number
+          title: Turbine Component Serial Number
+        service:
+          anyOf:
+          - $ref: '#/components/schemas/ServiceObject'
+          - type: 'null'
+          description: Service information
+        additional_information:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional information as JSON
+          title: Additional Information
+        amount:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Amount
+          title: Amount
+        current_commercial_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The latest offer's item on this scope item's CO line; null when the line is not in the latest offer (list responses only)
+          title: Current Commercial Offer Item Id
+      required:
+      - updated_at
+      - id
+      - project_id
+      - location
+      title: ProjectScopeItemResponse
+      type: object
     ScopeItemServiceOrderLineRef:
       additionalProperties: false
       description: A live SOL generated from a scope item (for linking from scope UIs).
@@ -442,82 +612,18 @@ components:
       - location_id
       title: ProjectScopeItemCreate
       type: object
-    ProjectScopeTurbineObject:
-      additionalProperties: false
-      description: 'Nested turbine object for scope rows, carrying geo-coordinates.
-
-
-        Coordinates power the Project scope map view. They come straight off
-
-        ``core.Turbine`` (``latitude``/``longitude`` DecimalFields, backfilled from
-
-        the free-text ``coordinates`` string by migration
-
-        ``0058_populate_lat_lng_from_coordinates``). Pydantic ``from_attributes``
-
-        reads them off the already ``select_related``-loaded turbine, so exposing
-
-        them adds no query.'
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Turbine GPS latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Turbine GPS longitude
-          title: Longitude
-      required:
-      - id
-      - name
-      title: ProjectScopeTurbineObject
-      type: object
-    ProjectScopeLocationObject:
-      additionalProperties: false
-      description: 'Nested location object for scope rows, carrying geo-coordinates.
-
-
-        Used as the map fallback when a turbine has no coordinates of its own
-
-        (``core.Location.latitude``/``longitude``).'
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-        latitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Location GPS latitude
-          title: Latitude
-        longitude:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Location GPS longitude
-          title: Longitude
-      required:
-      - id
-      - name
-      title: ProjectScopeLocationObject
-      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
     ProjectScopeItemUpdate:
       additionalProperties: false
       description: Schema for updating a ProjectScopeItem.
@@ -587,135 +693,41 @@ components:
       - message
       title: Error
       type: object
-    Success:
+    ProjectScopeLocationObject:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
+      description: 'Nested location object for scope rows, carrying geo-coordinates.
 
 
-        The `success` field is always ``true`` in this schema. Failed operations are
+        Used as the map fallback when a turbine has no coordinates of its own
 
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
-    ProjectScopeTurbineComponentObject:
-      additionalProperties: false
-      description: Nested turbine component descriptor for project scope rows.
+        (``core.Location.latitude``/``longitude``).'
       properties:
         id:
           title: Id
           type: integer
-        serial_number:
-          title: Serial Number
+        name:
+          title: Name
           type: string
-        position:
+        type:
           anyOf:
-          - type: string
+          - $ref: '#/components/schemas/LocationType'
           - type: 'null'
-          title: Position
-      required:
-      - id
-      - serial_number
-      title: ProjectScopeTurbineComponentObject
-      type: object
-    ProjectScopeItemResponse:
-      additionalProperties: false
-      description: Schema for ProjectScopeItem response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Project scope item ID
-          title: Id
-          type: integer
-        project_id:
-          description: Project ID
-          title: Project Id
-          type: integer
-        service_order_line_refs:
-          description: Live (non-cancelled) SOLs generated from this scope item
-          items:
-            $ref: '#/components/schemas/ScopeItemServiceOrderLineRef'
-          title: Service Order Line Refs
-          type: array
-        location:
-          $ref: '#/components/schemas/ProjectScopeLocationObject'
-          description: Location information (with GPS coordinates for the map)
-        turbine:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectScopeTurbineObject'
-          - type: 'null'
-          description: Turbine information (with GPS coordinates for the map)
-        component_type:
-          anyOf:
-          - $ref: '#/components/schemas/ComponentTypeObject'
-          - type: 'null'
-          description: Component type information
-        turbine_component:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectScopeTurbineComponentObject'
-          - type: 'null'
-          description: Turbine component information
-        turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine component ID
-          title: Turbine Component Id
-        turbine_component_serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine component serial number
-          title: Turbine Component Serial Number
-        service:
-          anyOf:
-          - $ref: '#/components/schemas/ServiceObject'
-          - type: 'null'
-          description: Service information
-        additional_information:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: Additional information as JSON
-          title: Additional Information
-        amount:
+        latitude:
           anyOf:
           - type: number
-          - type: string
           - type: 'null'
-          description: Amount
-          title: Amount
+          description: Location GPS latitude
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Location GPS longitude
+          title: Longitude
       required:
-      - updated_at
       - id
-      - project_id
-      - location
-      title: ProjectScopeItemResponse
+      - name
+      title: ProjectScopeLocationObject
       type: object
   securitySchemes:
     APIKeyAuth:

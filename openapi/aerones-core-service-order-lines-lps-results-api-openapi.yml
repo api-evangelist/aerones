@@ -72,6 +72,26 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    LpsResultsUpsertDrainage:
+      additionalProperties: false
+      properties:
+        blade_id:
+          title: Blade Id
+          type: integer
+        status:
+          anyOf:
+          - enum:
+            - CLEANED
+            - CLOGGED
+            - DAMAGED
+            - MISSING
+            type: string
+          - type: 'null'
+          title: Status
+      required:
+      - blade_id
+      title: LpsResultsUpsertDrainage
+      type: object
     LpsResultBladeDataplate:
       additionalProperties: false
       description: Latest BLADE_DATAPLATE image attached to a blade TurbineComponent.
@@ -86,6 +106,35 @@ components:
       - file_id
       - file_name
       title: LpsResultBladeDataplate
+      type: object
+    LpsResultBlade:
+      additionalProperties: false
+      properties:
+        blade:
+          additionalProperties:
+            anyOf:
+            - {}
+            - type: 'null'
+          description: 'Blade summary: {id, serial_number, position}.'
+          title: Blade
+          type: object
+        receptors:
+          items:
+            $ref: '#/components/schemas/LpsResultReceptor'
+          title: Receptors
+          type: array
+        dataplate_image:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultBladeDataplate'
+          - type: 'null'
+          description: Most-recent BLADE_DATAPLATE FileEntityLink for this blade, when one exists. The FE composes a download URL via the standard core file helpers.
+        drainage:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultDrainage'
+          - type: 'null'
+      required:
+      - blade
+      title: LpsResultBlade
       type: object
     LpsResultsUpsertCell:
       additionalProperties: false
@@ -124,25 +173,65 @@ components:
       - side
       title: LpsResultsUpsertCell
       type: object
-    LpsResultsTurbineObject:
+    LpsResultsUpsertResponse:
       additionalProperties: false
+      description: PUT response = the upsert count + the refreshed capture context.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        turbine:
+          $ref: '#/components/schemas/LpsResultsTurbineObject'
+        drainage_enabled:
+          default: false
+          description: The service includes drainage cleaning (LPS-DRC, DRC) and the turbine is not virtual.
+          title: Drainage Enabled
+          type: boolean
+        blades:
+          items:
+            $ref: '#/components/schemas/LpsResultBlade'
+          title: Blades
+          type: array
+        upserted:
+          description: How many cells and drainage results were written.
+          title: Upserted
+          type: integer
+      required:
+      - service_order_line_id
+      - turbine
+      - upserted
+      title: LpsResultsUpsertResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    LpsResultDrainage:
+      additionalProperties: false
+      description: The blade's drainage cleaning result, saved on its drainage hole.
       properties:
         id:
           title: Id
           type: integer
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        manufacturer_turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Manufacturer Turbine Model Id
+        status:
+          enum:
+          - CLEANED
+          - CLOGGED
+          - DAMAGED
+          - MISSING
+          title: Status
+          type: string
       required:
       - id
-      title: LpsResultsTurbineObject
+      - status
+      title: LpsResultDrainage
       type: object
     LpsResultReceptor:
       additionalProperties: false
@@ -187,24 +276,44 @@ components:
       - component_type_id
       title: LpsResultReceptor
       type: object
-    LpsResultsContextResponse:
+    LpsResultsTurbineObject:
       additionalProperties: false
-      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
       properties:
-        service_order_line_id:
-          title: Service Order Line Id
+        id:
+          title: Id
           type: integer
-        turbine:
-          $ref: '#/components/schemas/LpsResultsTurbineObject'
-        blades:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Manufacturer Turbine Model Id
+      required:
+      - id
+      title: LpsResultsTurbineObject
+      type: object
+    LpsResultsUpsertBody:
+      additionalProperties: false
+      properties:
+        cells:
+          description: Flat list of cell updates.
           items:
-            $ref: '#/components/schemas/LpsResultBlade'
-          title: Blades
+            $ref: '#/components/schemas/LpsResultsUpsertCell'
+          title: Cells
+          type: array
+        drainage:
+          description: Drainage cleaning result per blade.
+          items:
+            $ref: '#/components/schemas/LpsResultsUpsertDrainage'
+          title: Drainage
           type: array
       required:
-      - service_order_line_id
-      - turbine
-      title: LpsResultsContextResponse
+      - cells
+      title: LpsResultsUpsertBody
       type: object
     LpsResultCell:
       additionalProperties: false
@@ -240,29 +349,29 @@ components:
           title: Comment
       title: LpsResultCell
       type: object
-    LpsResultsUpsertResponse:
+    LpsResultsContextResponse:
       additionalProperties: false
-      description: PUT response = the upsert count + the refreshed capture context.
+      description: GET ``/service-order-lines/{sol_id}/lps-results`` — per-blade matrix.
       properties:
         service_order_line_id:
           title: Service Order Line Id
           type: integer
         turbine:
           $ref: '#/components/schemas/LpsResultsTurbineObject'
+        drainage_enabled:
+          default: false
+          description: The service includes drainage cleaning (LPS-DRC, DRC) and the turbine is not virtual.
+          title: Drainage Enabled
+          type: boolean
         blades:
           items:
             $ref: '#/components/schemas/LpsResultBlade'
           title: Blades
           type: array
-        upserted:
-          description: How many cells were written (created or updated).
-          title: Upserted
-          type: integer
       required:
       - service_order_line_id
       - turbine
-      - upserted
-      title: LpsResultsUpsertResponse
+      title: LpsResultsContextResponse
       type: object
     Error:
       additionalProperties: false
@@ -278,55 +387,6 @@ components:
       - message
       title: Error
       type: object
-    LpsResultsUpsertBody:
-      additionalProperties: false
-      properties:
-        cells:
-          description: Flat list of cell updates.
-          items:
-            $ref: '#/components/schemas/LpsResultsUpsertCell'
-          title: Cells
-          type: array
-      required:
-      - cells
-      title: LpsResultsUpsertBody
-      type: object
-    LpsResultBlade:
-      additionalProperties: false
-      properties:
-        blade:
-          additionalProperties:
-            anyOf:
-            - {}
-            - type: 'null'
-          description: 'Blade summary: {id, serial_number, position}.'
-          title: Blade
-          type: object
-        receptors:
-          items:
-            $ref: '#/components/schemas/LpsResultReceptor'
-          title: Receptors
-          type: array
-        dataplate_image:
-          anyOf:
-          - $ref: '#/components/schemas/LpsResultBladeDataplate'
-          - type: 'null'
-          description: Most-recent BLADE_DATAPLATE FileEntityLink for this blade, when one exists. The FE composes a download URL via the standard core file helpers.
-      required:
-      - blade
-      title: LpsResultBlade
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

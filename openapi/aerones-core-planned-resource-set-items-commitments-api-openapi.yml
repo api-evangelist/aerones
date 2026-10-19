@@ -235,62 +235,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectPlannedResourceSetItemCommitmentCreate:
-      additionalProperties: false
-      description: Schema for creating a planned scope commitment on a deployment leg.
-      properties:
-        service_id:
-          description: Service ID
-          title: Service Id
-          type: integer
-        pricing_unit_id:
-          description: Pricing unit (the unit) ID
-          title: Pricing Unit Id
-          type: integer
-        quantity:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: string
-          description: Committed quantity
-          title: Quantity
-        turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Optional turbine model the commitment is specific to
-          title: Turbine Model Id
-      required:
-      - service_id
-      - pricing_unit_id
-      - quantity
-      title: ProjectPlannedResourceSetItemCommitmentCreate
-      type: object
-    ServiceObject:
-      additionalProperties: false
-      description: Nested service object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        is_service:
-          description: Whether this is a service (vs addon/material/support)
-          title: Is Service
-          type: boolean
-      required:
-      - id
-      - code
-      - is_service
-      title: ServiceObject
-      type: object
     ProjectPlannedResourceSetItemCommitmentUpdate:
       additionalProperties: false
       description: Schema for updating a planned scope commitment.
@@ -322,6 +266,57 @@ components:
           description: Optional turbine model the commitment is specific to
           title: Turbine Model Id
       title: ProjectPlannedResourceSetItemCommitmentUpdate
+      type: object
+    ServiceObject:
+      additionalProperties: false
+      description: Nested service object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        is_service:
+          description: Whether this is a service (vs addon/material/support)
+          title: Is Service
+          type: boolean
+        allows_materials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: A CO line of this service can have material lines; unset where not loaded
+          title: Allows Materials
+      required:
+      - id
+      - code
+      - is_service
+      title: ServiceObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ProjectPlannedResourceSetItemCommitmentResponse:
       additionalProperties: false
@@ -366,6 +361,48 @@ components:
       - pricing_unit
       title: ProjectPlannedResourceSetItemCommitmentResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectPlannedResourceSetItemCommitmentCreate:
+      additionalProperties: false
+      description: Schema for creating a planned scope commitment on a deployment leg.
+      properties:
+        service_id:
+          description: Service ID
+          title: Service Id
+          type: integer
+        pricing_unit_id:
+          description: Pricing unit (the unit) ID
+          title: Pricing Unit Id
+          type: integer
+        quantity:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: string
+          description: Committed quantity
+          title: Quantity
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Optional turbine model the commitment is specific to
+          title: Turbine Model Id
+      required:
+      - service_id
+      - pricing_unit_id
+      - quantity
+      title: ProjectPlannedResourceSetItemCommitmentCreate
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -400,26 +437,6 @@ components:
       - name
       title: PricingUnitNestedResponse
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
     TurbineModelObject:
       additionalProperties: false
       description: Nested turbine model object for responses.
@@ -435,17 +452,6 @@ components:
       - name
       title: TurbineModelObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

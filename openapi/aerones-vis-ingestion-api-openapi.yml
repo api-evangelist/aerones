@@ -1,0 +1,154 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Vis.ingestion API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: vis.ingestion
+paths:
+  /api/vis/v1/ingestion/lines/{sol_id}/failures:
+    get:
+      operationId: vis_api_list_line_import_failures
+      summary: List the rows of a service order line that did not reach VIS
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportFailureListSchema'
+      description: List the skipped and failed rows of a line, newest first.
+      tags:
+      - vis.ingestion
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis/v1/ingestion/wake:
+    post:
+      operationId: vis_api_wake_ingestion
+      summary: Wake the VIS imports after the pipeline finished a job (ADR 0004)
+      parameters: []
+      responses:
+        '202':
+          description: Accepted
+      description: Request a pass of both VIS imports. The pipeline calls this with its API key.
+      tags:
+      - vis.ingestion
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/vis/v1/ingestion/job-state:
+    post:
+      operationId: vis_api_signal_job_state
+      summary: Refresh data tracking after pipeline jobs changed state (VIS-7323)
+      parameters: []
+      responses:
+        '202':
+          description: Accepted
+      description: 'Queue a data tracking refresh of the files of ``payload.event_ids``.
+
+
+        The pipeline calls this with its API key after each committed job transition.'
+      tags:
+      - vis.ingestion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobStateSignalSchema'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    JobStateSignalSchema:
+      description: The pipeline events whose jobs changed state (``bucket_events.id``).
+      properties:
+        event_ids:
+          items:
+            type: integer
+          maxItems: 1000
+          minItems: 1
+          title: Event Ids
+          type: array
+      required:
+      - event_ids
+      title: JobStateSignalSchema
+      type: object
+    ImportFailureSchema:
+      properties:
+        importer:
+          title: Importer
+          type: string
+        source_row_id:
+          title: Source Row Id
+          type: integer
+        file_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Path
+        error:
+          title: Error
+          type: string
+        attempts:
+          title: Attempts
+          type: integer
+        next_attempt_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Next Attempt At
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - importer
+      - source_row_id
+      - error
+      - attempts
+      - created_at
+      - updated_at
+      title: ImportFailureSchema
+      type: object
+    ImportFailureListSchema:
+      properties:
+        total:
+          title: Total
+          type: integer
+        items:
+          items:
+            $ref: '#/components/schemas/ImportFailureSchema'
+          title: Items
+          type: array
+      required:
+      - total
+      - items
+      title: ImportFailureListSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

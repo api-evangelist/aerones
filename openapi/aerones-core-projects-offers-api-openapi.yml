@@ -32,11 +32,11 @@ paths:
 
         highest version number), otherwise the latest submitted version. When the
 
-        project has no offers at all, Draft v1 is auto-created — parity with the
+        project has no offers at all, Draft v1 is created so the builder opens on an
 
-        legacy ``GET /projects/{id}/offer`` first-open behaviour. The generic
+        editable draft. This is the only read that provisions an offer: the generic
 
-        offers list stays read-only; only this route carries the side effect.'
+        offers list and the legacy ``GET /projects/{id}/offer`` are read-only.'
       tags:
       - core.projects.offers
       security:
@@ -65,7 +65,7 @@ paths:
 
         Idempotent: when a draft already exists it is returned unchanged. A new
 
-        draft gets ``version = latest + 1`` and copies line items with v1 lineage.'
+        draft gets ``version = latest + 1`` and copies line items with their lineage.'
       tags:
       - core.projects.offers
       security:
@@ -505,228 +505,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectOfferResponse:
-      additionalProperties: false
-      description: Schema for ProjectOffer response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Project offer ID
-          title: Id
-          type: integer
-        project_id:
-          description: Project ID
-          title: Project Id
-          type: integer
-        currency:
-          $ref: '#/components/schemas/CurrencyObject'
-          description: Currency information
-        discount:
-          description: Discount amount
-          title: Discount
-          type: number
-        total_amount:
-          description: Total amount (calculated from offer items)
-          title: Total Amount
-          type: number
-        status:
-          description: Offer status
-          title: Status
-          type: string
-        version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Version number
-          title: Version
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Offer type (main, amendment)
-          title: Type
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Reason for change
-          title: Change Reason
-        reviewer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Reviewer user ID
-          title: Reviewer Id
-        gross_margin:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Gross margin percentage
-          title: Gross Margin
-        adjusted_gross_margin:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Adjusted gross margin percentage
-          title: Adjusted Gross Margin
-        crew_size:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Technicians in one crew
-          examples:
-          - 3
-          title: Crew Size
-        crew_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Number of crews working the deal
-          examples:
-          - 1
-          title: Crew Count
-        working_days:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Working days on site, taken from the longest-running crew
-          examples:
-          - 15.0
-          title: Working Days
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Comments
-          title: Comment
-        required_approver_role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Required approver role
-          title: Required Approver Role
-      required:
-      - updated_at
-      - id
-      - project_id
-      - currency
-      - discount
-      - total_amount
-      - status
-      title: ProjectOfferResponse
-      type: object
-    ProjectOfferUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectOffer.
-      properties:
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency ID
-          title: Currency Id
-        discount:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Discount amount
-          title: Discount
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Offer status
-          title: Status
-        version:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Version number
-          title: Version
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Offer type (main, amendment)
-          title: Type
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Reason for change
-          title: Change Reason
-        reviewer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Reviewer user ID
-          title: Reviewer Id
-        gross_margin:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Gross margin percentage
-          title: Gross Margin
-        adjusted_gross_margin:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Adjusted gross margin percentage
-          title: Adjusted Gross Margin
-        crew_size:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Technicians in one crew
-          examples:
-          - 3
-          title: Crew Size
-        crew_count:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Number of crews working the deal
-          examples:
-          - 1
-          title: Crew Count
-        working_days:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Working days on site, taken from the longest-running crew
-          examples:
-          - 15.0
-          title: Working Days
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Comments
-          title: Comment
-        required_approver_role:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Required approver role
-          title: Required Approver Role
-      title: ProjectOfferUpdate
-      type: object
-    ProjectOfferSendForApprovalRequest:
-      additionalProperties: false
-      description: Body for sending a draft offer for approval.
-      properties:
-        sales_comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Sales comment/context shown to the approver
-          title: Sales Comment
-      title: ProjectOfferSendForApprovalRequest
-      type: object
     ProjectOfferHistoryResponse:
       additionalProperties: false
       description: Schema for an offer history row (a non-draft offer version).
@@ -866,17 +644,25 @@ components:
       - date
       title: ProjectOfferHistoryResponse
       type: object
-    ProjectOfferRejectRequest:
+    Success:
       additionalProperties: false
-      description: Body for rejecting a pending offer.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        message:
-          description: Rejection reason (stored in change_reason)
-          title: Message
-          type: string
-      required:
-      - message
-      title: ProjectOfferRejectRequest
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ProjectOfferCreate:
       additionalProperties: false
@@ -972,6 +758,125 @@ components:
       - currency_id
       title: ProjectOfferCreate
       type: object
+    ProjectOfferSendForApprovalRequest:
+      additionalProperties: false
+      description: Body for sending a draft offer for approval.
+      properties:
+        sales_comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Sales comment/context shown to the approver
+          title: Sales Comment
+      title: ProjectOfferSendForApprovalRequest
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectOfferUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectOffer.
+      properties:
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount amount
+          title: Discount
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer status
+          title: Status
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+      title: ProjectOfferUpdate
+      type: object
     CurrencyObject:
       additionalProperties: false
       description: Nested currency object for responses (no timestamps in nested objects).
@@ -994,6 +899,120 @@ components:
       - name
       title: CurrencyObject
       type: object
+    ProjectOfferResponse:
+      additionalProperties: false
+      description: Schema for ProjectOffer response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project offer ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyObject'
+          description: Currency information
+        discount:
+          description: Discount amount
+          title: Discount
+          type: number
+        total_amount:
+          description: Total amount (calculated from offer items)
+          title: Total Amount
+          type: number
+        status:
+          description: Offer status
+          title: Status
+          type: string
+        version:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Version number
+          title: Version
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Offer type (main, amendment)
+          title: Type
+        change_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reason for change
+          title: Change Reason
+        reviewer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Reviewer user ID
+          title: Reviewer Id
+        gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Gross margin percentage
+          title: Gross Margin
+        adjusted_gross_margin:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjusted gross margin percentage
+          title: Adjusted Gross Margin
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew
+          examples:
+          - 3
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Number of crews working the deal
+          examples:
+          - 1
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days on site, taken from the longest-running crew
+          examples:
+          - 15.0
+          title: Working Days
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comments
+          title: Comment
+        required_approver_role:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Required approver role
+          title: Required Approver Role
+      required:
+      - updated_at
+      - id
+      - project_id
+      - currency
+      - discount
+      - total_amount
+      - status
+      title: ProjectOfferResponse
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -1008,37 +1027,18 @@ components:
       - message
       title: Error
       type: object
-    Success:
+    ProjectOfferRejectRequest:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Body for rejecting a pending offer.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        message:
+          description: Rejection reason (stored in change_reason)
+          title: Message
+          type: string
+      required:
+      - message
+      title: ProjectOfferRejectRequest
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

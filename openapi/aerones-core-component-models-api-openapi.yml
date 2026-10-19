@@ -205,66 +205,43 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ComponentTypeObject:
+    Success:
       additionalProperties: false
-      description: Nested component type object for responses.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        field_list:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Field List
-      required:
-      - id
-      - name
-      title: ComponentTypeObject
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
-    ManufacturerObject:
+    ComponentModelCreate:
       additionalProperties: false
-      description: Nested manufacturer object for responses.
+      description: Schema for creating a ManufacturerComponentModel.
       properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerObject
-      type: object
-    ComponentModelResponse:
-      additionalProperties: false
-      description: Schema for ManufacturerComponentModel response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Component model ID
-          title: Id
-          type: integer
         name:
           description: Component model name
+          minLength: 1
           title: Name
           type: string
-        manufacturer:
-          $ref: '#/components/schemas/ManufacturerObject'
-          description: Manufacturer information
-        component_type:
-          $ref: '#/components/schemas/ComponentTypeObject'
-          description: Component type information
+        manufacturer_id:
+          description: Manufacturer ID
+          title: Manufacturer Id
+          type: integer
+        component_type_id:
+          description: Component type ID
+          title: Component Type Id
+          type: integer
         length:
           anyOf:
           - type: number
@@ -281,17 +258,43 @@ components:
           title: Crawler Range
         blade_type:
           anyOf:
-          - type: string
+          - enum:
+            - BOX_SPAR
+            - SINGLE_SHEAR_WEB
+            - DOUBLE_SHEAR_WEB
+            - TRIPLE_SHEAR_WEB
+            - QUADRUPLE_SHEAR_WEB
+            type: string
           - type: 'null'
           description: Blade construction type
           title: Blade Type
+        blade_root:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Distance from the blade root to the receptor reference point, in meters
+          title: Blade Root
       required:
-      - updated_at
+      - name
+      - manufacturer_id
+      - component_type_id
+      title: ComponentModelCreate
+      type: object
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
       - id
       - name
-      - manufacturer
-      - component_type
-      title: ComponentModelResponse
+      title: ManufacturerObject
       type: object
     ComponentModelUpdate:
       additionalProperties: false
@@ -342,27 +345,47 @@ components:
           - type: 'null'
           description: Blade construction type
           title: Blade Type
+        blade_root:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Distance from the blade root to the receptor reference point, in meters
+          title: Blade Root
       title: ComponentModelUpdate
       type: object
-    Success:
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ComponentTypeObject:
       additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
+      description: Nested component type object for responses.
       properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
       type: object
     Error:
       additionalProperties: false
@@ -378,23 +401,29 @@ components:
       - message
       title: Error
       type: object
-    ComponentModelCreate:
+    ComponentModelResponse:
       additionalProperties: false
-      description: Schema for creating a ManufacturerComponentModel.
+      description: Schema for ManufacturerComponentModel response.
       properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Component model ID
+          title: Id
+          type: integer
         name:
           description: Component model name
-          minLength: 1
           title: Name
           type: string
-        manufacturer_id:
-          description: Manufacturer ID
-          title: Manufacturer Id
-          type: integer
-        component_type_id:
-          description: Component type ID
-          title: Component Type Id
-          type: integer
+        manufacturer:
+          $ref: '#/components/schemas/ManufacturerObject'
+          description: Manufacturer information
+        component_type:
+          $ref: '#/components/schemas/ComponentTypeObject'
+          description: Component type information
         length:
           anyOf:
           - type: number
@@ -411,33 +440,25 @@ components:
           title: Crawler Range
         blade_type:
           anyOf:
-          - enum:
-            - BOX_SPAR
-            - SINGLE_SHEAR_WEB
-            - DOUBLE_SHEAR_WEB
-            - TRIPLE_SHEAR_WEB
-            - QUADRUPLE_SHEAR_WEB
-            type: string
+          - type: string
           - type: 'null'
           description: Blade construction type
           title: Blade Type
+        blade_root:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Distance from the blade root to the receptor reference point, in meters
+          title: Blade Root
       required:
+      - updated_at
+      - id
       - name
-      - manufacturer_id
-      - component_type_id
-      title: ComponentModelCreate
+      - manufacturer
+      - component_type
+      title: ComponentModelResponse
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

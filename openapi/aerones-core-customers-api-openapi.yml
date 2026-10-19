@@ -299,59 +299,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    CountryObject:
-      additionalProperties: false
-      description: Nested country object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Country ID
-          title: Id
-          type: integer
-        code:
-          description: Country code (ISO 3166-1 alpha-2)
-          title: Code
-          type: string
-        name:
-          description: Country name
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: CountryObject
-      type: object
-    CustomerType:
-      description: 'What kind of party a customer row represents.
-
-
-        ``COMMERCIAL`` is an ordinary customer: billable, mirrored to NetSuite, and the
-
-        answer every customer picker in the product is asking for.
-
-
-        ``VIRTUAL`` is an organisation that exists only so a group of users can read
-
-        across the customers beneath it in the ``parent_customer`` tree. It is never
-
-        billed and never mirrored to NetSuite or Pipedrive.
-
-
-        The vocabulary lives here rather than in a database constraint, so adding a kind
-
-        stays a product decision and not a deploy-ordering problem.
-
-
-        A type carries no access meaning. Scope expansion is decided entirely by
-
-        ``parent_customer`` and ``deleted_at`` in ``rls.tenant_scope``, which never reads
-
-        this column, so changing it neither grants nor revokes anything.'
-      enum:
-      - COMMERCIAL
-      - VIRTUAL
-      title: CustomerType
-      type: string
     ParentCustomerObject:
       additionalProperties: false
       description: Nested parent customer object for responses (no timestamps in nested objects).
@@ -368,6 +315,37 @@ components:
       - id
       - display_name
       title: ParentCustomerObject
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    CustomerNetsuiteSubsidiary:
+      additionalProperties: false
+      description: Current NetSuite subsidiary for a customer (source of truth = NetSuite).
+      properties:
+        subsidiary_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Subsidiary Id
+      title: CustomerNetsuiteSubsidiary
       type: object
     CustomerResponse:
       additionalProperties: false
@@ -484,27 +462,137 @@ components:
       - display_name
       title: CustomerResponse
       type: object
-    CurrencyObject:
+    CustomerUpdate:
       additionalProperties: false
-      description: Nested currency object for responses (no timestamps in nested objects).
+      description: Schema for updating a Customer.
+      properties:
+        number:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Customer number
+          title: Number
+        display_name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Display name
+          title: Display Name
+        legal_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legal name
+          title: Legal Name
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Email address
+          title: Email
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Phone number
+          title: Phone
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        parent_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Parent customer ID
+          title: Parent Customer Id
+        vat_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: VAT number
+          title: Vat Number
+        registration_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Registration number
+          title: Registration Number
+        currency_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Currency ID
+          title: Currency Id
+        additional_info:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Additional information
+          title: Additional Info
+        netsuite_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite customer ID
+          title: Netsuite Customer Id
+        pipedrive_org_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive organization ID
+          title: Pipedrive Org Id
+        custom_fields:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Custom fields as JSON
+          title: Custom Fields
+        logo_file_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Logo file storage id (fileupload.Files). Set to null to remove the logo.
+          title: Logo File Id
+      title: CustomerUpdate
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    CountryObject:
+      additionalProperties: false
+      description: Nested country object for responses (no timestamps in nested objects).
       properties:
         id:
-          description: Currency ID
+          description: Country ID
           title: Id
           type: integer
         code:
-          description: Currency code (ISO 4217)
+          description: Country code (ISO 3166-1 alpha-2)
           title: Code
           type: string
         name:
-          description: Currency name
+          description: Country name
           title: Name
           type: string
       required:
       - id
       - code
       - name
-      title: CurrencyObject
+      title: CountryObject
       type: object
     CustomerCreate:
       additionalProperties: false
@@ -618,6 +706,28 @@ components:
       - display_name
       title: CustomerCreate
       type: object
+    CurrencyObject:
+      additionalProperties: false
+      description: Nested currency object for responses (no timestamps in nested objects).
+      properties:
+        id:
+          description: Currency ID
+          title: Id
+          type: integer
+        code:
+          description: Currency code (ISO 4217)
+          title: Code
+          type: string
+        name:
+          description: Currency name
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: CurrencyObject
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -632,146 +742,36 @@ components:
       - message
       title: Error
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
+    CustomerType:
+      description: 'What kind of party a customer row represents.
 
 
-        The `success` field is always ``true`` in this schema. Failed operations are
+        ``COMMERCIAL`` is an ordinary customer: billable, mirrored to NetSuite, and the
 
-        represented by the :class:`Error` schema instead, so a ``false`` value does
+        answer every customer picker in the product is asking for.
 
-        not occur in practice. The field is included for consistency across responses
 
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    CustomerNetsuiteSubsidiary:
-      additionalProperties: false
-      description: Current NetSuite subsidiary for a customer (source of truth = NetSuite).
-      properties:
-        subsidiary_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Subsidiary Id
-      title: CustomerNetsuiteSubsidiary
-      type: object
-    CustomerUpdate:
-      additionalProperties: false
-      description: Schema for updating a Customer.
-      properties:
-        number:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Customer number
-          title: Number
-        display_name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Display name
-          title: Display Name
-        legal_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Legal name
-          title: Legal Name
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Email address
-          title: Email
-        phone:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Phone number
-          title: Phone
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        parent_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Parent customer ID
-          title: Parent Customer Id
-        vat_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: VAT number
-          title: Vat Number
-        registration_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Registration number
-          title: Registration Number
-        currency_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Currency ID
-          title: Currency Id
-        additional_info:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Additional information
-          title: Additional Info
-        netsuite_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: NetSuite customer ID
-          title: Netsuite Customer Id
-        pipedrive_org_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pipedrive organization ID
-          title: Pipedrive Org Id
-        custom_fields:
-          anyOf:
-          - type: object
-          - type: 'null'
-          description: Custom fields as JSON
-          title: Custom Fields
-        logo_file_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Logo file storage id (fileupload.Files). Set to null to remove the logo.
-          title: Logo File Id
-      title: CustomerUpdate
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
+        ``VIRTUAL`` is an organisation that exists only so a group of users can read
+
+        across the customers beneath it in the ``parent_customer`` tree. It is never
+
+        billed and never mirrored to NetSuite or Pipedrive.
+
+
+        The vocabulary lives here rather than in a database constraint, so adding a kind
+
+        stays a product decision and not a deploy-ordering problem.
+
+
+        A type carries no access meaning. Scope expansion is decided entirely by
+
+        ``parent_customer`` and ``deleted_at`` in ``rls.tenant_scope``, which never reads
+
+        this column, so changing it neither grants nor revokes anything.'
       enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
+      - COMMERCIAL
+      - VIRTUAL
+      title: CustomerType
       type: string
   securitySchemes:
     APIKeyAuth:

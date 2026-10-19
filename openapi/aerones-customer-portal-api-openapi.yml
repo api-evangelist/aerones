@@ -185,12 +185,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      description: 'List user ToS acceptances with optional filtering.
+      description: 'List the caller''s own ToS acceptances with optional filtering.
 
 
         Query parameters:
 
-        - user_id: Filter by user ID (optional)
+        - user_id: Filter by user ID (optional); another user''s id returns nothing
 
         - tos_id: Filter by ToS ID (optional)
 
@@ -234,49 +234,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    UserTosAcceptanceResponse:
-      additionalProperties: false
-      description: 'Schema for User ToS Acceptance response.
-
-
-        Note: This is an immutable record, so only created_at is included (no updated_at).'
-      properties:
-        id:
-          description: User ToS Acceptance ID
-          title: Id
-          type: integer
-        user_id:
-          description: User ID
-          title: User Id
-          type: integer
-        tos_id:
-          description: Terms of Service ID
-          title: Tos Id
-          type: integer
-        ip_address:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: User IP address
-          title: Ip Address
-        user_agent:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: User agent string
-          title: User Agent
-        created_at:
-          description: Acceptance timestamp
-          format: date-time
-          title: Created At
-          type: string
-      required:
-      - id
-      - user_id
-      - tos_id
-      - created_at
-      title: UserTosAcceptanceResponse
-      type: object
     UserTosAcceptanceCreate:
       additionalProperties: false
       description: Schema for creating a User ToS Acceptance.
@@ -345,6 +302,60 @@ components:
       - is_active
       title: TermsOfServiceResponse
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    UserTosAcceptanceResponse:
+      additionalProperties: false
+      description: 'Schema for User ToS Acceptance response.
+
+
+        Note: This is an immutable record, so only created_at is included (no updated_at).'
+      properties:
+        id:
+          description: User ToS Acceptance ID
+          title: Id
+          type: integer
+        user_id:
+          description: User ID
+          title: User Id
+          type: integer
+        tos_id:
+          description: Terms of Service ID
+          title: Tos Id
+          type: integer
+        ip_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User IP address
+          title: Ip Address
+        user_agent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User agent string
+          title: User Agent
+        created_at:
+          description: Acceptance timestamp
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - id
+      - user_id
+      - tos_id
+      - created_at
+      title: UserTosAcceptanceResponse
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -359,17 +370,6 @@ components:
       - message
       title: Error
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -43,6 +43,25 @@ paths:
         required: false
         description: Filter by role names (comma-separated)
       - in: query
+        name: permission
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/PermissionCodename'
+          - type: 'null'
+          description: Only users holding this permission, directly or through a group. The PM and Supervisor pickers pass their picker key.
+        required: false
+        description: Only users holding this permission, directly or through a group. The PM and Supervisor pickers pass their picker key.
+      - in: query
+        name: is_internal
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: True for Aerones staff, False for customer-portal users. Omitted = no filter (assignee/mention pickers pass True).
+          title: Is Internal
+        required: false
+        description: True for Aerones staff, False for customer-portal users. Omitted = no filter (assignee/mention pickers pass True).
+      - in: query
         name: paginate
         schema:
           default: true
@@ -242,6 +261,15 @@ paths:
           title: Sort
         required: false
         description: Sort by field (prefix with - for descending)
+      - in: query
+        name: permission
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/PermissionCodename'
+          - type: 'null'
+          description: Only roles holding this key. The Ops Hub user form finds the client-account role by its marker this way.
+        required: false
+        description: Only roles holding this key. The Ops Hub user form finds the client-account role by its marker this way.
       responses:
         '200':
           description: OK
@@ -266,6 +294,58 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    UserCustomerObject:
+      additionalProperties: false
+      description: Nested customer reference for user responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: UserCustomerObject
+      type: object
+    IDWithName:
+      additionalProperties: false
+      description: Schema for ID with name.
+      properties:
+        id:
+          description: Identifier.
+          title: Id
+          type: integer
+        name:
+          description: Name.
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: IDWithName
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
     UserUpdate:
       additionalProperties: false
       description: Schema for updating a user.
@@ -306,6 +386,153 @@ components:
           title: Customer Ids
       title: UserUpdate
       type: object
+    PermissionCodename:
+      description: All supported permission codenames in the system.
+      enum:
+      - auth.admin
+      - auth.impersonate
+      - auth.project_manager
+      - auth.regular_user
+      - auth.query_basic_graphql
+      - auth.mutate_basic_graphql
+      - auth.sales_manager_usa
+      - auth.sales_manager_eu
+      - auth.cco
+      - auth.co_watcher
+      - permissions.hse_reviewer
+      - permissions.rams_template_manage
+      - permissions.manage_academy
+      - permissions.manage_service_activities
+      - permissions.manage_service_workorders
+      - permissions.manage_prejob_questions
+      - permissions.manage_customer_custom_field_values
+      - permissions.announce_notification_event
+      - permissions.send_team_request_to_planner
+      - permissions.send_team_request_to_planner_via_wms
+      - permissions.approve_team_request_slot
+      - permissions.acknowledge_team_request_ppe
+      - permissions.approve_set_request
+      - permissions.mark_ready_set_request
+      - permissions.mark_picked_up_set_request
+      - permissions.unpickup_set_request
+      - permissions.receive_set_request_mro_notification
+      - permissions.receive_set_request_it_notification
+      - permissions.confirm_set_request_it
+      - permissions.confirm_set_request_ppe
+      - permissions.receive_set_request_ppe_notification
+      - permissions.manage_set_demob
+      - permissions.confirm_set_demob_it
+      - permissions.confirm_set_demob_mro
+      - permissions.confirm_set_demob_ppe
+      - permissions.receive_set_demob_it_notification
+      - permissions.receive_set_demob_mro_notification
+      - permissions.receive_planner_handoff_notification
+      - permissions.receive_rat_team_request_notification
+      - permissions.approve_scope_change_qc
+      - permissions.approve_scope_change_sales
+      - permissions.approve_scope_change_pm
+      - permissions.manage_billing_statement
+      - permissions.create_api_key
+      - permissions.assignable_project_manager
+      - permissions.assignable_supervisor
+      - permissions.assignable_salesperson
+      - permissions.receive_billing_fallback_notification
+      - permissions.receive_sales_invoice_created_notification
+      - permissions.receive_set_deployment_field_completed_notification
+      - permissions.assignable_to_client_accounts
+      - permissions.default_role_client_account
+      - permissions.default_role_salesperson
+      - permissions.default_role_data_operator
+      - permissions.default_role_technician
+      - permissions.django_admin_staff
+      - permissions.view_notifications
+      - permissions.manage_notifications
+      - permissions.view_delays
+      - permissions.manage_delays
+      - permissions.manage_workorders
+      - permissions.view_resources
+      - permissions.view_files
+      - permissions.view_timesheets
+      - permissions.view_vehicle_assignments
+      - permissions.manage_vehicle_assignments
+      - permissions.view_certificates
+      - permissions.view_scope_change_requests
+      - permissions.manage_scope_change_requests
+      - permissions.view_countries
+      - permissions.manage_workbench
+      - permissions.manage_users
+      - permissions.manage_roles
+      - permissions.submit_daily_report_draft
+      - permissions.run_service_refresh
+      - permissions.wake_vis_ingestion
+      - permissions.xapp_aeroplan_approve_deployment_change
+      - permissions.receive_vis_import_failure_notification
+      - auth.bto_viewer
+      - auth.bto_supervisor
+      - projects.is_bto_watcher
+      - permissions.pwt_access
+      - auth.technician_user
+      - permissions.view_business_pages
+      - permissions.view_unassigned_work
+      - auth.vis_qc
+      - permissions.view_all
+      - permissions.view_all_vehicle_fleet_assignments
+      - permissions.manage_all_vehicle_fleet_assignments
+      - auth.payroll_manager
+      - permissions.manage_customer_users
+      - permissions.view_employee_visas
+      - permissions.customer_basic_access
+      - permissions.customer_manage_access_control
+      - permissions.customer_view_fleet
+      - permissions.customer_view_services
+      - permissions.customer_manage_services
+      - permissions.customer_view_anomalies
+      - permissions.customer_manage_anomalies
+      - permissions.customer_view_vis
+      - permissions.customer_manage_vis
+      - permissions.customer_view_projects
+      - permissions.customer_view_reports
+      - permissions.customer_manage_reports
+      - permissions.customer_manage_inspection_scope
+      - permissions.customer_view_daily_reports
+      - permissions.customer_view_analytics
+      - permissions.customer_view_scope_changes
+      - permissions.customer_manage_scope_changes
+      - permissions.customer_view_work_management
+      - permissions.customer_manage_work_management
+      - permissions.customer_manage_terms_of_service
+      - permissions.customer_view_workorders
+      - permissions.customer_manage_workorders
+      - permissions.customer_cir_submit
+      - permissions.sales_form_app
+      - permissions.sales_pipeline_app
+      - permissions.project_tasks_dashboard_app
+      - permissions.aeroplan_app
+      - permissions.price_matrix_app
+      - permissions.data_operations_app
+      - permissions.mobilisation_app
+      - permissions.execution_app
+      - permissions.my_projects_app
+      - permissions.aeromro_app
+      - permissions.cir_dashboard_app
+      - permissions.field_parts_app
+      - permissions.cru_qc
+      - permissions.cru_ler_qc_review
+      - permissions.cru_ler_qc_lead
+      - permissions.cru_data_operator
+      - permissions.view_cru_basic_pages
+      - permissions.manage_logistics
+      - permissions.manage_reporting_requirements
+      - permissions.receive_reporting_requirement_notification
+      - permissions.force_complete_project
+      - permissions.manage_offer_item_comment
+      - permissions.remove_prejob_certificates
+      - permissions.academy_trainee
+      - permissions.xapp_data_operations_perform_qc
+      - permissions.xapp_data_operations_operate
+      - auth.broe
+      title: PermissionCodename
+      type: string
     UserResponse:
       additionalProperties: false
       description: Schema for user list response.
@@ -360,23 +587,17 @@ components:
       - id
       title: UserResponse
       type: object
-    IDWithName:
-      additionalProperties: false
-      description: Schema for ID with name.
-      properties:
-        id:
-          description: Identifier.
-          title: Id
-          type: integer
-        name:
-          description: Name.
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: IDWithName
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -432,52 +653,6 @@ components:
       - email
       title: UserCreate
       type: object
-    UserCustomerObject:
-      additionalProperties: false
-      description: Nested customer reference for user responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        display_name:
-          title: Display Name
-          type: string
-      required:
-      - id
-      - display_name
-      title: UserCustomerObject
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

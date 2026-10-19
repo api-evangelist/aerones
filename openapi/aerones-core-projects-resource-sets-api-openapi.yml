@@ -333,47 +333,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectResourceSetItemInput:
-      additionalProperties: false
-      description: Input schema for project resource set item in create/update requests.
-      properties:
-        resource_id:
-          description: Resource ID
-          title: Resource Id
-          type: integer
-        resource_type:
-          description: Resource type (ROBOT or TECHNICIAN)
-          title: Resource Type
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is team lead
-          title: Is Lead
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Start date
-          title: Start Date
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: End date
-          title: End Date
-      required:
-      - resource_id
-      - resource_type
-      title: ProjectResourceSetItemInput
-      type: object
     ProjectObject:
       additionalProperties: false
       description: Nested project object for responses (no timestamps).
@@ -388,64 +347,6 @@ components:
       - id
       - code
       title: ProjectObject
-      type: object
-    ProjectResourceSetItemOutput:
-      additionalProperties: false
-      description: Output schema for project resource set item in responses.
-      properties:
-        id:
-          description: ProjectResourceSetItem ID
-          title: Id
-          type: integer
-        resource_id:
-          description: Resource ID
-          title: Resource Id
-          type: integer
-        resource_type:
-          description: Resource type (ROBOT or TECHNICIAN)
-          title: Resource Type
-          type: string
-        is_lead:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Is team lead
-          title: Is Lead
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Start date
-          title: Start Date
-        end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: End date
-          title: End Date
-        resource_full_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource full name
-          title: Resource Full Name
-        resource_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Resource email
-          title: Resource Email
-      required:
-      - id
-      - resource_id
-      - resource_type
-      title: ProjectResourceSetItemOutput
       type: object
     ProjectResourceSetCreate:
       additionalProperties: false
@@ -529,6 +430,17 @@ components:
       - day
       title: ProjectResourceSetActivityDay
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ProjectResourceSetActivityDaysResponse:
       additionalProperties: false
       description: Per-set workorder-activity days for the execution overview team grid.
@@ -547,19 +459,137 @@ components:
       - project_resource_set_id
       title: ProjectResourceSetActivityDaysResponse
       type: object
-    Error:
+    ProjectResourceSetItemInput:
       additionalProperties: false
-      description: Error response schema.
+      description: Input schema for project resource set item in create/update requests.
       properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
           type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
       required:
-      - code
-      - message
-      title: Error
+      - resource_id
+      - resource_type
+      title: ProjectResourceSetItemInput
+      type: object
+    ProjectResourceSetUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectResourceSet.
+      properties:
+        name:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Set name
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Set description
+          title: Description
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        set_items:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProjectResourceSetItemInput'
+            type: array
+          - type: 'null'
+          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
+          title: Set Items
+      title: ProjectResourceSetUpdate
+      type: object
+    ProjectResourceSetItemOutput:
+      additionalProperties: false
+      description: Output schema for project resource set item in responses.
+      properties:
+        id:
+          description: ProjectResourceSetItem ID
+          title: Id
+          type: integer
+        resource_id:
+          description: Resource ID
+          title: Resource Id
+          type: integer
+        resource_type:
+          description: Resource type (ROBOT or TECHNICIAN)
+          title: Resource Type
+          type: string
+        is_lead:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Is team lead
+          title: Is Lead
+        project_location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Project Location Id
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Start date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: End date
+          title: End Date
+        resource_full_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource full name
+          title: Resource Full Name
+        resource_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Resource email
+          title: Resource Email
+      required:
+      - id
+      - resource_id
+      - resource_type
+      title: ProjectResourceSetItemOutput
       type: object
     ProjectResourceSetResponse:
       additionalProperties: false
@@ -624,38 +654,19 @@ components:
       - name
       title: ProjectResourceSetResponse
       type: object
-    ProjectResourceSetUpdate:
+    Error:
       additionalProperties: false
-      description: Schema for updating a ProjectResourceSet.
+      description: Error response schema.
       properties:
-        name:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Set name
-          title: Name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Set description
-          title: Description
-        project_location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Project Location Id
-        set_items:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ProjectResourceSetItemInput'
-            type: array
-          - type: 'null'
-          description: Resource set items (None=unchanged, []=clear all, [...]= replace)
-          title: Set Items
-      title: ProjectResourceSetUpdate
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     NestedIdOnly:
       additionalProperties: false
@@ -668,17 +679,6 @@ components:
       - id
       title: NestedIdOnly
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     MaterializePlannedInput:
       additionalProperties: false
       description: Body for promoting a planned resource set into a roster set.

@@ -205,6 +205,68 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    PlanningNestedCoreService:
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - id
+      - code
+      title: PlanningNestedCoreService
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    PlanningServiceUpdate:
+      properties:
+        core_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+      title: PlanningServiceUpdate
+      type: object
     ErrorCode:
       description: Error codes for API errors.
       enum:
@@ -216,18 +278,33 @@ components:
       - generic
       title: ErrorCode
       type: string
-    PlanningNestedCustomer:
+    PlanningServiceCreate:
+      additionalProperties: false
       properties:
-        id:
-          title: Id
+        customer_id:
+          title: Customer Id
           type: integer
-        display_name:
-          title: Display Name
+        core_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Core Service Id
+        code:
+          title: Code
           type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        active:
+          default: true
+          title: Active
+          type: boolean
       required:
-      - id
-      - display_name
-      title: PlanningNestedCustomer
+      - customer_id
+      - code
+      title: PlanningServiceCreate
       type: object
     PlanningServiceResponse:
       properties:
@@ -278,30 +355,6 @@ components:
       - updated_at
       title: PlanningServiceResponse
       type: object
-    PlanningServiceUpdate:
-      properties:
-        core_service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Core Service Id
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Active
-      title: PlanningServiceUpdate
-      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -316,71 +369,18 @@ components:
       - message
       title: Error
       type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    PlanningNestedCoreService:
+    PlanningNestedCustomer:
       properties:
         id:
           title: Id
           type: integer
-        code:
-          title: Code
+        display_name:
+          title: Display Name
           type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
       required:
       - id
-      - code
-      title: PlanningNestedCoreService
-      type: object
-    PlanningServiceCreate:
-      additionalProperties: false
-      properties:
-        customer_id:
-          title: Customer Id
-          type: integer
-        core_service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Core Service Id
-        code:
-          title: Code
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        active:
-          default: true
-          title: Active
-          type: boolean
-      required:
-      - customer_id
-      - code
-      title: PlanningServiceCreate
+      - display_name
+      title: PlanningNestedCustomer
       type: object
   securitySchemes:
     APIKeyAuth:

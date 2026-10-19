@@ -1,0 +1,590 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Accounting.my Projects API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: accounting.my-projects
+paths:
+  /api/accounting/v2/my-projects/rollup:
+    get:
+      operationId: accounting_endpoints_my_projects_get_rollup
+      summary: Per-project dispatch/charge/coverage rollup, keyed by project id
+      parameters:
+      - in: query
+        name: project_ids
+        schema:
+          default: ''
+          title: Project Ids
+          type: string
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/RollupSchema'
+                title: Response
+                type: object
+      description: 'Bulk rollup (SOL/WO stats, action queue, value coverage, turbine count) for
+
+        the given ``project_ids`` (comma-separated numeric ids), keyed by id.
+
+
+        Base project fields come from ``GET /api/core/v1/projects``; the frontend
+
+        merges this map into the card list by id. The requested ids are narrowed by
+
+        the same visibility rule as that list (``ProjectManager.visible_to``), so
+
+        every card the list shows gets a rollup — a board filtered to another PM''s
+
+        projects included. Ids the caller may not read, deleted or unknown ids, and
+
+        malformed tokens are dropped silently rather than failing the batch.
+
+
+        ``MAX_ROLLUP_PROJECT_IDS`` is an abuse bound, not a page size: it sits above
+
+        the number of projects that exist, so a whole board always fits in one call.
+
+        That matters because the MFE treats any non-200 as "endpoint absent" and
+
+        falls back to per-project assembly, so a limit a real board could hit would
+
+        re-create the request storm this endpoint removes. Matched rows and response
+
+        size still grow with the id count even though the query count does not.'
+      tags:
+      - accounting.my-projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    ScopeCountSchema:
+      additionalProperties: false
+      properties:
+        done:
+          title: Done
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - done
+      - total
+      title: ScopeCountSchema
+      type: object
+    ChargeSolSchema:
+      additionalProperties: false
+      description: 'A completed SOL with no charge against it, as the action queue lists it.
+
+
+        Identification only. Raising the charge happens in the project''s accounting
+
+        calendar, which resolves its own CO item, scope item and robot set; the
+
+        board links there rather than carrying a second copy of that linkage.'
+      properties:
+        id:
+          title: Id
+          type: string
+        sol_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sol Id
+        svc:
+          title: Svc
+          type: string
+        turbine:
+          default: ''
+          title: Turbine
+          type: string
+        robot_set:
+          default: ''
+          title: Robot Set
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        completed_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Completed At
+      required:
+      - id
+      - svc
+      title: ChargeSolSchema
+      type: object
+    ToInvoiceSchema:
+      additionalProperties: false
+      properties:
+        amount:
+          title: Amount
+          type: number
+        currency:
+          title: Currency
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - amount
+      - currency
+      - count
+      title: ToInvoiceSchema
+      type: object
+    DelayInfoSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: string
+        type:
+          title: Type
+          type: string
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+        ended_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Ended At
+        duration_min:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration Min
+        comment:
+          default: ''
+          title: Comment
+          type: string
+        robot_set:
+          default: ''
+          title: Robot Set
+          type: string
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        resource:
+          default: ''
+          title: Resource
+          type: string
+        location:
+          default: ''
+          title: Location
+          type: string
+        workorder:
+          default: ''
+          title: Workorder
+          type: string
+        activity_id:
+          default: ''
+          title: Activity Id
+          type: string
+        active:
+          default: false
+          title: Active
+          type: boolean
+      required:
+      - id
+      - type
+      title: DelayInfoSchema
+      type: object
+    RollupSchema:
+      additionalProperties: false
+      description: 'Per-project bespoke rollup, keyed by project id in the endpoint response.
+
+
+        Base project fields (code, owner, status, client, planned dates) are NOT
+
+        here — the frontend reads those from the shared core project-list endpoint
+
+        (``GET /api/core/v1/projects``) and merges this rollup in by id, so there is
+
+        a single source of truth for the project list.'
+      properties:
+        turbines:
+          default: 0
+          title: Turbines
+          type: integer
+        progress:
+          default: 0
+          title: Progress
+          type: integer
+        sol_stats:
+          $ref: '#/components/schemas/SolStatsSchema'
+        wo_stats:
+          $ref: '#/components/schemas/WoStatsSchema'
+        service_progress:
+          items:
+            $ref: '#/components/schemas/ServiceProgressSchema'
+          title: Service Progress
+          type: array
+        robot_sets:
+          default: []
+          items:
+            type: string
+          title: Robot Sets
+          type: array
+        sols:
+          items:
+            $ref: '#/components/schemas/SolRefSchema'
+          title: Sols
+          type: array
+        actions:
+          $ref: '#/components/schemas/ActionSignalsSchema'
+        action_tasks:
+          title: Action Tasks
+          type: integer
+        coverage:
+          $ref: '#/components/schemas/CoverageSchema'
+      required:
+      - sol_stats
+      - wo_stats
+      - service_progress
+      - sols
+      - actions
+      - action_tasks
+      - coverage
+      title: RollupSchema
+      type: object
+    SolStatsSchema:
+      additionalProperties: false
+      properties:
+        total:
+          title: Total
+          type: integer
+        not_started:
+          title: Not Started
+          type: integer
+        in_progress:
+          title: In Progress
+          type: integer
+        field_completed:
+          title: Field Completed
+          type: integer
+        completed:
+          title: Completed
+          type: integer
+        cancelled:
+          title: Cancelled
+          type: integer
+      required:
+      - total
+      - not_started
+      - in_progress
+      - field_completed
+      - completed
+      - cancelled
+      title: SolStatsSchema
+      type: object
+    SolRefSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: string
+        svc:
+          title: Svc
+          type: string
+        status:
+          title: Status
+          type: string
+      required:
+      - id
+      - svc
+      - status
+      title: SolRefSchema
+      type: object
+    StalledSolSchema:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: string
+        sol_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sol Id
+        svc:
+          title: Svc
+          type: string
+        turbine:
+          default: ''
+          title: Turbine
+          type: string
+        robot_set:
+          default: ''
+          title: Robot Set
+          type: string
+        days:
+          title: Days
+          type: integer
+        approx:
+          default: false
+          title: Approx
+          type: boolean
+        started_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Started At
+      required:
+      - id
+      - svc
+      - days
+      title: StalledSolSchema
+      type: object
+    ServiceProgressSchema:
+      additionalProperties: false
+      description: 'Per-service SOL progress for the project card''s service-level bars
+
+        (FEAT-3578). ``name`` is the SOL-denormalized service description (may be
+
+        empty); ``robot_sets`` is capped server-side (ROBOT_SET_LIMIT).
+
+        ``turbines`` is finished against scoped turbines, absent when no live SOL
+
+        of the service names a turbine (see ``project_stats.sol_stats``).'
+      properties:
+        code:
+          title: Code
+          type: string
+        name:
+          default: ''
+          title: Name
+          type: string
+        stats:
+          $ref: '#/components/schemas/SolStatsSchema'
+        turbines:
+          anyOf:
+          - $ref: '#/components/schemas/ScopeCountSchema'
+          - type: 'null'
+        robot_sets:
+          default: []
+          items:
+            type: string
+          title: Robot Sets
+          type: array
+      required:
+      - code
+      - stats
+      title: ServiceProgressSchema
+      type: object
+    ChargeSplitSchema:
+      additionalProperties: false
+      description: 'Charged value broken down by NetSuite status, for the coverage bar''s
+
+        segments.
+
+
+        The segments sum to ``CoverageSchema.charged`` on a project with no
+
+        cancelled charges, and to less than it otherwise: ``charged`` mirrors the
+
+        project-overview widget, which counts cancelled rows, while the segments
+
+        exclude them. Treat them as a breakdown of what is live, not as a partition
+
+        of ``charged``.'
+      properties:
+        invoiced:
+          default: 0.0
+          title: Invoiced
+          type: number
+        approved:
+          default: 0.0
+          title: Approved
+          type: number
+        draft:
+          default: 0.0
+          title: Draft
+          type: number
+        require_po:
+          default: 0.0
+          title: Require Po
+          type: number
+        other:
+          default: 0.0
+          title: Other
+          type: number
+      title: ChargeSplitSchema
+      type: object
+    SetDayChargeSchema:
+      additionalProperties: false
+      description: A robot set's day with a pending suggested charge for one service.
+      properties:
+        local_date:
+          format: date
+          title: Local Date
+          type: string
+        robot_set_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Robot Set Id
+        robot_set:
+          default: ''
+          title: Robot Set
+          type: string
+        service_code:
+          default: ''
+          title: Service Code
+          type: string
+        service_name:
+          default: ''
+          title: Service Name
+          type: string
+      required:
+      - local_date
+      title: SetDayChargeSchema
+      type: object
+    ActionSignalsSchema:
+      additionalProperties: false
+      properties:
+        to_charge:
+          title: To Charge
+          type: integer
+        charge_sols:
+          items:
+            $ref: '#/components/schemas/ChargeSolSchema'
+          title: Charge Sols
+          type: array
+        stalled:
+          title: Stalled
+          type: integer
+        stalled_oldest:
+          title: Stalled Oldest
+          type: integer
+        stalled_oldest_approx:
+          default: false
+          title: Stalled Oldest Approx
+          type: boolean
+        stalled_sols:
+          items:
+            $ref: '#/components/schemas/StalledSolSchema'
+          title: Stalled Sols
+          type: array
+        open_delay_count:
+          default: 0
+          title: Open Delay Count
+          type: integer
+        open_delay_list:
+          default: []
+          items:
+            $ref: '#/components/schemas/DelayInfoSchema'
+          title: Open Delay List
+          type: array
+        to_invoice:
+          anyOf:
+          - $ref: '#/components/schemas/ToInvoiceSchema'
+          - type: 'null'
+        set_days_needing_charge:
+          default: 0
+          title: Set Days Needing Charge
+          type: integer
+        sols_needing_charge:
+          default: 0
+          title: Sols Needing Charge
+          type: integer
+        set_day_charges:
+          default: []
+          items:
+            $ref: '#/components/schemas/SetDayChargeSchema'
+          title: Set Day Charges
+          type: array
+      required:
+      - to_charge
+      - charge_sols
+      - stalled
+      - stalled_oldest
+      - stalled_sols
+      title: ActionSignalsSchema
+      type: object
+    WoStatsSchema:
+      additionalProperties: false
+      properties:
+        total:
+          title: Total
+          type: integer
+        completed:
+          title: Completed
+          type: integer
+        in_progress:
+          title: In Progress
+          type: integer
+        scheduled:
+          title: Scheduled
+          type: integer
+      required:
+      - total
+      - completed
+      - in_progress
+      - scheduled
+      title: WoStatsSchema
+      type: object
+    CoverageSchema:
+      additionalProperties: false
+      description: 'Value coverage — charged vs purchase-order, with the commercial offer as
+
+        context. Mirrors the project-overview "Overall value coverage" widget:
+
+        charged = Σ ServiceCharge (amount, or price·quantity); co = latest approved
+
+        offer''s item total; po = Σ active purchase-order version amounts.'
+      properties:
+        charged:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Charged
+        co_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Co Value
+        po_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Po Value
+        currency:
+          default: ''
+          title: Currency
+          type: string
+        split:
+          anyOf:
+          - $ref: '#/components/schemas/ChargeSplitSchema'
+          - type: 'null'
+      title: CoverageSchema
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

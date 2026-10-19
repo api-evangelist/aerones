@@ -72,18 +72,6 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ReceptorSyncBody:
-      additionalProperties: false
-      description: PUT body for ``/blades/{id}/receptors`` — replaces the full list.
-      properties:
-        receptors:
-          description: Full desired receptor list for this blade. Rows missing from the list are soft-deleted; matching rows update; new rows (no id) are created with parent_turbine_component_id set to this blade.
-          items:
-            $ref: '#/components/schemas/ReceptorItem'
-          title: Receptors
-          type: array
-      title: ReceptorSyncBody
-      type: object
     ReceptorItem:
       additionalProperties: false
       description: 'One receptor row in a sync (PUT) body for a single blade.
@@ -150,6 +138,29 @@ components:
       - name
       title: ReceptorItem
       type: object
+    ReceptorSyncBody:
+      additionalProperties: false
+      description: PUT body for ``/blades/{id}/receptors`` — replaces the full list.
+      properties:
+        receptors:
+          description: Full desired receptor list for this blade. Rows missing from the list are soft-deleted; matching rows update; new rows (no id) are created with parent_turbine_component_id set to this blade.
+          items:
+            $ref: '#/components/schemas/ReceptorItem'
+          title: Receptors
+          type: array
+      title: ReceptorSyncBody
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ReceptorListResponse:
       additionalProperties: false
       description: 'GET response: ordered receptor list for one blade.'
@@ -160,20 +171,6 @@ components:
           title: Receptors
           type: array
       title: ReceptorListResponse
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     ReceptorObject:
       additionalProperties: false
@@ -223,17 +220,20 @@ components:
       - component_type_id
       title: ReceptorObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -198,6 +198,39 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
+  /api/core/v1/project-scope-change-requests/source-line-prefill/{service_order_line_id}:
+    get:
+      operationId: get_projectscopechangerequest_source_line_prefill
+      summary: Form defaults for a scope change request's source service order line
+      parameters:
+      - in: path
+        name: service_order_line_id
+        schema:
+          title: Service Order Line Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectScopeChangeRequestSourceLinePrefill'
+      description: 'Return the service code and approved-offer repair cost of a source line.
+
+
+        The create drawer calls this when a source line is selected: the
+
+        initial evaluation condition''s service type is the line''s service, and
+
+        its repair cost defaults to the latest approved commercial offer''s
+
+        price for that service (null when none prices it).'
+      tags:
+      - core.project-scope-change-requests
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
   /api/core/v1/project-scope-change-requests/{scope_change_request_id}/approve:
     post:
       operationId: approve_projectscopechangerequest
@@ -307,6 +340,538 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ProjectScopeChangeRequestType:
+      description: Enum for project scope change types.
+      enum:
+      - service_change_severity
+      - client_cancel_service
+      - asset_swap
+      - client_decrease_scope
+      title: ProjectScopeChangeRequestType
+      type: string
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    ProjectScopeChangeRequestSourceLinePrefill:
+      additionalProperties: false
+      description: Response of GET /project-scope-change-requests/source-line-prefill.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The source line's own service code. The initial evaluation condition's service type is this value — the form derives it from the selected line instead of asking for it.
+          title: Service Code
+        repair_cost:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Unit price the project's latest approved commercial offer quotes for the source line's service, or null when no approved offer prices it. The form prefills the initial evaluation condition's repair cost with it and keeps the field editable.
+          title: Repair Cost
+        offer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Id of the approved offer the repair cost came from.
+          title: Offer Id
+      required:
+      - service_order_line_id
+      title: ProjectScopeChangeRequestSourceLinePrefill
+      type: object
+    ProjectScopeChangeRequestCustomFieldsOut:
+      additionalProperties: true
+      description: 'Read-side twin of the custom-fields schema — must never 500 a GET.
+
+
+        ``custom_fields`` has no DB type constraint, so a legacy or
+
+        hand-written row can violate the input contract the strict parent
+
+        enforces on create. On serialization, malformed ids degrade to null
+
+        (mirroring the regex-guarded SQL annotations that resolve the same
+
+        keys), unknown keys are surfaced as-is instead of failing the
+
+        response model, and the condition sections loosen to bare dicts —
+
+        the strict nested schemas would fail a GET over a hand-written row,
+
+        and the UI parses the sections defensively anyway.'
+      properties:
+        source_service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Source SOL id. Required when the scope change is a service replacement; must be paired with replacement_service_id.
+          title: Source Service Order Line Id
+        source_turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'TurbineComponent (blade) id the change applies to. Only meaningful on a service replacement whose source SOL covers the whole turbine (no pinned component): only the chosen blade''s workorders move to the new SOL, and the source SOL stays active for the other blades. Omit (or null) to change the whole turbine — the source SOL is cancelled as before. On a blade-pinned source SOL the field must be absent or equal the pinned component.'
+          title: Source Turbine Component Id
+        replacement_service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Replacement service id. Required when the scope change is a service replacement; must be paired with source_service_order_line_id.
+          title: Replacement Service Id
+        evidence_file_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: core.File ids of evidence files previously uploaded via POST /api/core/v1/files. The backend creates a FileEntityLink row per id in the same transaction as the SCR; unknown ids cause the whole create to roll back with 422. The ids also persist in this JSON column as the historical input contract.
+          title: Evidence File Ids
+        additional_workorders:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ScopeChangeAdditionalWorkorder'
+            type: array
+          - type: 'null'
+          description: Persisted copy of the top-level create field of the same name. The backend writes it here so a request that awaits QC → Sales → PM review still knows which workorders to generate when the finalize cascade eventually runs (possibly days after creation). Read-only in practice — supply the top-level create field instead of writing this key directly.
+          title: Additional Workorders
+        initial_evaluation_condition:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Initial Evaluation Condition
+        current_condition:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Current Condition
+      title: ProjectScopeChangeRequestCustomFieldsOut
+      type: object
+    ProjectScopeChangeRequestApproveBody:
+      additionalProperties: false
+      description: Body for POST /project-scope-change-requests/{id}/approve.
+      properties:
+        expected_status:
+          $ref: '#/components/schemas/ProjectScopeChangeRequestWaitingStatus'
+          description: The status the caller believes the request is in — an optimistic-concurrency token. Each call advances the state machine exactly one stage; a mismatch (double-click, racing reviewer, terminal status) yields 422 with zero side effects. The caller needs the approval permission of this stage.
+        note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional note recorded on the status change log entry.
+          title: Note
+      required:
+      - expected_status
+      title: ProjectScopeChangeRequestApproveBody
+      type: object
+    ProjectScopeChangeRequestStatus:
+      description: Approval-flow statuses for scope change requests.
+      enum:
+      - WAITING_FOR_QC
+      - WAITING_FOR_SALES
+      - WAITING_FOR_PM
+      - APPROVED
+      - REJECTED
+      title: ProjectScopeChangeRequestStatus
+      type: string
+    ProjectScopeChangeRequestResponse:
+      additionalProperties: false
+      description: Schema for project scope change response.
+      properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          description: Project scope change ID
+          title: Id
+          type: integer
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        project_offer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project offer ID
+          title: Project Offer Id
+        type:
+          description: Type of scope change
+          title: Type
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legacy free text, kept for older requests
+          title: Description
+        what_changed:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: What makes the request a scope change, e.g. 'Damage grew from 5 m to 10 m'. Always set on a same-service request.
+          title: What Changed
+        custom_fields:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectScopeChangeRequestCustomFieldsOut'
+          - type: 'null'
+          description: Scope-change metadata — same shape as on create. Unknown keys supplied by external clients are preserved and surfaced as-is; malformed id values degrade to null instead of failing the read.
+        replacement_service_order_line_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Id of the replacement SOL created by this scope change. Only populated when the request is a service replacement; null for non-replacement types (e.g. client_decrease_scope) and on creates that didn't produce a new SOL. Lets clients jump straight to the new SOL without a second round trip.
+          title: Replacement Service Order Line Id
+        source_service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service code of the source SOL (the one named by custom_fields.source_service_order_line_id), e.g. 'LER-1-2'. Resolved server-side for table display so clients don't need a per-row SOL lookup. Null when the request has no source SOL.
+          title: Source Service Code
+        source_service_order_line_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Current status of the source SOL (CANCELLED once a finalized scope change consumed it). Null without a source SOL.
+          title: Source Service Order Line Status
+        replacement_service_order_line_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Current status of the replacement (new) SOL. Null until the finalize cascade created it.
+          title: Replacement Service Order Line Status
+        source_turbine_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine id of the source SOL. Null without a source SOL.
+          title: Source Turbine Id
+        source_turbine_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Turbine name of the source SOL. Null without a source SOL.
+          title: Source Turbine Name
+        source_turbine_component_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'TurbineComponent id the change applies to: the source SOL''s pinned component, or the requester-chosen blade (custom_fields.source_turbine_component_id) of a per-blade change on a whole-turbine SOL. Null means the change covers the whole turbine (or the request has no source SOL). This — not the position — is the authoritative component-vs-turbine-level signal.'
+          title: Source Turbine Component Id
+        source_turbine_component_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade position (A/B/C) of the component the change applies to; null for whole-turbine changes and requests without a source SOL.
+          title: Source Turbine Component Position
+        source_turbine_component_serial:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Serial number of the component the change applies to — the component's human identifier next to its position. Null for whole-turbine changes, requests without a source SOL, and components without a recorded serial.
+          title: Source Turbine Component Serial
+        replacement_service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Service code of custom_fields.replacement_service_id, e.g. 'RAT'. Resolved server-side for table display. Null when the request has no replacement service.
+          title: Replacement Service Code
+        is_same_service:
+          default: false
+          description: 'True when the replacement service is the source line''s own service. Approving such a request keeps the service: no new SOL, nothing moved or cancelled; picked additional_workorders are added to the source line itself.'
+          title: Is Same Service
+          type: boolean
+        cancelled_sol_workorder_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Workorder IDs on the source SOL that the scope change cancelled. Lets clients (e.g. AeroTask mobile) refresh only the affected workorders + handle soft-deletion locally instead of polling the whole workorder list. Only populated on the create response of a service-replacement scope change; null on non-replacement types and on read responses.
+          title: Cancelled Sol Workorder Ids
+        new_sol_workorder_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Workorder IDs on the replacement SOL — both clones forwarded from the source SOL and any newly generated workorders from additional_workorders. Same refresh use case as cancelled_sol_workorder_ids. Only populated on the response of the call that ran the finalize cascade (create on auto-accept projects, the PM-stage approve otherwise); null on non-replacement types and on read responses.
+          title: New Sol Workorder Ids
+        status:
+          $ref: '#/components/schemas/ProjectScopeChangeRequestStatus'
+          description: Approval status. Requests on auto-accept projects are APPROVED immediately at creation; others walk WAITING_FOR_QC → WAITING_FOR_SALES → WAITING_FOR_PM → APPROVED, or end REJECTED (terminal).
+        initiated_from:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectScopeChangeRequestOrigin'
+          - type: 'null'
+          description: Origin client (AEROTASK / OPSHUB). Null on legacy rows.
+        finalized_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the scope-change cascade actually ran. Null while the request awaits review, on rejected requests, and on non-replacement types (they have no cascade).
+          title: Finalized At
+        created_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: User who created the request
+        qc_approved_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: User who approved the QC stage
+        qc_approved_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the QC stage was approved
+          title: Qc Approved At
+        sales_approved_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: User who approved the Sales stage
+        sales_approved_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the Sales stage was approved
+          title: Sales Approved At
+        pm_approved_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: User who approved the PM stage
+        pm_approved_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the PM stage was approved
+          title: Pm Approved At
+        rejected_by:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: User who rejected the request
+        rejected_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the request was rejected
+          title: Rejected At
+        rejection_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Mandatory reason supplied on rejection (denormalized for table display; the audit copy lives in the status change log).
+          title: Rejection Reason
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          title: Created At
+          type: string
+      required:
+      - updated_at
+      - id
+      - project_id
+      - type
+      - status
+      - created_at
+      title: ProjectScopeChangeRequestResponse
+      type: object
+    ScopeChangeInitialEvaluationCondition:
+      additionalProperties: false
+      description: Blade condition as assessed at the initial (pre-sale) evaluation.
+      properties:
+        blade_serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Serial number of the assessed blade.
+          title: Blade Serial Number
+        damage_length_mm:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Damage length in millimetres.
+          title: Damage Length Mm
+        damage_width_mm:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Damage width in millimetres.
+          title: Damage Width Mm
+        distance_from_tip_from_m:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Start of the distance-from-tip range, metres.
+          title: Distance From Tip From M
+        distance_from_tip_to_m:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: End of the distance-from-tip range, metres.
+          title: Distance From Tip To M
+        distance_from_root_m:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Distance from the blade root, metres.
+          title: Distance From Root M
+        service_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Assessed service code, e.g. 'LER-3' or 'RAT'.
+          title: Service Type
+        damage_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Damage type label, e.g. 'Erosion' or 'Lightning damage'.
+          title: Damage Type
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Damage category label, e.g. 'CAT3'.
+          title: Category
+        side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Blade side, e.g. 'Leading Edge' or 'Suction Side'.
+          title: Side
+        repair_duration_h:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Estimated repair duration in hours.
+          title: Repair Duration H
+        repair_cost:
+          anyOf:
+          - minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Repair cost in the project's currency, excluding mobilization costs.
+          title: Repair Cost
+        image_file_ids:
+          anyOf:
+          - items:
+              type: integer
+            maxItems: 3
+            type: array
+          - type: 'null'
+          description: core.File ids of this section's photos (at most 3), pre-uploaded via POST /api/core/v1/files. Linked to the request as FileEntityLink rows alongside evidence_file_ids.
+          title: Image File Ids
+      title: ScopeChangeInitialEvaluationCondition
+      type: object
+    ProjectScopeChangeRequestRejectBody:
+      additionalProperties: false
+      description: Body for POST /project-scope-change-requests/{id}/reject.
+      properties:
+        expected_status:
+          $ref: '#/components/schemas/ProjectScopeChangeRequestWaitingStatus'
+          description: The status the caller believes the request is in — same optimistic-concurrency semantics as /approve. Reject is gated by the same stage permission that gates approve.
+        reason:
+          description: Mandatory non-blank rejection reason — stamped on the request and recorded in the status change log.
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - expected_status
+      - reason
+      title: ProjectScopeChangeRequestRejectBody
+      type: object
+    ScopeChangeAdditionalWorkorder:
+      additionalProperties: false
+      description: 'One replacement-service ServiceItem to generate on the new SOL.
+
+
+        Each entry includes a ServiceItem id and optionally a narrowed list of
+
+        turbine components. ``service_item_id`` and ``turbine_component_ids``
+
+        live on the same level so there''s no duplicated/parallel structure to
+
+        keep in sync.'
+      properties:
+        service_item_id:
+          description: Replacement-service ServiceItem ID to generate as a NOT_STARTED workorder on the new SOL.
+          title: Service Item Id
+          type: integer
+        turbine_component_ids:
+          description: TurbineComponent IDs that should receive a workorder for this ServiceItem. Each id must belong to the source SOL's turbine and match the ServiceItem's component type. Empty list = default selection (every matching component).
+          items:
+            type: integer
+          title: Turbine Component Ids
+          type: array
+      required:
+      - service_item_id
+      title: ScopeChangeAdditionalWorkorder
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectScopeChangeRequestOrigin:
+      description: Which client created the scope change request.
+      enum:
+      - AEROTASK
+      - OPSHUB
+      title: ProjectScopeChangeRequestOrigin
+      type: string
     ProjectScopeChangeRequestCustomFields:
       additionalProperties: false
       description: 'Structured custom_fields payload for a scope-change request.
@@ -367,6 +932,77 @@ components:
           - type: 'null'
           description: 'Blade condition found in the field: measurements from the technician plus the QC / blade specialist''s re-assessment.'
       title: ProjectScopeChangeRequestCustomFields
+      type: object
+    ProjectScopeChangeRequestWaitingStatus:
+      description: The three review stages an approve/reject action may target.
+      enum:
+      - WAITING_FOR_QC
+      - WAITING_FOR_SALES
+      - WAITING_FOR_PM
+      title: ProjectScopeChangeRequestWaitingStatus
+      type: string
+    ProjectScopeChangeRequestCreate:
+      additionalProperties: false
+      description: 'Schema for creating a project scope change.
+
+
+        The service-replacement linkage (``source_service_order_line_id`` and
+
+        ``replacement_service_id``) and evidence file references
+
+        (``evidence_file_ids``) live inside ``custom_fields`` — the payload
+
+        mirrors DB structure rather than inventing top-level body keys for
+
+        fields that don''t have dedicated columns. ``additional_workorders``
+
+        is a sibling top-level body property (the historical wire contract);
+
+        the backend persists it into ``custom_fields`` so a request awaiting
+
+        review still honors it at the deferred finalize.'
+      properties:
+        project_id:
+          description: Project ID
+          title: Project Id
+          type: integer
+        type:
+          $ref: '#/components/schemas/ProjectScopeChangeRequestType'
+          description: Type of scope change
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Legacy free text. AeroTask still sends it; new clients send what_changed instead.
+          title: Description
+        what_changed:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: What makes the request a scope change, e.g. 'Damage grew from 5 m to 10 m'. Required (non-blank) when replacement_service_id is the source line's own service; optional otherwise.
+          title: What Changed
+        custom_fields:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectScopeChangeRequestCustomFields'
+          - type: 'null'
+          description: Scope-change metadata — service-replacement linkage and evidence file references. See ProjectScopeChangeRequestCustomFields.
+        additional_workorders:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ScopeChangeAdditionalWorkorder'
+            type: array
+          - type: 'null'
+          description: Optional follow-up generation step — service items from the replacement service to generate as NOT_STARTED workorders on the new SOL, each optionally narrowed to a subset of the source turbine's components. Strongly recommended; without this, the new SOL may end up at FIELD_COMPLETED right after the scope change because every migrated workorder is force-completed and no replacement-service work exists yet. Service item ids are validated at create time (must exist, be live, and belong to custom_fields.replacement_service_id — 422 otherwise). Persisted into custom_fields so a request awaiting review still honors it when the finalize cascade eventually runs.
+          title: Additional Workorders
+        initiated_from:
+          allOf:
+          - $ref: '#/components/schemas/ProjectScopeChangeRequestOrigin'
+          default: OPSHUB
+          description: Origin client. AeroTask must send AEROTASK — evidence images are mandatory for AeroTask-initiated requests (422 without at least one custom_fields.evidence_file_ids entry). Defaults to OPSHUB, for which evidence stays optional.
+      required:
+      - project_id
+      - type
+      title: ProjectScopeChangeRequestCreate
       type: object
     ScopeChangeCurrentCondition:
       additionalProperties: false
@@ -474,438 +1110,51 @@ components:
           title: Blade Specialist Comment
       title: ScopeChangeCurrentCondition
       type: object
-    ScopeChangeInitialEvaluationCondition:
+    Error:
       additionalProperties: false
-      description: Blade condition as assessed at the initial (pre-sale) evaluation.
+      description: Error response schema.
       properties:
-        blade_serial_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Serial number of the assessed blade.
-          title: Blade Serial Number
-        damage_length_mm:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: Damage length in millimetres.
-          title: Damage Length Mm
-        damage_width_mm:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: Damage width in millimetres.
-          title: Damage Width Mm
-        distance_from_tip_from_m:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: Start of the distance-from-tip range, metres.
-          title: Distance From Tip From M
-        distance_from_tip_to_m:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: End of the distance-from-tip range, metres.
-          title: Distance From Tip To M
-        distance_from_root_m:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: Distance from the blade root, metres.
-          title: Distance From Root M
-        service_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Assessed service code, e.g. 'LER-3' or 'RAT'.
-          title: Service Type
-        damage_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Damage type label, e.g. 'Erosion' or 'Lightning damage'.
-          title: Damage Type
-        category:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Damage category label, e.g. 'CAT3'.
-          title: Category
-        side:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Blade side, e.g. 'Leading Edge' or 'Suction Side'.
-          title: Side
-        repair_duration_h:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: Estimated repair duration in hours.
-          title: Repair Duration H
-        repair_cost:
-          anyOf:
-          - minimum: 0.0
-            type: number
-          - type: 'null'
-          description: Repair cost in the project's currency, excluding mobilization costs.
-          title: Repair Cost
-        image_file_ids:
-          anyOf:
-          - items:
-              type: integer
-            maxItems: 3
-            type: array
-          - type: 'null'
-          description: core.File ids of this section's photos (at most 3), pre-uploaded via POST /api/core/v1/files. Linked to the request as FileEntityLink rows alongside evidence_file_ids.
-          title: Image File Ids
-      title: ScopeChangeInitialEvaluationCondition
-      type: object
-    ProjectScopeChangeRequestCustomFieldsOut:
-      additionalProperties: true
-      description: 'Read-side twin of the custom-fields schema — must never 500 a GET.
-
-
-        ``custom_fields`` has no DB type constraint, so a legacy or
-
-        hand-written row can violate the input contract the strict parent
-
-        enforces on create. On serialization, malformed ids degrade to null
-
-        (mirroring the regex-guarded SQL annotations that resolve the same
-
-        keys), unknown keys are surfaced as-is instead of failing the
-
-        response model, and the condition sections loosen to bare dicts —
-
-        the strict nested schemas would fail a GET over a hand-written row,
-
-        and the UI parses the sections defensively anyway.'
-      properties:
-        source_service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Source SOL id. Required when the scope change is a service replacement; must be paired with replacement_service_id.
-          title: Source Service Order Line Id
-        source_turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: 'TurbineComponent (blade) id the change applies to. Only meaningful on a service replacement whose source SOL covers the whole turbine (no pinned component): only the chosen blade''s workorders move to the new SOL, and the source SOL stays active for the other blades. Omit (or null) to change the whole turbine — the source SOL is cancelled as before. On a blade-pinned source SOL the field must be absent or equal the pinned component.'
-          title: Source Turbine Component Id
-        replacement_service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Replacement service id. Required when the scope change is a service replacement; must be paired with source_service_order_line_id.
-          title: Replacement Service Id
-        evidence_file_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: core.File ids of evidence files previously uploaded via POST /api/core/v1/files. The backend creates a FileEntityLink row per id in the same transaction as the SCR; unknown ids cause the whole create to roll back with 422. The ids also persist in this JSON column as the historical input contract.
-          title: Evidence File Ids
-        additional_workorders:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ScopeChangeAdditionalWorkorder'
-            type: array
-          - type: 'null'
-          description: Persisted copy of the top-level create field of the same name. The backend writes it here so a request that awaits QC → Sales → PM review still knows which workorders to generate when the finalize cascade eventually runs (possibly days after creation). Read-only in practice — supply the top-level create field instead of writing this key directly.
-          title: Additional Workorders
-        initial_evaluation_condition:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Initial Evaluation Condition
-        current_condition:
-          anyOf:
-          - type: object
-          - type: 'null'
-          title: Current Condition
-      title: ProjectScopeChangeRequestCustomFieldsOut
-      type: object
-    ScopeChangeAdditionalWorkorder:
-      additionalProperties: false
-      description: 'One replacement-service ServiceItem to generate on the new SOL.
-
-
-        Each entry includes a ServiceItem id and optionally a narrowed list of
-
-        turbine components. ``service_item_id`` and ``turbine_component_ids``
-
-        live on the same level so there''s no duplicated/parallel structure to
-
-        keep in sync.'
-      properties:
-        service_item_id:
-          description: Replacement-service ServiceItem ID to generate as a NOT_STARTED workorder on the new SOL.
-          title: Service Item Id
-          type: integer
-        turbine_component_ids:
-          description: TurbineComponent IDs that should receive a workorder for this ServiceItem. Each id must belong to the source SOL's turbine and match the ServiceItem's component type. Empty list = default selection (every matching component).
-          items:
-            type: integer
-          title: Turbine Component Ids
-          type: array
-      required:
-      - service_item_id
-      title: ScopeChangeAdditionalWorkorder
-      type: object
-    ProjectScopeChangeRequestResponse:
-      additionalProperties: false
-      description: Schema for project scope change response.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          description: Project scope change ID
-          title: Id
-          type: integer
-        project_id:
-          description: Project ID
-          title: Project Id
-          type: integer
-        project_offer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project offer ID
-          title: Project Offer Id
-        type:
-          description: Type of scope change
-          title: Type
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Change description
-          title: Description
-        custom_fields:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectScopeChangeRequestCustomFieldsOut'
-          - type: 'null'
-          description: Scope-change metadata — same shape as on create. Unknown keys supplied by external clients are preserved and surfaced as-is; malformed id values degrade to null instead of failing the read.
-        replacement_service_order_line_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Id of the replacement SOL created by this scope change. Only populated when the request is a service replacement; null for non-replacement types (e.g. client_decrease_scope) and on creates that didn't produce a new SOL. Lets clients jump straight to the new SOL without a second round trip.
-          title: Replacement Service Order Line Id
-        source_service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Service code of the source SOL (the one named by custom_fields.source_service_order_line_id), e.g. 'LER-1-2'. Resolved server-side for table display so clients don't need a per-row SOL lookup. Null when the request has no source SOL.
-          title: Source Service Code
-        source_service_order_line_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Current status of the source SOL (CANCELLED once a finalized scope change consumed it). Null without a source SOL.
-          title: Source Service Order Line Status
-        replacement_service_order_line_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Current status of the replacement (new) SOL. Null until the finalize cascade created it.
-          title: Replacement Service Order Line Status
-        source_turbine_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine id of the source SOL. Null without a source SOL.
-          title: Source Turbine Id
-        source_turbine_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Turbine name of the source SOL. Null without a source SOL.
-          title: Source Turbine Name
-        source_turbine_component_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: 'TurbineComponent id the change applies to: the source SOL''s pinned component, or the requester-chosen blade (custom_fields.source_turbine_component_id) of a per-blade change on a whole-turbine SOL. Null means the change covers the whole turbine (or the request has no source SOL). This — not the position — is the authoritative component-vs-turbine-level signal.'
-          title: Source Turbine Component Id
-        source_turbine_component_position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Blade position (A/B/C) of the component the change applies to; null for whole-turbine changes and requests without a source SOL.
-          title: Source Turbine Component Position
-        source_turbine_component_serial:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Serial number of the component the change applies to — the component's human identifier next to its position. Null for whole-turbine changes, requests without a source SOL, and components without a recorded serial.
-          title: Source Turbine Component Serial
-        replacement_service_code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Service code of custom_fields.replacement_service_id, e.g. 'RAT'. Resolved server-side for table display. Null when the request has no replacement service.
-          title: Replacement Service Code
-        cancelled_sol_workorder_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Workorder IDs on the source SOL that the scope change cancelled. Lets clients (e.g. AeroTask mobile) refresh only the affected workorders + handle soft-deletion locally instead of polling the whole workorder list. Only populated on the create response of a service-replacement scope change; null on non-replacement types and on read responses.
-          title: Cancelled Sol Workorder Ids
-        new_sol_workorder_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Workorder IDs on the replacement SOL — both clones forwarded from the source SOL and any newly generated workorders from additional_workorders. Same refresh use case as cancelled_sol_workorder_ids. Only populated on the response of the call that ran the finalize cascade (create on auto-accept projects, the PM-stage approve otherwise); null on non-replacement types and on read responses.
-          title: New Sol Workorder Ids
-        status:
-          $ref: '#/components/schemas/ProjectScopeChangeRequestStatus'
-          description: Approval status. Requests on auto-accept projects are APPROVED immediately at creation; others walk WAITING_FOR_QC → WAITING_FOR_SALES → WAITING_FOR_PM → APPROVED, or end REJECTED (terminal).
-        initiated_from:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectScopeChangeRequestOrigin'
-          - type: 'null'
-          description: Origin client (AEROTASK / OPSHUB). Null on legacy rows.
-        finalized_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the scope-change cascade actually ran. Null while the request awaits review, on rejected requests, and on non-replacement types (they have no cascade).
-          title: Finalized At
-        created_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-          description: User who created the request
-        qc_approved_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-          description: User who approved the QC stage
-        qc_approved_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the QC stage was approved
-          title: Qc Approved At
-        sales_approved_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-          description: User who approved the Sales stage
-        sales_approved_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the Sales stage was approved
-          title: Sales Approved At
-        pm_approved_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-          description: User who approved the PM stage
-        pm_approved_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the PM stage was approved
-          title: Pm Approved At
-        rejected_by:
-          anyOf:
-          - $ref: '#/components/schemas/UserObject'
-          - type: 'null'
-          description: User who rejected the request
-        rejected_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: When the request was rejected
-          title: Rejected At
-        rejection_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Mandatory reason supplied on rejection (denormalized for table display; the audit copy lives in the status change log).
-          title: Rejection Reason
-        created_at:
-          description: Creation timestamp
-          format: date-time
-          title: Created At
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
           type: string
       required:
-      - updated_at
-      - id
-      - project_id
-      - type
-      - status
-      - created_at
-      title: ProjectScopeChangeRequestResponse
-      type: object
-    ProjectScopeChangeRequestRejectBody:
-      additionalProperties: false
-      description: Body for POST /project-scope-change-requests/{id}/reject.
-      properties:
-        expected_status:
-          $ref: '#/components/schemas/ProjectScopeChangeRequestWaitingStatus'
-          description: The status the caller believes the request is in — same optimistic-concurrency semantics as /approve. Reject is gated by the same stage permission that gates approve.
-        reason:
-          description: Mandatory non-blank rejection reason — stamped on the request and recorded in the status change log.
-          minLength: 1
-          title: Reason
-          type: string
-      required:
-      - expected_status
-      - reason
-      title: ProjectScopeChangeRequestRejectBody
+      - code
+      - message
+      title: Error
       type: object
     ProjectScopeChangeRequestUpdate:
       additionalProperties: false
-      description: 'Fields editable on a request that still awaits its first (QC) review.
+      description: 'Fields editable on a request that still awaits review.
 
 
-        The endpoint 422s on any other status — later review stages, APPROVED
+        Editable at any waiting stage (QC, Sales or PM) by a holder of any
 
-        (the cascade ran) and REJECTED (terminal) are immutable; correcting
+        review permission. APPROVED (the cascade ran) and REJECTED (terminal)
 
-        those means reject + recreate. The source SOL and type are deliberately
+        are immutable; correcting those means reject + recreate. The source
 
-        not editable: re-pointing the request at a different line is a new
+        SOL and type are deliberately not editable: re-pointing the request at
 
-        request. ``replacement_service_id`` and ``additional_workorders`` live
+        a different line is a new request. ``replacement_service_id`` and
 
-        in ``custom_fields`` on the row; they are top-level here so the
+        ``additional_workorders`` live in ``custom_fields`` on the row; they
 
-        editable surface stays an explicit whitelist.'
+        are top-level here so the editable surface stays an explicit whitelist.'
       properties:
         description:
           anyOf:
           - type: string
           - type: 'null'
-          description: Change description
+          description: Legacy free text; new clients edit what_changed.
           title: Description
+        what_changed:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: What makes the request a scope change. Cannot be blank on a request whose replacement service is the source line's own service.
+          title: What Changed
         replacement_service_id:
           anyOf:
           - type: integer
@@ -940,169 +1189,6 @@ components:
           description: Replaces the stored current-condition section (custom_fields.current_condition). Pass null to clear it; omit to leave it unchanged. Its image_file_ids are diffed into FileEntityLink rows like evidence_file_ids.
       title: ProjectScopeChangeRequestUpdate
       type: object
-    ProjectScopeChangeRequestWaitingStatus:
-      description: The three review stages an approve/reject action may target.
-      enum:
-      - WAITING_FOR_QC
-      - WAITING_FOR_SALES
-      - WAITING_FOR_PM
-      title: ProjectScopeChangeRequestWaitingStatus
-      type: string
-    ProjectScopeChangeRequestApproveBody:
-      additionalProperties: false
-      description: Body for POST /project-scope-change-requests/{id}/approve.
-      properties:
-        expected_status:
-          $ref: '#/components/schemas/ProjectScopeChangeRequestWaitingStatus'
-          description: The status the caller believes the request is in — an optimistic-concurrency token. Each call advances the state machine exactly one stage; a mismatch (double-click, racing reviewer, terminal status) yields 422 with zero side effects. The caller needs the approval permission of this stage.
-        note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional note recorded on the status change log entry.
-          title: Note
-      required:
-      - expected_status
-      title: ProjectScopeChangeRequestApproveBody
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    ProjectScopeChangeRequestCreate:
-      additionalProperties: false
-      description: 'Schema for creating a project scope change.
-
-
-        The service-replacement linkage (``source_service_order_line_id`` and
-
-        ``replacement_service_id``) and evidence file references
-
-        (``evidence_file_ids``) live inside ``custom_fields`` — the payload
-
-        mirrors DB structure rather than inventing top-level body keys for
-
-        fields that don''t have dedicated columns. ``additional_workorders``
-
-        is a sibling top-level body property (the historical wire contract);
-
-        the backend persists it into ``custom_fields`` so a request awaiting
-
-        review still honors it at the deferred finalize.'
-      properties:
-        project_id:
-          description: Project ID
-          title: Project Id
-          type: integer
-        type:
-          $ref: '#/components/schemas/ProjectScopeChangeRequestType'
-          description: Type of scope change
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Change description
-          title: Description
-        custom_fields:
-          anyOf:
-          - $ref: '#/components/schemas/ProjectScopeChangeRequestCustomFields'
-          - type: 'null'
-          description: Scope-change metadata — service-replacement linkage and evidence file references. See ProjectScopeChangeRequestCustomFields.
-        additional_workorders:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ScopeChangeAdditionalWorkorder'
-            type: array
-          - type: 'null'
-          description: Optional follow-up generation step — service items from the replacement service to generate as NOT_STARTED workorders on the new SOL, each optionally narrowed to a subset of the source turbine's components. Strongly recommended; without this, the new SOL may end up at FIELD_COMPLETED right after the scope change because every migrated workorder is force-completed and no replacement-service work exists yet. Service item ids are validated at create time (must exist, be live, and belong to custom_fields.replacement_service_id — 422 otherwise). Persisted into custom_fields so a request awaiting review still honors it when the finalize cascade eventually runs.
-          title: Additional Workorders
-        initiated_from:
-          allOf:
-          - $ref: '#/components/schemas/ProjectScopeChangeRequestOrigin'
-          default: OPSHUB
-          description: Origin client. AeroTask must send AEROTASK — evidence images are mandatory for AeroTask-initiated requests (422 without at least one custom_fields.evidence_file_ids entry). Defaults to OPSHUB, for which evidence stays optional.
-      required:
-      - project_id
-      - type
-      title: ProjectScopeChangeRequestCreate
-      type: object
-    UserObject:
-      additionalProperties: false
-      description: Nested user object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        username:
-          title: Username
-          type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
-      required:
-      - id
-      - username
-      title: UserObject
-      type: object
-    ProjectScopeChangeRequestStatus:
-      description: Approval-flow statuses for scope change requests.
-      enum:
-      - WAITING_FOR_QC
-      - WAITING_FOR_SALES
-      - WAITING_FOR_PM
-      - APPROVED
-      - REJECTED
-      title: ProjectScopeChangeRequestStatus
-      type: string
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    ProjectScopeChangeRequestType:
-      description: Enum for project scope change types.
-      enum:
-      - service_change_severity
-      - client_cancel_service
-      - asset_swap
-      - client_decrease_scope
-      title: ProjectScopeChangeRequestType
-      type: string
-    ProjectScopeChangeRequestOrigin:
-      description: Which client created the scope change request.
-      enum:
-      - AEROTASK
-      - OPSHUB
-      title: ProjectScopeChangeRequestOrigin
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -215,41 +215,25 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ProjectReportTypeUpdate:
+    Success:
       additionalProperties: false
-      description: Schema for updating a ProjectReportType (partial).
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        requirement_file_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Specific report requirement attachment file IDs
-          title: Requirement File Ids
-        requirement_notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text specific report requirements
-          title: Requirement Notes
-        recipient_project_contact_ids:
-          anyOf:
-          - items:
-              type: integer
-            type: array
-          - type: 'null'
-          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
-          title: Recipient Project Contact Ids
-        recipient_emails:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: Selected recipient emails (None leaves them unchanged, [] clears them)
-          title: Recipient Emails
-      title: ProjectReportTypeUpdate
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
     ReportTypeObject:
       additionalProperties: false
@@ -299,6 +283,17 @@ components:
       - project_contact_id
       title: ProjectReportRecipientObject
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ProjectReportTypeCreate:
       additionalProperties: false
       description: Schema for creating a ProjectReportType.
@@ -333,9 +328,94 @@ components:
           - type: 'null'
           description: Selected recipient emails for this report type (the form pre-selects the RFI report-recipient contacts; free-text addresses are allowed). None = no email-based selection, [] = explicitly no recipients
           title: Recipient Emails
+        notification_mode:
+          anyOf:
+          - $ref: '#/components/schemas/FinalReportNotificationMode'
+          - type: 'null'
+          description: How often the project wants final-report emails. Only read on the FINAL_REPORT row. Omit to leave it unset; unset is read as PER_SERVICE
       required:
       - report_type_id
       title: ProjectReportTypeCreate
+      type: object
+    ProjectReportTypeUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectReportType (partial).
+      properties:
+        requirement_file_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Specific report requirement attachment file IDs
+          title: Requirement File Ids
+        requirement_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional free-text specific report requirements
+          title: Requirement Notes
+        recipient_project_contact_ids:
+          anyOf:
+          - items:
+              type: integer
+            type: array
+          - type: 'null'
+          description: Project contact IDs that receive this report (None leaves recipients unchanged, [] clears them)
+          title: Recipient Project Contact Ids
+        recipient_emails:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: Selected recipient emails (None leaves them unchanged, [] clears them)
+          title: Recipient Emails
+        notification_mode:
+          anyOf:
+          - $ref: '#/components/schemas/FinalReportNotificationMode'
+          - type: 'null'
+          description: Final-report email frequency. Omit the key to leave it unchanged; send null to clear it back to unset (read as PER_SERVICE)
+      title: ProjectReportTypeUpdate
+      type: object
+    FinalReportNotificationMode:
+      description: 'How often a project wants final-report emails (FEAT-5237).
+
+
+        Stored on the FINAL_REPORT ``ProjectReportType`` row''s
+
+        ``notification_mode`` and ignored on every other report type. No
+
+        ``choices=`` and no CheckConstraint back it: the value set is a product
+
+        decision (rule ``db-enforced-vocabulary``), and the ``core.schema_v2``
+
+        input schemas are what reject a non-member.
+
+
+        NULL on the column means the project never chose one. A reader must treat
+
+        that as ``PER_SERVICE``, which is what every project gets today.'
+      enum:
+      - NONE
+      - PER_LOCATION
+      - PER_PROJECT
+      - PER_SERVICE
+      title: FinalReportNotificationMode
+      type: string
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ProjectReportTypeResponse:
       additionalProperties: false
@@ -383,6 +463,12 @@ components:
           - type: 'null'
           description: Selected recipient emails for this report type. None = no email-based selection saved (legacy row), [] = the user explicitly removed every recipient
           title: Recipient Emails
+        notification_mode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Final-report email frequency, a FinalReportNotificationMode value. Only meaningful on the FINAL_REPORT row. Null = never chosen, read as PER_SERVICE
+          title: Notification Mode
       required:
       - updated_at
       - id
@@ -390,51 +476,6 @@ components:
       - report_type
       title: ProjectReportTypeResponse
       type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

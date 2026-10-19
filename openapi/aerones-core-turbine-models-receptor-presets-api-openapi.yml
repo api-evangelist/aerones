@@ -192,49 +192,72 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    ReceptorPresetCreate:
+    ReceptorPresetObject:
       additionalProperties: false
-      description: POST body for creating a preset under a turbine model.
+      description: One named receptor preset belonging to a turbine model.
       properties:
+        updated_at:
+          description: Last update timestamp
+          format: date-time
+          title: Updated At
+          type: string
+        id:
+          title: Id
+          type: integer
+        manufacturer_turbine_model_id:
+          title: Manufacturer Turbine Model Id
+          type: integer
         name:
-          description: Preset name (e.g. 'Standard'). Cannot be blank.
-          maxLength: 255
-          minLength: 1
           title: Name
           type: string
         description:
           anyOf:
-          - maxLength: 2000
-            type: string
+          - type: string
           - type: 'null'
           title: Description
+        receptor_count:
+          default: 0
+          description: How many receptor entries this preset currently contains.
+          title: Receptor Count
+          type: integer
       required:
+      - updated_at
+      - id
+      - manufacturer_turbine_model_id
       - name
-      title: ReceptorPresetCreate
+      title: ReceptorPresetObject
       type: object
-    ReceptorSyncBody:
+    Success:
       additionalProperties: false
-      description: PUT body for ``/blades/{id}/receptors`` — replaces the full list.
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
       properties:
-        receptors:
-          description: Full desired receptor list for this blade. Rows missing from the list are soft-deleted; matching rows update; new rows (no id) are created with parent_turbine_component_id set to this blade.
-          items:
-            $ref: '#/components/schemas/ReceptorItem'
-          title: Receptors
-          type: array
-      title: ReceptorSyncBody
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
+    ReceptorPresetListResponse:
+      additionalProperties: false
+      description: GET ``/turbine-models/{id}/receptor-presets`` — all presets.
+      properties:
+        presets:
+          items:
+            $ref: '#/components/schemas/ReceptorPresetObject'
+          title: Presets
+          type: array
+      title: ReceptorPresetListResponse
+      type: object
     ReceptorItem:
       additionalProperties: false
       description: 'One receptor row in a sync (PUT) body for a single blade.
@@ -301,17 +324,29 @@ components:
       - name
       title: ReceptorItem
       type: object
-    ReceptorListResponse:
+    ReceptorSyncBody:
       additionalProperties: false
-      description: 'GET response: ordered receptor list for one blade.'
+      description: PUT body for ``/blades/{id}/receptors`` — replaces the full list.
       properties:
         receptors:
+          description: Full desired receptor list for this blade. Rows missing from the list are soft-deleted; matching rows update; new rows (no id) are created with parent_turbine_component_id set to this blade.
           items:
-            $ref: '#/components/schemas/ReceptorObject'
+            $ref: '#/components/schemas/ReceptorItem'
           title: Receptors
           type: array
-      title: ReceptorListResponse
+      title: ReceptorSyncBody
       type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ReceptorPresetUpdate:
       additionalProperties: false
       description: PATCH body for renaming / re-describing a preset.
@@ -330,6 +365,17 @@ components:
           - type: 'null'
           title: Description
       title: ReceptorPresetUpdate
+      type: object
+    ReceptorListResponse:
+      additionalProperties: false
+      description: 'GET response: ordered receptor list for one blade.'
+      properties:
+        receptors:
+          items:
+            $ref: '#/components/schemas/ReceptorObject'
+          title: Receptors
+          type: array
+      title: ReceptorListResponse
       type: object
     ReceptorPresetResponse:
       additionalProperties: false
@@ -365,86 +411,6 @@ components:
       - manufacturer_turbine_model_id
       - name
       title: ReceptorPresetResponse
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ReceptorPresetListResponse:
-      additionalProperties: false
-      description: GET ``/turbine-models/{id}/receptor-presets`` — all presets.
-      properties:
-        presets:
-          items:
-            $ref: '#/components/schemas/ReceptorPresetObject'
-          title: Presets
-          type: array
-      title: ReceptorPresetListResponse
-      type: object
-    ReceptorPresetObject:
-      additionalProperties: false
-      description: One named receptor preset belonging to a turbine model.
-      properties:
-        updated_at:
-          description: Last update timestamp
-          format: date-time
-          title: Updated At
-          type: string
-        id:
-          title: Id
-          type: integer
-        manufacturer_turbine_model_id:
-          title: Manufacturer Turbine Model Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        receptor_count:
-          default: 0
-          description: How many receptor entries this preset currently contains.
-          title: Receptor Count
-          type: integer
-      required:
-      - updated_at
-      - id
-      - manufacturer_turbine_model_id
-      - name
-      title: ReceptorPresetObject
       type: object
     ReceptorObject:
       additionalProperties: false
@@ -493,6 +459,40 @@ components:
       - is_blade_tip
       - component_type_id
       title: ReceptorObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    ReceptorPresetCreate:
+      additionalProperties: false
+      description: POST body for creating a preset under a turbine model.
+      properties:
+        name:
+          description: Preset name (e.g. 'Standard'). Cannot be blank.
+          maxLength: 255
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          anyOf:
+          - maxLength: 2000
+            type: string
+          - type: 'null'
+          title: Description
+      required:
+      - name
+      title: ReceptorPresetCreate
       type: object
   securitySchemes:
     APIKeyAuth:

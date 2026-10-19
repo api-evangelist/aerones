@@ -161,6 +161,26 @@ paths:
           Ordering by specific fields:
             description: Fields can be prefixed with '-' for descending order.
             value: name,file_name
+      - in: query
+        name: manual_photo_ordering
+        schema:
+          examples:
+            No ordering:
+              description: No specific ordering applied, default order is used.
+              value: ''
+            Ordering by specific fields:
+              description: Fields can be prefixed with '-' for descending order.
+              value: name,file_name
+          title: Manual Photo Ordering
+          type: string
+        required: false
+        examples:
+          No ordering:
+            description: No specific ordering applied, default order is used.
+            value: ''
+          Ordering by specific fields:
+            description: Fields can be prefixed with '-' for descending order.
+            value: name,file_name
       responses:
         '200':
           description: OK
@@ -278,7 +298,335 @@ paths:
       - CookieAuth: []
 components:
   schemas:
-    POIPhotoLowResSchema:
+    ComponentSchema:
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        turbine_component:
+          anyOf:
+          - $ref: '#/components/schemas/TurbineComponentResponse'
+          - type: 'null'
+        sections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SectionSchema'
+            type: array
+          - type: 'null'
+          title: Sections
+      required:
+      - id
+      - name
+      title: ComponentSchema
+      type: object
+    SectionRunSchema:
+      properties:
+        run_index:
+          title: Run Index
+          type: integer
+        section_id:
+          title: Section Id
+          type: integer
+      required:
+      - run_index
+      - section_id
+      title: SectionRunSchema
+      type: object
+    ImageSide:
+      description: Sides from which photos can be taken.
+      enum:
+      - L
+      - R
+      - T
+      title: ImageSide
+      type: string
+    LERPhotoTileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
+      required:
+      - id
+      - x
+      - y
+      title: LERPhotoTileSchema
+      type: object
+    ComponentTypeObject:
+      additionalProperties: false
+      description: Nested component type object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        field_list:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field List
+      required:
+      - id
+      - name
+      title: ComponentTypeObject
+      type: object
+    VideoFileBlobSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        kind:
+          $ref: '#/components/schemas/VideoFileBlobKind'
+      required:
+      - id
+      - kind
+      title: VideoFileBlobSchema
+      type: object
+    LERPhotoRunSchema:
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        run_index:
+          title: Run Index
+          type: integer
+        status:
+          $ref: '#/components/schemas/LERInspectionStatus'
+        photos:
+          items:
+            $ref: '#/components/schemas/LERPhotoSchema'
+          title: Photos
+          type: array
+      required:
+      - run_index
+      - status
+      - photos
+      title: LERPhotoRunSchema
+      type: object
+    ManualPhotoSchema:
+      description: 'A manual drone photo, attached to the inspection itself.
+
+
+        No review status and no distance vector: those belong to external photos.'
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        pixel_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pixel Distance
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ExternalPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoLowResSchema'
+          - type: 'null'
+        distance_to_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Centre
+      required:
+      - name
+      - rotation
+      - id
+      title: ManualPhotoSchema
+      type: object
+    InspectionItemStatus:
+      enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - AI_REVIEW
+      - DETAILED_REVIEW
+      - COMPLETED
+      title: InspectionItemStatus
+      type: string
+    LERPhotoSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        sol_id:
+          title: Sol Id
+          type: integer
+        date:
+          format: date
+          title: Date
+          type: string
+        blade:
+          title: Blade
+          type: string
+        step:
+          title: Step
+          type: string
+        side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Side
+        photo_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Photo Index
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        status:
+          $ref: '#/components/schemas/LERImageStatus'
+        include_in_report:
+          default: false
+          title: Include In Report
+          type: boolean
+        distance_to_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Centre
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LERPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/LERPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/LERPhotoLowResSchema'
+          - type: 'null'
+        distance_vector:
+          anyOf:
+          - $ref: '#/components/schemas/DistanceVectorSchema'
+          - type: 'null'
+      required:
+      - id
+      - name
+      - sol_id
+      - date
+      - blade
+      - step
+      - status
+      title: LERPhotoSchema
+      type: object
+    TurbineObject:
+      additionalProperties: false
+      description: Nested turbine object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: TurbineObject
+      type: object
+    LERPhotoThumbnailSchema:
       properties:
         url:
           anyOf:
@@ -290,17 +638,8 @@ components:
           type: integer
       required:
       - id
-      title: POIPhotoLowResSchema
+      title: LERPhotoThumbnailSchema
       type: object
-    InspectionItemStatus:
-      enum:
-      - NOT_STARTED
-      - IN_PROGRESS
-      - AI_REVIEW
-      - DETAILED_REVIEW
-      - COMPLETED
-      title: InspectionItemStatus
-      type: string
     PositionEnum:
       description: Enum for turbine component positions.
       enum:
@@ -309,6 +648,39 @@ components:
       - C
       title: PositionEnum
       type: string
+    VideoFileBlobKind:
+      const: QR_DETECTION
+      enum:
+      - QR_DETECTION
+      title: VideoFileBlobKind
+      type: string
+    DistanceVectorSchema:
+      description: 'The reference line an operator drew on a photo to give it a scale.
+
+
+        Read-only here. Drawing one writes a ``vis`` row that measurement
+
+        recalculation reads, which is a production write.'
+      properties:
+        start_x:
+          title: Start X
+          type: integer
+        start_y:
+          title: Start Y
+          type: integer
+        end_x:
+          title: End X
+          type: integer
+        end_y:
+          title: End Y
+          type: integer
+      required:
+      - start_x
+      - start_y
+      - end_x
+      - end_y
+      title: DistanceVectorSchema
+      type: object
     RootPhotoTileSchema:
       properties:
         url:
@@ -331,24 +703,7 @@ components:
       - y
       title: RootPhotoTileSchema
       type: object
-    LERPhotoGroupSchema:
-      properties:
-        step:
-          title: Step
-          type: string
-        runs:
-          items:
-            $ref: '#/components/schemas/LERPhotoRunSchema'
-          title: Runs
-          type: array
-      required:
-      - step
-      - runs
-      title: LERPhotoGroupSchema
-      type: object
-    TurbineObject:
-      additionalProperties: false
-      description: Nested turbine object for responses.
+    SectionSchema:
       properties:
         id:
           title: Id
@@ -356,20 +711,149 @@ components:
         name:
           title: Name
           type: string
+        run_index:
+          title: Run Index
+          type: integer
+        runs:
+          items:
+            $ref: '#/components/schemas/SectionRunSchema'
+          title: Runs
+          type: array
+        status:
+          $ref: '#/components/schemas/InspectionItemStatus'
+        video_files:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VideoFileSchema'
+            type: array
+          - type: 'null'
+          title: Video Files
+        root_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/RootPhotoSchema'
+            type: array
+          - type: 'null'
+          title: Root Photos
+        poi_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/POIPhotoSchema'
+            type: array
+          - type: 'null'
+          title: Poi Photos
+        external_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ExternalPhotoSchema'
+            type: array
+          - type: 'null'
+          title: External Photos
+        ler_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LERPhotoGroupSchema'
+            type: array
+          - type: 'null'
+          title: Ler Photos
       required:
       - id
       - name
-      title: TurbineObject
+      - run_index
+      - runs
+      - status
+      title: SectionSchema
       type: object
-    ImageOrientation:
-      enum:
-      - PS_DOWN
-      - SS_DOWN
-      - LE_DOWN
-      - DW_DOWN
-      - UW_DOWN
-      title: ImageOrientation
-      type: string
+    ExternalPhotoThumbnailSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: ExternalPhotoThumbnailSchema
+      type: object
+    VideoFileSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        extension:
+          $ref: '#/components/schemas/VideoFileExtension'
+        status:
+          $ref: '#/components/schemas/InspectionItemStatus'
+        recording_start_time:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Recording Start Time
+        qr_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Qr Position
+        qr_detections:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/VideoFileBlobSchema'
+            type: array
+          - type: 'null'
+          title: Qr Detections
+        hls_playlist_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hls Playlist Url
+        vtt_file_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vtt File Url
+        model_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Url
+        model_3d_exists:
+          default: false
+          title: Model 3D Exists
+          type: boolean
+        camera_reversed:
+          default: false
+          title: Camera Reversed
+          type: boolean
+        snapshots:
+          items:
+            $ref: '#/components/schemas/VideoSnapshotSchema'
+          title: Snapshots
+          type: array
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: CDN URL of the directory holding the video, as on the photo schemas. Its snapshots are served from the same CDN.
+          title: Cdn Base Url
+      required:
+      - id
+      - name
+      - extension
+      - status
+      title: VideoFileSchema
+      type: object
     PostComponentLinkSchema:
       properties:
         component_id:
@@ -385,7 +869,68 @@ components:
       - turbine_component_id
       title: PostComponentLinkSchema
       type: object
-    RootPhotoSchema:
+    InspectionSchema:
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        components:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ComponentSchema'
+            type: array
+          - type: 'null'
+          title: Components
+        manual_photos:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ManualPhotoSchema'
+            type: array
+          - type: 'null'
+          title: Manual Photos
+      required:
+      - id
+      - service_order_line_id
+      title: InspectionSchema
+      type: object
+    LERImageStatus:
+      enum:
+      - NEW
+      - ANOMALIES_FLAGGED
+      - ACCEPTED
+      title: LERImageStatus
+      type: string
+    ExternalPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: ExternalPhotoLowResSchema
+      type: object
+    ExternalImageStatus:
+      description: 'Review status of a single external photo.
+
+
+        Mirrors ``LERImageStatus`` but stays a separate enum: external photos have no
+
+        step/run concept, so the two review flows are free to diverge.'
+      enum:
+      - NEW
+      - ANOMALIES_FLAGGED
+      - ACCEPTED
+      title: ExternalImageStatus
+      type: string
+    POIPhotoSchema:
       properties:
         name:
           title: Name
@@ -442,144 +987,63 @@ components:
         tiles:
           anyOf:
           - items:
-              $ref: '#/components/schemas/RootPhotoTileSchema'
+              $ref: '#/components/schemas/POIPhotoTileSchema'
             type: array
           - type: 'null'
           title: Tiles
         thumbnail:
           anyOf:
-          - $ref: '#/components/schemas/RootPhotoThumbnailSchema'
+          - $ref: '#/components/schemas/POIPhotoThumbnailSchema'
           - type: 'null'
         lowres:
           anyOf:
-          - $ref: '#/components/schemas/RootPhotoLowResSchema'
+          - $ref: '#/components/schemas/POIPhotoLowResSchema'
           - type: 'null'
       required:
       - name
       - rotation
       - id
-      title: RootPhotoSchema
+      title: POIPhotoSchema
       type: object
-    VideoSnapshotSchema:
+    POIPhotoLowResSchema:
       properties:
         url:
           anyOf:
           - type: string
           - type: 'null'
           title: Url
-        timestamp:
-          title: Timestamp
-          type: number
-        distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance
-        distance_to_hub_centre:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: distance + the turbine model's center_to_root_offset (OH-4169), additive on top of the unchanged root-based `distance`. None when the turbine's model has no offset configured — never falls back to a root-based number under this key.
-          title: Distance To Hub Centre
+        id:
+          title: Id
+          type: integer
       required:
-      - timestamp
-      title: VideoSnapshotSchema
+      - id
+      title: POIPhotoLowResSchema
       type: object
-    VideoFileSchema:
+    LERInspectionStatus:
+      description: Review status of a single LER inspection step run.
+      enum:
+      - NOT_STARTED
+      - IN_PROGRESS
+      - COMPLETED
+      - FLAGGED
+      title: LERInspectionStatus
+      type: string
+    ManufacturerComponentModelObject:
+      additionalProperties: false
+      description: Nested manufacturer component model object for responses.
       properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
         id:
           title: Id
           type: integer
         name:
           title: Name
           type: string
-        extension:
-          $ref: '#/components/schemas/VideoFileExtension'
-        status:
-          $ref: '#/components/schemas/InspectionItemStatus'
-        recording_start_time:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          title: Recording Start Time
-        qr_position:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Qr Position
-        qr_detections:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/VideoFileBlobSchema'
-            type: array
-          - type: 'null'
-          title: Qr Detections
-        hls_playlist_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Hls Playlist Url
-        vtt_file_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Vtt File Url
-        model_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Model Url
-        model_3d_exists:
-          default: false
-          title: Model 3D Exists
-          type: boolean
-        snapshots:
-          items:
-            $ref: '#/components/schemas/VideoSnapshotSchema'
-          title: Snapshots
-          type: array
       required:
       - id
       - name
-      - extension
-      - status
-      title: VideoFileSchema
+      title: ManufacturerComponentModelObject
       type: object
-    ImageSide:
-      description: Sides from which photos can be taken.
-      enum:
-      - L
-      - R
-      - T
-      title: ImageSide
-      type: string
-    InspectionSchema:
-      properties:
-        id:
-          title: Id
-          type: integer
-        service_order_line_id:
-          title: Service Order Line Id
-          type: integer
-        components:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ComponentSchema'
-            type: array
-          - type: 'null'
-          title: Components
-      required:
-      - id
-      - service_order_line_id
-      title: InspectionSchema
-      type: object
-    ExternalPhotoLowResSchema:
+    POIPhotoTileSchema:
       properties:
         url:
           anyOf:
@@ -589,9 +1053,17 @@ components:
         id:
           title: Id
           type: integer
+        x:
+          title: X
+          type: integer
+        y:
+          title: Y
+          type: integer
       required:
       - id
-      title: ExternalPhotoLowResSchema
+      - x
+      - y
+      title: POIPhotoTileSchema
       type: object
     POIPhotoThumbnailSchema:
       properties:
@@ -607,6 +1079,135 @@ components:
       - id
       title: POIPhotoThumbnailSchema
       type: object
+    RootPhotoLowResSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+      required:
+      - id
+      title: RootPhotoLowResSchema
+      type: object
+    ExternalPhotoSchema:
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        is_root_photo:
+          title: Is Root Photo
+          type: boolean
+        pixel_distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pixel Distance
+        status:
+          $ref: '#/components/schemas/ExternalImageStatus'
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ExternalPhotoTileSchema'
+            type: array
+          - type: 'null'
+          title: Tiles
+        thumbnail:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoThumbnailSchema'
+          - type: 'null'
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/ExternalPhotoLowResSchema'
+          - type: 'null'
+        distance_to_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance To Centre
+        distance_vector:
+          anyOf:
+          - $ref: '#/components/schemas/DistanceVectorSchema'
+          - type: 'null'
+        run_index:
+          title: Run Index
+          type: integer
+      required:
+      - name
+      - rotation
+      - id
+      - is_root_photo
+      - status
+      - run_index
+      title: ExternalPhotoSchema
+      type: object
+    LERPhotoGroupSchema:
+      properties:
+        step:
+          title: Step
+          type: string
+        runs:
+          items:
+            $ref: '#/components/schemas/LERPhotoRunSchema'
+          title: Runs
+          type: array
+      required:
+      - step
+      - runs
+      title: LERPhotoGroupSchema
+      type: object
     LERPhotoLowResSchema:
       properties:
         url:
@@ -620,21 +1221,6 @@ components:
       required:
       - id
       title: LERPhotoLowResSchema
-      type: object
-    ManufacturerObject:
-      additionalProperties: false
-      description: Nested manufacturer object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerObject
       type: object
     TurbineComponentResponse:
       additionalProperties: false
@@ -726,7 +1312,9 @@ components:
       - blade_tip
       title: TurbineComponentResponse
       type: object
-    ComponentSchema:
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
       properties:
         id:
           title: Id
@@ -734,60 +1322,94 @@ components:
         name:
           title: Name
           type: string
-        turbine_component:
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    VideoFileExtension:
+      description: Expected video file formats from inspection data uploads.
+      enum:
+      - '360'
+      - insv
+      title: VideoFileExtension
+      type: string
+    RootPhotoSchema:
+      properties:
+        name:
+          title: Name
+          type: string
+        rotation:
+          title: Rotation
+          type: integer
+        sort_order:
           anyOf:
-          - $ref: '#/components/schemas/TurbineComponentResponse'
+          - type: integer
           - type: 'null'
-        sections:
+          title: Sort Order
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        side:
+          anyOf:
+          - $ref: '#/components/schemas/ImageSide'
+          - type: 'null'
+        index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Index
+        angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Angle
+        orientation:
+          anyOf:
+          - $ref: '#/components/schemas/ImageOrientation'
+          - type: 'null'
+        normalized_angle:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Normalized Angle
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        id:
+          title: Id
+          type: integer
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cdn Base Url
+        tiles:
           anyOf:
           - items:
-              $ref: '#/components/schemas/SectionSchema'
+              $ref: '#/components/schemas/RootPhotoTileSchema'
             type: array
           - type: 'null'
-          title: Sections
-      required:
-      - id
-      - name
-      title: ComponentSchema
-      type: object
-    ComponentTypeObject:
-      additionalProperties: false
-      description: Nested component type object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        field_list:
+          title: Tiles
+        thumbnail:
           anyOf:
-          - items:
-              type: string
-            type: array
+          - $ref: '#/components/schemas/RootPhotoThumbnailSchema'
           - type: 'null'
-          title: Field List
+        lowres:
+          anyOf:
+          - $ref: '#/components/schemas/RootPhotoLowResSchema'
+          - type: 'null'
       required:
-      - id
       - name
-      title: ComponentTypeObject
-      type: object
-    ManufacturerComponentModelObject:
-      additionalProperties: false
-      description: Nested manufacturer component model object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
+      - rotation
       - id
-      - name
-      title: ManufacturerComponentModelObject
+      title: RootPhotoSchema
       type: object
-    RootPhotoLowResSchema:
+    RootPhotoThumbnailSchema:
       properties:
         url:
           anyOf:
@@ -799,7 +1421,32 @@ components:
           type: integer
       required:
       - id
-      title: RootPhotoLowResSchema
+      title: RootPhotoThumbnailSchema
+      type: object
+    VideoSnapshotSchema:
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        timestamp:
+          title: Timestamp
+          type: number
+        distance:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Distance
+        distance_to_hub_centre:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: distance + the turbine model's center_to_root_offset (OH-4169), additive on top of the unchanged root-based `distance`. None when the turbine's model has no offset configured — never falls back to a root-based number under this key.
+          title: Distance To Hub Centre
+      required:
+      - timestamp
+      title: VideoSnapshotSchema
       type: object
     ExternalPhotoTileSchema:
       properties:
@@ -823,478 +1470,15 @@ components:
       - y
       title: ExternalPhotoTileSchema
       type: object
-    SectionSchema:
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        run_index:
-          title: Run Index
-          type: integer
-        status:
-          $ref: '#/components/schemas/InspectionItemStatus'
-        video_files:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/VideoFileSchema'
-            type: array
-          - type: 'null'
-          title: Video Files
-        root_photos:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/RootPhotoSchema'
-            type: array
-          - type: 'null'
-          title: Root Photos
-        poi_photos:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/POIPhotoSchema'
-            type: array
-          - type: 'null'
-          title: Poi Photos
-        external_photos:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ExternalPhotoSchema'
-            type: array
-          - type: 'null'
-          title: External Photos
-        ler_photos:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/LERPhotoGroupSchema'
-            type: array
-          - type: 'null'
-          title: Ler Photos
-      required:
-      - id
-      - name
-      - run_index
-      - status
-      title: SectionSchema
-      type: object
-    ExternalPhotoSchema:
-      properties:
-        name:
-          title: Name
-          type: string
-        rotation:
-          title: Rotation
-          type: integer
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance
-        side:
-          anyOf:
-          - $ref: '#/components/schemas/ImageSide'
-          - type: 'null'
-        index:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Index
-        angle:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Angle
-        orientation:
-          anyOf:
-          - $ref: '#/components/schemas/ImageOrientation'
-          - type: 'null'
-        normalized_angle:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Normalized Angle
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        is_root_photo:
-          title: Is Root Photo
-          type: boolean
-        pixel_distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Pixel Distance
-        status:
-          $ref: '#/components/schemas/ExternalImageStatus'
-        cdn_base_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cdn Base Url
-        tiles:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ExternalPhotoTileSchema'
-            type: array
-          - type: 'null'
-          title: Tiles
-        thumbnail:
-          anyOf:
-          - $ref: '#/components/schemas/ExternalPhotoThumbnailSchema'
-          - type: 'null'
-        lowres:
-          anyOf:
-          - $ref: '#/components/schemas/ExternalPhotoLowResSchema'
-          - type: 'null'
-        distance_to_centre:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance To Centre
-      required:
-      - name
-      - rotation
-      - id
-      - is_root_photo
-      - status
-      title: ExternalPhotoSchema
-      type: object
-    POIPhotoSchema:
-      properties:
-        name:
-          title: Name
-          type: string
-        rotation:
-          title: Rotation
-          type: integer
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        distance:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance
-        side:
-          anyOf:
-          - $ref: '#/components/schemas/ImageSide'
-          - type: 'null'
-        index:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Index
-        angle:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Angle
-        orientation:
-          anyOf:
-          - $ref: '#/components/schemas/ImageOrientation'
-          - type: 'null'
-        normalized_angle:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Normalized Angle
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        cdn_base_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cdn Base Url
-        tiles:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/POIPhotoTileSchema'
-            type: array
-          - type: 'null'
-          title: Tiles
-        thumbnail:
-          anyOf:
-          - $ref: '#/components/schemas/POIPhotoThumbnailSchema'
-          - type: 'null'
-        lowres:
-          anyOf:
-          - $ref: '#/components/schemas/POIPhotoLowResSchema'
-          - type: 'null'
-      required:
-      - name
-      - rotation
-      - id
-      title: POIPhotoSchema
-      type: object
-    VideoFileExtension:
-      description: Expected video file formats from inspection data uploads.
+    ImageOrientation:
       enum:
-      - '360'
-      - insv
-      title: VideoFileExtension
+      - PS_DOWN
+      - SS_DOWN
+      - LE_DOWN
+      - DW_DOWN
+      - UW_DOWN
+      title: ImageOrientation
       type: string
-    VideoFileBlobSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        kind:
-          $ref: '#/components/schemas/VideoFileBlobKind'
-      required:
-      - id
-      - kind
-      title: VideoFileBlobSchema
-      type: object
-    LERInspectionStatus:
-      description: Review status of a single LER inspection step run.
-      enum:
-      - NOT_STARTED
-      - IN_PROGRESS
-      - COMPLETED
-      - FLAGGED
-      title: LERInspectionStatus
-      type: string
-    LERPhotoSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        sol_id:
-          title: Sol Id
-          type: integer
-        date:
-          format: date
-          title: Date
-          type: string
-        blade:
-          title: Blade
-          type: string
-        step:
-          title: Step
-          type: string
-        side:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Side
-        photo_index:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Photo Index
-        sort_order:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Sort Order
-        status:
-          $ref: '#/components/schemas/LERImageStatus'
-        include_in_report:
-          default: false
-          title: Include In Report
-          type: boolean
-        distance_to_centre:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Distance To Centre
-        cdn_base_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cdn Base Url
-        tiles:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/LERPhotoTileSchema'
-            type: array
-          - type: 'null'
-          title: Tiles
-        thumbnail:
-          anyOf:
-          - $ref: '#/components/schemas/LERPhotoThumbnailSchema'
-          - type: 'null'
-        lowres:
-          anyOf:
-          - $ref: '#/components/schemas/LERPhotoLowResSchema'
-          - type: 'null'
-      required:
-      - id
-      - name
-      - sol_id
-      - date
-      - blade
-      - step
-      - status
-      title: LERPhotoSchema
-      type: object
-    ExternalPhotoThumbnailSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: ExternalPhotoThumbnailSchema
-      type: object
-    LERPhotoRunSchema:
-      properties:
-        id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Id
-        run_index:
-          title: Run Index
-          type: integer
-        status:
-          $ref: '#/components/schemas/LERInspectionStatus'
-        photos:
-          items:
-            $ref: '#/components/schemas/LERPhotoSchema'
-          title: Photos
-          type: array
-      required:
-      - run_index
-      - status
-      - photos
-      title: LERPhotoRunSchema
-      type: object
-    LERPhotoTileSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        x:
-          title: X
-          type: integer
-        y:
-          title: Y
-          type: integer
-      required:
-      - id
-      - x
-      - y
-      title: LERPhotoTileSchema
-      type: object
-    POIPhotoTileSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-        x:
-          title: X
-          type: integer
-        y:
-          title: Y
-          type: integer
-      required:
-      - id
-      - x
-      - y
-      title: POIPhotoTileSchema
-      type: object
-    VideoFileBlobKind:
-      const: QR_DETECTION
-      enum:
-      - QR_DETECTION
-      title: VideoFileBlobKind
-      type: string
-    ExternalImageStatus:
-      description: 'Review status of a single external photo.
-
-
-        Mirrors ``LERImageStatus`` but stays a separate enum: external photos have no
-
-        step/run concept, so the two review flows are free to diverge.'
-      enum:
-      - NEW
-      - ANOMALIES_FLAGGED
-      - ACCEPTED
-      title: ExternalImageStatus
-      type: string
-    LERImageStatus:
-      enum:
-      - NEW
-      - ANOMALIES_FLAGGED
-      - ACCEPTED
-      title: LERImageStatus
-      type: string
-    LERPhotoThumbnailSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: LERPhotoThumbnailSchema
-      type: object
-    RootPhotoThumbnailSchema:
-      properties:
-        url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Url
-        id:
-          title: Id
-          type: integer
-      required:
-      - id
-      title: RootPhotoThumbnailSchema
-      type: object
   securitySchemes:
     APIKeyAuth:
       type: http

@@ -156,6 +156,40 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ServiceFamilyNestedResponse:
+      additionalProperties: false
+      description: Nested response for service family in service response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - code
+      - name
+      title: ServiceFamilyNestedResponse
+      type: object
+    ServiceCategoryNestedResponse:
+      additionalProperties: false
+      description: Nested response for service category in service response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ServiceCategoryNestedResponse
+      type: object
     ComponentTypeObject:
       additionalProperties: false
       description: Nested component type object for responses.
@@ -178,36 +212,17 @@ components:
       - name
       title: ComponentTypeObject
       type: object
-    ServiceCategoryNestedResponse:
-      additionalProperties: false
-      description: Nested response for service category in service response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ServiceCategoryNestedResponse
-      type: object
-    ServiceGroupNestedResponse:
-      additionalProperties: false
-      description: Nested response for service group in service response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ServiceGroupNestedResponse
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -222,56 +237,6 @@ components:
       - message
       title: Error
       type: object
-    PricingUnitNestedResponse:
-      additionalProperties: false
-      description: Nested response for pricing unit in service response (no timestamps in nested objects).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        netsuite_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Netsuite Id
-      required:
-      - id
-      - name
-      title: PricingUnitNestedResponse
-      type: object
-    ServiceFamilyNestedResponse:
-      additionalProperties: false
-      description: Nested response for service family in service response.
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - code
-      - name
-      title: ServiceFamilyNestedResponse
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
     ServiceResponse:
       additionalProperties: false
       description: Schema for Service response.
@@ -300,6 +265,11 @@ components:
         is_service:
           description: Whether this is a service
           title: Is Service
+          type: boolean
+        allows_materials:
+          default: false
+          description: A CO line of this service can have material lines
+          title: Allows Materials
           type: boolean
         deprecated:
           description: Whether the service is retired from the sellable catalogue. Clients should hide deprecated services from pickers; rows that already reference one stay valid and editable.
@@ -341,6 +311,41 @@ components:
       - is_service
       - deprecated
       title: ServiceResponse
+      type: object
+    ServiceGroupNestedResponse:
+      additionalProperties: false
+      description: Nested response for service group in service response.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ServiceGroupNestedResponse
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
       type: object
   securitySchemes:
     APIKeyAuth:

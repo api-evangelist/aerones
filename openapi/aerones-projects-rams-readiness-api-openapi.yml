@@ -1,0 +1,224 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Projects.rams Readiness API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: projects.rams-readiness
+paths:
+  /api/rams-readiness/deployments:
+    get:
+      operationId: projects_api_rams_readiness_get_rams_readiness
+      summary: Get Rams Readiness
+      parameters:
+      - in: query
+        name: window_days
+        schema:
+          default: 30
+          title: Window Days
+          type: integer
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RamsReadinessResponse'
+      description: 'Deployments mobilising within ``window_days`` and their RAMS readiness.
+
+
+        ``window_days`` is clamped to ``1..MAX_WINDOW_DAYS`` so a hand-typed query
+
+        string cannot ask for an unbounded scan; the applied value comes back on
+
+        ``window_days``, which is what the dashboard titles its tiles from.'
+      tags:
+      - projects.rams-readiness
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    RamsReadinessRow:
+      additionalProperties: false
+      properties:
+        pprs_id:
+          title: Pprs Id
+          type: integer
+        set_name:
+          title: Set Name
+          type: string
+        set_status:
+          title: Set Status
+          type: string
+        set_start:
+          format: date
+          title: Set Start
+          type: string
+        set_end:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Set End
+        days_to_mobilisation:
+          title: Days To Mobilisation
+          type: integer
+        readiness:
+          title: Readiness
+          type: string
+        rams_created_at:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Rams Created At
+        rams_created_days_before_mobilisation:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Rams Created Days Before Mobilisation
+        hse_review_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Hse Review Days
+        hse_review_ongoing:
+          title: Hse Review Ongoing
+          type: boolean
+        project_id:
+          title: Project Id
+          type: integer
+        project_builder_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Builder Id
+        project_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Code
+        project_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Status
+        project_planned_start_date:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Project Planned Start Date
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Customer Name
+        pm_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pm Name
+        pm_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pm Email
+        set_documents:
+          items:
+            $ref: '#/components/schemas/RamsReadinessDocument'
+          title: Set Documents
+          type: array
+        project_documents:
+          items:
+            $ref: '#/components/schemas/RamsReadinessDocument'
+          title: Project Documents
+          type: array
+      required:
+      - pprs_id
+      - set_name
+      - set_status
+      - set_start
+      - set_end
+      - days_to_mobilisation
+      - readiness
+      - rams_created_at
+      - rams_created_days_before_mobilisation
+      - hse_review_days
+      - hse_review_ongoing
+      - project_id
+      - project_builder_id
+      - project_code
+      - project_status
+      - project_planned_start_date
+      - customer_name
+      - pm_name
+      - pm_email
+      - set_documents
+      - project_documents
+      title: RamsReadinessRow
+      type: object
+    RamsReadinessDocument:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        status:
+          title: Status
+          type: string
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        version:
+          title: Version
+          type: string
+      required:
+      - id
+      - status
+      - service_code
+      - version
+      title: RamsReadinessDocument
+      type: object
+    RamsReadinessResponse:
+      additionalProperties: false
+      properties:
+        generated_at:
+          format: date-time
+          title: Generated At
+          type: string
+        window_days:
+          title: Window Days
+          type: integer
+        window_end:
+          format: date
+          title: Window End
+          type: string
+        rows:
+          items:
+            $ref: '#/components/schemas/RamsReadinessRow'
+          title: Rows
+          type: array
+      required:
+      - generated_at
+      - window_days
+      - window_end
+      - rows
+      title: RamsReadinessResponse
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

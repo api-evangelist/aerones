@@ -80,6 +80,59 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    TurbineReceptorsResponse:
+      additionalProperties: false
+      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
+      properties:
+        blades:
+          items:
+            $ref: '#/components/schemas/BladeWithReceptorsObject'
+          title: Blades
+          type: array
+      title: TurbineReceptorsResponse
+      type: object
+    BladeWithReceptorsObject:
+      additionalProperties: false
+      description: 'One blade plus its receptor children — building block for the turbine
+
+        convenience GET that returns all blades + receptors in one round-trip.'
+      properties:
+        blade:
+          $ref: '#/components/schemas/_ReceptorBladeSummary'
+        receptors:
+          items:
+            $ref: '#/components/schemas/ReceptorObject'
+          title: Receptors
+          type: array
+      required:
+      - blade
+      title: BladeWithReceptorsObject
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    InitTurbineFromPresetBody:
+      additionalProperties: false
+      description: 'POST body for ``/turbines/{id}/receptors/init-from-preset`` — picks
+
+        which named preset to seed the turbine from.'
+      properties:
+        preset_id:
+          description: Receptor preset to copy from. Must belong to the same turbine model as the turbine being initialized.
+          title: Preset Id
+          type: integer
+      required:
+      - preset_id
+      title: InitTurbineFromPresetBody
+      type: object
     _ReceptorBladeSummary:
       additionalProperties: false
       properties:
@@ -98,20 +151,6 @@ components:
       - id
       - serial_number
       title: _ReceptorBladeSummary
-      type: object
-    InitTurbineFromPresetBody:
-      additionalProperties: false
-      description: 'POST body for ``/turbines/{id}/receptors/init-from-preset`` — picks
-
-        which named preset to seed the turbine from.'
-      properties:
-        preset_id:
-          description: Receptor preset to copy from. Must belong to the same turbine model as the turbine being initialized.
-          title: Preset Id
-          type: integer
-      required:
-      - preset_id
-      title: InitTurbineFromPresetBody
       type: object
     InitTurbineFromPresetResponse:
       additionalProperties: false
@@ -156,31 +195,6 @@ components:
       - created
       - skipped_existing
       title: InitTurbineFromPresetResponse
-      type: object
-    TurbineReceptorsResponse:
-      additionalProperties: false
-      description: GET ``/turbines/{id}/receptors`` — all blades + their receptors.
-      properties:
-        blades:
-          items:
-            $ref: '#/components/schemas/BladeWithReceptorsObject'
-          title: Blades
-          type: array
-      title: TurbineReceptorsResponse
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
       type: object
     ReceptorObject:
       additionalProperties: false
@@ -230,33 +244,19 @@ components:
       - component_type_id
       title: ReceptorObject
       type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    BladeWithReceptorsObject:
+    Error:
       additionalProperties: false
-      description: 'One blade plus its receptor children — building block for the turbine
-
-        convenience GET that returns all blades + receptors in one round-trip.'
+      description: Error response schema.
       properties:
-        blade:
-          $ref: '#/components/schemas/_ReceptorBladeSummary'
-        receptors:
-          items:
-            $ref: '#/components/schemas/ReceptorObject'
-          title: Receptors
-          type: array
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
       required:
-      - blade
-      title: BladeWithReceptorsObject
+      - code
+      - message
+      title: Error
       type: object
   securitySchemes:
     APIKeyAuth:

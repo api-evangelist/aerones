@@ -369,23 +369,51 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
+  /api/core/v1/offers/{offer_id}/items/{item_id}/comment:
+    patch:
+      operationId: update_offer_item_comment
+      summary: Update Offer Item Internal Comment
+      parameters:
+      - in: path
+        name: offer_id
+        schema:
+          title: Offer Id
+          type: integer
+        required: true
+      - in: path
+        name: item_id
+        schema:
+          title: Item Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOfferItemResponse'
+      description: 'Set the internal Sales comment on a line item without reopening Draft.
+
+
+        Allowed on any non-deleted offer status. Does not change offer status or
+
+        trigger re-approval. Customer-facing description / PDF / NetSuite are
+
+        unaffected.'
+      tags:
+      - core.projects.offers.items
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectOfferItemCommentUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
 components:
   schemas:
-    ManufacturerComponentModelObject:
-      additionalProperties: false
-      description: Nested manufacturer component model object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerComponentModelObject
-      type: object
     ServiceObject:
       additionalProperties: false
       description: Nested service object for responses (no timestamps).
@@ -405,11 +433,36 @@ components:
           description: Whether this is a service (vs addon/material/support)
           title: Is Service
           type: boolean
+        allows_materials:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: A CO line of this service can have material lines; unset where not loaded
+          title: Allows Materials
       required:
       - id
       - code
       - is_service
       title: ServiceObject
+      type: object
+    LocationObject:
+      additionalProperties: false
+      description: Nested location object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/LocationType'
+          - type: 'null'
+      required:
+      - id
+      - name
+      title: LocationObject
       type: object
     ProjectOfferItemResponse:
       additionalProperties: false
@@ -514,6 +567,12 @@ components:
           - type: 'null'
           description: Item description
           title: Description
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Internal Sales note (not customer-facing; not on PDF / NetSuite)
+          title: Comment
         pricing_unit:
           anyOf:
           - $ref: '#/components/schemas/PricingUnitNestedResponse'
@@ -525,11 +584,272 @@ components:
           - type: 'null'
           description: Initial offer item ID (self-reference)
           title: Initial Offer Item Id
+        parent_line_key:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: line_key of the service line this material line belongs to
+          title: Parent Line Key
+        material_per_blade:
+          default: 1
+          description: Material pieces per blade of the parent service line
+          title: Material Per Blade
+          type: integer
       required:
       - updated_at
       - id
       - offer_id
       title: ProjectOfferItemResponse
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectOfferItemUpdate:
+      additionalProperties: false
+      description: Schema for updating a ProjectOfferItem.
+      properties:
+        location_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project location ID
+          title: Location Id
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Service ID
+          title: Service Id
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Price
+          title: Price
+        quantity:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Quantity
+          title: Quantity
+        discount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Discount
+          title: Discount
+        adjustment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Adjustment
+          title: Adjustment
+        amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Amount
+          title: Amount
+        turbine_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine manufacturer ID
+          title: Turbine Manufacturer Id
+        turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Turbine model ID
+          title: Turbine Model Id
+        component_manufacturer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Component manufacturer ID
+          title: Component Manufacturer Id
+        manufacturer_component_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Manufacturer component model ID
+          title: Manufacturer Component Model Id
+        coefficients:
+          anyOf:
+          - type: object
+          - items: {}
+            type: array
+          - type: 'null'
+          description: Coefficients as JSON (object or array)
+          title: Coefficients
+        group_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Group ID
+          title: Group Id
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Item description
+          title: Description
+        pricing_unit_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pricing unit ID
+          title: Pricing Unit Id
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Ignored if provided.
+          title: Type
+        unit_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Deprecated legacy field. Use pricing_unit_id.
+          title: Unit Type
+        initial_offer_item_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Initial offer item ID (self-reference)
+          title: Initial Offer Item Id
+        parent_line_key:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: line_key of the service line on this offer a material line belongs to; null clears it
+          title: Parent Line Key
+        material_per_blade:
+          default: 1
+          description: Material pieces per blade of the parent service line
+          minimum: 1
+          title: Material Per Blade
+          type: integer
+      title: ProjectOfferItemUpdate
+      type: object
+    ManufacturerObject:
+      additionalProperties: false
+      description: Nested manufacturer object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerObject
+      type: object
+    PricingUnitNestedResponse:
+      additionalProperties: false
+      description: Nested response for pricing unit in service response (no timestamps in nested objects).
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Netsuite Id
+      required:
+      - id
+      - name
+      title: PricingUnitNestedResponse
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    ProjectOfferItemCommentUpdate:
+      additionalProperties: false
+      description: Dedicated write for the internal line-item comment (any offer status).
+      properties:
+        comment:
+          anyOf:
+          - maxLength: 255
+            type: string
+          - type: 'null'
+          description: Internal Sales note (max 255), or null to clear. Required
+          title: Comment
+      required:
+      - comment
+      title: ProjectOfferItemCommentUpdate
+      type: object
+    LocationType:
+      description: Allowed location type values in location.
+      enum:
+      - WIND_PARK
+      - WAREHOUSE
+      - SERVICE_HUB
+      - PORT
+      - TRAINING_CENTER
+      - FACTORY
+      - OFFICE
+      title: LocationType
+      type: string
+    ManufacturerComponentModelObject:
+      additionalProperties: false
+      description: Nested manufacturer component model object for responses.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      title: ManufacturerComponentModelObject
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
       type: object
     ProjectOfferItemCreate:
       additionalProperties: false
@@ -645,204 +965,19 @@ components:
           - type: 'null'
           description: Initial offer item ID (self-reference)
           title: Initial Offer Item Id
+        parent_line_key:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: line_key of the service line on this offer a material line belongs to; null clears it
+          title: Parent Line Key
+        material_per_blade:
+          default: 1
+          description: Material pieces per blade of the parent service line
+          minimum: 1
+          title: Material Per Blade
+          type: integer
       title: ProjectOfferItemCreate
-      type: object
-    ManufacturerObject:
-      additionalProperties: false
-      description: Nested manufacturer object for responses.
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-      required:
-      - id
-      - name
-      title: ManufacturerObject
-      type: object
-    Error:
-      additionalProperties: false
-      description: Error response schema.
-      properties:
-        code:
-          $ref: '#/components/schemas/ErrorCode'
-        message:
-          title: Message
-          type: string
-      required:
-      - code
-      - message
-      title: Error
-      type: object
-    PricingUnitNestedResponse:
-      additionalProperties: false
-      description: Nested response for pricing unit in service response (no timestamps in nested objects).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        netsuite_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Netsuite Id
-      required:
-      - id
-      - name
-      title: PricingUnitNestedResponse
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    LocationType:
-      description: Allowed location type values in location.
-      enum:
-      - WIND_PARK
-      - WAREHOUSE
-      - SERVICE_HUB
-      - PORT
-      - TRAINING_CENTER
-      - FACTORY
-      - OFFICE
-      title: LocationType
-      type: string
-    ProjectOfferItemUpdate:
-      additionalProperties: false
-      description: Schema for updating a ProjectOfferItem.
-      properties:
-        location_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project location ID
-          title: Location Id
-        service_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Service ID
-          title: Service Id
-        price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Price
-          title: Price
-        quantity:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Quantity
-          title: Quantity
-        discount:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Discount
-          title: Discount
-        adjustment:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Adjustment
-          title: Adjustment
-        amount:
-          anyOf:
-          - type: number
-          - type: 'null'
-          description: Amount
-          title: Amount
-        turbine_manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine manufacturer ID
-          title: Turbine Manufacturer Id
-        turbine_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Turbine model ID
-          title: Turbine Model Id
-        component_manufacturer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Component manufacturer ID
-          title: Component Manufacturer Id
-        manufacturer_component_model_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Manufacturer component model ID
-          title: Manufacturer Component Model Id
-        coefficients:
-          anyOf:
-          - type: object
-          - items: {}
-            type: array
-          - type: 'null'
-          description: Coefficients as JSON (object or array)
-          title: Coefficients
-        group_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Group ID
-          title: Group Id
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Item description
-          title: Description
-        pricing_unit_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pricing unit ID
-          title: Pricing Unit Id
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Deprecated legacy field. Ignored if provided.
-          title: Type
-        unit_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Deprecated legacy field. Use pricing_unit_id.
-          title: Unit Type
-        initial_offer_item_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Initial offer item ID (self-reference)
-          title: Initial Offer Item Id
-      title: ProjectOfferItemUpdate
       type: object
     TurbineModelObject:
       additionalProperties: false
@@ -858,36 +993,6 @@ components:
       - id
       - name
       title: TurbineModelObject
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
-    LocationObject:
-      additionalProperties: false
-      description: Nested location object for responses (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          anyOf:
-          - $ref: '#/components/schemas/LocationType'
-          - type: 'null'
-      required:
-      - id
-      - name
-      title: LocationObject
       type: object
   securitySchemes:
     APIKeyAuth:

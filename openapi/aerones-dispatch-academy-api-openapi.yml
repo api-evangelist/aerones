@@ -1,0 +1,1569 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Dispatch.academy API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: dispatch.academy
+paths:
+  /api/dispatch/v1/academy/stats:
+    get:
+      operationId: dispatch_api_academy_get_academy_stats
+      summary: Get Academy Stats
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyStats'
+      description: Headline coverage figures for the whole catalogue.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/services:
+    get:
+      operationId: dispatch_api_academy_list_academy_services
+      summary: List Academy Services
+      parameters:
+      - in: query
+        name: search
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+        required: false
+      - in: query
+        name: coverage
+        schema:
+          anyOf:
+          - enum:
+            - empty
+            - title_only
+            type: string
+          - type: 'null'
+          title: Coverage
+        required: false
+      - in: query
+        name: sort
+        schema:
+          anyOf:
+          - const: gap
+            enum:
+            - gap
+            type: string
+          - type: 'null'
+          title: Sort
+        required: false
+      - in: query
+        name: empty
+        schema:
+          default: false
+          title: Empty
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AcademyServiceRow'
+                title: Response
+                type: array
+      description: Every service with how much of its instruction library exists.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/services/{service_id}:
+    get:
+      operationId: dispatch_api_academy_get_academy_service
+      summary: Get Academy Service
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      - in: query
+        name: empty
+        schema:
+          default: false
+          title: Empty
+          type: boolean
+        required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyServiceDetail'
+      description: One service with its workorders and their activities.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/services/{service_id}/workorders:
+    post:
+      operationId: dispatch_api_academy_create_academy_workorder
+      summary: Create Academy Workorder
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyWorkorderRow'
+      description: Add a workorder template to a service, appended at the end.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyWorkorderCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/services/{service_id}/workorders/reorder:
+    post:
+      operationId: dispatch_api_academy_reorder_academy_workorders
+      summary: Reorder Academy Workorders
+      parameters:
+      - in: path
+        name: service_id
+        schema:
+          title: Service Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AcademyWorkorderRow'
+                title: Response
+                type: array
+      description: Rewrite the workorder order to the ids given, top to bottom.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyWorkorderReorderInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/workorders/{workorder_id}:
+    patch:
+      operationId: dispatch_api_academy_update_academy_workorder
+      summary: Update Academy Workorder
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyWorkorderRow'
+      description: Edit a workorder template, or move it to another service.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyWorkorderUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_academy_delete_academy_workorder
+      summary: Delete Academy Workorder
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a workorder template; its activities and steps go with it.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/activities/{activity_id}:
+    get:
+      operationId: dispatch_api_academy_get_academy_activity
+      summary: Get Academy Activity
+      parameters:
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyActivityDetail'
+      description: One activity with every instruction, image, video and link on it.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    patch:
+      operationId: dispatch_api_academy_update_academy_activity
+      summary: Update Academy Activity
+      parameters:
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyActivityDetail'
+      description: Replace the fields a crew fills in on the activity.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyActivityUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_academy_delete_academy_activity
+      summary: Delete Academy Activity
+      parameters:
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete an activity; its steps, media and links go with it.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/workorders/{workorder_id}/activities:
+    post:
+      operationId: dispatch_api_academy_create_academy_activity
+      summary: Create Academy Activity
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyActivityRow'
+      description: Add an activity to a workorder, appended at the end of the list.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyActivityCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/workorders/{workorder_id}/activities/reorder:
+    post:
+      operationId: dispatch_api_academy_reorder_academy_activities
+      summary: Reorder Academy Activities
+      parameters:
+      - in: path
+        name: workorder_id
+        schema:
+          title: Workorder Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AcademyActivityRow'
+                title: Response
+                type: array
+      description: Rewrite the activity order to the ids given, top to bottom.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyActivityReorderInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/activities/{activity_id}/instructions:
+    post:
+      operationId: dispatch_api_academy_create_academy_instruction
+      summary: Create Academy Instruction
+      parameters:
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyInstruction'
+      description: Add a step to an activity, appended at the end of the list.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyInstructionCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/instructions/{instruction_id}:
+    patch:
+      operationId: dispatch_api_academy_update_academy_instruction
+      summary: Update Academy Instruction
+      parameters:
+      - in: path
+        name: instruction_id
+        schema:
+          title: Instruction Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyInstruction'
+      description: Edit a step's title, body or position.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyInstructionUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_academy_delete_academy_instruction
+      summary: Delete Academy Instruction
+      parameters:
+      - in: path
+        name: instruction_id
+        schema:
+          title: Instruction Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a step; its media and links go with it.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/activities/{activity_id}/instructions/reorder:
+    post:
+      operationId: dispatch_api_academy_reorder_academy_instructions
+      summary: Reorder Academy Instructions
+      parameters:
+      - in: path
+        name: activity_id
+        schema:
+          title: Activity Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AcademyInstruction'
+                title: Response
+                type: array
+      description: Rewrite the step order to the ids given, top to bottom.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyReorderInput'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/instructions/{instruction_id}/attachments:
+    post:
+      operationId: dispatch_api_academy_add_academy_attachment
+      summary: Add Academy Attachment
+      parameters:
+      - in: path
+        name: instruction_id
+        schema:
+          title: Instruction Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyAttachment'
+      description: 'Upload an image or MP4/WebM video onto a step.
+
+
+        Deliberately not ``@transaction.atomic``: the manager pushes the bytes to
+
+        storage before it writes, and a 50 MB video would otherwise hold a write
+
+        transaction open for the whole upload. The row insert has its own
+
+        transaction inside the manager.'
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  title: File
+                  type: string
+                caption:
+                  default: ''
+                  title: Caption
+                  type: string
+              required:
+              - file
+              title: MultiPartBodyParams
+              type: object
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/attachments/{attachment_id}:
+    patch:
+      operationId: dispatch_api_academy_update_academy_attachment
+      summary: Update Academy Attachment
+      parameters:
+      - in: path
+        name: attachment_id
+        schema:
+          title: Attachment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyAttachment'
+      description: Edit an attachment's caption or position.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyAttachmentUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_academy_delete_academy_attachment
+      summary: Delete Academy Attachment
+      parameters:
+      - in: path
+        name: attachment_id
+        schema:
+          title: Attachment Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete an attachment.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/instructions/{instruction_id}/links:
+    post:
+      operationId: dispatch_api_academy_add_academy_link
+      summary: Add Academy Link
+      parameters:
+      - in: path
+        name: instruction_id
+        schema:
+          title: Instruction Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyLink'
+      description: Add a web link to a step.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyLinkCreate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/dispatch/v1/academy/links/{link_id}:
+    patch:
+      operationId: dispatch_api_academy_update_academy_link
+      summary: Update Academy Link
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          title: Link Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyLink'
+      description: Edit a link's url, label or position.
+      tags:
+      - dispatch.academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyLinkUpdate'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    delete:
+      operationId: dispatch_api_academy_delete_academy_link
+      summary: Delete Academy Link
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          title: Link Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Soft-delete a link.
+      tags:
+      - dispatch.academy
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    AcademyStats:
+      additionalProperties: false
+      description: 'The headline figures across the whole catalogue.
+
+
+        `undocumented_execution_count` is the one that ranks the work: how many
+
+        times crews have run an activity that says nothing. A percentage hides
+
+        that a step performed ten thousand times is blank while a rarely-used
+
+        service is fully written.'
+      properties:
+        activity_count:
+          default: 0
+          title: Activity Count
+          type: integer
+        documented_activity_count:
+          default: 0
+          title: Documented Activity Count
+          type: integer
+        service_count:
+          default: 0
+          title: Service Count
+          type: integer
+        empty_service_count:
+          default: 0
+          title: Empty Service Count
+          type: integer
+        title_only_instruction_count:
+          default: 0
+          title: Title Only Instruction Count
+          type: integer
+        execution_count:
+          default: 0
+          title: Execution Count
+          type: integer
+        undocumented_execution_count:
+          default: 0
+          title: Undocumented Execution Count
+          type: integer
+        image_count:
+          default: 0
+          title: Image Count
+          type: integer
+        video_count:
+          default: 0
+          title: Video Count
+          type: integer
+      title: AcademyStats
+      type: object
+    AcademyReorderInput:
+      additionalProperties: false
+      description: Every instruction id on the activity, in the order they should appear.
+      properties:
+        instruction_ids:
+          items:
+            type: integer
+          title: Instruction Ids
+          type: array
+      required:
+      - instruction_ids
+      title: AcademyReorderInput
+      type: object
+    AcademyServiceRow:
+      additionalProperties: false
+      description: 'A service in the Academy list, with the size of its instruction library.
+
+
+        `documented_activity_count` is the coverage numerator the list sorts and
+
+        filters on: activities carrying at least one instruction.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        group:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group
+        deprecated:
+          default: false
+          title: Deprecated
+          type: boolean
+        workorder_count:
+          default: 0
+          title: Workorder Count
+          type: integer
+        activity_count:
+          default: 0
+          title: Activity Count
+          type: integer
+        documented_activity_count:
+          default: 0
+          title: Documented Activity Count
+          type: integer
+        instruction_count:
+          default: 0
+          title: Instruction Count
+          type: integer
+        title_only_instruction_count:
+          default: 0
+          title: Title Only Instruction Count
+          type: integer
+        media_count:
+          default: 0
+          title: Media Count
+          type: integer
+        execution_count:
+          default: 0
+          title: Execution Count
+          type: integer
+        undocumented_execution_count:
+          default: 0
+          title: Undocumented Execution Count
+          type: integer
+      required:
+      - id
+      - code
+      title: AcademyServiceRow
+      type: object
+    AcademyInstructionCreate:
+      additionalProperties: false
+      description: Payload for adding a step. Files are uploaded separately.
+      properties:
+        title:
+          title: Title
+          type: string
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        links:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyLinkCreate'
+          title: Links
+          type: array
+      required:
+      - title
+      title: AcademyInstructionCreate
+      type: object
+    AcademyLinkCreate:
+      additionalProperties: false
+      description: Payload for adding a web link to a step.
+      properties:
+        url:
+          title: Url
+          type: string
+        label:
+          title: Label
+          type: string
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      required:
+      - url
+      - label
+      title: AcademyLinkCreate
+      type: object
+    AcademyActivityRow:
+      additionalProperties: false
+      description: 'An activity under a workorder, with what it already teaches.
+
+
+        `title_only_instruction_count` drives the amber "started but thin" state:
+
+        steps that carry a heading and no body, media or link.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+        requires_robot_set:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Robot Set
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        instruction_count:
+          default: 0
+          title: Instruction Count
+          type: integer
+        title_only_instruction_count:
+          default: 0
+          title: Title Only Instruction Count
+          type: integer
+        image_count:
+          default: 0
+          title: Image Count
+          type: integer
+        video_count:
+          default: 0
+          title: Video Count
+          type: integer
+        link_count:
+          default: 0
+          title: Link Count
+          type: integer
+        execution_count:
+          default: 0
+          title: Execution Count
+          type: integer
+      required:
+      - id
+      title: AcademyActivityRow
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    AcademyLink:
+      additionalProperties: false
+      description: A web link on a step.
+      properties:
+        id:
+          title: Id
+          type: integer
+        url:
+          title: Url
+          type: string
+        label:
+          title: Label
+          type: string
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      required:
+      - id
+      - url
+      - label
+      title: AcademyLink
+      type: object
+    WorkorderType:
+      description: 'Classification of workorder origin.
+
+
+        Defined at module level so ServiceItem (which carries the type its
+
+        generated workorders inherit) can reference it without a forward
+
+        declaration. Workorder also exposes this as ``Workorder.WorkorderType``
+
+        for callers that already use that path.'
+      enum:
+      - ADMIN
+      - FIELD_WORK
+      - FIELD_OTHER
+      - OFFICE
+      - DATA_UPLOAD
+      - DATA_TRACKING
+      - FIELD_SITE
+      title: WorkorderType
+      type: string
+    AcademyAttachment:
+      additionalProperties: false
+      description: An image or video on a step. `url` is an authenticated proxy path.
+      properties:
+        id:
+          title: Id
+          type: integer
+        caption:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caption
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        file_name:
+          title: File Name
+          type: string
+        file_type:
+          title: File Type
+          type: string
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      required:
+      - id
+      - file_name
+      - file_type
+      title: AcademyAttachment
+      type: object
+    AcademyAttachmentUpdate:
+      additionalProperties: false
+      description: Payload for editing an attachment's caption or position.
+      properties:
+        caption:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caption
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      title: AcademyAttachmentUpdate
+      type: object
+    AcademyActivityDetail:
+      additionalProperties: false
+      description: 'An activity with its full instruction list and its place in the catalogue.
+
+
+        `custom_fields` is the stored list the crew fills in on each workorder
+
+        activity, in the admin''s shape (`title`, `datatype`, `is_mandatory`, ...).'
+      properties:
+        id:
+          title: Id
+          type: integer
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+        requires_robot_set:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Robot Set
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        workorder_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Id
+        workorder_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workorder Code
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        service_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Service Code
+        custom_fields:
+          default: []
+          items:
+            type: object
+          title: Custom Fields
+          type: array
+        instructions:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyInstruction'
+          title: Instructions
+          type: array
+      required:
+      - id
+      title: AcademyActivityDetail
+      type: object
+    AcademyWorkorderReorderInput:
+      additionalProperties: false
+      description: Every live workorder id on the service, in the order they are generated.
+      properties:
+        workorder_ids:
+          items:
+            type: integer
+          title: Workorder Ids
+          type: array
+      required:
+      - workorder_ids
+      title: AcademyWorkorderReorderInput
+      type: object
+    AcademyActivityUpdate:
+      additionalProperties: false
+      description: The fields list replaces the stored one; an empty list clears it.
+      properties:
+        custom_fields:
+          items:
+            $ref: '#/components/schemas/AcademyCustomField'
+          title: Custom Fields
+          type: array
+      required:
+      - custom_fields
+      title: AcademyActivityUpdate
+      type: object
+    SetupPackingRole:
+      description: 'Part a turbine-level service item plays in the Set Up / Packing Up pair.
+
+
+        Generation keeps one ``SET_UP`` and one ``PACKING_UP`` workorder per
+
+        physical turbine and ``core.Service.setup_packing_family``; ``NONE`` items
+
+        are generated per service order line. The item''s name plays no part.
+
+        Not ``choices`` on the field (``db-enforced-vocabulary``):
+
+        ``ServiceItemAdmin`` renders the dropdown from this enum.'
+      enum:
+      - NONE
+      - SET_UP
+      - PACKING_UP
+      title: SetupPackingRole
+      type: string
+    AcademyInstructionUpdate:
+      additionalProperties: false
+      description: Payload for editing a step's text or position.
+      properties:
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      title: AcademyInstructionUpdate
+      type: object
+    AcademyWorkorderCreate:
+      additionalProperties: false
+      description: 'Payload for adding a workorder template to a service, appended at the end.
+
+
+        `type` and `setup_packing_role` are the enums the admin offers, so an
+
+        unknown value is a 422 at the boundary.'
+      properties:
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        type:
+          allOf:
+          - $ref: '#/components/schemas/WorkorderType'
+          default: FIELD_OTHER
+        setup_packing_role:
+          allOf:
+          - $ref: '#/components/schemas/SetupPackingRole'
+          default: NONE
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        estimated_realistic_time_minutes:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          title: Estimated Realistic Time Minutes
+      required:
+      - code
+      title: AcademyWorkorderCreate
+      type: object
+    AcademyWorkorderRow:
+      additionalProperties: false
+      description: A service item - the workorder template a technician is sent out with.
+      properties:
+        id:
+          title: Id
+          type: integer
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        type:
+          title: Type
+          type: string
+        setup_packing_role:
+          title: Setup Packing Role
+          type: string
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        estimated_realistic_time_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Realistic Time Minutes
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        component_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Name
+        activities:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyActivityRow'
+          title: Activities
+          type: array
+      required:
+      - id
+      - code
+      - type
+      - setup_packing_role
+      title: AcademyWorkorderRow
+      type: object
+    AcademyActivityReorderInput:
+      additionalProperties: false
+      description: Every live activity id on the workorder, in the order they should run.
+      properties:
+        activity_ids:
+          items:
+            type: integer
+          title: Activity Ids
+          type: array
+      required:
+      - activity_ids
+      title: AcademyActivityReorderInput
+      type: object
+    AcademyLinkUpdate:
+      additionalProperties: false
+      description: Payload for editing a web link.
+      properties:
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+      title: AcademyLinkUpdate
+      type: object
+    AcademyCustomField:
+      additionalProperties: true
+      description: 'One field a crew fills in on the activity.
+
+
+        Extra keys are allowed and stored as sent, so a key set in the Django admin
+
+        survives an edit made here. `datatype` is any non-blank string rather than
+
+        the six the editor offers, because the admin keeps older types as
+
+        "(legacy)" and a save here must not reject them. A plain ``BaseModel`` on purpose: ``ninja.Schema``
+
+        validates through a getter that drops undeclared keys even with
+
+        ``extra="allow"``.'
+      properties:
+        title:
+          title: Title
+          type: string
+        datatype:
+          maxLength: 64
+          title: Datatype
+          type: string
+        is_mandatory:
+          default: false
+          title: Is Mandatory
+          type: boolean
+        is_public:
+          default: true
+          title: Is Public
+          type: boolean
+        camera_only:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Camera Only
+        configuration:
+          anyOf:
+          - $ref: '#/components/schemas/AcademyCustomFieldOptions'
+          - type: 'null'
+      required:
+      - title
+      - datatype
+      title: AcademyCustomField
+      type: object
+    AcademyServiceDetail:
+      additionalProperties: false
+      description: One service with its workorders and their activities.
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+        group:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Group
+        deprecated:
+          default: false
+          title: Deprecated
+          type: boolean
+        workorder_count:
+          default: 0
+          title: Workorder Count
+          type: integer
+        activity_count:
+          default: 0
+          title: Activity Count
+          type: integer
+        documented_activity_count:
+          default: 0
+          title: Documented Activity Count
+          type: integer
+        instruction_count:
+          default: 0
+          title: Instruction Count
+          type: integer
+        title_only_instruction_count:
+          default: 0
+          title: Title Only Instruction Count
+          type: integer
+        media_count:
+          default: 0
+          title: Media Count
+          type: integer
+        execution_count:
+          default: 0
+          title: Execution Count
+          type: integer
+        undocumented_execution_count:
+          default: 0
+          title: Undocumented Execution Count
+          type: integer
+        workorders:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyWorkorderRow'
+          title: Workorders
+          type: array
+      required:
+      - id
+      - code
+      title: AcademyServiceDetail
+      type: object
+    AcademyActivityCreate:
+      additionalProperties: false
+      description: 'Payload for adding an activity to a workorder, appended at the end.
+
+
+        `estimated_duration` is in minutes, like the admin field.'
+      properties:
+        description:
+          title: Description
+          type: string
+        estimated_duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Duration
+        requires_robot_set:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Requires Robot Set
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        custom_fields:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyCustomField'
+          title: Custom Fields
+          type: array
+      required:
+      - description
+      title: AcademyActivityCreate
+      type: object
+    AcademyWorkorderUpdate:
+      additionalProperties: false
+      description: 'Payload for editing a workorder template; only the fields sent change.
+
+
+        A new `service_id` moves the workorder, with its activities, to the end
+
+        of that service. `type` and `setup_packing_role` may be left out but not
+
+        sent as null: both columns are NOT NULL.'
+      properties:
+        service_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Service Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        type:
+          anyOf:
+          - $ref: '#/components/schemas/WorkorderType'
+          - type: 'null'
+        setup_packing_role:
+          anyOf:
+          - $ref: '#/components/schemas/SetupPackingRole'
+          - type: 'null'
+        is_optional:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Optional
+        estimated_realistic_time_minutes:
+          anyOf:
+          - minimum: 0
+            type: integer
+          - type: 'null'
+          title: Estimated Realistic Time Minutes
+      title: AcademyWorkorderUpdate
+      type: object
+    AcademyInstruction:
+      additionalProperties: false
+      description: One procedure step, with its media and links.
+      properties:
+        id:
+          title: Id
+          type: integer
+        title:
+          title: Title
+          type: string
+        body:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        attachments:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyAttachment'
+          title: Attachments
+          type: array
+        links:
+          default: []
+          items:
+            $ref: '#/components/schemas/AcademyLink'
+          title: Links
+          type: array
+        has_content:
+          default: true
+          title: Has Content
+          type: boolean
+      required:
+      - id
+      - title
+      title: AcademyInstruction
+      type: object
+    AcademyCustomFieldOptions:
+      additionalProperties: true
+      description: Choice options of an enum field, under the `list` key AeroTask reads.
+      properties:
+        list:
+          default: []
+          items:
+            type: string
+          title: List
+          type: array
+      title: AcademyCustomFieldOptions
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

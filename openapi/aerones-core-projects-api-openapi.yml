@@ -103,6 +103,16 @@ paths:
         required: false
         description: Filter by salesperson ID (ignored when salesperson_ids is set)
       - in: query
+        name: supervisor_id
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Filter by supervisor ID (ignored when supervisor_ids is set)
+          title: Supervisor Id
+        required: false
+        description: Filter by supervisor ID (ignored when supervisor_ids is set)
+      - in: query
         name: type
         schema:
           anyOf:
@@ -192,6 +202,16 @@ paths:
           title: Salesperson Ids
         required: false
         description: Comma-separated salesperson user IDs (OR within). Empty/omitted = no filter on this facet. When set, salesperson_id is ignored.
+      - in: query
+        name: supervisor_ids
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated supervisor user IDs (OR within). Empty/omitted = no filter on this facet. When set, supervisor_id is ignored.
+          title: Supervisor Ids
+        required: false
+        description: Comma-separated supervisor user IDs (OR within). Empty/omitted = no filter on this facet. When set, supervisor_id is ignored.
       - in: query
         name: scope
         schema:
@@ -477,6 +497,35 @@ paths:
       security:
       - APIKeyAuth: []
       - CookieAuth: []
+  /api/core/v1/projects/{project_id}/overview/kpi:
+    get:
+      operationId: core_endpoints_projects_get_project_kpi
+      summary: Get Project Kpi
+      parameters:
+      - in: path
+        name: project_id
+        schema:
+          title: Project Id
+          type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectKpiResponse'
+      description: 'AeroPlan''s planning KPIs for this project, each with its origin.
+
+
+        Reports `available: false` rather than failing where AeroPlan is not
+
+        installed.'
+      tags:
+      - core.projects
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
   /api/core/v1/projects/{project_id}/overview/financials:
     get:
       operationId: core_endpoints_projects_get_project_overview_financials
@@ -718,6 +767,199 @@ paths:
       - CookieAuth: []
 components:
   schemas:
+    ProjectLocationSummary:
+      additionalProperties: false
+      description: Summary of sites (locations) linked to a project for list/detail payloads.
+      properties:
+        primary_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Display name of the first linked site when ordered by project_location id ascending
+          title: Primary Name
+        total_count:
+          description: Number of active project–site links
+          minimum: 0
+          title: Total Count
+          type: integer
+        all_names:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          description: All site names when total_count > 1; omitted or null when absent or unnecessary
+          title: All Names
+      required:
+      - total_count
+      title: ProjectLocationSummary
+      type: object
+    UserObject:
+      additionalProperties: false
+      description: Nested user object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        username:
+          title: Username
+          type: string
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        first_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Name
+        last_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Name
+      required:
+      - id
+      - username
+      title: UserObject
+      type: object
+    ProjectKpiResponse:
+      additionalProperties: false
+      description: AeroPlan's planning KPIs for one project.
+      properties:
+        available:
+          description: False where AeroPlan is not installed, so nothing was read.
+          title: Available
+          type: boolean
+        weather_day_pct:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          title: Weather Day Pct
+        weather_day_source:
+          anyOf:
+          - enum:
+            - project
+            - default
+            type: string
+          - type: 'null'
+          title: Weather Day Source
+        on_track_tolerance_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Day slip AeroPlan still calls on track, so the card can say so too.
+          title: On Track Tolerance Days
+        services:
+          default: []
+          items:
+            $ref: '#/components/schemas/ProjectKpiServiceRate'
+          title: Services
+          type: array
+      required:
+      - available
+      title: ProjectKpiResponse
+      type: object
+    ProjectKpiServiceRate:
+      additionalProperties: false
+      description: One service's planning rate, and where the number came from.
+      properties:
+        service_code:
+          title: Service Code
+          type: string
+        family:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Family
+        base_daily_kpi:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: 'The rate in force: WTG per set per WORKING day. Null when no rate is recorded anywhere.'
+          title: Base Daily Kpi
+        source:
+          anyOf:
+          - enum:
+            - project
+            - fleet
+            - spec
+            type: string
+          - type: 'null'
+          description: project = this project's own override, fleet = the service default, spec = the catalogue.
+          title: Source
+        fleet_daily_kpi:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: The fleet default for this code, so a reader can see what an override replaced.
+          title: Fleet Daily Kpi
+        spec_daily_kpi:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: The catalogue rate for this code, under both of the above.
+          title: Spec Daily Kpi
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: When the project override was last edited, if there is one.
+          title: Updated At
+        achieved_daily_kpi:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: 'What the project is actually managing, same unit as the planned rate. AeroPlan''s own observed rate: units done over the sets active on days that completed something, so an idle week does not read as a slow crew. Null until there is enough history.'
+          title: Achieved Daily Kpi
+        units_done:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Units Done
+        units_total:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Both in CO units, so a blade-grain line counts a third of a turbine.
+          title: Units Total
+        committed_sets:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Committed Sets
+        forecast_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: When this service finishes at the observed rate, on AeroPlan's working calendar.
+          title: Forecast End
+        forecast_delta_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Days that forecast lands past the committed plan. Negative is early.
+          title: Forecast Delta Days
+        pace:
+          default: no_estimate
+          description: AeroPlan's own verdict on `forecast_delta_days`, using its tolerance.
+          enum:
+          - behind
+          - ahead
+          - on_track
+          - no_estimate
+          title: Pace
+          type: string
+      required:
+      - service_code
+      title: ProjectKpiServiceRate
+      type: object
     ProjectPreJobReceivedUpdate:
       additionalProperties: false
       description: 'Payload for the pre-job-received action endpoint.
@@ -742,323 +984,17 @@ components:
       - pre_job_received_at
       title: ProjectPreJobReceivedUpdate
       type: object
-    ProjectCreate:
-      additionalProperties: false
-      description: Schema for creating a Project.
-      properties:
-        code:
-          description: Unique project code
-          minLength: 1
-          title: Code
-          type: string
-        type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: 'Project type: REGULAR, DEMO, RND, or ACADEMY. Defaults to REGULAR when omitted. WARRANTY and INTERNAL cannot be set via the API.'
-          title: Type
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Project description
-          title: Description
-        requesting_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Requesting customer ID
-          title: Requesting Customer Id
-        billing_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Billing customer ID
-          title: Billing Customer Id
-        vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Vendor ID
-          title: Vendor Id
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        timezone_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Timezone ID
-          title: Timezone Id
-        status_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project status ID
-          title: Status Id
-        project_manager_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project manager user ID
-          title: Project Manager Id
-        salesperson_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Salesperson user ID
-          title: Salesperson Id
-        pipedrive_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pipedrive deal ID
-          title: Pipedrive Id
-        pipedrive_probability:
-          anyOf:
-          - maximum: 100
-            minimum: 0
-            type: integer
-          - type: 'null'
-          description: 'Deal probability (0-100). Sending it here is a manual override, exactly as it is on PATCH: the value is marked sticky so the Pipedrive deals-refresh poll no longer overwrites it. Unlike PATCH this does not re-run the status cascade, because a project that has just been created has no internally-approved commercial offer and so cannot advance past Upcoming whatever the probability says. Omit it to leave Pipedrive in control.'
-          title: Pipedrive Probability
-        project_builder_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Project builder project UUID (legacy) - optional for natively created projects
-          title: Project Builder Id
-        planned_start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Planned project start date
-          title: Planned Start Date
-        planned_end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Planned project end date
-          title: Planned End Date
-        actual_start_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Actual project start date
-          title: Actual Start Date
-        actual_end_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Actual project end date
-          title: Actual End Date
-        expected_close_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: 'When sales expects the deal to be decided. Owned by the sales form: it writes this on deal creation and again whenever the date moves on its pipeline board, so a later change there wins over a hand-edit made in Ops Hub. Commercial only: no cascade or schedule reads it.'
-          title: Expected Close Date
-        lps_standard_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: ID of the LPS report template/standard (core.standard)
-          title: Lps Standard Id
-      required:
-      - code
-      title: ProjectCreate
-      type: object
-    ProjectStatusHistoryEntry:
-      additionalProperties: false
-      description: A single project status transition (for the overview status timeline).
-      properties:
-        old_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status the project moved from (null for the first entry)
-          title: Old Status
-        new_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Status the project moved to
-          title: New Status
-        change_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Trigger that caused the change (e.g. create, pipedrive, sol_cascade, completion_check, manual, reconcile).
-          title: Change Reason
-        change_note:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Optional free-text note about the change
-          title: Change Note
-        status_changed_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: When the transition occurred (ISO 8601)
-          title: Status Changed At
-        changed_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name or email of the user who caused the change, if known
-          title: Changed By
-      title: ProjectStatusHistoryEntry
-      type: object
-    CurrencyIdCodeObject:
-      additionalProperties: false
-      description: Nested currency object with only id and code (no timestamps).
-      properties:
-        id:
-          title: Id
-          type: integer
-        code:
-          title: Code
-          type: string
-      required:
-      - id
-      - code
-      title: CurrencyIdCodeObject
-      type: object
-    Success:
-      additionalProperties: false
-      description: 'Schema returned for successful operations.
-
-
-        The `success` field is always ``true`` in this schema. Failed operations are
-
-        represented by the :class:`Error` schema instead, so a ``false`` value does
-
-        not occur in practice. The field is included for consistency across responses
-
-        and to make the contract explicit for clients.'
-      properties:
-        success:
-          default: true
-          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
-          title: Success
-          type: boolean
-      title: Success
-      type: object
-    ProjectOverviewEdit:
-      additionalProperties: false
-      description: 'Editable project overview fields. Writes span Core + legacy tables.
-
-
-        Only explicitly-sent keys are applied (``exclude_unset=True``).'
-      properties:
-        project_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Writes core.Project.description
-          title: Project Description
-        lps_standard_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Writes core.Project.lps_standard_id
-          title: Lps Standard Id
-        rope_access_contract:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Writes legacy projects.ProjectOverviewInfo
-          title: Rope Access Contract
-        project_status_dashboard:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Writes legacy projects.ProjectOverviewInfo
-          title: Project Status Dashboard
-        gross_margin:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Writes legacy projects.ProjectOverviewInfo
-          title: Gross Margin
-        reinspection:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: Writes legacy projects.PipedriveDeal (+ BusinessTravelOrder mirror)
-          title: Reinspection
-      title: ProjectOverviewEdit
-      type: object
-    TimezoneObject:
-      additionalProperties: false
-      description: Nested timezone object for responses (no timestamps in nested objects).
-      properties:
-        id:
-          description: Timezone ID
-          title: Id
-          type: integer
-        timezone:
-          description: Timezone name (e.g., Europe/Riga)
-          title: Timezone
-          type: string
-        city:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: City name
-          title: City
-        utc_offset:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: UTC offset (e.g., +02:00)
-          title: Utc Offset
-      required:
-      - id
-      - timezone
-      title: TimezoneObject
-      type: object
-    WarrantyCounterpartProjectObject:
-      additionalProperties: false
-      description: 'The project on the other side of a warranty relationship (no timestamps).
-
-
-        Direction-neutral: the source project (on a WARRANTY project) or the warranty
-
-        project (on a REGULAR project). ``type`` lets the client tell which without
-
-        inferring from the current project''s type.'
-      properties:
-        id:
-          description: Counterpart project ID
-          title: Id
-          type: integer
-        code:
-          description: Counterpart project code
-          title: Code
-          type: string
-        type:
-          description: Counterpart project type
-          title: Type
-          type: string
-        project_builder_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Counterpart project builder UUID (for frontend routing)
-          title: Project Builder Id
-      required:
-      - id
-      - code
-      - type
-      title: WarrantyCounterpartProjectObject
-      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
     ProjectResponse:
       additionalProperties: false
       description: Schema for Project response.
@@ -1131,12 +1067,29 @@ components:
           - $ref: '#/components/schemas/UserObject'
           - type: 'null'
           description: Salesperson
+        supervisor:
+          anyOf:
+          - $ref: '#/components/schemas/UserObject'
+          - type: 'null'
+          description: Supervisor
         pipedrive_id:
           anyOf:
           - type: integer
           - type: 'null'
           description: Pipedrive deal ID
           title: Pipedrive Id
+        netsuite_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: 'NetSuite internal id of the `job` record for this project. Null - and so, these endpoints running exclude_none, absent from the response - means the project is not in NetSuite yet: the NetSuite records are created when the first Sales Order is raised, so most pre-sales projects have none.'
+          title: Netsuite Id
+        netsuite_cseg_project_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: NetSuite internal id of the `customrecord_cseg_sta_project` segment record for this project. Null (absent from the response) means the project is not in NetSuite yet, or the NetSuite job carries no segment link.
+          title: Netsuite Cseg Project Id
         pipedrive_probability:
           anyOf:
           - type: integer
@@ -1210,9 +1163,16 @@ components:
           description: Selected LPS report template/standard (passed to the reporting engine as lps_standard_id). Null when not yet picked or for non-LPS projects.
         scope_change_auto_accept_enabled:
           default: false
-          description: When true, scope change requests on this project are auto-approved and finalized immediately on creation (legacy behaviour). When false, requests enter the QC → Sales → PM approval flow.
+          description: When true, LER-1-2 → LER-3 scope change requests on this project are auto-approved and finalized immediately on creation (legacy behaviour). Any other LER pair enters the QC → Sales → PM approval flow either way, as do all requests when this is false. A non-LER pair is rejected with 422.
           title: Scope Change Auto Accept Enabled
           type: boolean
+        minimum_fieldwork_hours:
+          anyOf:
+          - type: number
+          - type: string
+          - type: 'null'
+          description: Configured minimum fieldwork hours (8.0-10.0) a Daily Report submission on this project must cover. Null means the project has not set its own value and the 8h repo-wide default (reports.fieldwork_hours.DEFAULT_MINIMUM_FIELDWORK_HOURS) applies.
+          title: Minimum Fieldwork Hours
         location_summary:
           $ref: '#/components/schemas/ProjectLocationSummary'
           description: Linked sites summary; primary follows ascending project_location id
@@ -1253,142 +1213,47 @@ components:
           title: Email
       title: ProjectOverviewReportRecipient
       type: object
-    ProjectUpdate:
+    ProjectStatusHistoryEntry:
       additionalProperties: false
-      description: Schema for updating a Project.
+      description: A single project status transition (for the overview status timeline).
       properties:
-        code:
-          anyOf:
-          - minLength: 1
-            type: string
-          - type: 'null'
-          description: Unique project code
-          title: Code
-        description:
+        old_status:
           anyOf:
           - type: string
           - type: 'null'
-          description: Project description
-          title: Description
-        requesting_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Requesting customer ID
-          title: Requesting Customer Id
-        billing_customer_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Billing customer ID
-          title: Billing Customer Id
-        vendor_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Vendor ID
-          title: Vendor Id
-        country_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Country ID
-          title: Country Id
-        timezone_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Timezone ID
-          title: Timezone Id
-        status_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project status ID
-          title: Status Id
-        project_manager_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Project manager user ID
-          title: Project Manager Id
-        salesperson_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Salesperson user ID
-          title: Salesperson Id
-        pipedrive_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Pipedrive deal ID
-          title: Pipedrive Id
-        pipedrive_probability:
-          anyOf:
-          - maximum: 100
-            minimum: 0
-            type: integer
-          - type: 'null'
-          description: 'Deal probability (0-100). Editing it here is a manual RFI override: it drives the master-planning status cascade (Upcoming->Initiation at >=90, Initiation->Planning at 100), re-runs the status recompute, and marks the value sticky so the Pipedrive deals-refresh poll no longer overwrites it. Setting it to null clears the override and hands control back to Pipedrive.'
-          title: Pipedrive Probability
-        project_builder_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Project builder project UUID (legacy)
-          title: Project Builder Id
-        planned_start_date:
+          description: Status the project moved from (null for the first entry)
+          title: Old Status
+        new_status:
           anyOf:
           - type: string
           - type: 'null'
-          description: Planned project start date
-          title: Planned Start Date
-        planned_end_date:
+          description: Status the project moved to
+          title: New Status
+        change_reason:
           anyOf:
           - type: string
           - type: 'null'
-          description: Planned project end date
-          title: Planned End Date
-        actual_start_date:
+          description: Trigger that caused the change (e.g. create, pipedrive, sol_cascade, completion_check, manual, reconcile).
+          title: Change Reason
+        change_note:
           anyOf:
           - type: string
           - type: 'null'
-          description: Actual project start date
-          title: Actual Start Date
-        actual_end_date:
+          description: Optional free-text note about the change
+          title: Change Note
+        status_changed_at:
           anyOf:
           - type: string
           - type: 'null'
-          description: Actual project end date
-          title: Actual End Date
-        expected_close_date:
+          description: When the transition occurred (ISO 8601)
+          title: Status Changed At
+        changed_by:
           anyOf:
           - type: string
           - type: 'null'
-          description: 'When sales expects the deal to be decided. Owned by the sales form: it writes this on deal creation and again whenever the date moves on its pipeline board, so a later change there wins over a hand-edit made in Ops Hub. Commercial only: no cascade or schedule reads it.'
-          title: Expected Close Date
-        lps_standard_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: ID of the LPS report template/standard (core.standard)
-          title: Lps Standard Id
-        pre_job_received_at:
-          anyOf:
-          - format: date-time
-            type: string
-          - type: 'null'
-          description: Customer pre-job questionnaire 'received' timestamp. Non-null locks the questionnaire; null reopens it. Writing it through this generic update is a plain persist with no side effects — prefer the PUT /projects/{id}/pre-job-received action endpoint, which also sends the submission email and re-runs the status cascade on submit.
-          title: Pre Job Received At
-        scope_change_auto_accept_enabled:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          description: 'When true, scope change requests on this project are auto-approved and finalized immediately on creation; when false they enter the QC → Sales → PM review flow. Field-level permission: including this field in the body requires auth.project_manager — 403 otherwise.'
-          title: Scope Change Auto Accept Enabled
-      title: ProjectUpdate
+          description: Name or email of the user who caused the change, if known
+          title: Changed By
+      title: ProjectStatusHistoryEntry
       type: object
     ProjectOverviewSite:
       additionalProperties: false
@@ -1414,6 +1279,50 @@ components:
           title: Longitude
       title: ProjectOverviewSite
       type: object
+    VendorObject:
+      additionalProperties: false
+      description: Nested vendor object for responses (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Number
+        display_name:
+          title: Display Name
+          type: string
+      required:
+      - id
+      - display_name
+      title: VendorObject
+      type: object
+    ProjectOverviewQuotedCrew:
+      additionalProperties: false
+      description: The crew the approved offer was priced with, straight from the sales form.
+      properties:
+        crew_size:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Technicians in one crew.
+          title: Crew Size
+        crew_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Crews the deal was sold with.
+          title: Crew Count
+        working_days:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Working days the price assumed.
+          title: Working Days
+      title: ProjectOverviewQuotedCrew
+      type: object
     Error:
       additionalProperties: false
       description: Error response schema.
@@ -1428,35 +1337,301 @@ components:
       - message
       title: Error
       type: object
-    UserObject:
+    ProjectOverviewEdit:
       additionalProperties: false
-      description: Nested user object for responses (no timestamps).
+      description: 'Editable project overview fields. Writes span Core + legacy tables.
+
+
+        Only explicitly-sent keys are applied (``exclude_unset=True``).'
+      properties:
+        project_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Writes core.Project.description
+          title: Project Description
+        lps_standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Writes core.Project.lps_standard_id
+          title: Lps Standard Id
+        rope_access_contract:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Writes legacy projects.ProjectOverviewInfo
+          title: Rope Access Contract
+        project_status_dashboard:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Writes legacy projects.ProjectOverviewInfo
+          title: Project Status Dashboard
+        gross_margin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Writes legacy projects.ProjectOverviewInfo
+          title: Gross Margin
+        reinspection:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Writes legacy projects.PipedriveDeal (+ BusinessTravelOrder mirror)
+          title: Reinspection
+      title: ProjectOverviewEdit
+      type: object
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+    ProjectOverviewReadinessPhase:
+      additionalProperties: false
+      description: 'One lifecycle phase''s slice of the project-wide readiness tally.
+
+
+        Same ``counted_tasks_queryset`` counting rule as the total above, grouped
+
+        by ``core.ProjectStatus``, in the order that table itself orders phases
+
+        (``sort_order``). A counted task with no phase assigned has no row here
+
+        but is still part of the total/completed above.'
+      properties:
+        phase_id:
+          description: core.ProjectStatus id
+          title: Phase Id
+          type: integer
+        phase_name:
+          description: core.ProjectStatus.code
+          title: Phase Name
+          type: string
+        total:
+          description: Required tasks counted toward readiness in this phase
+          title: Total
+          type: integer
+        completed:
+          description: Of those, tasks completed
+          title: Completed
+          type: integer
+      required:
+      - phase_id
+      - phase_name
+      - total
+      - completed
+      title: ProjectOverviewReadinessPhase
+      type: object
+    CountryWithRegionObject:
+      additionalProperties: false
+      description: CountryObject extended with region — only for responses that prefetch country__region.
+      properties:
+        id:
+          description: Country ID
+          title: Id
+          type: integer
+        code:
+          description: Country code (ISO 3166-1 alpha-2)
+          title: Code
+          type: string
+        name:
+          description: Country name
+          title: Name
+          type: string
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Region name (nullable)
+          title: Region
+      required:
+      - id
+      - code
+      - name
+      title: CountryWithRegionObject
+      type: object
+    ProjectOverviewScopeRollup:
+      additionalProperties: false
+      description: 'Scope card rollup: per-service progress + by-status totals + derived totals.
+
+
+        Sourced from ``dispatch.ServiceOrderLine``, not ``core.ProjectScopeItem`` —
+
+        this is sold/generated service order lines, the same rows the Execution
+
+        tab''s line list shows. ``total_sold`` is every sold line regardless of
+
+        status; ``final_scope`` is ``total_sold`` minus ``cancelled``.'
+      properties:
+        services:
+          description: Per-service progress, ordered by code
+          items:
+            $ref: '#/components/schemas/ProjectOverviewServiceScope'
+          title: Services
+          type: array
+        by_status:
+          description: One entry per ServiceOrderLine.Status value
+          items:
+            $ref: '#/components/schemas/ProjectOverviewScopeStatusBucket'
+          title: By Status
+          type: array
+        total_sold:
+          description: Every sold line, any status
+          title: Total Sold
+          type: integer
+        cancelled:
+          description: Sold lines with status CANCELLED
+          title: Cancelled
+          type: integer
+        final_scope:
+          description: total_sold - cancelled
+          title: Final Scope
+          type: integer
+      required:
+      - total_sold
+      - cancelled
+      - final_scope
+      title: ProjectOverviewScopeRollup
+      type: object
+    ProjectSearchResult:
+      additionalProperties: false
+      description: 'One global-search hit: a project row or a service-order-line (SOL) row.
+
+
+        Project rows match on project code or an active linked location name;
+
+        SOL rows match on the SOL number. Both row kinds point at a project, so
+
+        ``project_id`` / ``project_builder_id`` always identify the navigation
+
+        target.'
+      properties:
+        type:
+          description: 'Kind of hit: a project itself or one of its SOLs'
+          enum:
+          - project
+          - sol
+          title: Type
+          type: string
+        project_id:
+          description: Numeric Core project ID
+          title: Project Id
+          type: integer
+        project_code:
+          description: Project code
+          title: Project Code
+          type: string
+        project_builder_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Project builder project UUID (legacy)
+          title: Project Builder Id
+        customer_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Requesting customer name of the project
+          title: Customer Name
+        matched_location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Name of the linked site the term matched; set on project rows only, and only when a site (not just the code) matched
+          title: Matched Location Name
+        sol_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ServiceOrderLine ID; set on sol rows only
+          title: Sol Id
+        sol_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: SOL number; set on sol rows only
+          title: Sol Number
+      required:
+      - type
+      - project_id
+      - project_code
+      title: ProjectSearchResult
+      type: object
+    StandardObject:
+      additionalProperties: false
+      description: Nested ``core.standard`` object for responses (LPS / HVT templates).
       properties:
         id:
           title: Id
           type: integer
-        username:
-          title: Username
+        name:
+          title: Name
           type: string
-        email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Email
-        first_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: First Name
-        last_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Name
+        type:
+          title: Type
+          type: string
+        key:
+          title: Key
+          type: string
       required:
       - id
-      - username
-      title: UserObject
+      - name
+      - type
+      - key
+      title: StandardObject
+      type: object
+    ProjectOverviewScopeStatusBucket:
+      additionalProperties: false
+      description: One service-order-line status and its project-wide sold-line count.
+      properties:
+        status:
+          description: Line status
+          enum:
+          - NOT_STARTED
+          - IN_PROGRESS
+          - FIELD_COMPLETED
+          - COMPLETED
+          - CANCELLED
+          title: Status
+          type: string
+        count:
+          description: Sold lines with this status
+          title: Count
+          type: integer
+      required:
+      - status
+      - count
+      title: ProjectOverviewScopeStatusBucket
+      type: object
+    ProjectValidateResponse:
+      additionalProperties: false
+      description: Response schema for project validation endpoint.
+      properties:
+        warnings:
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - warnings
+      title: ProjectValidateResponse
       type: object
     ProjectOverviewResponse:
       additionalProperties: false
@@ -1582,93 +1757,205 @@ components:
           - type: 'null'
           description: Human-readable planned duration
           title: Planned Duration
+        co_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Approved offer total (Sum of items.amount)
+          title: Co Value
+        charged_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Charged value (NetSuite service charges)
+          title: Charged Value
+        purchase_order_value:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Sum of purchase order version amounts
+          title: Purchase Order Value
+        actual_units_done:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Distinct charged top-level scope items
+          title: Actual Units Done
+        currency:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Billing currency code, from the same subquery as ProjectResponse.billing_currency
+          title: Currency
+        offer_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Status of the latest project offer
+          title: Offer Status
+        quoted_crew:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectOverviewQuotedCrew'
+          - type: 'null'
+          description: The crew the Sales team quoted, from the latest approved offer. Null on a project with no approved offer.
+        gross_margin:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Gross margin note (legacy projects.ProjectOverviewInfo)
+          title: Gross Margin
+        charge_status_breakdown:
+          description: Charged value broken into ADDED_TO_INVOICE/APPROVED/REQUIRE_PO/DRAFT/OTHER/UNKNOWN
+          items:
+            $ref: '#/components/schemas/ProjectOverviewChargeStatusBucket'
+          title: Charge Status Breakdown
+          type: array
+        readiness_summary:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectOverviewReadinessSummary'
+          - type: 'null'
+          description: Project-wide readiness tally (total/completed)
+        billing:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectOverviewBilling'
+          - type: 'null'
+          description: Billing header fields (core.ProjectBilling)
+        scope_rollup:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectOverviewScopeRollup'
+          - type: 'null'
+          description: Scope card rollup (dispatch.ServiceOrderLine)
       required:
       - updated_at
       title: ProjectOverviewResponse
       type: object
-    ProjectValidateResponse:
+    WarrantyCounterpartProjectObject:
       additionalProperties: false
-      description: Response schema for project validation endpoint.
-      properties:
-        warnings:
-          items:
-            type: string
-          title: Warnings
-          type: array
-      required:
-      - warnings
-      title: ProjectValidateResponse
-      type: object
-    StandardObject:
-      additionalProperties: false
-      description: Nested ``core.standard`` object for responses (LPS / HVT templates).
+      description: 'The project on the other side of a warranty relationship (no timestamps).
+
+
+        Direction-neutral: the source project (on a WARRANTY project) or the warranty
+
+        project (on a REGULAR project). ``type`` lets the client tell which without
+
+        inferring from the current project''s type.'
       properties:
         id:
-          title: Id
-          type: integer
-        name:
-          title: Name
-          type: string
-        type:
-          title: Type
-          type: string
-        key:
-          title: Key
-          type: string
-      required:
-      - id
-      - name
-      - type
-      - key
-      title: StandardObject
-      type: object
-    CountryWithRegionObject:
-      additionalProperties: false
-      description: CountryObject extended with region — only for responses that prefetch country__region.
-      properties:
-        id:
-          description: Country ID
+          description: Counterpart project ID
           title: Id
           type: integer
         code:
-          description: Country code (ISO 3166-1 alpha-2)
+          description: Counterpart project code
           title: Code
           type: string
-        name:
-          description: Country name
-          title: Name
+        type:
+          description: Counterpart project type
+          title: Type
           type: string
-        region:
+        project_builder_id:
           anyOf:
-          - type: string
+          - format: uuid
+            type: string
           - type: 'null'
-          description: Region name (nullable)
-          title: Region
+          description: Counterpart project builder UUID (for frontend routing)
+          title: Project Builder Id
       required:
       - id
       - code
-      - name
-      title: CountryWithRegionObject
+      - type
+      title: WarrantyCounterpartProjectObject
       type: object
-    VendorObject:
+    TimezoneObject:
       additionalProperties: false
-      description: Nested vendor object for responses (no timestamps).
+      description: Nested timezone object for responses (no timestamps in nested objects).
       properties:
         id:
+          description: Timezone ID
           title: Id
           type: integer
-        number:
+        timezone:
+          description: Timezone name (e.g., Europe/Riga)
+          title: Timezone
+          type: string
+        city:
           anyOf:
           - type: string
           - type: 'null'
-          title: Number
-        display_name:
-          title: Display Name
-          type: string
+          description: City name
+          title: City
+        utc_offset:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: UTC offset (e.g., +02:00)
+          title: Utc Offset
       required:
       - id
-      - display_name
-      title: VendorObject
+      - timezone
+      title: TimezoneObject
+      type: object
+    ProjectOverviewRoboticSet:
+      additionalProperties: false
+      description: 'A planned resource set shown on the project overview.
+
+
+        One row per set (not deduplicated by name — two sets can share a name).
+
+        ``planned_start_date``/``planned_end_date`` are the MIN/MAX of the set''s
+
+        non-soft-deleted item dates, same derivation as
+
+        ``GET /projects/{id}/planned-resource-sets``; staffed-technician detail
+
+        stays on that endpoint. ``required_tasks_total``/``required_tasks_completed``
+
+        are this set''s own slice of ``ProjectOverviewReadinessSummary`` (same
+
+        counting rule, grouped by set) — enough, together with
+
+        ``planned_start_date``, to derive a late/on-track flag; this payload does
+
+        not itself decide what "late" means.'
+      properties:
+        id:
+          description: core.ProjectPlannedResourceSet id
+          title: Id
+          type: integer
+        name:
+          description: Planned resource set name
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/ProjectPlannedResourceSetStatus'
+          - type: 'null'
+          description: Roster status
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: MIN(active item start_date) for this set
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: MAX(active item end_date) for this set
+          title: Planned End Date
+        required_tasks_total:
+          default: 0
+          description: Required tasks counted toward readiness for this set
+          title: Required Tasks Total
+          type: integer
+        required_tasks_completed:
+          default: 0
+          description: Of those, tasks completed
+          title: Required Tasks Completed
+          type: integer
+      required:
+      - id
+      - name
+      title: ProjectOverviewRoboticSet
       type: object
     ProjectStatusObject:
       additionalProperties: false
@@ -1684,71 +1971,6 @@ components:
       - id
       - code
       title: ProjectStatusObject
-      type: object
-    ProjectSearchResult:
-      additionalProperties: false
-      description: 'One global-search hit: a project row or a service-order-line (SOL) row.
-
-
-        Project rows match on project code or an active linked location name;
-
-        SOL rows match on the SOL number. Both row kinds point at a project, so
-
-        ``project_id`` / ``project_builder_id`` always identify the navigation
-
-        target.'
-      properties:
-        type:
-          description: 'Kind of hit: a project itself or one of its SOLs'
-          enum:
-          - project
-          - sol
-          title: Type
-          type: string
-        project_id:
-          description: Numeric Core project ID
-          title: Project Id
-          type: integer
-        project_code:
-          description: Project code
-          title: Project Code
-          type: string
-        project_builder_id:
-          anyOf:
-          - format: uuid
-            type: string
-          - type: 'null'
-          description: Project builder project UUID (legacy)
-          title: Project Builder Id
-        customer_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Requesting customer name of the project
-          title: Customer Name
-        matched_location_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Name of the linked site the term matched; set on project rows only, and only when a site (not just the code) matched
-          title: Matched Location Name
-        sol_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: ServiceOrderLine ID; set on sol rows only
-          title: Sol Id
-        sol_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: SOL number; set on sol rows only
-          title: Sol Number
-      required:
-      - type
-      - project_id
-      - project_code
-      title: ProjectSearchResult
       type: object
     CustomerObject:
       additionalProperties: false
@@ -1781,17 +2003,505 @@ components:
       - display_name
       title: CustomerObject
       type: object
-    ProjectOverviewRoboticSet:
+    ProjectUpdate:
       additionalProperties: false
-      description: Planned resource set name shown on the project overview.
+      description: Schema for updating a Project.
       properties:
-        name:
-          description: Planned resource set name
-          title: Name
+        code:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Unique project code
+          title: Code
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project description
+          title: Description
+        requesting_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Requesting customer ID
+          title: Requesting Customer Id
+        billing_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Billing customer ID
+          title: Billing Customer Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Vendor ID
+          title: Vendor Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+        status_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project status ID
+          title: Status Id
+        project_manager_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project manager user ID
+          title: Project Manager Id
+        salesperson_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Salesperson user ID
+          title: Salesperson Id
+        supervisor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Supervisor user ID
+          title: Supervisor Id
+        pipedrive_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive deal ID
+          title: Pipedrive Id
+        pipedrive_probability:
+          anyOf:
+          - maximum: 100
+            minimum: 0
+            type: integer
+          - type: 'null'
+          description: 'Deal probability (0-100). Editing it here is a manual RFI override: it drives the master-planning status cascade (Upcoming->Initiation at >=90, Initiation->Planning at 100), re-runs the status recompute, and marks the value sticky so the Pipedrive deals-refresh poll no longer overwrites it. Setting it to null clears the override and hands control back to Pipedrive.'
+          title: Pipedrive Probability
+        project_builder_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Project builder project UUID (legacy)
+          title: Project Builder Id
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Planned project start date
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Planned project end date
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Actual project start date
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Actual project end date
+          title: Actual End Date
+        expected_close_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'When sales expects the deal to be decided. Owned by the sales form: it writes this on deal creation and again whenever the date moves on its pipeline board, so a later change there wins over a hand-edit made in Ops Hub. Commercial only: no cascade or schedule reads it.'
+          title: Expected Close Date
+        lps_standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ID of the LPS report template/standard (core.standard)
+          title: Lps Standard Id
+        pre_job_received_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Customer pre-job questionnaire 'received' timestamp. Non-null locks the questionnaire; null reopens it. Writing it through this generic update is a plain persist with no side effects — prefer the PUT /projects/{id}/pre-job-received action endpoint, which also sends the submission email and re-runs the status cascade on submit.
+          title: Pre Job Received At
+        scope_change_auto_accept_enabled:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: 'When true, LER-1-2 → LER-3 scope change requests on this project are auto-approved and finalized immediately on creation; any other LER pair enters the QC → Sales → PM review flow either way, as do all requests when this is false. A non-LER pair is rejected with 422. Field-level permission: including this field in the body requires auth.project_manager — 403 otherwise.'
+          title: Scope Change Auto Accept Enabled
+        minimum_fieldwork_hours:
+          anyOf:
+          - maximum: 10.0
+            minimum: 8.0
+            type: number
+          - type: string
+          - type: 'null'
+          description: Minimum fieldwork hours a Daily Report submission on this project must cover (8.0-10.0) before a technician can submit it to the PM. Sending null clears the override and hands the project back to the 8h repo-wide default.
+          title: Minimum Fieldwork Hours
+      title: ProjectUpdate
+      type: object
+    ProjectStatusOverride:
+      additionalProperties: false
+      description: Payload for the manual status-override action endpoint.
+      properties:
+        status_code:
+          description: Target ProjectStatus code (e.g. 'Planning'). Matched case-insensitively against the configured statuses; 'Cancelled' is refused — cancellation has its own flow.
+          title: Status Code
+          type: string
+        reason:
+          description: Why the status is overridden. Required non-blank; stored on the status change log and shown in the status history.
+          maxLength: 1000
+          title: Reason
           type: string
       required:
-      - name
-      title: ProjectOverviewRoboticSet
+      - status_code
+      - reason
+      title: ProjectStatusOverride
+      type: object
+    ProjectOverviewBilling:
+      additionalProperties: false
+      description: Billing header fields (from the earliest active ``core.ProjectBilling`` row).
+      properties:
+        invoice_recipient:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Customer name receiving the invoice
+          title: Invoice Recipient
+        receive_daily_reports:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: NULL means never answered
+          title: Receive Daily Reports
+        receive_draft_charge_statements:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: False until Pre-job answers Yes; NULL only on legacy rows
+          title: Receive Draft Charge Statements
+        draft_charge_statement_frequency:
+          anyOf:
+          - enum:
+            - WEEKLY
+            - MONTHLY
+            type: string
+          - type: 'null'
+          description: core.DraftChargeStatementFrequency
+          title: Draft Charge Statement Frequency
+      title: ProjectOverviewBilling
+      type: object
+    ProjectPlannedResourceSetStatus:
+      description: 'All planned-resource-set statuses (approval pipeline + deployment lifecycle).
+
+
+        Mirrors ``core.models.projects.ProjectPlannedResourceSetStatus`` — keep both
+
+        in sync.'
+      enum:
+      - PLANNED
+      - SUGGESTED
+      - APPROVED
+      - PLANNING
+      - EXECUTION
+      - FIELD_COMPLETED
+      - REJECTED
+      title: ProjectPlannedResourceSetStatus
+      type: string
+    ProjectCreate:
+      additionalProperties: false
+      description: Schema for creating a Project.
+      properties:
+        code:
+          description: Unique project code
+          minLength: 1
+          title: Code
+          type: string
+        type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Project type: REGULAR, DEMO, RND, or ACADEMY. Defaults to REGULAR when omitted. WARRANTY and INTERNAL cannot be set via the API.'
+          title: Type
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Project description
+          title: Description
+        requesting_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Requesting customer ID
+          title: Requesting Customer Id
+        billing_customer_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Billing customer ID
+          title: Billing Customer Id
+        vendor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Vendor ID
+          title: Vendor Id
+        country_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Country ID
+          title: Country Id
+        timezone_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Timezone ID
+          title: Timezone Id
+        status_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project status ID
+          title: Status Id
+        project_manager_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Project manager user ID
+          title: Project Manager Id
+        salesperson_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Salesperson user ID
+          title: Salesperson Id
+        supervisor_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Supervisor user ID
+          title: Supervisor Id
+        pipedrive_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Pipedrive deal ID
+          title: Pipedrive Id
+        pipedrive_probability:
+          anyOf:
+          - maximum: 100
+            minimum: 0
+            type: integer
+          - type: 'null'
+          description: 'Deal probability (0-100). Sending it here is a manual override, exactly as it is on PATCH: the value is marked sticky so the Pipedrive deals-refresh poll no longer overwrites it. Unlike PATCH this does not re-run the status cascade, because a project that has just been created has no internally-approved commercial offer and so cannot advance past Upcoming whatever the probability says. Omit it to leave Pipedrive in control.'
+          title: Pipedrive Probability
+        project_builder_id:
+          anyOf:
+          - format: uuid
+            type: string
+          - type: 'null'
+          description: Project builder project UUID (legacy) - optional for natively created projects
+          title: Project Builder Id
+        planned_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Planned project start date
+          title: Planned Start Date
+        planned_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Planned project end date
+          title: Planned End Date
+        actual_start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Actual project start date
+          title: Actual Start Date
+        actual_end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Actual project end date
+          title: Actual End Date
+        expected_close_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'When sales expects the deal to be decided. Owned by the sales form: it writes this on deal creation and again whenever the date moves on its pipeline board, so a later change there wins over a hand-edit made in Ops Hub. Commercial only: no cascade or schedule reads it.'
+          title: Expected Close Date
+        lps_standard_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: ID of the LPS report template/standard (core.standard)
+          title: Lps Standard Id
+      required:
+      - code
+      title: ProjectCreate
+      type: object
+    ProjectOverviewReadinessSummary:
+      additionalProperties: false
+      description: 'Project-wide readiness tally, summed across every planned-resource-set
+
+        bucket and the project-wide bucket ``GET /projects/{id}/readiness`` reports
+
+        separately.'
+      properties:
+        total:
+          description: Tasks counted toward readiness
+          title: Total
+          type: integer
+        completed:
+          description: Of those, tasks completed
+          title: Completed
+          type: integer
+        by_phase:
+          description: Per-phase breakdown; total/completed above are its sum
+          items:
+            $ref: '#/components/schemas/ProjectOverviewReadinessPhase'
+          title: By Phase
+          type: array
+      required:
+      - total
+      - completed
+      title: ProjectOverviewReadinessSummary
+      type: object
+    CurrencyIdCodeObject:
+      additionalProperties: false
+      description: Nested currency object with only id and code (no timestamps).
+      properties:
+        id:
+          title: Id
+          type: integer
+        code:
+          title: Code
+          type: string
+      required:
+      - id
+      - code
+      title: CurrencyIdCodeObject
+      type: object
+    ProjectOverviewServiceScope:
+      additionalProperties: false
+      description: 'One service''s sold-unit progress for the Scope card.
+
+
+        ``code`` is the service''s resolved code: ``core.Service.code`` for a
+
+        linked line, else the line''s own ``service_code`` text, else its resolved
+
+        name, else ``"Unknown"``. ``units`` counts every sold line for the
+
+        service (cancelled included); ``completed``/``field_completed``/
+
+        ``in_progress``/``cancelled`` are that service''s slice of
+
+        ``ProjectOverviewScopeRollup.by_status``, so they always sum to at most
+
+        ``units`` (a status outside those four leaves the remainder unaccounted,
+
+        same as the by-status totals below).'
+      properties:
+        code:
+          description: Resolved service code
+          title: Code
+          type: string
+        unit_type:
+          description: '''blade'' when >=half the service''s lines are component-pinned'
+          enum:
+          - blade
+          - turbine
+          title: Unit Type
+          type: string
+        units:
+          description: Sold lines for this service
+          title: Units
+          type: integer
+        completed:
+          description: Lines with status COMPLETED
+          title: Completed
+          type: integer
+        field_completed:
+          description: Lines with status FIELD_COMPLETED
+          title: Field Completed
+          type: integer
+        in_progress:
+          description: Lines with status IN_PROGRESS
+          title: In Progress
+          type: integer
+        cancelled:
+          description: Lines with status CANCELLED
+          title: Cancelled
+          type: integer
+      required:
+      - code
+      - unit_type
+      - units
+      - completed
+      - field_completed
+      - in_progress
+      - cancelled
+      title: ProjectOverviewServiceScope
+      type: object
+    ProjectOverviewChargeStatusBucket:
+      additionalProperties: false
+      description: 'One value-coverage bucket: a count + total for a charge-status group.
+
+
+        ``status`` is one of ``ADDED_TO_INVOICE`` / ``APPROVED`` / ``REQUIRE_PO`` /
+
+        ``DRAFT`` (the frontend''s ``CHARGE_STATUS_DISPLAY_ORDER``), ``OTHER`` for a
+
+        NetSuite status outside those four, or ``UNKNOWN`` for a charge with no
+
+        ``netsuite_status`` recorded yet. All six buckets are always present (zero
+
+        when empty) so their totals always sum to ``charged_value``.'
+      properties:
+        status:
+          description: Bucket key, see class docstring
+          enum:
+          - ADDED_TO_INVOICE
+          - APPROVED
+          - REQUIRE_PO
+          - DRAFT
+          - OTHER
+          - UNKNOWN
+          title: Status
+          type: string
+        count:
+          description: Number of charges in this bucket
+          title: Count
+          type: integer
+        total:
+          description: Summed effective amount in this bucket
+          title: Total
+          type: number
+      required:
+      - status
+      - count
+      - total
+      title: ProjectOverviewChargeStatusBucket
       type: object
     ProjectOverviewFinancialsResponse:
       additionalProperties: false
@@ -1848,62 +2558,6 @@ components:
       - updated_at
       title: ProjectOverviewFinancialsResponse
       type: object
-    ProjectStatusOverride:
-      additionalProperties: false
-      description: Payload for the manual status-override action endpoint.
-      properties:
-        status_code:
-          description: Target ProjectStatus code (e.g. 'Planning'). Matched case-insensitively against the configured statuses; 'Cancelled' is refused — cancellation has its own flow.
-          title: Status Code
-          type: string
-        reason:
-          description: Why the status is overridden. Required non-blank; stored on the status change log and shown in the status history.
-          maxLength: 1000
-          title: Reason
-          type: string
-      required:
-      - status_code
-      - reason
-      title: ProjectStatusOverride
-      type: object
-    ProjectLocationSummary:
-      additionalProperties: false
-      description: Summary of sites (locations) linked to a project for list/detail payloads.
-      properties:
-        primary_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Display name of the first linked site when ordered by project_location id ascending
-          title: Primary Name
-        total_count:
-          description: Number of active project–site links
-          minimum: 0
-          title: Total Count
-          type: integer
-        all_names:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          description: All site names when total_count > 1; omitted or null when absent or unnecessary
-          title: All Names
-      required:
-      - total_count
-      title: ProjectLocationSummary
-      type: object
-    ErrorCode:
-      description: Error codes for API errors.
-      enum:
-      - validation
-      - server
-      - auth
-      - unknown
-      - external
-      - generic
-      title: ErrorCode
-      type: string
   securitySchemes:
     APIKeyAuth:
       type: http

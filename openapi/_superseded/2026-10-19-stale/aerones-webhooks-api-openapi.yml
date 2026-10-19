@@ -1,0 +1,117 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Webhooks API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: Webhooks
+paths:
+  /api/webhooks/pipedrive-sync:
+    post:
+      operationId: webhooks_api_pipedrive_sync_webhook
+      summary: Pipedrive Sync Webhook
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Webhook endpoint delegating all processing to the manager.
+      tags:
+      - Webhooks
+  /api/webhooks/wrike/dates-changed:
+    post:
+      operationId: webhooks_api_handle_wrike_dates_changed_webhook
+      summary: Handle Wrike Dates Changed Webhook
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Acknowledge and ignore Wrike dates-changed events (sync switched off).
+      tags:
+      - Webhooks
+  /api/webhooks/wrike/task-created:
+    post:
+      operationId: webhooks_api_handle_wrike_task_created_webhook
+      summary: Handle Wrike Task Created Webhook
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Acknowledge and ignore Wrike task-created events (sync switched off).
+      tags:
+      - Webhooks
+  /api/webhooks/wrike/custom-field:
+    post:
+      operationId: webhooks_api_handle_wrike_custom_field_changed
+      summary: Handle Wrike Custom Field Changed
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Acknowledge and ignore Wrike custom-field events (sync switched off).
+      tags:
+      - Webhooks
+  /api/webhooks/wrike/sync-task:
+    post:
+      operationId: webhooks_api_handle_wrike_sync_task_webhook
+      summary: Handle Wrike Sync Task Webhook
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+      description: Acknowledge and ignore Wrike sync-task events (sync switched off).
+      tags:
+      - Webhooks
+components:
+  schemas:
+    Success:
+      additionalProperties: false
+      description: 'Schema returned for successful operations.
+
+
+        The `success` field is always ``true`` in this schema. Failed operations are
+
+        represented by the :class:`Error` schema instead, so a ``false`` value does
+
+        not occur in practice. The field is included for consistency across responses
+
+        and to make the contract explicit for clients.'
+      properties:
+        success:
+          default: true
+          description: Always true for this schema. Errors are represented by a separate Error schema, so false is never returned.
+          title: Success
+          type: boolean
+      title: Success
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer

@@ -1,0 +1,1915 @@
+openapi: 3.2.0
+info:
+  title: Operations Hub Core.service Order Lines.ler Results API
+  version: 0.1.1
+  description: ''
+servers: []
+tags:
+- name: core.service-order-lines.ler-results
+paths:
+  /api/core/v1/service-order-lines/{sol_id}/ler-results:
+    get:
+      operationId: get_ler_results_context
+      summary: Per-blade LER Service Results capture context
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LerResultsContextResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.service-order-lines.ler-results
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+    put:
+      operationId: upsert_ler_results
+      summary: Upsert per-blade LER results for a SOL
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LerResultsUpsertResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Upsert one LER row per blade, dropping an unset ``expected_updated_at``.
+
+
+        Distinguishes "the client sent no concurrency token" from "the client
+
+        sent null": ``model_dump`` fills the field from its default either way, so
+
+        ``model_fields_set`` is the only place that difference survives, and it
+
+        matters - an explicit null asserts "I expect no row yet" (a conflict if
+
+        one exists), while an absent field opts out of the check entirely so
+
+        older/other clients keep working.'
+      tags:
+      - core.service-order-lines.ler-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LerResultsUpsertBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/service-order-lines/{sol_id}/ler-results/layout:
+    put:
+      operationId: update_ler_layout
+      summary: Write the LER grid layout onto blades of a SOL
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LerLayoutResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.service-order-lines.ler-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LerLayoutBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/service-order-lines/{sol_id}/ler-results/image-placement:
+    put:
+      operationId: update_ler_image_placement
+      summary: Place LER images on the grid
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LerImagePlacementResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+      - core.service-order-lines.ler-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LerImagePlacementBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/service-order-lines/{sol_id}/ler-results/phase-composites:
+    post:
+      operationId: create_ler_phase_composite
+      summary: Compose one LER phase column into a single image
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LerPhaseCompositeResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Compose one phase column, synchronously — no Celery task.
+
+
+        ``def``, not ``async def``: this is blocking GCS IO plus Pillow, and
+
+        ``backend-code-rules.md`` § ``async-scaffolding`` says new code that fights
+
+        async is written sync. The four LER endpoints above are async and stay
+
+        async; this one does not join them.'
+      tags:
+      - core.service-order-lines.ler-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LerPhaseCompositeBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+  /api/core/v1/service-order-lines/{sol_id}/ler-results/phase-composites/discard:
+    post:
+      operationId: discard_ler_phase_composite_changes
+      summary: Discard the changes made to a composed LER phase column
+      parameters:
+      - in: path
+        name: sol_id
+        schema:
+          title: Sol Id
+          type: integer
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LerPhaseCompositeDiscardResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      description: 'Sync for the reason compose is: the manager is one locked transaction (``async-scaffolding``).'
+      tags:
+      - core.service-order-lines.ler-results
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LerPhaseCompositeDiscardBody'
+        required: true
+      security:
+      - APIKeyAuth: []
+      - CookieAuth: []
+components:
+  schemas:
+    LerRepairInfo:
+      additionalProperties: false
+      description: 'Per-blade repair dimensions. All editable by DataOps; length may be
+
+        prefilled from AeroTask ("Meters performed (m)" × 1000).'
+      properties:
+        length_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Length Mm
+        width_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Width Mm
+        lep_thickness_um:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lep Thickness Um
+      title: LerRepairInfo
+      type: object
+    LerPhaseCompositeDiscardBlocker:
+      additionalProperties: false
+      description: Why a stale column cannot return to its composed state; ``position`` is a row KEY.
+      properties:
+        kind:
+          title: Kind
+          type: string
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+      required:
+      - kind
+      title: LerPhaseCompositeDiscardBlocker
+      type: object
+    LerStepPhoto:
+      additionalProperties: false
+      description: 'A repair-step photo: an AeroTask attachment (``activity``) or a line upload (``file``).'
+      properties:
+        source:
+          title: Source
+          type: string
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+        attachment_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Attachment Id
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Activity Id
+      required:
+      - source
+      title: LerStepPhoto
+      type: object
+    LerPhaseCompositeChange:
+      additionalProperties: false
+      description: 'One row of the difference between a composed column and the grid now.
+
+
+        ``kind`` is a ``LerCompositeChangeKind`` value (SOURCE_REPLACED,
+
+        FRAMING_CHANGED, POSITION_ADDED, POSITION_REMOVED, MOVED). ``detail`` is the
+
+        sentence the rebuild dialog prints beside the row''s label, and is absent
+
+        where the kind says everything.
+
+
+        ``from_position`` accompanies MOVED and is the row the photo came from, as a
+
+        KEY. The label belongs to the blade''s own grid, so the dialog resolves it
+
+        the way every other address on this screen is resolved; a key baked into
+
+        ``detail`` would print ``moved from POS_3`` at the operator.'
+      properties:
+        position:
+          title: Position
+          type: string
+        kind:
+          title: Kind
+          type: string
+        detail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Detail
+        from_position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Position
+      required:
+      - position
+      - kind
+      title: LerPhaseCompositeChange
+      type: object
+    LerResultsUpsertBlade:
+      additionalProperties: false
+      properties:
+        work_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder this blade's repair was executed under. Must be one of the SOL's own workorders (see the context's `workorders` list).
+          title: Work Order Id
+        service_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO date (YYYY-MM-DD) the service was performed.
+          title: Service Date
+        data_operator_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: auth User id of the DataOps operator who verified this blade.
+          title: Data Operator Id
+        data_operator_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The operator''s email, resolved server-side because the header is read-only: the client renders a name, never a picker.'
+          title: Data Operator Name
+        blade_id:
+          description: TurbineComponent.id of the blade being saved.
+          title: Blade Id
+          type: integer
+        expected_updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: 'Optimistic-concurrency token: the `updated_at` of the row this draft was built from, or null when the client believes no row exists yet. If it disagrees with the stored row the write is refused with HTTP 409 (STALE_WRITE) instead of overwriting work the client never saw — which for this endpoint would also delete the other operator''s material photos.'
+          title: Expected Updated At
+        remark:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Remark
+        repair:
+          allOf:
+          - $ref: '#/components/schemas/LerRepairInfo'
+        materials:
+          items:
+            $ref: '#/components/schemas/LerMaterial'
+          title: Materials
+          type: array
+        layout:
+          allOf:
+          - $ref: '#/components/schemas/LerLayout'
+          description: The blade's grid. Empty means 'no opinion' and keeps the stored layout; the layout endpoint is the surface that edits it across blades.
+        damages:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/LerDamage'
+            type: array
+          - type: 'null'
+          description: The blade's whole damage list on a `damage_steps` line, in print order; null keeps what is stored. A `phase_grid` line refuses it.
+          title: Damages
+      required:
+      - blade_id
+      title: LerResultsUpsertBlade
+      type: object
+    ErrorCode:
+      description: Error codes for API errors.
+      enum:
+      - validation
+      - server
+      - auth
+      - unknown
+      - external
+      - generic
+      title: ErrorCode
+      type: string
+    LerMaterialPhoto:
+      additionalProperties: false
+      description: 'One label photo of a material row, referenced from AeroTask.
+
+
+        ``attachment_id`` is the id AS STORED, never coerced: an integer
+
+        ``core.file.id`` and a UUID legacy storage id share the key, and the client
+
+        picks the download route from its shape. ``workorder_activity_id`` is the
+
+        activity the field was read from, which the integer route needs to build a
+
+        URL at all.
+
+
+        One entry per ``kind`` — the slot holds a single image. ``extra`` is how
+
+        many more attachments that field carried, so a technician who dropped
+
+        fifteen pictures into one label field is visible as a number instead of a
+
+        wall of thumbnails.'
+      properties:
+        kind:
+          title: Kind
+          type: string
+        attachment_id:
+          title: Attachment Id
+          type: string
+        workorder_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Workorder Activity Id
+        extra:
+          default: 0
+          title: Extra
+          type: integer
+      required:
+      - kind
+      - attachment_id
+      title: LerMaterialPhoto
+      type: object
+    Error:
+      additionalProperties: false
+      description: Error response schema.
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          title: Message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
+    LerImagePlacementBody:
+      additionalProperties: false
+      properties:
+        placements:
+          description: Placements to apply, all in one transaction.
+          items:
+            $ref: '#/components/schemas/LerImagePlacement'
+          maxItems: 288
+          title: Placements
+          type: array
+      required:
+      - placements
+      title: LerImagePlacementBody
+      type: object
+    LerResultsUpsertResponse:
+      additionalProperties: false
+      description: PUT response = the upsert count + the refreshed capture context.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        capture_kind:
+          default: phase_grid
+          description: '`phase_grid` (robot LER: the stitched image grid) or `damage_steps` (LER-RAT-4-5: a list of damages with photographed repair steps).'
+          title: Capture Kind
+          type: string
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultsTurbineObject'
+          - type: 'null'
+        blade_scope_notice:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Finished sentence to show above the blade tabs when the panel is offering more blades than the line is linked to, or null when it is not. Composed here rather than assembled by the client, the same way report gap markers are.
+          title: Blade Scope Notice
+        blades:
+          items:
+            $ref: '#/components/schemas/LerResultsBlade'
+          title: Blades
+          type: array
+        workorders:
+          description: Workorders of this SOL, for the service-header select.
+          items:
+            $ref: '#/components/schemas/LerWorkorderOption'
+          title: Workorders
+          type: array
+        material_type_buckets:
+          description: The exact `material_type` vocabulary the upsert validates against. Returned so clients can verify their own list matches instead of learning about drift from a 422.
+          items:
+            type: string
+          title: Material Type Buckets
+          type: array
+        material_type_options:
+          description: Materials derived from the SOL's service items and its workorder activities. Empty is normal — the FE falls back to its bucket list and the control stays free-text either way.
+          items:
+            $ref: '#/components/schemas/LerMaterialTypeOption'
+          title: Material Type Options
+          type: array
+        repair_defaults:
+          description: Per-LEP-material implied repair width / thickness. Empty until the LER Tribe supplies the numbers; empty means 'do not prefill', never 'prefill with zero'.
+          items:
+            $ref: '#/components/schemas/LerRepairDefaults'
+          title: Repair Defaults
+          type: array
+        vis_photos:
+          description: VIS photos flagged include_in_report, already resolved onto grid cells. The primary image source; the uploader is the fallback.
+          items:
+            $ref: '#/components/schemas/LerVisPhoto'
+          title: Vis Photos
+          type: array
+        vis_unmapped_photos:
+          description: Flagged VIS photos whose blade / side / step could not be resolved to a grid cell. Never silently dropped.
+          items:
+            $ref: '#/components/schemas/LerVisUnmappedPhoto'
+          title: Vis Unmapped Photos
+          type: array
+        phase_composites:
+          description: Phase columns composed into one stored image, with whether each still matches the grid. A stale one does not print.
+          items:
+            $ref: '#/components/schemas/LerPhaseComposite'
+          title: Phase Composites
+          type: array
+        overflow_cells:
+          description: Cells holding more than one image, so the surplus is visible.
+          items:
+            $ref: '#/components/schemas/LerOverflowCell'
+          title: Overflow Cells
+          type: array
+        scope_fields:
+          description: 'Report block B, turbine half (Wind Park, Turbine Manufacturer, Hub height, Turbine Model, Nominal Power, Commissioning year). Once per response: LER is a per-blade service and the turbine is its shared context.'
+          items:
+            $ref: '#/components/schemas/LerReportField'
+          title: Scope Fields
+          type: array
+        upserted:
+          description: How many blades were written.
+          title: Upserted
+          type: integer
+      required:
+      - service_order_line_id
+      - upserted
+      title: LerResultsUpsertResponse
+      type: object
+    LerReportField:
+      additionalProperties: false
+      description: 'One cell of the read-only report mirror (block B, Scope Of The Service).
+
+
+        A cell carries either ``value`` or ``missing``, never neither: a blank cell
+
+        in a mirror of a customer deliverable reads as a zero, and making the gaps
+
+        visible to DataOps is the reason the block exists.
+
+
+        ``value`` is already the string the report prints. ``number`` is for a value
+
+        the client re-formats itself, so the conversion stays one function on the
+
+        client; no field of this block needs it today.'
+      properties:
+        key:
+          title: Key
+          type: string
+        label:
+          title: Label
+          type: string
+        unit:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Unit of the FIELD, never part of the value (the report prints MW for nominal power, which the database does not store).
+          title: Unit
+        value:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Value
+        number:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Number
+        missing:
+          anyOf:
+          - $ref: '#/components/schemas/LerReportMissing'
+          - type: 'null'
+      required:
+      - key
+      - label
+      title: LerReportField
+      type: object
+    LerReportMissing:
+      additionalProperties: false
+      description: 'Why a read-only report cell is empty: what it means, where, whose data.
+
+
+        Three parts on purpose. ``hint`` is the finished sentence the operator reads
+
+        first; ``field`` is the exact database address a developer needs once the UI
+
+        wording and the column have drifted apart; ``owner`` is who owes the value.
+
+        All three are composed on the backend, next to the code that decided the
+
+        value is absent, so the UI never assembles a sentence out of a key.'
+      properties:
+        hint:
+          description: Plain-language sentence for the operator.
+          title: Hint
+          type: string
+        field:
+          description: Exact database address, for a developer.
+          title: Field
+          type: string
+        owner:
+          description: Who owes this value.
+          title: Owner
+          type: string
+      required:
+      - hint
+      - field
+      - owner
+      title: LerReportMissing
+      type: object
+    LerResultsBlade:
+      additionalProperties: false
+      properties:
+        work_order_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Workorder this blade's repair was executed under. Must be one of the SOL's own workorders (see the context's `workorders` list).
+          title: Work Order Id
+        service_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO date (YYYY-MM-DD) the service was performed.
+          title: Service Date
+        data_operator_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: auth User id of the DataOps operator who verified this blade.
+          title: Data Operator Id
+        data_operator_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'The operator''s email, resolved server-side because the header is read-only: the client renders a name, never a picker.'
+          title: Data Operator Name
+        blade:
+          $ref: '#/components/schemas/LerResultsBladeObject'
+        result_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Saved LER ServiceResult id, when one exists.
+          title: Result Id
+        updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Last-write timestamp of the saved ServiceResult; null for AEROTASK/EMPTY blades. Lets the client detect a stale draft.
+          title: Updated At
+        source:
+          description: SAVED = data comes from a stored ServiceResult; AEROTASK = no saved row yet, fields prefilled from technician activity custom_fields; EMPTY = nothing found.
+          title: Source
+          type: string
+        remark:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Remark
+        repair:
+          allOf:
+          - $ref: '#/components/schemas/LerRepairInfo'
+        materials:
+          items:
+            $ref: '#/components/schemas/LerMaterial'
+          title: Materials
+          type: array
+        layout:
+          allOf:
+          - $ref: '#/components/schemas/LerLayout'
+          description: The blade's grid. Defaults for a row saved before layouts existed, always widened by keys the blade's images already use.
+        blade_fields:
+          description: 'Report block B, blade half (Blade Model, Blade Length). In the blade''s own record, not at the root: a report section prints ONE blade and has to be self-contained.'
+          items:
+            $ref: '#/components/schemas/LerReportField'
+          title: Blade Fields
+          type: array
+        damages:
+          description: 'The blade''s repairs on a `damage_steps` line: saved, else the AeroTask prefill. Always empty on a `phase_grid` line.'
+          items:
+            $ref: '#/components/schemas/LerDamage'
+          title: Damages
+          type: array
+      required:
+      - blade
+      - source
+      title: LerResultsBlade
+      type: object
+    LerPhaseCompositeDiscardBody:
+      additionalProperties: false
+      description: POST ``/service-order-lines/{sol_id}/ler-results/phase-composites/discard``.
+      properties:
+        blade_id:
+          title: Blade Id
+          type: integer
+        side:
+          description: PRESSURE_SIDE / SUCTION_SIDE.
+          title: Side
+          type: string
+        phase:
+          title: Phase
+          type: string
+        expected_recipe_hash:
+          description: The hash of the composite to return to; a mismatch is 409 STALE_WRITE.
+          title: Expected Recipe Hash
+          type: string
+        expected_current_recipe_hash:
+          description: The column's current_recipe_hash the listed changes were read from; a grid edit since then is 409 STALE_WRITE.
+          title: Expected Current Recipe Hash
+          type: string
+      required:
+      - blade_id
+      - side
+      - phase
+      - expected_recipe_hash
+      - expected_current_recipe_hash
+      title: LerPhaseCompositeDiscardBody
+      type: object
+    LerRepairDefaults:
+      additionalProperties: false
+      description: 'Repair dimensions implied by one LEP product.
+
+
+        A LIST entry carrying its own ``material`` field rather than a map keyed by
+
+        the product name: the frontend''s response interceptor camel-cases every
+
+        object KEY it walks, so a name-keyed map would arrive under a mangled key
+
+        and never match. (Same reason the dispatching backlog returns facet counts
+
+        as ``{key, count}`` rows.)'
+      properties:
+        material:
+          title: Material
+          type: string
+        width_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Width Mm
+        lep_thickness_um:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lep Thickness Um
+      required:
+      - material
+      title: LerRepairDefaults
+      type: object
+    LpsResultsTurbineObject:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        manufacturer_turbine_model_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Manufacturer Turbine Model Id
+      required:
+      - id
+      title: LpsResultsTurbineObject
+      type: object
+    LerPhaseComposite:
+      additionalProperties: false
+      description: 'A phase column that has been composed into a single stored image.
+
+
+        The FILE is not repeated here — it is already in the SOL''s file list, and
+
+        returning it twice would create two places for one truth. ``recipe_hash``
+
+        IS here: it is not part of the file, it is the fingerprint this response was
+
+        computed against, and a rebuild has to echo it back as
+
+        ``expected_recipe_hash``. Reading it out of the file''s
+
+        ``additional_information`` instead would make the client depend on a storage
+
+        format this API deliberately hides.
+
+
+        ``is_fresh`` is recomputed from the RESOLVED grid on every read, not from
+
+        the placements as they were stored: VIS auto-fill moves an unpinned photo at
+
+        read time with no operator save at all. A stale composite does not print;
+
+        the column falls back to its individual frames until it is rebuilt.'
+      properties:
+        file_id:
+          title: File Id
+          type: integer
+        blade_id:
+          title: Blade Id
+          type: integer
+        side:
+          title: Side
+          type: string
+        phase:
+          title: Phase
+          type: string
+        recipe_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recipe Hash
+        is_fresh:
+          title: Is Fresh
+          type: boolean
+        current_recipe_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Hash of the column as the grid reads now; a discard echoes it back.
+          title: Current Recipe Hash
+        blank_positions:
+          description: Position keys this composed image prints as blank frames.
+          items:
+            type: string
+          title: Blank Positions
+          type: array
+        changes:
+          description: What moved since it was composed; empty when is_fresh.
+          items:
+            $ref: '#/components/schemas/LerPhaseCompositeChange'
+          title: Changes
+          type: array
+        discard_blocker:
+          anyOf:
+          - $ref: '#/components/schemas/LerPhaseCompositeDiscardBlocker'
+          - type: 'null'
+          description: Why Discard changes cannot put this stale column back; null when it can, and always null when is_fresh.
+        discard_file_ids:
+          description: Uploaded photos Discard changes writes back; empty when is_fresh.
+          items:
+            type: integer
+          title: Discard File Ids
+          type: array
+        discard_vis_photo_ids:
+          description: VIS photos Discard changes writes back; empty when is_fresh.
+          items:
+            type: integer
+          title: Discard Vis Photo Ids
+          type: array
+      required:
+      - file_id
+      - blade_id
+      - side
+      - phase
+      - is_fresh
+      title: LerPhaseComposite
+      type: object
+    LerLayout:
+      additionalProperties: false
+      description: 'A blade''s grid: phase COLUMNS x position ROWS.
+
+
+        Per blade, not per SOL: a report section prints one blade, so one blade
+
+        legitimately needs a filler pass the others did not. The client applies an
+
+        edit to every blade of the SOL by default, which is an input convenience,
+
+        not the storage shape.
+
+
+        Empty on an upsert means "no opinion" and leaves the stored layout alone.'
+      properties:
+        phases:
+          items:
+            $ref: '#/components/schemas/LerLayoutEntry'
+          title: Phases
+          type: array
+        positions:
+          items:
+            $ref: '#/components/schemas/LerLayoutEntry'
+          title: Positions
+          type: array
+      title: LerLayout
+      type: object
+    LerDamageStep:
+      additionalProperties: false
+      description: One photographed repair step.
+      properties:
+        uid:
+          title: Uid
+          type: string
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        in_report:
+          default: true
+          title: In Report
+          type: boolean
+        activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Activity Id
+        photos:
+          items:
+            $ref: '#/components/schemas/LerStepPhoto'
+          title: Photos
+          type: array
+      required:
+      - uid
+      title: LerDamageStep
+      type: object
+    LerResultsContextResponse:
+      additionalProperties: false
+      description: GET ``/service-order-lines/{sol_id}/ler-results``.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        capture_kind:
+          default: phase_grid
+          description: '`phase_grid` (robot LER: the stitched image grid) or `damage_steps` (LER-RAT-4-5: a list of damages with photographed repair steps).'
+          title: Capture Kind
+          type: string
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultsTurbineObject'
+          - type: 'null'
+        blade_scope_notice:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Finished sentence to show above the blade tabs when the panel is offering more blades than the line is linked to, or null when it is not. Composed here rather than assembled by the client, the same way report gap markers are.
+          title: Blade Scope Notice
+        blades:
+          items:
+            $ref: '#/components/schemas/LerResultsBlade'
+          title: Blades
+          type: array
+        workorders:
+          description: Workorders of this SOL, for the service-header select.
+          items:
+            $ref: '#/components/schemas/LerWorkorderOption'
+          title: Workorders
+          type: array
+        material_type_buckets:
+          description: The exact `material_type` vocabulary the upsert validates against. Returned so clients can verify their own list matches instead of learning about drift from a 422.
+          items:
+            type: string
+          title: Material Type Buckets
+          type: array
+        material_type_options:
+          description: Materials derived from the SOL's service items and its workorder activities. Empty is normal — the FE falls back to its bucket list and the control stays free-text either way.
+          items:
+            $ref: '#/components/schemas/LerMaterialTypeOption'
+          title: Material Type Options
+          type: array
+        repair_defaults:
+          description: Per-LEP-material implied repair width / thickness. Empty until the LER Tribe supplies the numbers; empty means 'do not prefill', never 'prefill with zero'.
+          items:
+            $ref: '#/components/schemas/LerRepairDefaults'
+          title: Repair Defaults
+          type: array
+        vis_photos:
+          description: VIS photos flagged include_in_report, already resolved onto grid cells. The primary image source; the uploader is the fallback.
+          items:
+            $ref: '#/components/schemas/LerVisPhoto'
+          title: Vis Photos
+          type: array
+        vis_unmapped_photos:
+          description: Flagged VIS photos whose blade / side / step could not be resolved to a grid cell. Never silently dropped.
+          items:
+            $ref: '#/components/schemas/LerVisUnmappedPhoto'
+          title: Vis Unmapped Photos
+          type: array
+        phase_composites:
+          description: Phase columns composed into one stored image, with whether each still matches the grid. A stale one does not print.
+          items:
+            $ref: '#/components/schemas/LerPhaseComposite'
+          title: Phase Composites
+          type: array
+        overflow_cells:
+          description: Cells holding more than one image, so the surplus is visible.
+          items:
+            $ref: '#/components/schemas/LerOverflowCell'
+          title: Overflow Cells
+          type: array
+        scope_fields:
+          description: 'Report block B, turbine half (Wind Park, Turbine Manufacturer, Hub height, Turbine Model, Nominal Power, Commissioning year). Once per response: LER is a per-blade service and the turbine is its shared context.'
+          items:
+            $ref: '#/components/schemas/LerReportField'
+          title: Scope Fields
+          type: array
+      required:
+      - service_order_line_id
+      title: LerResultsContextResponse
+      type: object
+    LerLayoutEntry:
+      additionalProperties: false
+      description: 'One axis entry of a blade''s grid: a phase column or a position row.
+
+
+        ``key`` is what lands in an image''s ``additional_information`` and is
+
+        therefore permanent; ``label`` is display wording and may be edited. Custom
+
+        keys carry an axis prefix (``PH_`` / ``POS_``).'
+      properties:
+        key:
+          title: Key
+          type: string
+        label:
+          title: Label
+          type: string
+        pinned:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: FIRST / LAST for the ends the report fixes (Before + After, Root + Tip). Derived on read and ignored on write — the order is validated against the same rule either way.
+          title: Pinned
+        auto:
+          default: false
+          description: True when the key is not in the saved layout but data already uses it, so the grid cannot drop it without hiding an image.
+          title: Auto
+          type: boolean
+      required:
+      - key
+      - label
+      title: LerLayoutEntry
+      type: object
+    LerLayoutBody:
+      additionalProperties: false
+      description: Write one grid layout onto one or more blades of a SOL.
+      properties:
+        expected_versions:
+          description: Optimistic-concurrency tokens, one per blade the client is writing. A blade named here whose stored row has moved on since is refused with HTTP 409 (STALE_WRITE) rather than overwritten — this write also deletes the composites of any phase the incoming grid drops, so a stale grid destroys work the client never saw. An omitted blade means 'no opinion' and is written unconditionally.
+          items:
+            $ref: '#/components/schemas/LerLayoutBladeVersion'
+          title: Expected Versions
+          type: array
+        blade_ids:
+          description: Blades to write it to. The UI ticks all blades of the SOL by default — the table shape is one per report — but storage stays per blade because a report section prints a single blade.
+          items:
+            type: integer
+          title: Blade Ids
+          type: array
+        layout:
+          $ref: '#/components/schemas/LerLayout'
+          description: The grid, both axes together.
+      required:
+      - blade_ids
+      - layout
+      title: LerLayoutBody
+      type: object
+    LerImagePlacementResponse:
+      additionalProperties: false
+      properties:
+        updated:
+          description: How many placements were written.
+          title: Updated
+          type: integer
+      required:
+      - updated
+      title: LerImagePlacementResponse
+      type: object
+    LerPhaseCompositeDiscardResponse:
+      additionalProperties: false
+      properties:
+        restored:
+          description: How many images were written back.
+          title: Restored
+          type: integer
+      required:
+      - restored
+      title: LerPhaseCompositeDiscardResponse
+      type: object
+    LerPhaseCompositeBody:
+      additionalProperties: false
+      description: 'POST ``/service-order-lines/{sol_id}/ler-results/phase-composites``.
+
+
+        ONE column per request. A column is four originals, roughly 12-25 MB and a
+
+        couple of seconds of Pillow work, so "compose every ready column" is a
+
+        client-side loop over this endpoint: every request stays small, failures are
+
+        per column, and a partly composed side is a legal state.'
+      properties:
+        blade_id:
+          title: Blade Id
+          type: integer
+        side:
+          description: PRESSURE_SIDE / SUCTION_SIDE.
+          title: Side
+          type: string
+        phase:
+          title: Phase
+          type: string
+        expected_recipe_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: The hash of the composite being replaced. Absent asserts the column has none; either claim being wrong is 409 STALE_WRITE.
+          title: Expected Recipe Hash
+      required:
+      - blade_id
+      - side
+      - phase
+      title: LerPhaseCompositeBody
+      type: object
+    LerDamage:
+      additionalProperties: false
+      description: One repair on a blade; inspection values are free text (``"62 - 64"``), dates ISO.
+      properties:
+        uid:
+          title: Uid
+          type: string
+        pre_inspection_activity_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Pre Inspection Activity Id
+        damage_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Damage Type
+        start_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End Date
+        radius:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Radius
+        shell:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Shell
+        profile_depth:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Profile Depth
+        length_spanwise:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Length Spanwise
+        width_chordwise:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Width Chordwise
+        steps:
+          items:
+            $ref: '#/components/schemas/LerDamageStep'
+          title: Steps
+          type: array
+      required:
+      - uid
+      title: LerDamage
+      type: object
+    LerVisPhoto:
+      additionalProperties: false
+      description: A VIS photo resolved onto a grid cell.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        step:
+          description: Raw VIS step (the GCS folder name), uncontrolled text.
+          title: Step
+          type: string
+        vis_blade:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Raw VIS blade value — position (A/B/C) or an ESN.
+          title: Vis Blade
+        vis_side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Raw VIS side code (PS/SS).
+          title: Vis Side
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: CDN directory holding this photo and its derivatives.
+          title: Cdn Base Url
+        thumbnail_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Ready-to-use CDN URL of the photo's .webp thumbnail.
+          title: Thumbnail Url
+        lowres_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Ready-to-use CDN URL of the photo's 1920 px .webp, what the editor frames.
+          title: Lowres Url
+        original_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Ready-to-use CDN URL of the original photo, for full-size viewing.
+          title: Original Url
+        blade_id:
+          title: Blade Id
+          type: integer
+        side:
+          description: PRESSURE_SIDE / SUCTION_SIDE.
+          title: Side
+          type: string
+        phase:
+          description: Phase key of the column it sits in.
+          title: Phase
+          type: string
+        position:
+          description: Position key of the row it sits in. VIS carries no position-along-the-blade axis, so this is either the operator's stored placement or the column's next free position.
+          title: Position
+          type: string
+        placement:
+          description: MANUAL when an operator placed it (which also pins it against later auto-fill), AUTO when this response filled the column.
+          title: Placement
+          type: string
+        dropped:
+          default: false
+          description: Excluded from the grid by the operator. Still flagged in VIS — this panel cannot unset include_in_report and must not pretend to.
+          title: Dropped
+          type: boolean
+        align_x:
+          default: 0.0
+          title: Align X
+          type: number
+        align_y:
+          default: 0.0
+          title: Align Y
+          type: number
+        scale:
+          default: 1.0
+          title: Scale
+          type: number
+      required:
+      - id
+      - name
+      - step
+      - blade_id
+      - side
+      - phase
+      - position
+      - placement
+      title: LerVisPhoto
+      type: object
+    LerOverflowCell:
+      additionalProperties: false
+      description: 'A grid cell holding more than the one image the report frame prints.
+
+
+        Uploads go through the shared files endpoint, which must not learn LER''s
+
+        cardinality, so a surplus is made visible here instead of being prevented
+
+        there or silently hidden.'
+      properties:
+        blade_id:
+          title: Blade Id
+          type: integer
+        side:
+          title: Side
+          type: string
+        phase:
+          title: Phase
+          type: string
+        position:
+          title: Position
+          type: string
+        count:
+          title: Count
+          type: integer
+      required:
+      - blade_id
+      - side
+      - phase
+      - position
+      - count
+      title: LerOverflowCell
+      type: object
+    LerResultsUpsertBody:
+      additionalProperties: false
+      properties:
+        blades:
+          description: Blades to upsert (the OpsHub UI saves one at a time).
+          items:
+            $ref: '#/components/schemas/LerResultsUpsertBlade'
+          title: Blades
+          type: array
+      required:
+      - blades
+      title: LerResultsUpsertBody
+      type: object
+    LerVisUnmappedPhoto:
+      additionalProperties: false
+      description: 'A flagged VIS photo that no grid cell can hold.
+
+
+        Surfaced rather than dropped: ``LERPhoto.step`` is free text from a GCS
+
+        folder name, so a new or mis-typed folder must cost the reviewer a glance,
+
+        not the report a picture.'
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        step:
+          description: Raw VIS step (the GCS folder name), uncontrolled text.
+          title: Step
+          type: string
+        vis_blade:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Raw VIS blade value — position (A/B/C) or an ESN.
+          title: Vis Blade
+        vis_side:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Raw VIS side code (PS/SS).
+          title: Vis Side
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Sort Order
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        cdn_base_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: CDN directory holding this photo and its derivatives.
+          title: Cdn Base Url
+        thumbnail_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Ready-to-use CDN URL of the photo's .webp thumbnail.
+          title: Thumbnail Url
+        lowres_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Ready-to-use CDN URL of the photo's 1920 px .webp, what the editor frames.
+          title: Lowres Url
+        original_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Ready-to-use CDN URL of the original photo, for full-size viewing.
+          title: Original Url
+        reason:
+          description: 'Which axis failed to resolve: BLADE (not on this SOL), SIDE (not PS/SS), STEP (no report phase for this folder name) or POSITION (the column''s positions are all taken).'
+          title: Reason
+          type: string
+        blade_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: The blade the photo resolved to; set for STEP and POSITION only.
+          title: Blade Id
+      required:
+      - id
+      - name
+      - step
+      - reason
+      title: LerVisUnmappedPhoto
+      type: object
+    LerMaterial:
+      additionalProperties: false
+      description: 'One material row on a blade (Filler / LEP / Topcoat / ...).
+
+
+        ``uid`` is a stable client-generated identifier so material media
+
+        (FileEntityLink rows tagged ``ler_material_media``) survive row
+
+        reordering and renames. Temperatures are canonically Celsius — the FE
+
+        F/C toggle is display-only.
+
+
+        ``expiration_date`` is FREE TEXT: it is trimmed and nothing else, which is
+
+        deliberate and is the one place this payload does not validate a date.
+
+        ``service_date`` beside it is ours: the panel picks it and the upsert
+
+        answers 422 on anything but ISO. An expiry is not ours — it is copied off a
+
+        tin by a technician into an AeroTask custom field, so the column already
+
+        holds ``02/2027`` and ``see batch``. Parsing those would either drop a
+
+        value that is the only record of the expiry, or read ``01/05/2027``
+
+        month-first where the panel reads it day-first and silently change what a
+
+        customer deliverable prints. The panel reads it tolerantly instead
+
+        (``parseLerDate``), normalises to ISO whatever it can render in the picker,
+
+        and flags the rest as text.
+
+
+        ``application`` names the AeroTask step a LER RAT 4-5 row was read from
+
+        ("Topcoat Application L1, 2026-06-30"); grid lines merge a material''s
+
+        applications into one row and leave it null.'
+      properties:
+        uid:
+          title: Uid
+          type: string
+        application:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Application
+        material_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Material Type
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        repair_material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Repair Material Id
+        application_temp_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Application Temp C
+        humidity_pct:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Pct
+        surface_temp_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Surface Temp C
+        batch_no:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Batch No
+        expiration_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expiration Date
+        photos:
+          items:
+            $ref: '#/components/schemas/LerMaterialPhoto'
+          title: Photos
+          type: array
+        confirmed:
+          default: false
+          title: Confirmed
+          type: boolean
+      required:
+      - uid
+      title: LerMaterial
+      type: object
+    LerLayoutBladeVersion:
+      additionalProperties: false
+      description: The version one blade's stored row was read at.
+      properties:
+        blade_id:
+          description: TurbineComponent.id of the blade.
+          title: Blade Id
+          type: integer
+        expected_updated_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: The `updated_at` of that blade's row as the client last read it, or null when the client believes no row exists yet.
+          title: Expected Updated At
+      required:
+      - blade_id
+      title: LerLayoutBladeVersion
+      type: object
+    LerImagePlacement:
+      additionalProperties: false
+      description: 'Where one image sits: which cell, and how it is framed inside it.
+
+
+        Exactly one of ``file_id`` (an uploaded phase image) / ``vis_photo_id`` (a
+
+        VIS frame). An offset is the image centre''s distance from the frame centre
+
+        in fractions of the FRAME''s own size, over a ``cover`` base fit at
+
+        ``scale = 1``; zooming out below 1 is legitimate and uncovers the template
+
+        background. Fractions of the frame''s spare room, the first contract, break
+
+        at exactly that point: spare room is zero once the image no longer fills
+
+        the frame — see docs/ai/ler-service-results.md § Placement.'
+      properties:
+        file_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: File Id
+        vis_photo_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Vis Photo Id
+        blade_id:
+          title: Blade Id
+          type: integer
+        side:
+          description: PRESSURE_SIDE / SUCTION_SIDE.
+          title: Side
+          type: string
+        phase:
+          title: Phase
+          type: string
+        position:
+          title: Position
+          type: string
+        align_x:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: -8..8 fractions of the frame's width; 0 is centred.
+          title: Align X
+        align_y:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: -8..8 fractions of the frame's height; 0 is centred.
+          title: Align Y
+        scale:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Zoom factor over the cover fit, 0.2..8. 1.0 fills the frame; below 1 the template background shows around the image.
+          title: Scale
+        sort_order:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Order inside a legacy cell that still holds several files. A cell holds one image, so this is a tiebreaker, not a position.
+          title: Sort Order
+        replace:
+          default: false
+          description: Remove what the target cell already holds. Without it an occupied cell answers 422 rather than quietly stacking a second image.
+          title: Replace
+          type: boolean
+        dropped:
+          default: false
+          description: 'VIS only: take the frame out of the grid while leaving it flagged in VIS.'
+          title: Dropped
+          type: boolean
+      required:
+      - blade_id
+      - side
+      - phase
+      - position
+      title: LerImagePlacement
+      type: object
+    LerResultsBladeObject:
+      additionalProperties: false
+      properties:
+        id:
+          title: Id
+          type: integer
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+        position:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Position
+      required:
+      - id
+      title: LerResultsBladeObject
+      type: object
+    LerWorkorderOption:
+      additionalProperties: false
+      description: A workorder of the SOL, offered by the service-header select.
+      properties:
+        id:
+          title: Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      required:
+      - id
+      - name
+      title: LerWorkorderOption
+      type: object
+    LerPhaseCompositeResponse:
+      additionalProperties: false
+      properties:
+        file_id:
+          description: The composed image's core.File id.
+          title: File Id
+          type: integer
+        recipe_hash:
+          description: Hash of the recipe it was composed from.
+          title: Recipe Hash
+          type: string
+      required:
+      - file_id
+      - recipe_hash
+      title: LerPhaseCompositeResponse
+      type: object
+    LerLayoutResponse:
+      additionalProperties: false
+      description: The refreshed capture context, so the client can re-seat its token.
+      properties:
+        service_order_line_id:
+          title: Service Order Line Id
+          type: integer
+        capture_kind:
+          default: phase_grid
+          description: '`phase_grid` (robot LER: the stitched image grid) or `damage_steps` (LER-RAT-4-5: a list of damages with photographed repair steps).'
+          title: Capture Kind
+          type: string
+        turbine:
+          anyOf:
+          - $ref: '#/components/schemas/LpsResultsTurbineObject'
+          - type: 'null'
+        blade_scope_notice:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Finished sentence to show above the blade tabs when the panel is offering more blades than the line is linked to, or null when it is not. Composed here rather than assembled by the client, the same way report gap markers are.
+          title: Blade Scope Notice
+        blades:
+          items:
+            $ref: '#/components/schemas/LerResultsBlade'
+          title: Blades
+          type: array
+        workorders:
+          description: Workorders of this SOL, for the service-header select.
+          items:
+            $ref: '#/components/schemas/LerWorkorderOption'
+          title: Workorders
+          type: array
+        material_type_buckets:
+          description: The exact `material_type` vocabulary the upsert validates against. Returned so clients can verify their own list matches instead of learning about drift from a 422.
+          items:
+            type: string
+          title: Material Type Buckets
+          type: array
+        material_type_options:
+          description: Materials derived from the SOL's service items and its workorder activities. Empty is normal — the FE falls back to its bucket list and the control stays free-text either way.
+          items:
+            $ref: '#/components/schemas/LerMaterialTypeOption'
+          title: Material Type Options
+          type: array
+        repair_defaults:
+          description: Per-LEP-material implied repair width / thickness. Empty until the LER Tribe supplies the numbers; empty means 'do not prefill', never 'prefill with zero'.
+          items:
+            $ref: '#/components/schemas/LerRepairDefaults'
+          title: Repair Defaults
+          type: array
+        vis_photos:
+          description: VIS photos flagged include_in_report, already resolved onto grid cells. The primary image source; the uploader is the fallback.
+          items:
+            $ref: '#/components/schemas/LerVisPhoto'
+          title: Vis Photos
+          type: array
+        vis_unmapped_photos:
+          description: Flagged VIS photos whose blade / side / step could not be resolved to a grid cell. Never silently dropped.
+          items:
+            $ref: '#/components/schemas/LerVisUnmappedPhoto'
+          title: Vis Unmapped Photos
+          type: array
+        phase_composites:
+          description: Phase columns composed into one stored image, with whether each still matches the grid. A stale one does not print.
+          items:
+            $ref: '#/components/schemas/LerPhaseComposite'
+          title: Phase Composites
+          type: array
+        overflow_cells:
+          description: Cells holding more than one image, so the surplus is visible.
+          items:
+            $ref: '#/components/schemas/LerOverflowCell'
+          title: Overflow Cells
+          type: array
+        scope_fields:
+          description: 'Report block B, turbine half (Wind Park, Turbine Manufacturer, Hub height, Turbine Model, Nominal Power, Commissioning year). Once per response: LER is a per-blade service and the turbine is its shared context.'
+          items:
+            $ref: '#/components/schemas/LerReportField'
+          title: Scope Fields
+          type: array
+        updated:
+          description: How many blade rows were written.
+          title: Updated
+          type: integer
+      required:
+      - service_order_line_id
+      - updated
+      title: LerLayoutResponse
+      type: object
+    LerMaterialTypeOption:
+      additionalProperties: false
+      description: 'A material the name dropdown offers, from the catalogue or from this SOL.
+
+
+        ``value`` is the product name stored in ``material.name``; ``bucket`` is the
+
+        coarse ``MATERIAL_TYPE_OPTIONS`` value stored in ``material.material_type``.
+
+        They are separate so the product list can grow without widening the
+
+        validated ``material_type`` vocabulary.
+
+
+        ``source`` separates two claims that must not be presented as one.
+
+        ``"sol"`` means this SOL''s own service items or workorder activities name
+
+        the product — evidence it was applied here. ``"catalogue"`` means it is one
+
+        of the products the LER Tribe supplies, offered so an operator picks a
+
+        spelling instead of inventing one; it says nothing about this repair. The
+
+        client groups by it rather than merging the two into one list.
+
+
+        ``coating_system`` is the spelling this SOL''s own data holds, and only a
+
+        ``"sol"`` option carries one. The endpoints run with ``exclude_none=True``,
+
+        so a catalogue option has no such key at all — read it with ``.get()``.
+
+
+        ``description`` is the catalogued product''s own, written by an admin into
+
+        ``core.item.material_description``. It describes the PRODUCT, never this
+
+        repair, and a product nobody has described has no such key either.'
+      properties:
+        repair_material_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Repair Material Id
+        value:
+          title: Value
+          type: string
+        label:
+          title: Label
+          type: string
+        bucket:
+          title: Bucket
+          type: string
+        source:
+          title: Source
+          type: string
+        coating_system:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Coating System
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+      required:
+      - value
+      - label
+      - bucket
+      - source
+      title: LerMaterialTypeOption
+      type: object
+  securitySchemes:
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: opshub_prod_sessionid
+    AuthBearer:
+      type: http
+      scheme: bearer
