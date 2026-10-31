@@ -66,7 +66,7 @@
 
 Aerones is a Latvian robotics company that performs wind turbine blade inspection, cleaning, coating, leading-edge repair and lightning-protection testing with cable-suspended robots and autonomous drones, operating onshore and offshore for owners and OEMs including NextEra, GE, Vestas, Enel and Siemens Gamesa. Its software side is the Operations Hub — a Django Ninja backend behind portal.aerones.com that publishes an unauthenticated OpenAPI 3.1.0 description (760 paths, 1,114 operations, 1,377 schemas) alongside a companion GraphQL schema (339 queries, 325 mutations, 4 subscriptions), covering turbines, blades, anomalies, robot sets, work orders, dispatch, projects, inspections and accounting. Authentication is Keycloak OIDC on sso.aerones.com (realm "aerones", client "operations-hub"). The contract is public; the data behind it is customer- and staff-gated, and Aerones publishes no developer program, SDKs, pricing or partner API documentation.
 
-**Areas:** Company · Wind Energy · Renewable Energy · Robotics · Drones · Inspection · Field Service · Asset Management · Industrial · Energy · Maintenance · Latvia
+**Areas:** Company · Wind Energy · Renewable Energy · Robotics · Drones · Inspection · Field Service Management · Asset Management · Industrial · Energy · Maintenance · Latvia
 
 ## Aerones on APIs.io
 
@@ -329,18 +329,18 @@ Links to the company's own pages. This repository publishes no copy of their spe
 
 ## API Evangelist rating
 
-**Kin Score 47.0** — developing · rubric 0.24.0 · scored 2026-10-17
+**Kin Score 47.0** — developing · rubric 0.25.0 · scored 2026-10-23
 
 | Facet | Score |
 |---|---|
 | Discoverability | 73.2 |
-| Contract quality | 58.0 |
+| Contract quality | 57.9 |
 | Contract governance | 18.2 |
 | Operational transparency | 0.0 |
 | Developer ergonomics | 20.8 |
 | Access clarity | 28.9 |
 
-**Agent readiness 44.1** — agent-ready (gated down from agent-native)
+**Agent readiness 44.4** — agent-ready (gated down from agent-native)
 
 | Agent-readiness dimension | Result |
 |---|---|
@@ -363,6 +363,8 @@ Links to the company's own pages. This repository publishes no copy of their spe
 | Protected Resource Metadata | — |
 | Dynamic Client Registration | yes |
 | Agentic Commerce | — |
+| Pagination Ratio | partial |
+| Operation Distinctiveness | mostly |
 
 **Regulatory alignment 38.5** — Energy & Utilities
 
