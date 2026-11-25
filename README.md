@@ -72,7 +72,7 @@ Aerones is a Latvian robotics company that performs wind turbine blade inspectio
 
 Everything profiled for Aerones is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/aerones/](https://apis.io/providers/aerones/)** — or go straight to one of the APIs or properties below.
 
-### APIs (193)
+### APIs (207)
 
 - [Aerones Operations Hub GraphQL API](https://apis.io/apis/aerones/aerones-operations-hub-graphql/) — The GraphQL surface of the Aerones Operations Hub, served at /graphql with anonymous introspection enabled and the full SDL published as text/plain at…
 - [Aerones Accounting API](https://apis.io/apis/aerones/aerones-accounting-api/) — The accounting API from Aerones — 11 operation(s) for accounting.
@@ -267,6 +267,20 @@ Everything profiled for Aerones is published on APIs.io rather than in this repo
 - [Aerones Work Management.task Types API](https://apis.io/apis/aerones/aerones-work-management-task-types-api/) — The work-management.task-types API from Aerones — 2 operation(s) for work-management.task-types.
 - [Aerones Work Management.vendors API](https://apis.io/apis/aerones/aerones-work-management-vendors-api/) — The work-management.vendors API from Aerones — 2 operation(s) for work-management.vendors.
 - [Aerones Work Management.work Packages API](https://apis.io/apis/aerones/aerones-work-management-work-packages-api/) — The work-management.work-packages API from Aerones — 8 operation(s) for work-management.work-packages.
+- [Aerones Accounting.my Projects API](https://apis.io/apis/aerones/aerones-accounting-my-projects-api/) — The accounting.my-projects API from Aerones — 1 operation(s) for accounting.my-projects.
+- [Aerones Bamboohr.employee Visas API](https://apis.io/apis/aerones/aerones-bamboohr-employee-visas-api/) — The bamboohr.employee-visas API from Aerones — 1 operation(s) for bamboohr.employee-visas.
+- [Aerones Core.feedback API](https://apis.io/apis/aerones/aerones-core-feedback-api/) — The core.feedback API from Aerones — 1 operation(s) for core.feedback.
+- [Aerones Core.prejob Questions API](https://apis.io/apis/aerones/aerones-core-prejob-questions-api/) — The core.prejob-questions API from Aerones — 5 operation(s) for core.prejob-questions.
+- [Aerones Core.projects.tasks API](https://apis.io/apis/aerones/aerones-core-projects-tasks-api/) — The core.projects.tasks API from Aerones — 7 operation(s) for core.projects.tasks.
+- [Aerones Core.repair Materials API](https://apis.io/apis/aerones/aerones-core-repair-materials-api/) — The core.repair-materials API from Aerones — 1 operation(s) for core.repair-materials.
+- [Aerones Core.service Order Lines.ler Results API](https://apis.io/apis/aerones/aerones-core-service-order-lines-ler-results-api/) — The core.service-order-lines.ler-results API from Aerones — 5 operation(s) for core.service-order-lines.ler-results.
+- [Aerones Dispatch.academy API](https://apis.io/apis/aerones/aerones-dispatch-academy-api/) — The dispatch.academy API from Aerones — 16 operation(s) for dispatch.academy.
+- [Aerones GitLab API](https://apis.io/apis/aerones/aerones-gitlab-api/) — The gitlab API from Aerones — 1 operation(s) for gitlab.
+- [Aerones Permissions.user Management API](https://apis.io/apis/aerones/aerones-permissions-user-management-api/) — The permissions.user-management API from Aerones — 11 operation(s) for permissions.user-management.
+- [Aerones Projects.rams Readiness API](https://apis.io/apis/aerones/aerones-projects-rams-readiness-api/) — The projects.rams-readiness API from Aerones — 1 operation(s) for projects.rams-readiness.
+- [Aerones Projects.supervisor Dashboard API](https://apis.io/apis/aerones/aerones-projects-supervisor-dashboard-api/) — The projects.supervisor-dashboard API from Aerones — 3 operation(s) for projects.supervisor-dashboard.
+- [Aerones Vis Academy.inspections API](https://apis.io/apis/aerones/aerones-vis-academy-inspections-api/) — The vis-academy.inspections API from Aerones — 13 operation(s) for vis-academy.inspections.
+- [Aerones Vis.ingestion API](https://apis.io/apis/aerones/aerones-vis-ingestion-api/) — The vis.ingestion API from Aerones — 3 operation(s) for vis.ingestion.
 
 ### Published properties
 
@@ -289,6 +303,12 @@ Model Context Protocol servers that expose the API to agents.
 OpenAPI overlays, including conversational phrasing for each operation.
 
 - [Aerones Operations Hub Overlay](https://apis.io/overlays/aerones/aerones-operations-hub-overlay/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Aerones API Rules](https://apis.io/rules/aerones/aerones-rules/)
 
 #### Security (2)
 
@@ -315,6 +335,12 @@ Published request limits.
 
 - [Aerones Rate Limits](https://apis.io/rate-limits/aerones/aerones-rate-limits/)
 
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Aerones Finops](https://apis.io/finops/aerones/aerones-finops/)
+
 ## Where to find this API
 
 Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
@@ -329,18 +355,18 @@ Links to the company's own pages. This repository publishes no copy of their spe
 
 ## API Evangelist rating
 
-**Kin Score 47.0** — developing · rubric 0.25.0 · scored 2026-10-23
+**Kin Score 54.7** — strong · rubric 0.28.1 · scored 2026-11-21
 
 | Facet | Score |
 |---|---|
 | Discoverability | 73.2 |
-| Contract quality | 57.9 |
-| Contract governance | 18.2 |
+| Contract quality | 59.8 |
+| Contract governance | 31.8 |
 | Operational transparency | 0.0 |
-| Developer ergonomics | 20.8 |
-| Access clarity | 28.9 |
+| Developer ergonomics | 28.0 |
+| Access clarity | 53.2 |
 
-**Agent readiness 44.4** — agent-ready (gated down from agent-native)
+**Agent readiness 46.2** — agent-ready (gated down from agent-native)
 
 | Agent-readiness dimension | Result |
 |---|---|
@@ -358,15 +384,19 @@ Links to the company's own pages. This repository publishes no copy of their spe
 | Well Known Catalog | — |
 | Consent Identity | — |
 | Agent Card | — |
-| Dry Run Mode | — |
+| Dry Run Mode | yes |
 | Delegated Identity | served (partial credit) |
 | Protected Resource Metadata | — |
 | Dynamic Client Registration | yes |
 | Agentic Commerce | — |
 | Pagination Ratio | partial |
 | Operation Distinctiveness | mostly (partial credit) |
+| MCP Tool Quality | na |
+| Onboarding Descriptor | — |
+| Dns Aid Index | na |
+| Markdown Negotiation | na |
 
-**Regulatory alignment 38.5** — Energy & Utilities
+**Regulatory alignment 33.6** — Energy & Utilities
 
 The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/aerones/](https://apis.io/providers/aerones/).
 
